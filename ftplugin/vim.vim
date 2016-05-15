@@ -1,13 +1,13 @@
 
 "load guard
-"if exists("g:loaded_myvim")
-	"finish
-"endif
-"let g:loaded_myvim = 1
+if exists("g:loaded_myvim")
+  finish
+endif
+let g:loaded_myvim = 1
 
 command! -nargs=0 Vcf :call VcmtFunc()
 command! -nargs=0 V :source %
-command! -nargs=0 Vb :breakadd here  
+command! -nargs=0 Vb :breakadd here
 command! -nargs=* Vbf :call VbreakAtFuncLine(<f-args>)
 command! -nargs=* Vsf :call VcallScriptFunc(<f-args>)
 command! -nargs=? Vgf :call VgotoFunction(<f-args>)
@@ -23,110 +23,108 @@ let s:rexFuncName = '\v\zs[^ \t]+\ze\s*\(.*\)'
  ""
  " Call break add line func . This also works for script scope function. Add
  " break point at current function line by default. You can also specify
- " function name and break piont line. 
- " @param1 funcName : Function name 
+ " function name and break piont line.
+ " @param1 funcName : Function name
  " @param2 line : break point line. Set this to 0 if you dont't need it.
  " @param3 plugFileName: plugin file name, you need this if you want to break
- " 						 at script scope function
- " @cursor range : function definition 
+ "             at script scope function
+ " @cursor range : function definition
  ""
 function! VbreakAtFuncLine(...)
-	let startLine = line('.')
-	let startCol = col('.')
-	
-	let funcName = a:0 >= 1 && len(a:1) > 0 ? a:1 : ''
-	let breakLine = a:0 >= 2 && len(a:2) > 0 && a:2 != '0' ? a:2 : ''
-	let plugFileName = a:0 >= 3 && len(a:3) > 0 ? a:3 : ''
+  let startLine = line('.')
+  let startCol = col('.')
 
-	if len(funcName) == 0
-		"break at current line
-		if VgotoFunction()
-			let funcName = matchstr(getline('.'), s:rexFuncName)
-			let breakLine = startLine - line('.')	
-			if VisScopeScript()
-				"add <SNR>SID_ prefix	
-				let plugFileName = expand('%')
-				let funcName = '<SNR>'.mycpp#util#getSid(plugFileName).'_'.funcName[2:]
-			endif
-		else
-			echoe 'function not found'
-		endif
-	elseif len(plugFileName) > 0
-		"break at script function specified by funcName and plugFileName
-		"add <SNR>SID_ prefix	
-		let funcName = '<SNR>'.mycpp#util#getSid(plugFileName).'_'.funcName
-	endif
+  let funcName = a:0 >= 1 && len(a:1) > 0 ? a:1 : ''
+  let breakLine = a:0 >= 2 && len(a:2) > 0 && a:2 != '0' ? a:2 : ''
+  let plugFileName = a:0 >= 3 && len(a:3) > 0 ? a:3 : ''
 
-	execute 'breakadd func ' . breakLine . ' ' . funcName
-	
-	call cursor(startLine, startCol)
+  if len(funcName) == 0
+    "break at current line
+    if VgotoFunction()
+      let funcName = matchstr(getline('.'), s:rexFuncName)
+      let breakLine = startLine - line('.')
+      if VisScopeScript()
+        "add <SNR>SID_ prefix
+        let plugFileName = expand('%')
+        let funcName = '<SNR>'.mycpp#util#getSid(plugFileName).'_'.funcName[2:]
+      endif
+    else
+      echoe 'function not found'
+    endif
+  elseif len(plugFileName) > 0
+    "break at script function specified by funcName and plugFileName
+    "add <SNR>SID_ prefix
+    let funcName = '<SNR>'.mycpp#util#getSid(plugFileName).'_'.funcName
+  endif
+
+  execute 'breakadd func ' . breakLine . ' ' . funcName
+
+  call cursor(startLine, startCol)
 endfunction
 
 ""
-" Call script scope function 
+" Call script scope function
 " @param plugFileName : plugin file name
-" @param funcName : function name 
-" @return : 
+" @param funcName : function name
+" @return :
 ""
 function! VcallScriptFunc(plugFileName, funcName,...)
-	let fullname = '<SNR>'.mycpp#util#getSid(a:plugFileName).'_'.a:funcName
-	return call(fullname,a:000)
+  let fullname = '<SNR>'.mycpp#util#getSid(a:plugFileName).'_'.a:funcName
+  return call(fullname,a:000)
 endfunction
 
 
 ""
-" Check if it's script scope  
-" @cursor range : func name line or variable name line 
-" @return : 0 or 1 
+" Check if it's script scope
+" @cursor range : func name line or variable name line
+" @return : 0 or 1
 ""
 function! VisScopeScript()
-	return stridx(getline('.'), 's:') >= 0
+  return stridx(getline('.'), 's:') >= 0
 endfunction
 
-
-
  ""
- " Goto current function name line or specific line 
+ " Goto current function name line or specific line
  " @param1 line : line number
- " @cursor range : anywhere in function definition 
+ " @cursor range : anywhere in function definition
  " @return : 0 or 1
  ""
 function! VgotoFunction(...)
-	let startLine = line('.')
-	let startCol = col('.')
+  let startLine = line('.')
+  let startCol = col('.')
 
-	normal! $
-	if search(s:reFuncStart, 'bW')	
-		if a:0 == 0	
-			return 1
-		else
-			execute 'normal! '.a:1.'j'
-			return 1
-		endif
-	endif
+  normal! $
+  if search(s:reFuncStart, 'bW')
+    if a:0 == 0
+      return 1
+    else
+      execute 'normal! '.a:1.'j'
+      return 1
+    endif
+  endif
 
-	call cursor(startLine, startCol)
-	return 0
+  call cursor(startLine, startCol)
+  return 0
 endfunction
 
 ""
-" Get current function range 
-" @cursor range : 
+" Get current function range
+" @cursor range :
 " @return : [startline,endline]
 ""
 function! VgetFuncRange()
-		
-	let [startLine, startCol] = [line('.'), col('.')]|try
-	if VgotoFunction()
-		let funcStartLine = line('.')	
-		if search(s:reFuncEnd, 'W')
-			return [funcStartLine, line('.')]	
-		else
-			throw 'function end not found!'
-		endif
-	endif
-	return [0,0]
-	finally|call cursor(startLine, startCol)|endtry
+
+  let [startLine, startCol] = [line('.'), col('.')]|try
+  if VgotoFunction()
+    let funcStartLine = line('.')
+    if search(s:reFuncEnd, 'W')
+      return [funcStartLine, line('.')]
+    else
+      throw 'function end not found!'
+    endif
+  endif
+  return [0,0]
+  finally|call cursor(startLine, startCol)|endtry
 
 endfunction
 
@@ -148,20 +146,18 @@ function! VcmtFunc()
     "echo aArgs
     "echo numArgs
 
-    
+
     for i in range(0, numArgs-1)
-	let aArgs[i] = blank . '"' . ' @param ' . aArgs[i] . ' : '
-	"echo aArgs[i]
+  let aArgs[i] = blank . '"' . ' @param ' . aArgs[i] . ' : '
+  "echo aArgs[i]
     endfor
 
-	let startLine = line('.')
-    call append(line(".")-1, blank . '""')
+  let startLine = line('.')
     call append(line(".")-1, blank . '" ')
     call append(line(".")-1, blank . '" @cursor range : ')
     call append(line(".")-1, aArgs)
     call append(line(".")-1, blank . '" @return : ')
-    call append(line(".")-1, blank . '""')
-	call cursor(startLine + 1, 0)
-	normal A
-    
+  call cursor(startLine + 1, 0)
+  normal A
+
 endfunction
