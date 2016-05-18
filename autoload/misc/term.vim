@@ -1,68 +1,96 @@
-" a term is a dict has keys: type, size, pos,job, cmd, opts,winnr, bufnr
-let s:terms={}  " unique type : term
+" a jterm represents a job term, it will be closed after it finishes is't job
+let s:jterms={}  " unique type : jterm
+let s:terminal = {}  " unique terminal, there should be only 1 terminal, nomore
+let s:termbase = {"layout":"J", "size":20, "bufnr":-1}
 
-" open unique term window
-" @param term.type : unique type identifier
-" @param term.pos : J K H L
-" @param term.size : widh for H L , height for J K
-" @param term.termmode : true to stay, false to to jump back original window
-" @param term.cmd : the same as termopen
-" @param term.opts : the smae as termopen
-" @return : newly created term  or {}
-function! misc#term#termopenUnique(term) abort
-  let term = deepcopy(a:term)
-  call extend(term, {"pos":"J", "size":20, "termmode":0, "opts":{}, "type":"__term_global"}, "keep")
-  let wb = s:openTermBuffer(term)
-  if wb == {}
-    call misc#warn("failed to open term")|return {}
+" open buf or jump to buf wnd, do nothing if term buf doesn't exists
+function! s:termbase.open() dict
+  if self.bufnr == -1 || !bufexists(self.bufnr)
+    call misc#warn("buffer " . self.bufnr . "doesn't exists ")
+    return
   endif
 
-  call extend(term, wb)
-  if has_key(s:terms, term.type)
-    throw "unknown status, " . a:type . " should be removed , but it doesn't"
+  if bufwinnr(self.bufnr) != -1
+    exec bufwinnr(self.bufnr).'wincmd w'
+  else
+    call s:newWndBuf(self)
+    execute 'buffer ' . self.bufnr
   endif
-  let s:terms[term.type] = term
-  "pass term to termopen
-  let term.job = termopen(term.cmd, extend(term.opts, {"term":term}))
-  if term.termmode
-    normal! i 
-  elseif bufwinnr(term.origbufnr)  != -1
-    exec bufwinnr(term.origbufnr) . 'wincmd w'
-  endif 
-  "echom "spawn term " . string(term)
-  return term
 endfunction
 
-" open buffer for type. If type exists in s:terms, delete it's buffer if it has
+" hide buffer
+function! s:termbase.hide() dict
+  if self.bufnr == -1 || !bufexists(self.bufnr)
+    call misc#warn("buffer " . self.bufnr . "doesn't exists ")
+    return
+  endif
+
+  if bufwinnr(self.bufnr) != -1
+    exec bufwinnr(self.bufnr).'wincmd w | q'
+  endif
+endfunction
+
+
+" open unique jterm window
+" @param jterm.type : unique type identifier
+" @param jterm.layout : J K H L
+" @param jterm.size : widh for H L , height for J K
+" @param jterm.termmode : true to stay, false to to jump back original window
+" @param jterm.cmd : the same as termopen
+" @param jterm.opts : the smae as termopen
+" @return : newly created jterm  or {}
+function! misc#term#jtermopen(jterm) abort
+  let jterm = copy(a:jterm)
+  call extend(jterm, s:termbase, "keep")
+  call extend(jterm, {"termmode":0, "opts":{}, "type":"global"}, "keep")
+  let wb = s:openJTermBuffer(jterm)
+  if wb == {}
+    call misc#warn("failed to open jterm")|return {}
+  endif
+
+  call extend(jterm, wb)
+  if has_key(s:jterms, jterm.type)
+    throw "unknown status, " . a:type . " should be removed , but it doesn't"
+  endif
+  let s:jterms[jterm.type] = jterm
+  "pass jterm to termopen
+  let jterm.job = termopen(jterm.cmd, extend(jterm.opts, {"jterm":jterm}))
+  if jterm.termmode
+    normal! i
+  elseif bufwinnr(jterm.origbufnr)  != -1
+    exec bufwinnr(jterm.origbufnr) . 'wincmd w'
+  endif
+  "echom "spawn jterm " . string(jterm)
+  return jterm
+endfunction
+
+
+" open buffer for type. If type exists in s:jterms, delete it's buffer if it has
 " exited, otherwise show warn message. At last create new buffer and wnd to be
-" used in term
+" used in jterm
 " @param type : unique type identifier
-" @param pos : J K H L
+" @param layout : J K H L
 " @param size : widh for H L , height for J K
 " @return : {} or {bufnr, origbufnr}
-function! s:openTermBuffer(term) abort
-  if stridx("JKLH", a:term.pos)  == -1
-    throw 'invalid pos : ' . a:term.pos
+function! s:openJTermBuffer(jterm) abort
+  if stridx("JKLH", a:jterm.layout)  == -1
+    throw 'invalid layout : ' . a:jterm.layout
   endif
   let origbufnr = bufnr('%')
-  let hv = stridx("JK", a:term.pos) != -1 ? ['_', 'winfixheight'] : ['|', 'winfixwidth']
-  if !misc#term#termcloseUnique(a:term.type)
+  if !misc#term#jtermclose(a:jterm.type)
     call misc#warn("failed to open terminal buffer")
     return {}
   endif
 
-  exec 'new | wincmd ' . a:term.pos . ' | ' . a:term.size . 'wincmd ' . hv[0]
-  "exec 'setl ' . hv[1]
-
-  return {"bufnr":bufnr('%'), "origbufnr":origbufnr}
+  return {"bufnr":s:newWndBuf(a:jterm), "origbufnr":origbufnr}
 endfunction
 
 " @param type : unique type
 " @param 1 force : send jobstop if old job hasn't exit
 " return : 0 if old job hasn't exit and force is not set
-function! misc#term#termcloseUnique(type,...) abort
+function! misc#term#jtermclose(type,...) abort
   let force = get(a:000, 0, 0)
-  let oldterm = get(s:terms, a:type, {})
+  let oldterm = get(s:jterms, a:type, {})
 
   if oldterm == {}|return 1|endif
   if misc#hasjob(oldterm.job)
@@ -75,15 +103,45 @@ function! misc#term#termcloseUnique(type,...) abort
   endif
 
   if bufexists(oldterm.bufnr)
-    "force delete term buffer which already exits anyway
+    "force delete jterm buffer which already exits anyway
     exec 'bdelete! '.oldterm.bufnr
   endif
 
-  call remove(s:terms, a:type)
+  call remove(s:jterms, a:type)
 
   return 1
 endfunction
 
+" open window
+" @param wnd : {"layout":,"size":, "fix":}
+" return : newly created bufnr, not winnr
+function! s:newWndBuf(wnd)
+  let hv = stridx("JK", a:wnd.layout) != -1 ? ['_', 'winfixheight'] : ['|', 'winfixwidth']
+  exec 'new | wincmd ' . a:wnd.layout . ' | ' . a:wnd.size . "wincmd" . hv[0]
+  if get(a:wnd, "fix", 0)
+    exec 'set ' . hv[1]
+  endif
+  return bufnr('%')
+endfunction
+
+
+" open global terminal. There should be only 1 global terminal.
+" @param1 terminal : init option. it's ignored if terminal already exists
+function! misc#term#terminal(...)
+
+  if s:terminal != {} && bufexists(s:terminal.bufnr)
+    "switch to  existing terminal buffer
+    call s:terminal.open()
+    return
+  endif
+
+  let s:terminal = extend(get(a:000, 0, {}), copy(s:termbase), "keep")
+  "create new terminal
+  let s:terminal.bufnr = s:newWndBuf(s:terminal)
+  exec 'terminal'
+
+endfunction
+
 "test
 "let s:testterm = {"cmd":"echo 0", "type":"echo"}
-"call misc#term#termopenUnique(s:testterm)
+"call misc#term#jtermopen(s:testterm)

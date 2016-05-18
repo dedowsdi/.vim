@@ -6,6 +6,7 @@ let g:loaded_cppcfg = 1
 "some abbrevation
 :iab sc static_cast<>()<Left><Left><Left>
 :iab cS& const String&
+:iab cO& const Ogre::String&
 :iab cs& const std::string&
 "boost  abbreviation
 :iab br boost::regex
