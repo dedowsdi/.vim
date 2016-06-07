@@ -43,12 +43,22 @@ function! misc#hvSize(hv, size)
   if !has_key(s:hvOptions, a:hv)
     throw "unknown hv: " . a:hv
   endif
-  return float2nr(s:hvOptions[a:hv].total * a:size)
+  return float2nr(s:hvOptions[a:hv].maxSize * a:size)
+endfunction
+
+function! misc#writable(file)
+  call system('[[ -w ' . a:file . ' ]]')  
+  return !v:shell_error
+endfunction
+
+function! misc#dirExists(dir)
+  call system('[[ -d ' . a:dir . ' ]]')  
+  return !v:shell_error
 endfunction
 
 let s:hvOptions = {
-      \ "_" : {"winfix":"winfixwidth",  "dir":"",  "total":&lines,  },
-      \ "|" : {"winfix":"winfixheight", "dir":"vertical ", "total":&columns,},
+      \ "_" : {"winfix":"winfixheight",  "dir":"",  "maxSize":&lines,  },
+      \ "|" : {"winfix":"winfixwidth", "dir":"vertical ", "maxSize":&columns,},
       \ }
 
 let s:layouts = {
@@ -66,8 +76,9 @@ function! misc#layoutCmd(opts, cmd)
   let fix = get(a:opts, "fix", 0)
   let hv = s:layouts[layout][1]
   let hvOption = s:hvOptions[hv]
+  let hvSize = misc#hvSize(hv, size)
 
-  exec s:layouts[layout][0] . hvOption.dir . a:cmd
+  exec s:layouts[layout][0] . hvOption.dir . a:cmd ' | ' . hvSize .  'wincmd ' . hv
 
   if fix
     exec 'setlocal ' . hvOption.winfix

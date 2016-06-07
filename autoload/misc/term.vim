@@ -31,13 +31,13 @@ function! s:termbase.hide() dict
   endif
 endfunction
 
-function! s:termbase.toggleVisible()
+function! s:termbase.toggleActive()
   if self.bufnr == -1 || !bufexists(self.bufnr)
     call misc#warn("buffer " . self.bufnr . "doesn't exists ")
     return
   endif
 
-  if bufwinnr(self.bufnr) != -1
+  if bufwinnr(self.bufnr) != -1 && bufwinnr(self.bufnr) == winnr()
     call self.hide()
   else
     call self.open()
@@ -119,7 +119,7 @@ function! misc#term#terminal(...)
 
   if s:terminal != {} && bufexists(s:terminal.bufnr)
     "switch to  existing terminal buffer
-    call s:terminal.toggleVisible()
+    call s:terminal.toggleActive()
     return
   endif
 
