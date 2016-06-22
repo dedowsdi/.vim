@@ -2,7 +2,7 @@ extends c
 
 snippet std
 	std::${1:for_each}(${2:ctn}${3:.}begin(),
-	$2$3end(),[decltype(*$2$3begin()) ${4:v}]) {
-		${5}
-	}
+	$2$3end(),[&](decltype(*$2$3begin()) ${4:v}) {
+		${0}
+	});
 endsnippet

@@ -7,7 +7,8 @@ let g:loaded_cppcfg = 1
 :iab sc static_cast<>()<Left><Left><Left>
 :iab cs const std::string
 :iab C const
-:iab Cup std::unique_ptr<><Left>
+:iab Sup std::unique_ptr<><Left>
+:iab I include
 
 "boost  abbreviation
 :iab br boost::regex
@@ -59,6 +60,7 @@ let g:loaded_cppcfg = 1
 :iab Occpp Ogre::CompositorPassProvider
 :iab Ocm2 Ogre::CompositorManager2
 :iab Ocn Ogre::CompositorNode
+:iab Ocnv Ogre::CompositorNodeVec
 :iab Ocnd Ogre::CompositorNodeDef
 :iab Ocp Ogre::CompositorPass
 :iab Ocpc Ogre::PassClear
@@ -93,6 +95,7 @@ let g:loaded_cppcfg = 1
 :iab Onn Ogre::Node
 :iab Onsn Ogre::SceneNode
 :iab Ontp Ogre::TagPoint
+:iab Onnvi Ogre::Node::NodeVecIterator
 
 "ogre movable
 :iab Ooc Ogre::Camera
@@ -108,11 +111,11 @@ let g:loaded_cppcfg = 1
 :iab Oopsr Ogre::ParticleSystemRenderer
 
 "ogre render
-:iab Orrt Ogre::RenderTarget
-:iab Orrtex Ogre::RenderTexture
-:iab Orrq Ogre::RenderQueue
-:iab Orrs Ogre::RenderSystem
-:iab Orrw Ogre::RenderWindow
+:iab Ort Ogre::RenderTarget
+:iab Ortex Ogre::RenderTexture
+:iab Orq Ogre::RenderQueue
+:iab Ors Ogre::RenderSystem
+:iab Orw Ogre::RenderWindow
 
 "ogre string related
 :iab Os Ogre::String
