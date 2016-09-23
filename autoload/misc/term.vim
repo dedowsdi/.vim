@@ -1,7 +1,7 @@
 " a jterm represents a job term, it will be closed after it finishes is't job.
 let s:jterms={}  " unique type : jterm
 let s:terminal = {}  " unique terminal, there should be only 1 terminal, nomore
-let s:termbase = {"layout":"J", "size":20, "bufnr":-1, "fix":1}
+let s:termbase = {"layout":"J", "size":20, "bufnr":-1, "fix":1, "force":0}
 
 " open buf or jump to buf wnd, do nothing if term buf doesn't exists
 function! s:termbase.open() dict
@@ -59,7 +59,7 @@ function! misc#term#jtermopen(jterm) abort
   call extend(jterm, {"termmode":0, "opts":{}, "type":"global"}, "keep")
 
   let origbufnr = bufnr('%')
-  if !misc#term#jtermclose(a:jterm.type)
+  if !misc#term#jtermclose(a:jterm.type, a:jterm.force)
     call misc#warn("failed to open terminal buffer")
     return
   endif

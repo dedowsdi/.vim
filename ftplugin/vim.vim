@@ -7,6 +7,7 @@ let g:loaded_myvim = 1
 
 command! -nargs=0 Vcf :call VcmtFunc()
 command! -nargs=0 V :source %
+command! -nargs=0 VV :call  VreloadScript()
 command! -nargs=0 Vb :breakadd here
 command! -nargs=* Vbf :call VbreakAtFuncLine(<f-args>)
 command! -nargs=* Vsf :call VcallScriptFunc(<f-args>)
@@ -160,4 +161,18 @@ function! VcmtFunc()
   call cursor(startLine + 1, 0)
   normal A
 
+endfunction
+
+function! VreloadScript()
+  let reScritGuard = '^\s*let\s*\zsg:loaded\S*\ze'
+  let [curLine, curCol] = [line('.'), col('.')] | try
+    normal! gg
+    if search(reScritGuard)
+      let scriptGuard = matchstr(getline('.'), reScritGuard) 
+      execute 'unlet ' . scriptGuard ' | source %'
+    else
+      call misc#warn("script guard not found")
+      return
+    endif
+  finally | call cursor(curLine, curCol) | endtry
 endfunction

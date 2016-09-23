@@ -6,3 +6,38 @@ snippet std
 		${0}
 	});
 endsnippet
+
+snippet stdi
+	std::${1:for_each}(${2:first}, ${3:last}(),[&](decltype(*$2) ${4:v}) {
+		${0}
+	});
+endsnippet
+
+snippet tpc
+template<class ${1:T}>
+endsnippet
+
+snippet tpt
+template<typename ${1:T}>
+endsnippet
+
+snippet forit
+	for(${1:std::vector<T>::iterator} iter = ${2:ctn.}begin(); iter !=
+	${2}end(); ++iter){
+		${0}
+	}
+endsnippet
+
+snippet box0
+//==============================================================================
+//${0}
+//==============================================================================
+endsnippet
+
+snippet box1
+//------------------------------------------------------------------------------
+//${0}
+//------------------------------------------------------------------------------
+endsnippet
+
+

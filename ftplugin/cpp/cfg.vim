@@ -1,273 +1,285 @@
-if exists("g:loaded_cppcfg")
-  finish
-endif
-let g:loaded_cppcfg = 1
+"if exists("g:loaded_cppcfg")
+  "finish
+"endif
+"let g:loaded_cppcfg = 1
 
 "cpp abbrevation
-:iab sc static_cast<>()<Left><Left><Left>
-:iab cs const std::string
-:iab C const
-:iab Sup std::unique_ptr<><Left>
-:iab I include
+:iab <buffer>  sc static_cast<>()<Left><Left><Left>
+:iab <buffer>  cs const std::string
+:iab <buffer>  Sup std::unique_ptr<><Left>
+:iab <buffer>  I #include
+:iab <buffer>  Ssp std::shared_ptr<><Left>
+:iab <buffer>  Sup std::unique_ptr<><Left>
+:iab <buffer>  Swp std::weak_ptr<><Left>
+:iab <buffer>  Sap std::auto_ptr<><Left>
+:iab <buffer>  Sfl std::forward_list<><Left>
+:iab <buffer>  Sus std::unordered_set<><Left>
+:iab <buffer>  Sum std::unordered_map<><Left>
+:iab <buffer>  Stp template<typename T><Left>
+:iab <buffer>  Cfs //------------------------------------------------------------------------------
+
+"macro
+:iab <buffer> CMd #ifdef _DEBUG<CR>#endif<esc>O
+:iab <buffer> CMif #if<CR>#endif<esc>O
 
 "boost  abbreviation
-:iab br boost::regex
-:iab brm boost::regex_match()<Left>
-:iab brs boost::regex_search()<Left>
-:iab brr boost::regex_replace()<Left>
-:iab bsm boost::smatch
+:iab <buffer> br boost::regex
+:iab <buffer> brm boost::regex_match()<Left>
+:iab <buffer> brs boost::regex_search()<Left>
+:iab <buffer> brr boost::regex_replace()<Left>
+:iab <buffer> bsm boost::smatch
 
 "opengl abbreviation
-:iab glb  GLbtype
-:iab gls  GLshort
-:iab gli  GLint
-:iab glf  GLfloat
-:iab gld  GLdobule
-:iab glub GLubyte
-:iab glus GLushort
-:iab glui GLuint
-:iab glc  GLchar
-:iab glv  GLvoid
-:iab gle  GLenum
-:iab gl_  GL_
-:iab glz  GLsizei
+:iab <buffer> glc  GLchar
+:iab <buffer> glb  GLbyte
+:iab <buffer> glub GLubyte
+:iab <buffer> gls  GLshort
+:iab <buffer> glus GLushort
+:iab <buffer> gli  GLint
+:iab <buffer> glui GLuint
+:iab <buffer> glf  GLfloat
+:iab <buffer> gld  GLdouble
+:iab <buffer> glv  GLvoid
+:iab <buffer> gle  GLenum
+:iab <buffer> glz  GLsizei
+:iab <buffer> gl_  GL_
 
 "ogre related
-:iab OGS getSingleton()
-:iab O Ogre
+:iab <buffer> OGS getSingleton()
+:iab <buffer> O Ogre
 
 "ogre geometry
-:iab Ogp Ogre::Plane
-:iab Ogr Ogre::Ray
+:iab <buffer> Ogp Ogre::Plane
+:iab <buffer> Ogr Ogre::Ray
 
 "ogre hlms
-:iab Ohbb Ogre::HlmsBlendblock
-:iab Ohdb Ogre::HlmsDatablock
-:iab Ohl Ogre::HlmsListener
-:iab Ohm Ogre::HlmsManager
-:iab Ohmb Ogre::HlmsMacroblock
-:iab Ohjp Ogre::HlmsJsonPbs
-:iab Ohpdb Ogre::HlmsPbsDatablock
-:iab Ohp Ogre::HlmsPbs
-:iab Ohju Ogre::HlmsJsonUnlit
-:iab Ohudb Ogre::HlmsUnlitDatablock
-:iab Ohu Ogre::HlmsUnlit
-:iab Ohup Ogre::UnlitProperty
+:iab <buffer> Ohbb Ogre::HlmsBlendblock
+:iab <buffer> Ohdb Ogre::HlmsDatablock
+:iab <buffer> Ohl Ogre::HlmsListener
+:iab <buffer> Ohm Ogre::HlmsManager
+:iab <buffer> Ohmb Ogre::HlmsMacroblock
+:iab <buffer> Ohjp Ogre::HlmsJsonPbs
+:iab <buffer> Ohpdb Ogre::HlmsPbsDatablock
+:iab <buffer> Ohp Ogre::HlmsPbs
+:iab <buffer> Ohju Ogre::HlmsJsonUnlit
+:iab <buffer> Ohudb Ogre::HlmsUnlitDatablock
+:iab <buffer> Ohu Ogre::HlmsUnlit
+:iab <buffer> Ohup Ogre::UnlitProperty
 
 "ogre compositor
-:iab Occ Ogre::CompositorChannel
-:iab Occom Ogre::CompositorCommon
-:iab Occpp Ogre::CompositorPassProvider
-:iab Ocm2 Ogre::CompositorManager2
-:iab Ocn Ogre::CompositorNode
-:iab Ocnv Ogre::CompositorNodeVec
-:iab Ocnd Ogre::CompositorNodeDef
-:iab Ocp Ogre::CompositorPass
-:iab Ocpc Ogre::PassClear
-:iab Ocpd Ogre::CompositorPassDef
-:iab Ocpdc Ogre::PassDepthCopy
-:iab Ocpm Ogre::PassMipmap
-:iab Ocpq Ogre::PassQuad
-:iab Ocps Ogre::PassScene
-:iab Ocpsten Ogre::PassStencil
-:iab Ocpu Ogre::PassUav
-:iab Ocsn Ogre::CompositorShadowNode
-:iab Ocsnd Ogre::CompositorShadowNodeDef
-:iab Octd Ogre::TextureDefinition
-:iab Ocw Ogre::CompositorWorkspace
-:iab Ocwd Ogre::CompositorWorkspaceDef
-:iab Ocwl Ogre::CompositorWorkspaceListener
+:iab <buffer> Occ Ogre::CompositorChannel
+:iab <buffer> Occom Ogre::CompositorCommon
+:iab <buffer> Occpp Ogre::CompositorPassProvider
+:iab <buffer> Ocm2 Ogre::CompositorManager2
+:iab <buffer> Ocn Ogre::CompositorNode
+:iab <buffer> Ocnv Ogre::CompositorNodeVec
+:iab <buffer> Ocnd Ogre::CompositorNodeDef
+:iab <buffer> Ocp Ogre::CompositorPass
+:iab <buffer> Ocpc Ogre::PassClear
+:iab <buffer> Ocpd Ogre::CompositorPassDef
+:iab <buffer> Ocpdc Ogre::PassDepthCopy
+:iab <buffer> Ocpm Ogre::PassMipmap
+:iab <buffer> Ocpq Ogre::PassQuad
+:iab <buffer> Ocps Ogre::PassScene
+:iab <buffer> Ocpsten Ogre::PassStencil
+:iab <buffer> Ocpu Ogre::PassUav
+:iab <buffer> Ocsn Ogre::CompositorShadowNode
+:iab <buffer> Ocsnd Ogre::CompositorShadowNodeDef
+:iab <buffer> Octd Ogre::TextureDefinition
+:iab <buffer> Ocw Ogre::CompositorWorkspace
+:iab <buffer> Ocwd Ogre::CompositorWorkspaceDef
+:iab <buffer> Ocwl Ogre::CompositorWorkspaceListener
 
 "ogre math
-:iab Om Ogre::Math
-:iab Omd Ogre::Degree
-:iab Omm3 Ogre::Matrix3
-:iab Omm4 Ogre::Matrix4
-:iab Omq Ogre::Quaternion
-:iab Omr Ogre::Real
-:iab Omrad Ogre::Radian
-:iab Omv2 Ogre::Vector2
-:iab Omv3 Ogre::Vector3
-:iab Omv4 Ogre::Vector4
+:iab <buffer> Om Ogre::Math
+:iab <buffer> Omd Ogre::Degree
+:iab <buffer> Omm3 Ogre::Matrix3
+:iab <buffer> Omm4 Ogre::Matrix4
+:iab <buffer> Omq Ogre::Quaternion
+:iab <buffer> Omr Ogre::Real
+:iab <buffer> Omrad Ogre::Radian
+:iab <buffer> Omv2 Ogre::Vector2
+:iab <buffer> Omv3 Ogre::Vector3
+:iab <buffer> Omv4 Ogre::Vector4
 
 "ogre node
-:iab Onb Ogre::Bone
-:iab Onn Ogre::Node
-:iab Onsn Ogre::SceneNode
-:iab Ontp Ogre::TagPoint
-:iab Onnvi Ogre::Node::NodeVecIterator
+:iab <buffer> Onb Ogre::Bone
+:iab <buffer> Onn Ogre::Node
+:iab <buffer> Onsn Ogre::SceneNode
+:iab <buffer> Ontp Ogre::TagPoint
+:iab <buffer> Onnvi Ogre::Node::NodeVecIterator
 
 "ogre movable
-:iab Ooc Ogre::Camera
-:iab Ooi Ogre::Item
-:iab Ool Ogre::Light
-:iab Ooman Ogre::ManualObject
-:iab Oomo Ogre::MovableObject
-:iab Oop Ogre::Particle;
-:iab Oopa Ogre::ParticleAffector
-:iab Oope Ogre::ParticleEmitter
-:iab Oops Ogre::ParticleSystem
-:iab Oopsm Ogre::ParticleSystemManager
-:iab Oopsr Ogre::ParticleSystemRenderer
+:iab <buffer> Ooc Ogre::Camera
+:iab <buffer> Ooi Ogre::Item
+:iab <buffer> Ool Ogre::Light
+:iab <buffer> Ooman Ogre::ManualObject
+:iab <buffer> Oomo Ogre::MovableObject
+:iab <buffer> Oop Ogre::Particle;
+:iab <buffer> Oopa Ogre::ParticleAffector
+:iab <buffer> Oope Ogre::ParticleEmitter
+:iab <buffer> Oops Ogre::ParticleSystem
+:iab <buffer> Oopsm Ogre::ParticleSystemManager
+:iab <buffer> Oopsr Ogre::ParticleSystemRenderer
 
 "ogre render
-:iab Ort Ogre::RenderTarget
-:iab Ortex Ogre::RenderTexture
-:iab Orq Ogre::RenderQueue
-:iab Ors Ogre::RenderSystem
-:iab Orw Ogre::RenderWindow
+:iab <buffer> Ort Ogre::RenderTarget
+:iab <buffer> Ortex Ogre::RenderTexture
+:iab <buffer> Orq Ogre::RenderQueue
+:iab <buffer> Ors Ogre::RenderSystem
+:iab <buffer> Orw Ogre::RenderWindow
 
 "ogre string related
-:iab Os Ogre::String
-:iab Osc Ogre::StringConverter
-:iab Osu Ogre::StringUtil
-:iab Ot Ogre::Texture
+:iab <buffer> Os Ogre::String
+:iab <buffer> Osc Ogre::StringConverter
+:iab <buffer> Osu Ogre::StringUtil
+:iab <buffer> Ot Ogre::Texture
 
 "ogre singleton
-:iab Osgam Ogre::ArchiveManager::getSingleton()
-:iab Osgcm Ogre::ControllerManager::getSingleton()
-:iab Osgdl DynLibManager::getSingleton()
-:iab Osgets ExternalTextureSourceManager::getSingleton()
-:iab Osggp GpuProgramManager::getSingleton()
-:iab Osghlgp HighLevelGpuProgramManager::getSingleton()
-:iab Osglm Ogre::LogManager::getSingleton()
-:iab Osgls LodStrategyManager::getSingleton()
-:iab Osgmm MeshManager::getSingleton()
-:iab Osgmma MaterialManager::getSingleton()
-:iab Osgpsm Ogre::ParticleSystemManager::getSingleton()
-:iab Osgr Ogre::Root::getSingleton()
-:iab Osgrg ResourceGroupManager::getSingleton()
-:iab Osgrm ResourceManager::getSingleton()
-:iab Osgrsc RenderSystemCapabilitiesManager::getSingleton()
-:iab Osgs SkeletonManager::getSingleton()
-:iab Osgst ShadowTextureManager::getSingleton()
-:iab Osgt TextureManager::getSingleton()
+:iab <buffer> Osgam Ogre::ArchiveManager::getSingleton()
+:iab <buffer> Osgcm Ogre::ControllerManager::getSingleton()
+:iab <buffer> Osgdl DynLibManager::getSingleton()
+:iab <buffer> Osgets ExternalTextureSourceManager::getSingleton()
+:iab <buffer> Osggp GpuProgramManager::getSingleton()
+:iab <buffer> Osghlgp HighLevelGpuProgramManager::getSingleton()
+:iab <buffer> Osglm Ogre::LogManager::getSingleton()
+:iab <buffer> Osgls LodStrategyManager::getSingleton()
+:iab <buffer> Osgmm MeshManager::getSingleton()
+:iab <buffer> Osgmma MaterialManager::getSingleton()
+:iab <buffer> Osgpsm Ogre::ParticleSystemManager::getSingleton()
+:iab <buffer> Osgr Ogre::Root::getSingleton()
+:iab <buffer> Osgrg ResourceGroupManager::getSingleton()
+:iab <buffer> Osgrm ResourceManager::getSingleton()
+:iab <buffer> Osgrsc RenderSystemCapabilitiesManager::getSingleton()
+:iab <buffer> Osgs SkeletonManager::getSingleton()
+:iab <buffer> Osgst ShadowTextureManager::getSingleton()
+:iab <buffer> Osgt TextureManager::getSingleton()
 
 "ogre manager
-:iab Omga Ogre::ArchiveManager
-:iab Omgam Ogre::ArrayMemoryManager
-:iab Omgbm Ogre::BoneMemoryManager
-:iab Omgc Ogre::ControllerManager
-:iab Omgc2 Ogre::CompositorManager2
-:iab Omgdl Ogre::DynLibManager
-:iab Omgets Ogre::ExternalTextureSourceManager
-:iab Omggp Ogre::GpuProgramManager
-:iab Omgh Ogre::HlmsManager
-:iab Omghlgp Ogre::HighLevelGpuProgramManager
-:iab Omght Ogre::HlmsTextureManager
-:iab Omgi Ogre::InstanceManager
-:iab Omgl Ogre::LogManager
-:iab Omgls Ogre::LodStrategyManager
-:iab Omgm Ogre::MeshManager
-:iab Omgmat Ogre::MaterialManager
-:iab Omgmem Ogre::MemoryManager
-:iab Omgnm Ogre::NodeMemoryManager
-:iab Omgom Ogre::ObjectMemoryManager
-:iab Omgos Ogre::OldSkeletonManager
-:iab Omgps Ogre::ParticleSystemManager
-:iab Omgr Ogre::ResourceManager
-:iab Omgrg Ogre::ResourceGroupManager
-:iab Omgrsc Ogre::RenderSystemCapabilitiesManager
-:iab Omgs Ogre::SceneManager
-:iab Omgsc Ogre::ScriptCompilerManager
-:iab Omgske Ogre::SkeletonManager
-:iab Omgst Ogre::ShadowTextureManager
-:iab Omgt Ogre::TextureManager
-:iab Omgv Ogre::VaoManager
+:iab <buffer> Omga Ogre::ArchiveManager
+:iab <buffer> Omgam Ogre::ArrayMemoryManager
+:iab <buffer> Omgbm Ogre::BoneMemoryManager
+:iab <buffer> Omgc Ogre::ControllerManager
+:iab <buffer> Omgc2 Ogre::CompositorManager2
+:iab <buffer> Omgdl Ogre::DynLibManager
+:iab <buffer> Omgets Ogre::ExternalTextureSourceManager
+:iab <buffer> Omggp Ogre::GpuProgramManager
+:iab <buffer> Omgh Ogre::HlmsManager
+:iab <buffer> Omghlgp Ogre::HighLevelGpuProgramManager
+:iab <buffer> Omght Ogre::HlmsTextureManager
+:iab <buffer> Omgi Ogre::InstanceManager
+:iab <buffer> Omgl Ogre::LogManager
+:iab <buffer> Omgls Ogre::LodStrategyManager
+:iab <buffer> Omgm Ogre::MeshManager
+:iab <buffer> Omgmat Ogre::MaterialManager
+:iab <buffer> Omgmem Ogre::MemoryManager
+:iab <buffer> Omgnm Ogre::NodeMemoryManager
+:iab <buffer> Omgom Ogre::ObjectMemoryManager
+:iab <buffer> Omgos Ogre::OldSkeletonManager
+:iab <buffer> Omgps Ogre::ParticleSystemManager
+:iab <buffer> Omgr Ogre::ResourceManager
+:iab <buffer> Omgrg Ogre::ResourceGroupManager
+:iab <buffer> Omgrsc Ogre::RenderSystemCapabilitiesManager
+:iab <buffer> Omgs Ogre::SceneManager
+:iab <buffer> Omgsc Ogre::ScriptCompilerManager
+:iab <buffer> Omgske Ogre::SkeletonManager
+:iab <buffer> Omgst Ogre::ShadowTextureManager
+:iab <buffer> Omgt Ogre::TextureManager
+:iab <buffer> Omgv Ogre::VaoManager
 
-:iab Oecbt Ogre::ColourBufferType
-:iab Oecf Ogre::CompareFunction
-:iab Oecm Ogre::CullingMode
-:iab Oecr Ogre::ClipResult
-:iab Oefbt Ogre::FrameBufferType
-:iab Oefm Ogre::FogMode
-:iab Oefo Ogre::FilterOptions
-:iab Oeft Ogre::FilterType
-:iab Oeimf Ogre::InstanceManagerFlags
-:iab Oepm Ogre::PolygonMode
-:iab Oesm Ogre::SortMode
-:iab Oesmmt Ogre::SceneMemoryMgrTypes
-:iab Oesmt Ogre::StereoModeType
-:iab Oeso Ogre::ShadeOptions
-:iab Oeso Ogre::StencilOperation
-:iab Oest Ogre::ShaderType
-:iab Oetfo Ogre::TextureFilterOptions
-:iab Oetvc Ogre::TrackVertexColourEnum
-:iab Oevp Ogre::VertexPass
-:iab Oewt Ogre::WaveformType
-:iab Oellt Ogre::Light::LightTypes
-:iab Oents Ogre::Node::TransformSpace
+:iab <buffer> Oecbt Ogre::ColourBufferType
+:iab <buffer> Oecf Ogre::CompareFunction
+:iab <buffer> Oecm Ogre::CullingMode
+:iab <buffer> Oecr Ogre::ClipResult
+:iab <buffer> Oefbt Ogre::FrameBufferType
+:iab <buffer> Oefm Ogre::FogMode
+:iab <buffer> Oefo Ogre::FilterOptions
+:iab <buffer> Oeft Ogre::FilterType
+:iab <buffer> Oeimf Ogre::InstanceManagerFlags
+:iab <buffer> Oepm Ogre::PolygonMode
+:iab <buffer> Oesm Ogre::SortMode
+:iab <buffer> Oesmmt Ogre::SceneMemoryMgrTypes
+:iab <buffer> Oesmt Ogre::StereoModeType
+:iab <buffer> Oeso Ogre::ShadeOptions
+:iab <buffer> Oeso Ogre::StencilOperation
+:iab <buffer> Oest Ogre::ShaderType
+:iab <buffer> Oetfo Ogre::TextureFilterOptions
+:iab <buffer> Oetvc Ogre::TrackVertexColourEnum
+:iab <buffer> Oevp Ogre::VertexPass
+:iab <buffer> Oewt Ogre::WaveformType
+:iab <buffer> Oellt Ogre::Light::LightTypes
+:iab <buffer> Oents Ogre::Node::TransformSpace
 
 "mygui
-:iab M MyGUI
+:iab <buffer> M MyGUI
 
 "mygui widget
-:iab Mwb MyGUI::Button
-:iab Mwc MyGUI::Canvas
-:iab Mwcb MyGUI::ComboBox
-:iab Mwddc MyGUI::DDContainer
-:iab Mweb MyGUI::EditBox
-:iab Mwib MyGUI::ItemBox
-:iab Mwibox MyGUI::ImageBox
-:iab Mwlb MyGUI::ListBox
-:iab Mwmb MyGUI::MenuBar
-:iab Mwmc MyGUI::MenuControl
-:iab Mwmi MyGUI::MenuItem
-:iab Mwmlb MyGUI::MultiListBox
-:iab Mwmli MyGUI::MultiListItem
-:iab Mwpb MyGUI::ProgressBar
-:iab Mwpm MyGUI::PopupMenu
-:iab Mwsb MyGUI::ScrollBar
-:iab Mwsv MyGUI::ScrollView
-:iab Mwtb MyGUI::TextBox
-:iab Mwtc MyGUI::TabControl
-:iab Mwti MyGUI::TabItem
-:iab Mww MyGUI::Widget
-:iab Mwwin MyGUI::Window
+:iab <buffer> Mwb MyGUI::Button
+:iab <buffer> Mwc MyGUI::Canvas
+:iab <buffer> Mwcb MyGUI::ComboBox
+:iab <buffer> Mwddc MyGUI::DDContainer
+:iab <buffer> Mweb MyGUI::EditBox
+:iab <buffer> Mwib MyGUI::ItemBox
+:iab <buffer> Mwibox MyGUI::ImageBox
+:iab <buffer> Mwlb MyGUI::ListBox
+:iab <buffer> Mwmb MyGUI::MenuBar
+:iab <buffer> Mwmc MyGUI::MenuControl
+:iab <buffer> Mwmi MyGUI::MenuItem
+:iab <buffer> Mwmlb MyGUI::MultiListBox
+:iab <buffer> Mwmli MyGUI::MultiListItem
+:iab <buffer> Mwpb MyGUI::ProgressBar
+:iab <buffer> Mwpm MyGUI::PopupMenu
+:iab <buffer> Mwsb MyGUI::ScrollBar
+:iab <buffer> Mwsv MyGUI::ScrollView
+:iab <buffer> Mwtb MyGUI::TextBox
+:iab <buffer> Mwtc MyGUI::TabControl
+:iab <buffer> Mwti MyGUI::TabItem
+:iab <buffer> Mww MyGUI::Widget
+:iab <buffer> Mwwin MyGUI::Window
 
 "mygui manager
-:iab Mmgc MyGUI::ControllerManager
-:iab Mmgcb MyGUI::ClipboardManager
-:iab Mmgdl MyGUI::DynLibManager
-:iab Mmgf MyGUI::FontManager
-:iab Mmgfac MyGUI::FactoryManager
-:iab Mmgi MyGUI::InputManager
-:iab Mmgl MyGUI::LogManager
-:iab Mmglan MyGUI::LanguageManager
-:iab Mmglaye MyGUI::LayerManager
-:iab Mmglayo MyGUI::LayoutManager
-:iab Mmgplu MyGUI::PluginManager
-:iab Mmgpoi MyGUI::PointerManager
-:iab Mmgren MyGUI::RenderManager
-:iab Mmgres MyGUI::ResourceManager
-:iab Mmgs MyGUI::SkinManager
-:iab Mmgsw MyGUI::SubWidgetManager
-:iab Mmgtt MyGUI::ToolTipManager
-:iab Mmgw MyGUI::WidgetManager
+:iab <buffer> Mmgc MyGUI::ControllerManager
+:iab <buffer> Mmgcb MyGUI::ClipboardManager
+:iab <buffer> Mmgdl MyGUI::DynLibManager
+:iab <buffer> Mmgf MyGUI::FontManager
+:iab <buffer> Mmgfac MyGUI::FactoryManager
+:iab <buffer> Mmgi MyGUI::InputManager
+:iab <buffer> Mmgl MyGUI::LogManager
+:iab <buffer> Mmglan MyGUI::LanguageManager
+:iab <buffer> Mmglaye MyGUI::LayerManager
+:iab <buffer> Mmglayo MyGUI::LayoutManager
+:iab <buffer> Mmgplu MyGUI::PluginManager
+:iab <buffer> Mmgpoi MyGUI::PointerManager
+:iab <buffer> Mmgren MyGUI::RenderManager
+:iab <buffer> Mmgres MyGUI::ResourceManager
+:iab <buffer> Mmgs MyGUI::SkinManager
+:iab <buffer> Mmgsw MyGUI::SubWidgetManager
+:iab <buffer> Mmgtt MyGUI::ToolTipManager
+:iab <buffer> Mmgw MyGUI::WidgetManager
 
 "mygui singleton
-:iab Msgcm MyGUI::ControllerManager::getSingleton()
-:iab Msgcbm MyGUI::ClipboardManager::getSingleton()
-:iab Msgdlm MyGUI::DynLibManager::getSingleton()
-:iab Msgfm MyGUI::FontManager::getSingleton()
-:iab Msgfacm MyGUI::FactoryManager::getSingleton()
-:iab Msgim MyGUI::InputManager::getSingleton()
-:iab Msglm MyGUI::LogManager::getSingleton()
-:iab Msglanm MyGUI::LanguageManager::getSingleton()
-:iab Msglayem MyGUI::LayerManager::getSingleton()
-:iab Msglayom MyGUI::LayoutManager::getSingleton()
-:iab Msgplum MyGUI::PluginManager::getSingleton()
-:iab Msgpoim MyGUI::PointerManager::getSingleton()
-:iab Msgrenm MyGUI::RenderManager::getSingleton()
-:iab Msgresm MyGUI::ResourceManager::getSingleton()
-:iab Msgsm MyGUI::SkinManager::getSingleton()
-:iab Msgswm MyGUI::SubWidgetManager::getSingleton()
-:iab Msgttm MyGUI::ToolTipManager::getSingleton()
-:iab Msgwm MyGUI::WidgetManager::getSingleton()
+:iab <buffer> Msgcm MyGUI::ControllerManager::getSingleton()
+:iab <buffer> Msgcbm MyGUI::ClipboardManager::getSingleton()
+:iab <buffer> Msgdlm MyGUI::DynLibManager::getSingleton()
+:iab <buffer> Msgfm MyGUI::FontManager::getSingleton()
+:iab <buffer> Msgfacm MyGUI::FactoryManager::getSingleton()
+:iab <buffer> Msgim MyGUI::InputManager::getSingleton()
+:iab <buffer> Msglm MyGUI::LogManager::getSingleton()
+:iab <buffer> Msglanm MyGUI::LanguageManager::getSingleton()
+:iab <buffer> Msglayem MyGUI::LayerManager::getSingleton()
+:iab <buffer> Msglayom MyGUI::LayoutManager::getSingleton()
+:iab <buffer> Msgplum MyGUI::PluginManager::getSingleton()
+:iab <buffer> Msgpoim MyGUI::PointerManager::getSingleton()
+:iab <buffer> Msgrenm MyGUI::RenderManager::getSingleton()
+:iab <buffer> Msgresm MyGUI::ResourceManager::getSingleton()
+:iab <buffer> Msgsm MyGUI::SkinManager::getSingleton()
+:iab <buffer> Msgswm MyGUI::SubWidgetManager::getSingleton()
+:iab <buffer> Msgttm MyGUI::ToolTipManager::getSingleton()
+:iab <buffer> Msgwm MyGUI::WidgetManager::getSingleton()
 
 "sdl2
-:iab S SDL_
-:iab Sk SDLK_
+:iab <buffer> S SDL_
+:iab <buffer> Sk SDLK_
 
 "cscope-----------------------------------------------------
 "if has("cscope")

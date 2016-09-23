@@ -46,6 +46,10 @@ function! misc#hvSize(hv, size)
   return float2nr(s:hvOptions[a:hv].maxSize * a:size)
 endfunction
 
+function! misc#fileExists(file)
+  return !empty(glob(a:file))
+endfunction
+
 function! misc#writable(file)
   call system('[[ -w ' . a:file . ' ]]')  
   return !v:shell_error
