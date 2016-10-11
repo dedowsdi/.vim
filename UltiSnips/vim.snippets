@@ -15,3 +15,29 @@ snippet box1
 " ${0}
 " ------------------------------------------------------------------------------
 endsnippet
+
+snippet tflc
+let [startLine, startCol]= [line('.'), col('.')] | try
+${0}
+finally | call cursor(startLine, startCol) | endtry
+endsnippet
+
+snippet tflct
+let [startLine, startCol, rbak]= [line('.'), col('.'), @t] | try
+${0}
+finally | let @t = rbak |call cursor(startLine, startCol) | endtry
+endsnippet
+
+snippet tflcf
+let [startLine, startCol, curFile]= [line('.'), col('.'), expand('%:p')] | try
+${0}
+finally |silent exec 'edit'.curFile | call cursor(startLine, startCol) | endtry
+endsnippet
+
+snippet whilei
+let [${1:index}, size] = [0, len(${2:something})]
+while $1 != size
+  ${0}
+  let $1 += 1
+endwhile
+endsnippet

@@ -95,7 +95,8 @@ function! misc#getCC()
 endfunction
 
 " opts{direction:"h or l" , delim: default to "," 
-" itemScope: default to ["()","[]","{}","<>"], guard : default to "[]"  }
+" jumpPairs: default to ["()","[]","{}","<>"], guard : default to "[]",
+" cursorAction : "f_to_start"(default), "f_to_end", "static" }
 function! misc#shiftItem(opts)
 
   let ranges = misc#getItemRanges(a:opts)
@@ -103,51 +104,83 @@ function! misc#shiftItem(opts)
     call misc#warn('illigal range')|return
   endif
 
-  let itemIndex = ranges[0]
-  let itemRanges = ranges[2]
   let direction = get(a:opts, "direction", "h")
+  let cursorActoin = get(a:opts, "cursorAction", "f_to_start")
+
+  let [itemIndex, totalRange, itemRanges] = [ranges[0], ranges[1], ranges[2]]
+  if itemIndex == -1
+    call misc#warn('you should not place your cursor at ' . misc#getCC() ) 
+    return
+  endif
 
   if (itemIndex == 0 && direction == 'h') 
         \ || (itemIndex == len(itemRanges) -1 && direction == 'l') 
     call misc#warn('no more items to shift')|return
   endif
+  
 
-  let targetIndex =  direction == 'h' ? itemIndex -1 : itemIndex + 1
+  let targetIndex = direction == 'h' ? itemIndex -1 : itemIndex + 1
+  if targetIndex < 0 || targetIndex >= len(itemRanges)
+    call misc#warn("no more items to shift") 
+    return
+  endif
   call misc#swapRange(itemRanges[itemIndex], itemRanges[targetIndex])
+
+  if cursorActoin != "static"
+     "place cursor at start of total range to avoid inner () problem
+     call cursor(totalRange[0])
+     "update item ranges
+     let ranges = misc#getItemRanges(a:opts)
+     let targetRange = ranges[2][targetIndex]
+     if cursorActoin == "f_to_start"
+       "place cursor at 1st non blank character in this item
+       call cursor(targetRange[0])
+       call misc#charBackward()
+       call search('\v\S')
+     elseif cursorActoin == "f_to_end"
+       "place cursor at last non blank character in this item
+       call cursor(targetRange[1])
+       call misc#charForward()
+       call search('\v\S', 'bW')
+     endif
+  endif
 
 endfunction
 
 
 "return [itemIndex, [total range] [item1 range, item 2 range ....]]
+"opts : {"excludeSpace":1}, itemIndex will be -1 if it can not be found(ie,
+"cursor on comma or cursor on '(' or ')' )
 function! misc#getItemRanges(opts)
 
   let [startLine, startCol] = [line('.'), col('.')] | try
 
     let delim = get(a:opts, "delim", ",")
     let guard = get(a:opts, "guard", "()")
-    let itemScope = get(a:opts, "itemScope", ["()","[]","{}","<>"])
+    let excludeSpace = get(a:opts, "excludeSpace", 1)
+    let jumpPairs = get(a:opts, "jumpPairs", ["()","[]","{}","<>"])
     let [leftGuard, rightGuard] = [guard[0], guard[1]]
     let totalRange = [[0,0], [0,0]]
     let itemRanges = []
 
-    let [leftScope, rightScope] = ["", ""]
+    let [leftPairs, rightPairs] = ["", ""]
 
-    for scope in itemScope
-      let leftScope .= scope[0]
-      let rightScope .= scope[1]
+    for scope in jumpPairs
+      let leftPairs .= scope[0]
+      let rightPairs .= scope[1]
     endfor
 
     let c = misc#getCC()
     "do nothing if curson under delim
-    if delim == c
+    "if delim == c
       "return empty if cursor under , or ( or )
-      call misc#warn("you should move your cursor away from delim \"".c."\"") 
-      return []
-    endif
+      "call misc#warn("you should move your cursor away from delim \"".c."\"") 
+      "return []
+    "endif
 
     "goto left guard first
     if c != leftGuard
-      if !misc#searchIgnoreScope(leftGuard, rightScope, a:opts)|return []|endif
+      if !misc#searchWithJumpPair(leftGuard, rightPairs, {"direction":"h"})|return []|endif
     endif
     let totalRange[0] = [line("."), col(".")]
     call search('\v.')
@@ -155,7 +188,7 @@ function! misc#getItemRanges(opts)
     call misc#charBackward()
 
     "find item ranges and right guard
-    while misc#searchIgnoreScope(rightGuard.delim, leftScope, {"direction":"l"})
+    while misc#searchWithJumpPair(rightGuard.delim, leftPairs, {"direction":"l"})
       let c = misc#getCC()
       if c == delim
         call misc#charBackward()  " move cursor back away from ','
@@ -176,26 +209,61 @@ function! misc#getItemRanges(opts)
 
     "find current item index
     let cursorRange = [startLine, startCol]
-    let itemIndex = 0
-    while itemIndex != len(itemRanges)
+    let [itemIndex, size]  = [0, len(itemRanges)]
+    while itemIndex != size
       let range = itemRanges[itemIndex]
       if misc#cmpPos(range[0], cursorRange) <= 0 && misc#cmpPos(range[1], cursorRange) >=0 
         break
       endif
       let itemIndex += 1
     endwhile
+
+    "set itemIndex to -1 if it's invalid
+    if itemIndex == len(itemRanges)|let itemIndex = -1 |endif
+    
+
+    "exclude space after find current item, allow current character to be space
+    if excludeSpace
+      for range in itemRanges
+        "carefule here, don't use let range = misc#trimRange(range)
+        let trimedRange = misc#trimRange(range) 
+        let range[0] = trimedRange[0]
+        let range[1] = trimedRange[1]
+      endfor
+    endif
+
+
     return [itemIndex, totalRange, itemRanges]
 
   finally | call cursor(startLine, startCol) | endtry
 endfunction
 
+"visual select cur arg, by default space included
+function! misc#selCurArg(opts)
+  call extend(a:opts, {"excludeSpace":0}, "keep") 
+  let ranges = misc#getItemRanges(a:opts)
+
+  if ranges == []
+    call misc#warn("illigal range")|return
+  endif
+
+  let [itemIndex, totalRange, itemRanges] = [ranges[0], ranges[1], ranges[2]]
+  if itemIndex == -1
+    call misc#warn('you should not place your cursor at ' . misc#getCC() ) 
+    return
+  endif
+
+  let curItemRange = ranges[2][ranges[0]]
+  call misc#visualSelect(curItemRange)
+endfunction
+
 " search until one of expr found, ignore everything in scope and it's %
 " eg : ( ',(',  ')}]>',  {direction:h} )
-function! misc#searchIgnoreScope(expr, scope, opts)
+function! misc#searchWithJumpPair(expr, jumpPairs, opts)
   let direction = get(a:opts, "direction", 'h') 
   let flag = direction == 'h' ? 'bW' : ''
 
-  let searchExpr = '\v[' . a:expr . escape(a:scope, '[]') . ']'
+  let searchExpr = '\v[' . a:expr . escape(a:jumpPairs, '[]') . ']'
 
   while search(searchExpr, flag)
     let c = misc#getCC()
@@ -249,6 +317,23 @@ function! misc#replaceRange(range, content)
     call misc#visualSelect(a:range) 
     silent normal! "tp 
   finally | call cursor(startLine, startCol)| let [&paste, @t] = [paste, rbak] | endtry
+endfunction
+
+"return new trimed range
+function! misc#trimRange(range)
+  let [startLine, startCol]= [line('.'), col('.')] | try
+    let newRange = deepcopy(a:range)
+
+    call cursor(a:range[0])
+    if match(" \t", misc#getCC()) != -1|call search('\v\S')|endif
+    let newRange[0] = [line('.'), col('.')]
+
+    call cursor(a:range[1])
+    if match(" \t", misc#getCC()) != -1|call search('\v\S', 'bW')|endif
+    let newRange[1] = [line('.'), col('.')]
+
+    return newRange
+  finally | call cursor(startLine, startCol) | endtry
 endfunction
 
 " lhs:[line, col],  etc
