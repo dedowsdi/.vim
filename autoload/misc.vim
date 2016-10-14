@@ -364,17 +364,26 @@ function! misc#charBackward(...)
   finally|let &backspace = backspace|endtry
 endfunction
 
+
+"TODO create raii of options and cmds
 ""
 " echom ******
-" @param1 msg{String}: msg to print
+" @param1 {"option":value}
 " @return :
 ""
-function! misc#startScript(...)
-  let s:oldmore = &more
+function! misc#startScript(desc, ...)
+
   let s:scriptTimer = reltime()
-  set nomore
+  let opts = get(a:000, 0, {"more":0, "eventignore":"all"})
+  "set option, create back up
+  let s:oldOpts = {}
+  for [key,value] in items(opts)
+    exec 'let s:oldOpts[key] = &'.key
+    exec 'let &'.key . ' = value'
+  endfor
+
   echom "**********************************************************************"
-  echom a:0 ? a:1 : "Starting..."
+  echom a:desc
 endfunction!
 
 ""
@@ -382,8 +391,166 @@ endfunction!
 " @param1 msg{String}: msg to print
 " @return :
 ""
-function! misc#endScript(...)
-  echom a:0 ? a:1 : "Done in " . reltimestr(reltime(s:scriptTimer)) . " seconds"
+function! misc#endScript()
+  echom "Done in " . reltimestr(reltime(s:scriptTimer)) . " seconds"
   echom "**********************************************************************"
-  let &more = s:oldmore
+  for [key,value] in items(s:oldOpts)
+    exec 'let &'.key.' = value '
+  endfor
 endfunction!
+
+function! misc#openScript(file)
+  "if bufexists(a:file)
+    "throw a:file . " exists in buffer, it should not happen"
+  "endif
+  silent execute 'edit ' . a:file
+  setl noswapfile nobuflisted
+  setl bufhidden=unload
+  setl autowriteall
+endfunction
+
+
+""
+" Get sid of specified plugin file.
+" @param fileName : plugin filename
+" @return : sid or '' if not found
+""
+function! misc#getSid(fileName)
+  let temp = @t|execute 'redir @t'
+  try
+    let plugfile = fnamemodify(a:fileName , ':p')
+    let plugfile = plugfile[stridx(plugfile, '.'):]
+    silent execute 'scriptnames'
+    "becareful string is different from file
+    let sid = matchstr(@t, '\v\zs\d+\ze:[^:]+' . escape(plugfile, '.'))
+    if empty(sid)
+      throw a:fileName . ' not found'
+    endif	
+  finally
+    let @t = temp|execute 'redir End'|return sid
+  endtry
+endfunction
+
+function! misc#isNumber(e)
+  return type(a:e) == 0
+endfunction
+function! misc#isString(e)
+  return type(a:e) == 1
+endfunction
+function! misc#isFuncref(e)
+  return type(a:e) == 2
+endfunction
+function! misc#isList(e)
+  return type(a:e) == 3
+endfunction
+function! misc#isDict(e)
+  return type(a:e) == 4
+endfunction
+function! misc#isFloat(e)
+  return type(a:e) == 5
+endfunction
+
+""
+" If name doesn't exists, let name = value, only work for number and string.
+" @param name : variable name
+" @param value : variable value
+""
+function! misc#addCfgVar(name, value)
+  if !exists(a:name)
+    execute 'let '.a:name.' = a:value'
+  endif
+endfunction
+
+""
+" @param c : check if c belongs to A-Z
+" @return : 0 or 1
+""
+function! misc#isUpperCase(c)
+  let nr = char2nr(a:c)
+  return nr >= 0x41 && nr <= 0x5a
+endfunction
+
+""
+" @param c : check if c belongs to a-z
+" @return : 0 or 1
+""
+function! misc#isLowerCase(c)
+  let nr = char2nr(a:c)
+  return nr >= 0x61 && nr <= 0x7a
+endfunction
+
+function! misc#getTail(str, delim)
+  let idx = strridx(a:str, a:delim)
+  return idx >= 0 ? a:str[(idx+len(a:delim)):] : a:str
+endfunction
+
+""
+" param0 [[lnum0,cnum0][lnum1,cnum1]] or [lnum0,cnum0] or lnum0
+" param1 [lnum1,cnum1] or cnum0
+" param2 lnum1
+" param3 cnum1
+" @return :
+""
+function! misc#getFragment(...)
+  if a:0 == 4 && misc#isNumber(a:1)
+    let [lnum0,cnum0,lnum1,cnum1] = a:000
+  elseif a:0 == 2 && misc#isList(a:1)
+    let [lnum0,cnum0] = a:1
+    let [lnum1,cnum1] = a:1
+  elseif a:0 == 1 && misc#isList(a:1)
+    let [lnum0,cnum0] = a:1[0]
+    let [lnum1,cnum1] = a:1[1]
+  else
+    throw "illigal args, it should be [[lnum,cnum][lnum,cnum]] or [lnum,cnum],[lnum,cnum]
+          \ or lnum0, cnum0, lnum1, cnum1 "
+  endif
+
+  let fragment = getline(lnum0, lnum1)
+  if len(fragment) == 0
+    let x = 5
+  endif
+  "becareful here, last fragment must be picked first, it will break cnum1 if
+  "if lnum0 = lnum1
+  let fragment[-1] = fragment[-1][: cnum1 - 1]
+  let fragment[0] = fragment[0][cnum0 - 1:]
+  return fragment
+endfunction
+
+function! misc#visualSelect(...)
+  if a:0 == 4 && misc#isNumber(a:1)
+    let [lnum0,cnum0,lnum1,cnum1] = a:000
+  elseif a:0 == 2 && misc#isList(a:1)
+    let [lnum0,cnum0] = a:1
+    let [lnum1,cnum1] = a:2
+  elseif a:0 == 1 && misc#isList(a:1)
+    let [lnum0,cnum0] = a:1[0]
+    let [lnum1,cnum1] = a:1[1]
+  else
+    throw "illigal args, it should be [[lnum,cnum][lnum,cnum]] or [lnum,cnum],[lnum,cnum]
+          \ or lnum0, cnum0, lnum1, cnum1 "
+  endif
+
+  call cursor(lnum0, cnum0)
+  "don't know why '< failed to be sett by cursor, have to do it again by setpos
+  call setpos("'<",[0,lnum0,cnum0,0])
+  normal! v
+  call cursor(lnum1, cnum1)
+  call setpos("'>",[0,lnum1,cnum1,0])
+endfunction
+
+""
+" trim string
+" @param s : string to be trim
+" @param1 noLeft{bool}  : don't trim left
+" @param2 noRight{bool} : don't trim right
+" @return : trimed string
+""
+function! misc#trim(s, ...)
+  let noLeft = a:0 >= 1 && a:1
+  let noRight = a:0 >= 2 && a:2
+  let res = a:s
+  if !noLeft|let res = matchstr(res, '\v^\s*\zs.*')|endif
+  if !noRight|let res = matchstr(res, '\v.{-}\ze\s*$')|endif
+  return res
+endfunction
+

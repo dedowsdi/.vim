@@ -3,24 +3,33 @@
 "endif
 "let g:loaded_cppcfg = 1
 
+:setlocal shiftwidth=2 tabstop=2
+
 "cpp abbrevation
-:iab <buffer>  sc static_cast<>()<Left><Left><Left>
-:iab <buffer>  cs const std::string
-:iab <buffer>  Sup std::unique_ptr<><Left>
-:iab <buffer>  I #include
-:iab <buffer>  Ssp std::shared_ptr<><Left>
-:iab <buffer>  Sup std::unique_ptr<><Left>
-:iab <buffer>  Swp std::weak_ptr<><Left>
-:iab <buffer>  Sap std::auto_ptr<><Left>
-:iab <buffer>  Sfl std::forward_list<><Left>
-:iab <buffer>  Sus std::unordered_set<><Left>
-:iab <buffer>  Sum std::unordered_map<><Left>
-:iab <buffer>  Stp template<typename T><Left>
+:iab <buffer>  sI #include
+:iab <buffer>  ssc static_cast<>()<Left><Left><Left>
+:iab <buffer>  scs const std::string
+:iab <buffer>  sss std::stringstream
+:iab <buffer>  sspc std::static_pointer_cast<>()<left><left><left>
+:iab <buffer>  sdpc std::dynamic_pointer_cast<>()<left><left><left>
+:iab <buffer>  scpc std::const_pointer_cast<>()<left><left><left>
+:iab <buffer>  srpc std::reinterpret_pointer_cast<>()<left><left><left>
+:iab <buffer>  sup std::unique_ptr<><Left>
+:iab <buffer>  ssp std::shared_ptr<><Left>
+:iab <buffer>  sup std::unique_ptr<><Left>
+:iab <buffer>  swp std::weak_ptr<><Left>
+:iab <buffer>  sap std::auto_ptr<><Left>
+:iab <buffer>  sfl std::forward_list<><Left>
+:iab <buffer>  sus std::unordered_set<><Left>
+:iab <buffer>  sum std::unordered_map<><Left>
+:iab <buffer>  stpt template<typename T><Left>
+:iab <buffer>  stpc template<class T><Left>
+
 :iab <buffer>  Cfs //------------------------------------------------------------------------------
 
 "macro
-:iab <buffer> CMd #ifdef _DEBUG<CR>#endif<esc>O
-:iab <buffer> CMif #if<CR>#endif<esc>O
+:iab <buffer> smd #ifdef _DEBUG<CR>#endif<esc>O
+:iab <buffer> smif #if<CR>#endif<esc>O
 
 "boost  abbreviation
 :iab <buffer> br boost::regex
@@ -278,8 +287,8 @@
 :iab <buffer> Msgwm MyGUI::WidgetManager::getSingleton()
 
 "sdl2
-:iab <buffer> S SDL_
-:iab <buffer> Sk SDLK_
+":iab <buffer> S SDL_
+":iab <buffer> Sk SDLK_
 
 "cscope-----------------------------------------------------
 "if has("cscope")
