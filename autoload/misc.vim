@@ -43,7 +43,8 @@ function! misc#hvSize(hv, size)
   if !has_key(s:hvOptions, a:hv)
     throw "unknown hv: " . a:hv
   endif
-  return float2nr(s:hvOptions[a:hv].maxSize * a:size)
+  exec 'let maxSize = &' . s:hvOptions[a:hv].maxSize
+  return float2nr(maxSize * a:size)
 endfunction
 
 function! misc#fileExists(file)
@@ -61,8 +62,8 @@ function! misc#dirExists(dir)
 endfunction
 
 let s:hvOptions = {
-      \ "_" : {"winfix":"winfixheight",  "dir":"",  "maxSize":&lines,  },
-      \ "|" : {"winfix":"winfixwidth", "dir":"vertical ", "maxSize":&columns,},
+      \ "_" : {"winfix":"winfixheight",  "dir":"",  "maxSize":"lines",  },
+      \ "|" : {"winfix":"winfixwidth", "dir":"vertical ", "maxSize":"columns",},
       \ }
 
 let s:layouts = {
