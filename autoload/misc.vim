@@ -312,6 +312,13 @@ function! misc#getRange(range)
   finally | let @t = bak | call cursor(startLine, startCol) | endtry
 endfunction
 
+function! misc#deleteRange(range)
+  let [startLine, startCol]= [line('.'), col('.')] | try
+  call misc#visualSelect(a:range)
+  normal! d 
+  finally | call cursor(startLine, startCol) | endtry
+endfunction
+
 function! misc#replaceRange(range, content)
   let [startLine, startCol, paste, rbak]= [line('.'), col('.'), &paste, @t] | try
     let [&paste, @t]= [1, a:content]
@@ -365,8 +372,6 @@ function! misc#charBackward(...)
   finally|let &backspace = backspace|endtry
 endfunction
 
-
-"TODO create raii of options and cmds
 ""
 " echom ******
 " @param1 {"option":value}
@@ -555,3 +560,57 @@ function! misc#trim(s, ...)
   return res
 endfunction
 
+"\w and \d only
+function! misc#selectSmallWord()
+  let c = misc#getCC()
+  if match(c, '\v\w') == -1
+    "do nothing if c is not a \w
+    return -1 
+  endif
+
+  call misc#charForward()
+  call search('\v\w*', 'bW')  " don't add flag e to ?
+  normal! v
+  call search('\v\w*', 'e')  " \w+ will jump to next word if it's a single letter
+
+  "check tail character
+  let c = misc#getCC()
+  if match(c, '\v\w') == -1
+    "TODO this doesn't work if whol match is a single character, don't know y
+    call misc#charBackward()
+  endif
+
+endfunction
+
+" lnum, cnum
+function! misc#isSingleWord(...)
+  let [startLine, startCol]= [line('.'), col('.')] | try
+  let lnum = get(a:000, 0, line('.'))
+  let cnum = get(a:000, 1, col('.'))
+  call cursor(lnum, cnum)
+  let w = expand('<cword>')
+  return len(w) == 1
+  finally |  call cursor(startLine, startCol) | endtry
+endfunction
+
+function! misc#searchDo(pattern, flag, func, ...)
+  while(search(a:pattern, a:flag))
+    call call(a:func, a:000)
+  endwhile
+endfunction
+
+" ------------------------------------------------------------------------------
+" chrono 
+" ------------------------------------------------------------------------------
+let misc#chrono = { "time":reltime()}
+function misc#chrono.reset() dict
+  let self.time = reltime()
+endfunction
+
+function! misc#chrono.get() dict
+  return reltimestr(reltime(self.time))   
+endfunction
+
+function! misc#newChrono()
+  return deepcopy(g:misc#chrono) 
+endfunction

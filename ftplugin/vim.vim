@@ -12,7 +12,7 @@ command! -nargs=0 Vb :breakadd here
 command! -nargs=* Vbf :call VbreakAtFuncLine(<f-args>)
 command! -nargs=* Vsf :call VcallScriptFunc(<f-args>)
 command! -nargs=? Vgf :call VgotoFunction(<f-args>)
-nnoremap <leader>J Js<bar><esc>
+nnoremap <leader>J A <bar><esc>J
 
 "search regex------------------------------------------------
 let s:reFuncStart = '^s*fu'

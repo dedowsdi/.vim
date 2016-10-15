@@ -16,6 +16,12 @@ snippet box1
 " ------------------------------------------------------------------------------
 endsnippet
 
+snippet tft
+let [rbak] = @t  | try
+${0}
+finally | let @t = rbak | endtry
+endsnippet
+
 snippet tflc
 let [startLine, startCol]= [line('.'), col('.')] | try
 ${0}
