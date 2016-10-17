@@ -47,7 +47,7 @@ function! VbreakAtFuncLine(...)
       if VisScopeScript()
         "add <SNR>SID_ prefix
         let plugFileName = expand('%')
-        let funcName = '<SNR>'.mycpp#util#getSid(plugFileName).'_'.funcName[2:]
+        let funcName = '<SNR>'.misc#getSid(plugFileName).'_'.funcName[2:]
       endif
     else
       echoe 'function not found'

@@ -95,6 +95,10 @@ function! misc#getCC()
   return matchstr(getline('.'), '\%' . col('.') . 'c.')
 endfunction
 
+function! misc#getC(lnum, cnum)
+  return matchstr(getline(a:lnum), '\%' . a:cnum . 'c.')
+endfunction
+
 " opts{direction:"h or l" , delim: default to "," 
 " jumpPairs: default to ["()","[]","{}","<>"], guard : default to "[]",
 " cursorAction : "f_to_start"(default), "f_to_end", "static" }
@@ -597,6 +601,39 @@ function! misc#searchDo(pattern, flag, func, ...)
   while(search(a:pattern, a:flag))
     call call(a:func, a:000)
   endwhile
+endfunction
+
+"move cursor up or down to search character 
+"opt:{"direction":j or k, "pat": regex pattern, "ignoreChop" : bool,  "greedy" :
+"bool }  
+"return getpos() 
+function! misc#verticalSearch(...)
+  let opt = get(a:000, 0, {})
+  let opt = extend(opt, 
+        \ {'direction':'j', 'pattern':'\v.', 'ignoreChop':0, 'greedy':0 }, 'keep')
+  let lstep = opt.direction == "j" ? 1 : -1
+  let [lastValidLine, lnum, cnum] = [line('.'), line('.'), col('.')]
+  while 1 
+    let lnum = lnum + lstep
+    let c = misc#getC(lnum, cnum)
+    if c == '' && !opt.ignoreChop   "shorter line
+      break  
+    elseif match(c, opt.pattern ) == 0 "match line
+      let lastValidLine = lnum 
+      if !opt.greedy | break | endif
+    endif
+  endwhile
+  call cursor(lastValidLine, cnum)
+  return getcurpos()
+endfunction
+
+"select visual end, and keep in visual mode
+function! misc#visualEnd(func, ...)
+  let startpos = getpos("'<")
+  let endpos = call(a:func, a:000)
+  echo endpos
+  call setpos("'>", endpos)
+  normal! gv
 endfunction
 
 " ------------------------------------------------------------------------------
