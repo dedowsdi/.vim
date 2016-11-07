@@ -41,6 +41,14 @@ finally |silent exec 'edit'.curFile | call cursor(startLine, startCol) | endtry
 endsnippet
 
 snippet whilei
+let ${1:index} = 0
+while $1 != ${2:size}
+  ${0}
+  let $1 += 1
+endwhile
+endsnippet
+
+snippet whileiz
 let [${1:index}, size] = [0, len(${2:something})]
 while $1 != size
   ${0}

@@ -22,6 +22,17 @@ function! misc#qfixexists()
   return 0
 endfunction
 
+"it doesn't matter if string has _ or number
+function! misc#isUppercase(s)
+  let re = '\v^\C[A-Z_0-9]+$'
+  return match(a:s, re) == 0
+endfunction
+
+function! misc#isLowercase(s)
+  let re = '\v^\C[a-z_0-9]+$'
+  return match(a:s, re) == 0
+endfunction
+
 " jump to buffer win if bufwinnr is not -1
 " return 1 if success
 function! misc#jumpToBufWin(buf)
@@ -298,6 +309,9 @@ endfunction
 
 " visual select, place cursor at start of range
 function! misc#visualSelect(range)
+  let opt = get(a:000, 0, {})
+  let opt = extend(opt, {"ioe":"i"}, "keep")
+
 	let [lnum0,cnum0] = a:range[0]
 	let [lnum1,cnum1] = a:range[1]
 
@@ -316,7 +330,8 @@ function! misc#getRange(range)
   finally | let @t = bak | call cursor(startLine, startCol) | endtry
 endfunction
 
-function! misc#deleteRange(range)
+" opts:{"ioe":"i"}
+function! misc#deleteRange(range,...)
   let [startLine, startCol]= [line('.'), col('.')] | try
   call misc#visualSelect(a:range)
   normal! d 
@@ -350,16 +365,74 @@ endfunction
 
 " lhs:[line, col],  etc
 function! misc#cmpPos(lhs, rhs)
-  if a:lhs[0] < a:rhs[0]
+  if len(a:lhs) == 2
+    let [lnum, cnum] = [0, 1] 
+  elseif len(a:lhs) == 4
+    let [lnum, cnum] = [1, 2] 
+  else
+    call misc#warn("unknow position") | return 0 " return 0 ?
+  endif
+
+  if a:lhs[lnum] < a:rhs[lnum]
     return -1
-  elseif a:lhs[0] > a:rhs[0]
+  elseif a:lhs[lnum] > a:rhs[lnum]
     return 1
-  elseif a:lhs[1] < a:rhs[1]
+  elseif a:lhs[cnum] < a:rhs[cnum]
     return -1
-  elseif a:lhs[1] > a:rhs[1]
+  elseif a:lhs[cnum] > a:rhs[cnum]
     return 1
   endif
   return 0
+endfunction
+
+function! misc#advancePos(pos, ...)
+  let step = get(a:000, 0, 1)
+  call misc#movPos(a:pos, step, "l")
+endfunction
+
+function! misc#retreatPos(...)
+  let step = get(a:000, 0, 1)
+  call misc#movPos(a:pos, step, "h")
+endfunction
+
+"opt {"step":int, "direction":h or l}
+function! misc#movPos(pos, step, dir)
+  let [startLine, startCol]= [line('.'), col('.')] | try
+    call cursor(pos)
+    if a:dir == "h"
+      call misc#charBackward(a:step) 
+    else 
+      call misc#charForward(a:step)
+    endif
+    return getpos()[1:2]
+  finally | call cursor(startLine, startCol) | endtry
+endfunction
+
+"step
+function! misc#shrinkRange(range, ...)
+  let step = get(a:000, 0, 1)
+  call misc#stretchRange(a:range, "s", a:step)
+endfunction
+
+"step
+function! misc#shrinkRange(range, ...)
+  let step = get(a:000, 0, 1)
+  call misc#stretchRange(a:range, "e", a:step)
+endfunction
+
+"stretch range, based on real content
+function! misc#stretchRange(range, soe, step)
+  let index = 0
+  let res = copy(a:range) "shallow copy
+  while index != a:step
+    if a:soe == "s"
+      let [res[0], res[1]] = [misc#advancePos(res[0]), misc#retreatPos(res[1])]
+    else
+      let [res[0], res[1]] = [misc#retreatPos(res[0]), misc#advancePos(res[1])]
+    endif
+    let index += 1
+  endwhile
+  return res
 endfunction
 
 function! misc#charForward(...)
@@ -573,9 +646,9 @@ function! misc#selectSmallWord()
   endif
 
   call misc#charForward()
-  call search('\v\w*', 'bW')  " don't add flag e to ?
+  call search('\v[a-zA-Z]*', 'bW')  " don't add flag e to ?
   normal! v
-  call search('\v\w*', 'e')  " \w+ will jump to next word if it's a single letter
+  call search('\v[a-zA-Z]*', 'e')  " \w+ will jump to next word if it's a single letter
 
   "check tail character
   let c = misc#getCC()
@@ -634,6 +707,13 @@ function! misc#visualEnd(func, ...)
   echo endpos
   call setpos("'>", endpos)
   normal! gv
+endfunction
+
+function! misc#getPercentPos()
+  normal! %
+  let pos = getcurpos()[1:2]
+  normal! %
+  return pos
 endfunction
 
 " ------------------------------------------------------------------------------
