@@ -166,7 +166,7 @@ endfunction
 function! VreloadScript()
   let reScritGuard = '^\s*let\s*\zsg:loaded\S*\ze'
   let [curLine, curCol] = [line('.'), col('.')] | try
-    normal! gg
+    keepjumps normal! gg
     if search(reScritGuard)
       let scriptGuard = matchstr(getline('.'), reScritGuard) 
       execute 'unlet ' . scriptGuard ' | source %'

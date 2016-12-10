@@ -286,7 +286,7 @@ function! misc#searchWithJumpPair(expr, jumpPairs, opts)
     if match(a:expr, c) != -1
       return 1
     else
-      normal! %
+      keepjumps normal! %
     endif
   endwhile
 
@@ -710,10 +710,18 @@ function! misc#visualEnd(func, ...)
 endfunction
 
 function! misc#getPercentPos()
-  normal! %
+  keepjumps normal! %
   let pos = getcurpos()[1:2]
-  normal! %
+  keepjumps normal! %
   return pos
+endfunction
+
+"add lnum, cnum to jump list
+function! misc#createJumps(lnum,cnum)
+  let [startLine, startCol]= [line('.'), col('.')] | try
+    call cursor(a:lnum, a:cnum)
+    normal! m'
+  finally | call cursor(startLine, startCol) | endtry
 endfunction
 
 " ------------------------------------------------------------------------------
