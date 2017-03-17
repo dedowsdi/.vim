@@ -8,6 +8,9 @@
 "cpp abbrevation
 :iab <buffer>  sI #include
 :iab <buffer>  ssc static_cast<>()<Left><Left><Left>
+:iab <buffer>  sdc dynamic_cast<>()<left><left><left>
+:iab <buffer>  scc const_cast<>()<left><left><left>
+:iab <buffer>  src reinterpret_cast<>()<left><left><left>
 :iab <buffer>  scs const std::string
 :iab <buffer>  sss std::stringstream
 :iab <buffer>  sspc std::static_pointer_cast<>()<left><left><left>

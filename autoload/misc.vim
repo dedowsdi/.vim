@@ -308,18 +308,18 @@ function! misc#swapRange(range0, range1)
 endfunction
 
 " visual select, place cursor at start of range
-function! misc#visualSelect(range)
-  let opt = get(a:000, 0, {})
-  let opt = extend(opt, {"ioe":"i"}, "keep")
+"function! misc#visualSelect(range)
+  "let opt = get(a:000, 0, {})
+  "let opt = extend(opt, {"ioe":"i"}, "keep")
 
-	let [lnum0,cnum0] = a:range[0]
-	let [lnum1,cnum1] = a:range[1]
+	"let [lnum0,cnum0] = a:range[0]
+	"let [lnum1,cnum1] = a:range[1]
 
-  call cursor(lnum0, cnum0)
-  call setpos("'<",[0,lnum0,cnum0,0])
-  call setpos("'>",[0,lnum1,cnum1,0])
-  normal! gv
-endfunction
+  "call cursor(lnum0, cnum0)
+  "call setpos("'<",[0,lnum0,cnum0,0])
+  "call setpos("'>",[0,lnum1,cnum1,0])
+  "normal! gv
+"endfunction
 
 function! misc#getRange(range)
   let [startLine, startCol, bak]= [line('.'), col('.'), @t] | try
@@ -385,54 +385,22 @@ function! misc#cmpPos(lhs, rhs)
   return 0
 endfunction
 
-function! misc#advancePos(pos, ...)
-  let step = get(a:000, 0, 1)
-  call misc#movPos(a:pos, step, "l")
-endfunction
-
-function! misc#retreatPos(...)
-  let step = get(a:000, 0, 1)
-  call misc#movPos(a:pos, step, "h")
-endfunction
-
-"opt {"step":int, "direction":h or l}
-function! misc#movPos(pos, step, dir)
+function! misc#translatePos(pos, step)
   let [startLine, startCol]= [line('.'), col('.')] | try
-    call cursor(pos)
-    if a:dir == "h"
-      call misc#charBackward(a:step) 
+    call cursor(a:pos)
+    if(a:step < 0)
+      call misc#charBackward(-a:step) 
     else 
       call misc#charForward(a:step)
     endif
-    return getpos()[1:2]
+    return getpos('.')[1:2]
   finally | call cursor(startLine, startCol) | endtry
 endfunction
 
-"step
-function! misc#shrinkRange(range, ...)
-  let step = get(a:000, 0, 1)
-  call misc#stretchRange(a:range, "s", a:step)
-endfunction
-
-"step
-function! misc#shrinkRange(range, ...)
-  let step = get(a:000, 0, 1)
-  call misc#stretchRange(a:range, "e", a:step)
-endfunction
-
-"stretch range, based on real content
-function! misc#stretchRange(range, soe, step)
-  let index = 0
-  let res = copy(a:range) "shallow copy
-  while index != a:step
-    if a:soe == "s"
-      let [res[0], res[1]] = [misc#advancePos(res[0]), misc#retreatPos(res[1])]
-    else
-      let [res[0], res[1]] = [misc#retreatPos(res[0]), misc#advancePos(res[1])]
-    endif
-    let index += 1
-  endwhile
-  return res
+"TODO handle illigal range and step
+"stretch range, based on real content, set step to negative to shink it
+function! misc#stretchRange(range, step)
+  return [misc#translatePos(a:range[0], -a:step), misc#translatePos(a:range[1], a:step)]
 endfunction
 
 function! misc#charForward(...)
