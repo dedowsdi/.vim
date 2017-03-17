@@ -110,6 +110,7 @@ endfunction
 
 " open global terminal. There should be only 1 global terminal.
 " @param1 terminal : init option. it's ignored if terminal already exists
+" @param2 cmd
 function! misc#term#terminal(...)
 
   if &buftype == "terminal" && bufnr('%') != s:terminal.bufnr
@@ -120,13 +121,21 @@ function! misc#term#terminal(...)
   if s:terminal != {} && bufexists(s:terminal.bufnr)
     "switch to  existing terminal buffer
     call s:terminal.toggleActive()
-    return
+  else
+    let s:terminal = extend(get(a:000, 0, {}), copy(s:termbase), "keep")
+    let s:terminal.bufnr = misc#layoutCmd(s:terminal, 'new')
+    " terminal and term will consume the newly created blank buffer
+    exec 'terminal'
+    let s:terminal.jobid = b:terminal_job_id
+    let s:terminal.title = b:term_title
+    let s:terminal.pid = b:terminal_job_pid
   endif
 
-  let s:terminal = extend(get(a:000, 0, {}), copy(s:termbase), "keep")
-  let s:terminal.bufnr = misc#layoutCmd(s:terminal, 'new')
-  " terminal and term will consume the newly created blank buffer
-  exec 'terminal'
+  let cmd = get(a:000, 1, "")
+  if cmd != ""
+    call jobsend(s:terminal.jobid, cmd . "")
+  endif
+
 endfunction
 
 "test
