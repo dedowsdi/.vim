@@ -35,7 +35,7 @@ function! misc#test#assertLine(l, ...)
   if curLine != a:l
 
     if a:0
-      echom string(a:000, ',')
+      echom string(a:000)
     endif
 
     throw 'misc#test#assert failed. current line:' . curLine

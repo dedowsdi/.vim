@@ -27,6 +27,18 @@ for (${1:size_t} ${2:i} = 0; $2 < ${3:size}; ++$2) {
 }
 endsnippet
 
+snippet forui
+for (${1:unsigned int} ${2:i} = 0; $2 < ${3:size}; ++$2) {
+	${0}
+}
+endsnippet
+
+snippet forgu
+for (GLuint ${1:i} = 0; $1 < ${2:size}; ++$1) {
+	${0}
+}
+endsnippet
+
 snippet forit
 	for(${1:std::vector<T>::iterator} iter = ${2:ctn.}begin(); iter !=
 	${2}end(); ++iter){
@@ -46,4 +58,122 @@ snippet box1
 //------------------------------------------------------------------------------
 endsnippet
 
+snippet onew
+osg::ref_ptr<${1}> ${2} = new $1(${3});
+endsnippet
+
+snippet osgDemo
+#include <osgViewer/Viewer>
+#include <osgViewer/ViewerEventHandlers>
+#include <osg/Geometry>
+#include <osgDB/ReadFile>
+#include <osg/MatrixTransform>
+
+int main(int argc, char* argv[]) {
+	${0}
+	osgViewer::Viewer viewer;
+	viewer.addEventHandler(new osgViewer::StatsHandler);
+	//viewer.setSceneData();
+
+	return viewer.run();
+}
+endsnippet
+
+snippet osgNodeCallback
+class ${1:MyUpdateCallback} : public osg::NodeCallback {
+		virtual void operator()(osg::Node* node, osg::NodeVisitor* nv) {
+			traverse(node,nv);
+		}
+};
+endsnippet
+
+snippet osgDrawCallback
+class ${1:MyDrawableDrawCallback} : public osg::Drawable::DrawCallback {
+		virtual void drawImplementation(osg::RenderInfo& renderInfo,const osg::Drawable* drawable) const {
+			//pre draw implementation
+
+			drawable->drawImplementation(renderInfo);
+
+			//post draw Implementation
+
+		}
+};
+endsnippet
+
+snippet osgDrawableUpdateCallback
+class ${1:MyDrawableUpdateCallback} : public osg::Drawable::UpdateCallback {
+	virtual void update(osg::NodeVisitor* nv, osg::Drawable* drawable) {
+	}
+};
+endsnippet
+
+snippet osgDrawableCullCallback
+class ${1:MyDrawableCullCallback} : public osg::Drawable::CullCallback {
+	virtual bool cull(osg::NodeVisitor* nv, osg::Drawable* drawable, osg::State* state) const {
+		return false;
+	}
+};
+endsnippet
+
+snippet osgReadFileCallback
+class ${1:MyReadFileCallback} : public osgDB::Registry::ReadFileCallback {
+public:
+	virtual osgDB::ReaderWriter::ReadResult readNode(const std::string& fileName, const osgDB::ReaderWriter::Options* options) {
+		// before readNode
+		// note when calling the Registry to do the read you have to call readNodeImplementation NOT readNode, as this will
+		// cause on infinite recusive loop.
+		osgDB::ReaderWriter::ReadResult result = osgDB::Registry::instance()->readNodeImplementation(fileName,options);
+		//after readNode
+		return result;
+	}
+};
+endsnippet
+
+snippet osgGuiEventHandler
+class ${1:MyGuiEventHandler} : public osgGA::GUIEventHandler {
+	virtual bool handle(
+		const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa) {
+		switch (ea.getEventType()) {
+			case osgGA::GUIEventAdapter::KEYDOWN:
+				switch (ea.getKey()) {
+					case osgGA::GUIEventAdapter::KEY_F1:
+						break;
+					default:
+						break;
+				}
+				break;
+			default:
+				break;
+		}
+		return false; //return true will stop event
+	}
+};
+endsnippet
+
+snippet osgObjectDescendent
+	class ${1:Classname} : public osg::${2:Object} {
+public:
+
+	$1(){}
+	$1(const $1& copy, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY)
+			: osg::$2(copy, copyop) {}
+	~$1(){}
+	META_Object(${3:zxd}, $1);
+	};
+
+endsnippet
+
+snippet osgCreateGeometry
+osg::ref_ptr<osg::Geometry> ${1:geometry} = new osg::Geometry;
+osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array();
+osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array();
+colors->setBinding(osg::Array::BIND_OVERALL);
+
+$1->setVertexArray(vertices);
+$1->setColorArray(colors);
+
+$1->addPrimitiveSet(new ${2:osg::DrawArray(GL_POINTS, 0, 1)});
+
+osg::StateSet* ss = $1->getOrCreateStateSet();
+endsnippet
 

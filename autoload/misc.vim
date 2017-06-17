@@ -692,6 +692,21 @@ function! misc#createJumps(lnum,cnum)
   finally | call cursor(startLine, startCol) | endtry
 endfunction
 
+"return [[line,col],[line,col]] or []
+function! misc#getBraceRange()
+  let [startLine, startCol]= [line('.'), col('.')] | try
+    let range = [[],[]]
+    normal! [{
+    let range[0] = [line('.'), col('.')]
+    normal! ]}
+    let range[1] = [line('.'), col('.')]
+    if range[0] == range[1]
+      return [] 
+    endif
+    return range
+  finally | call cursor(startLine, startCol) | endtry
+endfunction
+
 " ------------------------------------------------------------------------------
 " chrono 
 " ------------------------------------------------------------------------------
@@ -706,4 +721,10 @@ endfunction
 
 function! misc#newChrono()
   return deepcopy(g:misc#chrono) 
+endfunction
+
+function! misc#loadAbbreviation(...)
+  for lang in a:000  
+    call call('misc#'.lang.'#loadAbbreviation', [])
+  endfor
 endfunction
