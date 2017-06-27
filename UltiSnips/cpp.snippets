@@ -158,7 +158,7 @@ public:
 	$1(const $1& copy, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY)
 			: osg::$2(copy, copyop) {}
 	~$1(){}
-	META_Object(${3:zxd}, $1);
+	META_${3:Object}(${4:zxd}, $1);
 	};
 
 endsnippet
@@ -172,8 +172,35 @@ colors->setBinding(osg::Array::BIND_OVERALL);
 $1->setVertexArray(vertices);
 $1->setColorArray(colors);
 
-$1->addPrimitiveSet(new ${2:osg::DrawArray(GL_POINTS, 0, 1)});
+$1->addPrimitiveSet(new ${2:osg::DrawArrays(GL_POINTS, 0, 1)});
 
 osg::StateSet* ss = $1->getOrCreateStateSet();
+endsnippet
+
+snippet osgCameraRayTest
+osgUtil::IntersectionVisitor iv;
+osg::ref_ptr<osgUtil::LineSegmentIntersector> lsi =
+	new osgUtil::LineSegmentIntersector(
+osgUtil::Intersector::WINDOW, ea.getX(), ea.getY());
+iv.setIntersector(lsi);
+//iv.setTraversalMask(selectMask);
+
+camera->accept(iv);
+
+if (lsi->containsIntersections()) {
+	const osgUtil::LineSegmentIntersector::Intersection& result =
+*lsi->getIntersections().begin();
+
+} else {
+
+}
+endsnippet
+
+snippet osgDecomposeMatrix
+osg::Vec3 ${2:translation};
+osg::Quat ${3:rotation};
+osg::Vec3 ${4:scale};
+osg::Quat ${5:so};
+${1:m->}decompose($2, $3, $4, $5);
 endsnippet
 
