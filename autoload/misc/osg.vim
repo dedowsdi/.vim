@@ -10,6 +10,9 @@ function! misc#osg#loadAbbreviation()
 
   "osg 
   :iab <buffer> o osg::
+  :iab <buffer> ospc osg::static_pointer_cast<>()<Left><Left><Left>
+  :iab <buffer> odpc osg::dynamic_pointer_cast<>()<Left><Left><Left>
+  :iab <buffer> ocpc osg::const_pointer_cast<>()<Left><Left><Left>
   :iab <buffer> od osgDB::
   :iab <buffer> ou osgUtil::
   :iab <buffer> or osg::ref_ptr<><Left>
@@ -67,13 +70,81 @@ function! misc#osg#loadAbbreviation()
   :iab <buffer> ode osg::DrawElements
   :iab <buffer> odeui osg::DrawElementsUInt
   :iab <buffer> odeus osg::DrawElementsUShort
+  :iab <buffer> ocbv osg::ComputeBoundsVisitor
+  :iab <buffer> osgds osg::DisplaySettings::instance()
+  :iab <buffer> osgau osg::Applicationusage::instance()
+  :iab <buffer> osgt osg::Timer::instance()
 
   "osgAnimation
   :iab <buffer> oap osg::AnimationPath
+  :iab <buffer> oapc osg::AnimationPathCallback
   :iab <buffer> oaiocm osgAnimation::InOutCubicMotion
   :iab <buffer> oaicm osgAnimation::InCubicMotion
   :iab <buffer> oaocm osgAnimation::OutCubicMotion
-  :iab <buffer> oapc osg::AnimationPathCallback
+  :iab <buffer> oabam osgAnimation::BasicAnimationManager
+  :iab <buffer> oadsc osgAnimation::DoubleStepChannel
+  :iab <buffer> oafsc osgAnimation::FloatStepChannel
+  :iab <buffer> oav2sc osgAnimation::Vec2StepChannel
+  :iab <buffer> oav3sc osgAnimation::Vec3StepChannel
+  :iab <buffer> oav4sc osgAnimation::Vec4StepChannel
+  :iab <buffer> oaqsc osgAnimation::QuatStepChannel
+  :iab <buffer> oadlc osgAnimation::DoubleLinearChannel
+  :iab <buffer> oaflc osgAnimation::FloatLinearChannel
+  :iab <buffer> oav2lc osgAnimation::Vec2LinearChannel
+  :iab <buffer> oav3lc osgAnimation::Vec3LinearChannel
+  :iab <buffer> oav4lc osgAnimation::Vec4LinearChannel
+  :iab <buffer> oaqslc osgAnimation::QuatSphericalLinearChannel
+  :iab <buffer> oamlc osgAnimation::MatrixLinearChannel
+  :iab <buffer> oafcbc osgAnimation::FloatCubicBezierChannel
+  :iab <buffer> oadcbc osgAnimation::DoubleCubicBezierChannel
+  :iab <buffer> oav2cbc osgAnimation::Vec2CubicBezierChannel
+  :iab <buffer> oav3cbc osgAnimation::Vec3CubicBezierChannel
+  :iab <buffer> oav4cbc osgAnimation::Vec4CubicBezierChannel
+  :iab <buffer> oadss osgAnimation::DoubleStepSampler
+  :iab <buffer> oafss osgAnimation::FloatStepSampler
+  :iab <buffer> oav2ss osgAnimation::Vec2StepSampler
+  :iab <buffer> oav3ss osgAnimation::Vec3StepSampler
+  :iab <buffer> oav4ss osgAnimation::Vec4StepSampler
+  :iab <buffer> oaqss osgAnimation::QuatStepSampler
+  :iab <buffer> oadls osgAnimation::DoubleLinearSampler
+  :iab <buffer> oafls osgAnimation::FloatLinearSampler
+  :iab <buffer> oav2ls osgAnimation::Vec2LinearSampler
+  :iab <buffer> oav3ls osgAnimation::Vec3LinearSampler
+  :iab <buffer> oav4ls osgAnimation::Vec4LinearSampler
+  :iab <buffer> oaqsls osgAnimation::QuatSphericalLinearSampler
+  :iab <buffer> oamls osgAnimation::MatrixLinearSampler
+  :iab <buffer> oafcbs osgAnimation::FloatCubicBezierSampler
+  :iab <buffer> oadcbs osgAnimation::DoubleCubicBezierSampler
+  :iab <buffer> oav2cbs osgAnimation::Vec2CubicBezierSampler
+  :iab <buffer> oav3cbs osgAnimation::Vec3CubicBezierSampler
+  :iab <buffer> oav4cbs osgAnimation::Vec4CubicBezierSampler
+  :iab <buffer> oafkf osgAnimation::FloatKeyframe
+  :iab <buffer> oafkfc osgAnimation::FloatKeyframeContainer
+  :iab <buffer> oadkf osgAnimation::DoubleKeyframe
+  :iab <buffer> oadkfc osgAnimation::DoubleKeyframeContainer
+  :iab <buffer> oav2kf osgAnimation::Vec2Keyframe
+  :iab <buffer> oav2kfc osgAnimation::Vec2KeyframeContainer
+  :iab <buffer> oav3kf osgAnimation::Vec3Keyframe
+  :iab <buffer> oav3kfc osgAnimation::Vec3KeyframeContainer
+  :iab <buffer> oav4kf osgAnimation::Vec4Keyframe
+  :iab <buffer> oav4kfc osgAnimation::Vec4KeyframeContainer
+  :iab <buffer> oaqkf osgAnimation::QuatKeyframe
+  :iab <buffer> oaqkfc osgAnimation::QuatKeyframeContainer
+  :iab <buffer> oamkf osgAnimation::MatrixKeyframe
+  :iab <buffer> oamkfc osgAnimation::MatrixKeyframeContainer
+  :iab <buffer> oav3pkf osgAnimation::Vec3PackedKeyframe
+  :iab <buffer> oav3pkfc osgAnimation::Vec3PackedKeyframeContainer
+  :iab <buffer> oafcbkf osgAnimation::FloatCubicBezierKeyframe
+  :iab <buffer> oafcbkfc osgAnimation::FloatCubicBezierKeyframeContainer
+  :iab <buffer> oaumt osgAnimation::UpdateMatrixTransform
+  :iab <buffer> oaum osgAnimation::UpdateMaterial
+  :iab <buffer> oauu osgAnimation::UpdateUniform
+  :iab <buffer> oaub osgAnimation::UpdateBone
+  :iab <buffer> oasrae osgAnimation::StackedRotateAxisElement
+  :iab <buffer> oassae osgAnimation::StackedScaleAxisElement
+  :iab <buffer> oastae osgAnimation::StackedTranslateAxisElement
+  :iab <buffer> oasme osgAnimation::StackedMatrixAxisElement
+  :iab <buffer> oasqe osgAnimation::StackedQuaternionAxisElement
 
   "osgParticle
   :iab <buffer> opr4 osgParticle::rangev4
@@ -110,6 +181,7 @@ function! misc#osg#loadAbbreviation()
 
 	"osgViewer
   :iab <buffer> ovv osgViewer::Viewer
+  :iab <buffer> ovcv osgViewer::CompositeViewer
   :iab <buffer> ovsh osgViewer::StatsHandler
 
 	"osgShadow
@@ -126,5 +198,19 @@ function! misc#osg#loadAbbreviation()
 
   "osgFX
   :iab <buffer> ofo osgFX::Outline
+  
+  "osgDB
+  :iab <buffer> odsgr osgDB::Registry::instance()
+  :iab <buffer> odssm osgDB::SharedStateManager
+
+  "osgWidget
+  :iab <buffer> owwm osgWidget::WindowManager
+  :iab <buffer> owsm osgWidget::StyleManager
+  :iab <buffer> owbm osgWidget::BrowserManager
+  :iab <buffer> owt osgWidget::Table
+  :iab <buffer> owl osgWidget::Label
+  :iab <buffer> owi osgWidget::Input
+  :iab <buffer> owc osgWidget::Canvas
+  :iab <buffer> owb osgWidget::Box
 
 endfunction

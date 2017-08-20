@@ -728,3 +728,5 @@ function! misc#loadAbbreviation(...)
     call call('misc#'.lang.'#loadAbbreviation', [])
   endfor
 endfunction
+
+let misc#scopePair = {'{':'}','[':']','(':')','<':'>'}

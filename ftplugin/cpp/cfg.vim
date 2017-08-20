@@ -12,6 +12,7 @@
 :iab <buffer>  scc const_cast<>()<left><left><left>
 :iab <buffer>  src reinterpret_cast<>()<left><left><left>
 :iab <buffer>  sss std::stringstream
+:iab <buffer>  ss std::string
 :iab <buffer>  sspc std::static_pointer_cast<>()<left><left><left>
 :iab <buffer>  sdpc std::dynamic_pointer_cast<>()<left><left><left>
 :iab <buffer>  scpc std::const_pointer_cast<>()<left><left><left>

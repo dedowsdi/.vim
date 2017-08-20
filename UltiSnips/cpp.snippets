@@ -204,3 +204,68 @@ osg::Quat ${5:so};
 ${1:m->}decompose($2, $3, $4, $5);
 endsnippet
 
+snippet osgCreateGraphicsContext
+// create graphics context
+osg::ref_ptr<osg::GraphicsContext::Traits> traits =
+	new osg::GraphicsContext::Traits();
+
+GLuint width = 800, height = 600;
+osg::GraphicsContext::WindowingSystemInterface* wsi =
+osg::GraphicsContext::getWindowingSystemInterface();
+if (!wsi) OSG_FATAL << "failed to get window system interface " << std::endl;
+wsi->getScreenResolution(
+osg::GraphicsContext::ScreenIdentifier(0), width, height);
+
+traits->x = 0;
+traits->y = 0; // 0,0 is upper left , not lower left
+traits->width = width;
+traits->height = height;
+traits->doubleBuffer = true;
+traits->sharedContext = 0;
+traits->windowDecoration = false;
+//traits->alpha = 8;
+
+osg::GraphicsContext* gc =
+osg::GraphicsContext::createGraphicsContext(traits);
+if (!gc) OSG_FATAL << "failed to creaate graphics context " << std::endl;
+endsnippet
+
+snippet osgGetCameraPerspective
+//becareful fovy not in radian
+double fovy, aspectRatio, zNear, zFar;
+${1:camera}->getProjectionMatrixPerspective( fovy, aspectRatio, zNear, zFar);
+endsnippet
+
+snippet osgGetCameraFrustum
+double left, right, bottom, top, near, far;
+${1:camera}->getProjectionMatrixAsFrustum(
+	left, right, bottom, top, near, far);
+endsnippet
+
+snippet osgGetCameraOrtho
+double left, right, bottom, top, near, far;
+${1:camera}->getProjectionMatrixAsOrtho(
+	left, right, bottom, top, near, far);
+endsnippet
+
+snippet osgCreateAnimation
+osg::ref_ptr<osgAnimation::BasicAnimationManager> manager =
+	new osgAnimation::BasicAnimationManager;
+
+osg::ref_ptr<osgAnimation::Animation> animation = new osgAnimation::Animation;
+animation->setPlayMode(osgAnimation::Animation::${1:ONCE});
+
+manager->registerAnimation(animation.get());
+
+osg::ref_ptr<${2:osgAnimation::FloatLinearChannel}> ch = new $2;
+ch->setName("${3:channelName}");
+ch->setTargetName("${4:targetName}");
+//populate channel data
+
+animation->addChannel(ch.get());
+
+osg::ref_ptr<osgAnimation::UpdateMatrixTransform> updater =
+	new osgAnimation::UpdateMatrixTransform($4);
+//populate updater element
+
+endsnippet
