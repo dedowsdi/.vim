@@ -1,3 +1,7 @@
+let s:timing = 0
+let s:timeText = ""
+let s:optionStack = []
+
 function! misc#warn(mes)
   echohl WarningMsg | echom a:mes | echohl None
 endfunction
@@ -31,6 +35,17 @@ endfunction
 function! misc#isLowercase(s)
   let re = '\v^\C[a-z_0-9]+$'
   return match(a:s, re) == 0
+endfunction
+
+function! misc#edit(file)
+  if expand('%:p') != a:file && expand('%') != a:file
+    silent! exec 'edit ' . a:file
+  endif
+endfunction
+
+function! misc#countLines(file)
+  let s = system('wc -l ' . a:file)
+  return s[0:stridx(s, ' ')-1]
 endfunction
 
 " jump to buffer win if bufwinnr is not -1
@@ -417,38 +432,42 @@ function! misc#charBackward(...)
   finally|let &backspace = backspace|endtry
 endfunction
 
-""
-" echom ******
-" @param1 {"option":value}
-" @return :
-""
-function! misc#startScript(desc, ...)
-
+function! misc#startTimer(desc)
+  if s:timing | call misc#endTimer() | endif
   let s:scriptTimer = reltime()
-  let opts = get(a:000, 0, {"more":0, "eventignore":"all"})
-  "set option, create back up
-  let s:oldOpts = {}
-  for [key,value] in items(opts)
-    exec 'let s:oldOpts[key] = &'.key
+  let s:timeText = a:desc
+  let s:timeing = 1
+endfunction!
+
+function! misc#endTimer()
+  if !s:timing
+    echom s:timeText." Done in ".reltimestr(reltime(s:scriptTimer))." seconds"
+    let s:timeing = 0
+  endif
+endfunction!
+
+" push original settings into stack, apply options in opts
+function! misc#pushOptions(opts)
+  "let opts =  {"more":0, "eventignore":"all"}
+  let backup = {}
+  for [key,value] in items(a:opts)
+    exec 'let backup[key] = &'.key
     exec 'let &'.key . ' = value'
   endfor
+  let s:optionStack += [backup]
+endfunction
 
-  echom "**********************************************************************"
-  echom a:desc
-endfunction!
-
-""
-" echom ******
-" @param1 msg{String}: msg to print
-" @return :
-""
-function! misc#endScript()
-  echom "Done in " . reltimestr(reltime(s:scriptTimer)) . " seconds"
-  echom "**********************************************************************"
-  for [key,value] in items(s:oldOpts)
-    exec 'let &'.key.' = value '
+function! misc#popOptions()
+  if empty(s:optionStack)
+    throw 'nothing to pop, empty option stack'
+  endif
+  
+  let opts = remove(s:optionStack, len(s:optionStack) - 1)
+  for [key,value] in items(opts)
+    exec 'let &'.key . ' = value'
   endfor
-endfunction!
+endfunction
+
 
 function! misc#openScript(file)
   "if bufexists(a:file)
@@ -460,20 +479,17 @@ function! misc#openScript(file)
   setl autowriteall
 endfunction
 
+" reserve ~
+function! misc#filename()
+  return substitute(@%, '\V\^'.expand('~'), '~', '')
+endfunction
 
-""
-" Get sid of specified plugin file.
-" @param fileName : plugin filename
-" @return : sid or '' if not found
-""
 function! misc#getSid(fileName)
   let temp = @t|execute 'redir @t'
   try
-    let plugfile = fnamemodify(a:fileName , ':p')
-    let plugfile = plugfile[stridx(plugfile, '.'):]
     silent execute 'scriptnames'
     "becareful string is different from file
-    let sid = matchstr(@t, '\v\zs\d+\ze:[^:]+' . escape(plugfile, '.'))
+    let sid = matchstr(@t, printf('\v\zs\d+\ze:[^:]+%s%(\n|$)', escape(a:fileName, '.\_%~+-')))
     if empty(sid)
       throw a:fileName . ' not found'
     endif	
@@ -558,7 +574,7 @@ function! misc#getFragment(...)
 
   let fragment = getline(lnum0, lnum1)
   if len(fragment) == 0
-    let x = 5
+    return []
   endif
   "becareful here, last fragment must be picked first, it will break cnum1 if
   "if lnum0 = lnum1

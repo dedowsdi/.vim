@@ -46,7 +46,7 @@ function! VbreakAtFuncLine(...)
       let breakLine = startLine - line('.')
       if VisScopeScript()
         "add <SNR>SID_ prefix
-        let plugFileName = expand('%')
+        let plugFileName = misc#filename()
         let funcName = '<SNR>'.misc#getSid(plugFileName).'_'.funcName[2:]
       endif
     else
@@ -175,4 +175,21 @@ function! VreloadScript()
       return
     endif
   finally | call cursor(curLine, curCol) | endtry
+endfunction
+
+function! VscanGarbage()
+  let re = '\v^\s*\w+\s*\='
+  if search(re)
+    echoe "missing let in line " . line('.')
+  endif
+
+  let re = '\v\;\s*%($|\|)'
+  if search(re)
+    echoe "illegal semicolon in line " . line('.')
+  endif
+
+  let re = '\v^\s*[1234567890~!@#$%^&*()_\-+={}[\]|;:'',<.>/?]'
+  if search(re)
+    echoe "illegal start letter in line " . line('.')
+  endif
 endfunction

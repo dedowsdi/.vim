@@ -16,12 +16,18 @@ function! misc#osg#loadAbbreviation()
   :iab <buffer> od osgDB::
   :iab <buffer> ou osgUtil::
   :iab <buffer> or osg::ref_ptr<><Left>
+  :iab <buffer> ovp osg::Viewport
   :iab <buffer> ov2 osg::Vec2
   :iab <buffer> ov3 osg::Vec3
   :iab <buffer> ov4 osg::Vec4
   :iab <buffer> ov2a osg::Vec2Array
   :iab <buffer> ov3a osg::Vec3Array
   :iab <buffer> ov4a osg::Vec4Array
+  :iab <buffer> oba osg::ByteArray
+  :iab <buffer> osa osg::ShortArray
+  :iab <buffer> oia osg::IntArray
+  :iab <buffer> ofa osg::FloatArray
+  :iab <buffer> oda osg::DoubleArray
   :iab <buffer> oa osg::Array
   :iab <buffer> on osg::Node
   :iab <buffer> og osg::Group
@@ -71,6 +77,7 @@ function! misc#osg#loadAbbreviation()
   :iab <buffer> odeui osg::DrawElementsUInt
   :iab <buffer> odeus osg::DrawElementsUShort
   :iab <buffer> ocbv osg::ComputeBoundsVisitor
+  :iab <buffer> ofs osg::FrameStamp
   :iab <buffer> osgds osg::DisplaySettings::instance()
   :iab <buffer> osgau osg::Applicationusage::instance()
   :iab <buffer> osgt osg::Timer::instance()
@@ -212,5 +219,8 @@ function! misc#osg#loadAbbreviation()
   :iab <buffer> owi osgWidget::Input
   :iab <buffer> owc osgWidget::Canvas
   :iab <buffer> owb osgWidget::Box
+  :iab <buffer> owe osgWidget::Event
+  :iab <buffer> oww osgWidget::Widget
+
 
 endfunction

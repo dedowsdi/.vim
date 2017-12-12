@@ -11,5 +11,12 @@ function! misc#opengl#loadAbbreviation()
   :iab <buffer> glv  GLvoid
   :iab <buffer> gle  GLenum
   :iab <buffer> glz  GLsizei
+  :iab <buffer> glb  GLboolean
+  :iab <buffer> glbf GLbitfield
+  :iab <buffer> glv GLvoid
+  :iab <buffer> glsi GLsizei
+  :iab <buffer> glcf GLclampf
+  :iab <buffer> glcd GLclampf
   :iab <buffer> gl_  GL_
+
 endfunction

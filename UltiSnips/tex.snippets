@@ -1,0 +1,44 @@
+#main
+snippet article "init document" b
+\\documentclass{article}
+
+\\begin{${2:document}}
+\\title{${3:title}}
+\\author{zxd}
+\\date{${4:data}}
+\\maketitle
+	${0:${VISUAL}}
+\\end{$2}
+endsnippet
+
+snippet book "init document" b
+\\documentclass{article}
+
+\\begin{${2:document}}
+\\title{${3:title}}
+\\author{zxd}
+\\date{${4:data}}
+\\maketitle
+
+\\begin{abstract}
+abstract
+\\end{abstract}
+
+tableofcontents
+
+\\part{main}
+
+\\chapter{Introduction}
+This chapter's content...
+
+\\section{Structure}
+This section's content...
+
+\\subsection{Top Matter}
+This subsection's content...
+
+\\subsubsection{Article Information}
+This subsubsection's content...
+
+\\end{$2}
+endsnippet
