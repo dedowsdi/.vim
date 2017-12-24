@@ -1,4 +1,4 @@
-function! misc#test#assert(v, ...)
+function! misc#test#assert(v, ...) abort
   if !a:v
     if a:0
       echom string(a:000)
@@ -7,30 +7,30 @@ function! misc#test#assert(v, ...)
   endif
 endfunction
 
-function! misc#test#assertEqual(lhs, rhs, ...)
+function! misc#test#assertEqual(lhs, rhs, ...) abort
 
   if type(a:lhs) != type (a:rhs)
     if a:0
       echom join(a:000, ',')
     endif
-    echom "you can not compare different type"
+    echom 'you can not compare different type'
     echom string(a:lhs)
     echom string(a:rhs)
-    throw "different type"
+    throw 'different type'
   endif
 
   if a:lhs != a:rhs
     if a:0
       echom string(a:000)
     endif
-    echom "misc#test#assert failed. lhs not equal to rhs:"
+    echom 'misc#test#assert failed. lhs not equal to rhs:'
     echom string(a:lhs)
     echom string(a:rhs)
-    throw "assertEqual failed"
+    throw 'assertEqual failed'
   endif
 endfunction
 
-function! misc#test#assertLine(l, ...)
+function! misc#test#assertLine(l, ...) abort
   let curLine = line('.')
   if curLine != a:l
 
@@ -44,7 +44,7 @@ function! misc#test#assertLine(l, ...)
   endif
 endfunction
 
-function! misc#test#assertCol(c, ...)
+function! misc#test#assertCol(c, ...) abort
   let curCol = col('.')
   if curCol != a:c
     if a:0

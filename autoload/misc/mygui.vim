@@ -1,4 +1,4 @@
-function! misc#mygui#loadAbbreviation()
+function! myvim#mygui#loadAbbreviation()
   :iab <buffer> M MyGUI
 
   "mygui widget

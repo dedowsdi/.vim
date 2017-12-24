@@ -1,4 +1,4 @@
-function! misc#osg#loadAbbreviation()
+function! myvim#osg#loadAbbreviation()
   "macro
   :iab <buffer> ola OSG_ALWAYS << 
   :iab <buffer> olf OSG_FATAL << 

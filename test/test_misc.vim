@@ -12,78 +12,78 @@ let s:var2FullRange[1][1] += 1
 let s:itemRanges = [s:var0Range, s:var1Range, s:var2Range]
 let s:totalRange = [[3,9], [3,49]]
 
-call misc#startScript()
+call myvim#startScript()
 
 try 
   silent execute 'edit ' . s:testFile
 
-  echom "test misc#comparePos"
-  call misc#test#assert(misc#cmpPos([1,1], [3,2]) == -1, expand('<sfile>').':'.expand('<slnum>'))
-  call misc#test#assert(misc#cmpPos([1,1], [1,2]) == -1, expand('<sfile>').':'.expand('<slnum>'))
-  call misc#test#assert(misc#cmpPos([1,1], [1,1]) == 0 , expand('<sfile>').':'.expand('<slnum>'))
-  call misc#test#assert(misc#cmpPos([3,1], [1,2]) == 1 , expand('<sfile>').':'.expand('<slnum>'))
-  call misc#test#assert(misc#cmpPos([3,3], [3,1]) == 1 , expand('<sfile>').':'.expand('<slnum>'))
+  echom "test myvim#comparePos"
+  call myvim#test#assert(myvim#cmpPos([1,1], [3,2]) == -1, expand('<sfile>').':'.expand('<slnum>'))
+  call myvim#test#assert(myvim#cmpPos([1,1], [1,2]) == -1, expand('<sfile>').':'.expand('<slnum>'))
+  call myvim#test#assert(myvim#cmpPos([1,1], [1,1]) == 0 , expand('<sfile>').':'.expand('<slnum>'))
+  call myvim#test#assert(myvim#cmpPos([3,1], [1,2]) == 1 , expand('<sfile>').':'.expand('<slnum>'))
+  call myvim#test#assert(myvim#cmpPos([3,3], [3,1]) == 1 , expand('<sfile>').':'.expand('<slnum>'))
 
-  echom "test misc#replaceRange"
-  call misc#test#assertEqual(misc#getRange(s:fooRange), "foo",
-        \expand('<sfile>').':'.expand('<slnum>') )
-
-  call misc#replaceRange(s:fooRange, "abc")
-  call misc#test#assertEqual(misc#getRange(s:fooRange), "abc",
+  echom "test myvim#replaceRange"
+  call myvim#test#assertEqual(myvim#getRange(s:fooRange), "foo",
         \expand('<sfile>').':'.expand('<slnum>') )
 
-  call misc#replaceRange(s:fooRange, "foo")
-  call misc#test#assertEqual(misc#getRange(s:fooRange), "foo",
+  call myvim#replaceRange(s:fooRange, "abc")
+  call myvim#test#assertEqual(myvim#getRange(s:fooRange), "abc",
         \expand('<sfile>').':'.expand('<slnum>') )
 
-  echom "test misc#trimRange"
-  call misc#test#assertEqual(s:var0Range, misc#trimRange(s:var0Range),
-        \expand('<sfile>').':'.expand('<slnum>') )
-  call misc#test#assertEqual(s:var1Range, misc#trimRange(s:var1FullRange),
-        \expand('<sfile>').':'.expand('<slnum>') )
-  call misc#test#assertEqual(s:var2Range, misc#trimRange(s:var2FullRange),
+  call myvim#replaceRange(s:fooRange, "foo")
+  call myvim#test#assertEqual(myvim#getRange(s:fooRange), "foo",
         \expand('<sfile>').':'.expand('<slnum>') )
 
-  echom "test misc#swapRange" 
-  let var0 = misc#getRange(s:var0Range)
-  let var1 = misc#getRange(s:var1Range)
-  let var2 = misc#getRange(s:var2Range)
-  call misc#swapRange(s:var0Range, s:var2Range)
-  call misc#test#assertEqual(misc#getRange(s:var0Range), var2,
+  echom "test myvim#trimRange"
+  call myvim#test#assertEqual(s:var0Range, myvim#trimRange(s:var0Range),
+        \expand('<sfile>').':'.expand('<slnum>') )
+  call myvim#test#assertEqual(s:var1Range, myvim#trimRange(s:var1FullRange),
+        \expand('<sfile>').':'.expand('<slnum>') )
+  call myvim#test#assertEqual(s:var2Range, myvim#trimRange(s:var2FullRange),
+        \expand('<sfile>').':'.expand('<slnum>') )
+
+  echom "test myvim#swapRange" 
+  let var0 = myvim#getRange(s:var0Range)
+  let var1 = myvim#getRange(s:var1Range)
+  let var2 = myvim#getRange(s:var2Range)
+  call myvim#swapRange(s:var0Range, s:var2Range)
+  call myvim#test#assertEqual(myvim#getRange(s:var0Range), var2,
         \expand('<sfile>').':'.expand('<slnum>') )
 
   silent normal! u
 
-  echom "test misc#searchWithJumpPair"
+  echom "test myvim#searchWithJumpPair"
   call cursor(s:totalRange[0])
-  call misc#searchWithJumpPair(')', '({[<', {"direction":"l"} )
-  call misc#test#assertEqual([line('.'), col('.')], s:totalRange[1],
+  call myvim#searchWithJumpPair(')', '({[<', {"direction":"l"} )
+  call myvim#test#assertEqual([line('.'), col('.')], s:totalRange[1],
         \expand('<sfile>').':'.expand('<slnum>') )
 
-  call misc#searchWithJumpPair('(', ')}]>', {"direction":"h"} )
-  call misc#test#assertEqual([line('.'), col('.')], s:totalRange[0],
-        \expand('<sfile>').':'.expand('<slnum>') )
-
-  call cursor(s:var1Range[0])
-  call misc#searchWithJumpPair(')', '({[<', {"direction":"l"} )
-  call misc#test#assertEqual([line('.'), col('.')], s:totalRange[1],
+  call myvim#searchWithJumpPair('(', ')}]>', {"direction":"h"} )
+  call myvim#test#assertEqual([line('.'), col('.')], s:totalRange[0],
         \expand('<sfile>').':'.expand('<slnum>') )
 
   call cursor(s:var1Range[0])
-  call misc#searchWithJumpPair('(', ')}]>', {"direction":"h"} )
-  call misc#test#assertEqual([line('.'), col('.')], s:totalRange[0],
+  call myvim#searchWithJumpPair(')', '({[<', {"direction":"l"} )
+  call myvim#test#assertEqual([line('.'), col('.')], s:totalRange[1],
         \expand('<sfile>').':'.expand('<slnum>') )
 
-  echom "test misc#getItemRanges"
   call cursor(s:var1Range[0])
-  call misc#test#assertEqual(misc#getItemRanges({}), [1,s:totalRange, s:itemRanges],
+  call myvim#searchWithJumpPair('(', ')}]>', {"direction":"h"} )
+  call myvim#test#assertEqual([line('.'), col('.')], s:totalRange[0],
+        \expand('<sfile>').':'.expand('<slnum>') )
+
+  echom "test myvim#getItemRanges"
+  call cursor(s:var1Range[0])
+  call myvim#test#assertEqual(myvim#getItemRanges({}), [1,s:totalRange, s:itemRanges],
         \expand('<sfile>').':'.expand('<slnum>') )
 
   call cursor(s:var0Range[0])
-  call misc#test#assertEqual(misc#getItemRanges({"direction":"l"}), 
+  call myvim#test#assertEqual(myvim#getItemRanges({"direction":"l"}), 
         \ [0,s:totalRange, s:itemRanges],
         \expand('<sfile>').':'.expand('<slnum>') )
 
 finally | silent execute 'edit ' . s:curFile | endtry
 
-call misc#endScript()
+call myvim#endScript()

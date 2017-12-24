@@ -1,4 +1,4 @@
-function! misc#ogre#loadAbbreviation()
+function! myvim#ogre#loadAbbreviation()
   "ogre related
   :iab <buffer> OGS getSingleton()
   :iab <buffer> O Ogre

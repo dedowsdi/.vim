@@ -1,4 +1,4 @@
-function! misc#opengl#loadAbbreviation()
+function! myvim#opengl#loadAbbreviation()
   :iab <buffer> glc  GLchar
   :iab <buffer> glb  GLbyte
   :iab <buffer> glub GLubyte
