@@ -13,6 +13,7 @@ let s:rexFuncName = '\v\zs[^ \t]+\ze\s*\(.*\)'
 let s:timing = 0
 let s:timeText = ''
 let s:optionStack = []
+let s:blockFile = system('mktemp /tmp/myvim_block_XXXXXX')[0:-2]
 
 function! myvim#getSid(fileName) abort
   let temp = @t|execute 'redir @t'
@@ -78,21 +79,17 @@ endfunction
 
 " [lnum]
 function! myvim#gotoFunction(...) abort
-  try
-    let oldpos = getpos('.')
-    let lnum = get(a:000, 0)
+  let oldpos = getpos('.')
+  let lnum = get(a:000, 0, 0)
 
-    normal! $
-    if search(s:reFuncStart, 'bW')
+  normal! $
+  if search(s:reFuncStart, 'bW')
       if lnum == 0 | return 1 | endif
       execute 'normal! '. lnum .'j'
       return 1
-    endif
+  endif
 
-    return 0
-  finally
-    call setpos('.', oldpos)
-  endtry
+  return 0
 endfunction
 
 function! myvim#getFuncBlock() abort
@@ -109,22 +106,6 @@ function! myvim#getFuncBlock() abort
   finally|call cursor(startLine, startCol)|endtry
 endfunction
 
-function! myvim#reloadLoadedScript() abort
-  try
-    let oldpos = getpos('.')
-    let reScriptGuard = '^\s*let\s*\zs[gb]:loaded\w+\ze'
-    keepjumps normal! gg
-    if search(reScriptGuard)
-      let scriptGuard = matchstr(getline('.'), reScriptGuard) 
-      execute 'unlet ' . scriptGuard ' | source %'
-    else
-      call myvim#warn('script guard not found')
-      return
-    endif
-  finally
-    call setpos('.', oldpos)
-  endtry
-endfunction
 
 function! myvim#scanGarbage() abort
   let re = '\v^\s*\w+\s*\='
@@ -210,6 +191,11 @@ endfunction
 
 function! myvim#getC(lnum, cnum) abort
   return matchstr(getline(a:lnum), '\%' . a:cnum . 'c.')
+endfunction
+
+function! myvim#sourceBlock(lnum0, lnum1)
+  exec printf('%d,%dwrite! %s', a:lnum0, a:lnum1, s:blockFile)
+  exec printf('source %s', s:blockFile)
 endfunction
 
 " opts{direction:'h or l' , delim: default to "," 
@@ -376,9 +362,9 @@ endfunction
 " eg : ( ',(',  ')}]>',  {direction:h} )
 function! myvim#searchWithJumpPair(expr, jumpPairs, opts) abort
   let direction = get(a:opts, 'direction', 'h') 
-  let flag = direction ==# 'h' ? 'bW' : ''
+  let flag = direction ==# 'h' ? 'bW' : 'W'
 
-  let searchExpr = '\v[' . a:expr . escape(a:jumpPairs, '[]') . ']'
+  let searchExpr = '\v[' . a:expr . escape(a:jumpPairs, ']') . ']'
 
   while search(searchExpr, flag)
     let c = myvim#getCC()
@@ -701,6 +687,6 @@ endfunction
 
 function! myvim#loadAbbreviation(...) abort
   for lang in a:000  
-    call call('myvim#'.lang.'#loadAbbreviation', [])
+    call call('misc#'.lang.'#loadAbbreviation', [])
   endfor
 endfunction

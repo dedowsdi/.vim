@@ -4,7 +4,7 @@ endif
 let b:loaded_cpp_cfg = 1
 
 :setlocal shiftwidth=2 tabstop=2 textwidth=80 expandtab
-call mycpp#loadAbbreviation()
+call misc#cpp#loadAbbreviation()
 
 nmap     <buffer> <leader>de <Plug>CdefDefineTag
 vmap     <buffer> <leader>de <Plug>CdefDefineRange

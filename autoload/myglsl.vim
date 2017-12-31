@@ -1,10 +1,10 @@
 
-let myglsl#sequence = ['vert', 'geom', 'grag']
+let myglsl#sequence = ['vert', 'geom', 'frag']
 
 let myglsl#shaderTypeDict = {
-      \ 'vert' : ['vs, vert'],
-      \ 'geom' : ['gs, geom'],
-      \ 'frag' : ['fs, frag']
+      \ 'vert' : ['vs', 'vert'],
+      \ 'geom' : ['gs', 'geom'],
+      \ 'frag' : ['fs', 'frag']
       \ }
 
 function! s:getShaderType(name) abort
@@ -17,7 +17,6 @@ function! s:getShaderType(name) abort
   endfor
   return ''
 endfunction
-
 
 function! myglsl#alternate() abort
   let filename = expand('%:t')

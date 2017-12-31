@@ -2,13 +2,14 @@
 let g:mycppBuildDir = myvim#normDir(fnamemodify(g:mycppBuildDir, ':p'))
 let g:mycppBinaryDir = get(g:, 'mycppBinaryDir', myvim#normDir(g:mycppBuildDir) . 'bin/')
 let g:mycppMakeResult = g:mycppBuildDir . 'make_result'
-let g:mycppDebugPostfix = '_d'
-let g:mycppMakeMarker = '__________MAKE_DONE__________'
-let g:mycppExeArgs = get(g:, 'mycppExeArgs', {})
-let s:updatingFunction = {}
-let g:mycppLastTarget = ''
-let s:ag = 'Ag'
 let g:mycppDebugger = get(g:, 'mycppDebugger', 'lldb')
+let g:mycppAutoDebugScript = get(g:, 'mycppAutoDebugScript', 1)
+
+let s:jqtemp = system('mktemp /tmp/mycpp_jq_XXXXXX')[0:-2]
+let s:pjcfg = fnamemodify('./.vim/project.json', '%:p')
+let s:lastTarget = ''
+let s:updatingFunction = {}
+let s:ag = 'Ag'
 
 let s:dbgCmdsDict = {
   \ 'lldb':{
@@ -145,12 +146,53 @@ function! mycpp#getDebugCmd() abort
   return  printf('cd %s && %s', g:mycppBinaryDir, s:debug_run())
 endfunction
 
+" (cmd [, tail])
+function! mycpp#updateProjectFile(cmd, ...) abort
+  let tail = get(a:000, 0, '')
+  let cmd = printf('%s %s>%s && mv %s %s %s', a:cmd, s:pjcfg, s:jqtemp, s:jqtemp, s:pjcfg, tail)
+  call system(cmd)
+endfunction
+
+function! mycpp#checkTarget(target) abort
+  " init project file
+  call system(printf('[[ ! -s "%s" ]] && echo "{}" > %s', s:pjcfg, s:pjcfg))
+
+  " init target
+  let cmd = printf('jq -e ''.%s'' %s || ( jq ''. + {"%s" : { args:"" }}'' ',
+        \ a:target, s:pjcfg, a:target )
+  call mycpp#updateProjectFile(cmd, ')')
+
+  " init debugger
+  let cmd = printf('jq -e ''.%s.%s'' %s || ( jq ''.%s += {"%s" : { breakpoint:{} }}'' ',
+        \ a:target, g:mycppDebugger, s:pjcfg, a:target, g:mycppDebugger)
+  call mycpp#updateProjectFile(cmd, ')')
+
+endfunction
+
+function! mycpp#getTargetItem(target, exp) abort
+  call mycpp#checkTarget(a:target)
+  let cmd = printf('jq -r ''.%s.%s'' %s', a:target, a:exp, s:pjcfg)
+  return system(cmd)[0:-2]
+endfunction
+
+function! mycpp#setTargetItem(target, exp, value) abort
+  call mycpp#checkTarget(a:target)
+  call mycpp#updateProjectFile(printf('jq ''setpath(path(.%s.%s); "%s")'' ', a:target, a:exp, a:value))
+endfunction
+
 function! s:updateTarget(args) abort
   let [target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
   if !s:isTarget(target)
     call myvim#warn(target . ' is not a valid make target') | return [0, target, targetArgs]
   endif
-  let g:mycppLastTarget = target
+
+  if targetArgs ==# ''
+    let targetArgs = mycpp#getTargetItem(target, 'args')
+  else
+    call mycpp#setTargetItem(target, 'args', targetArgs)
+  endif
+
+  let s:lastTarget = target
   return [1, target, targetArgs]
 endfunction
 
@@ -164,13 +206,15 @@ endfunction
 function! mycpp#makeRun(args) abort
   let [success, target, targetArgs] = s:updateTarget(a:args)
   if !success | return | endif
-  call mycpp#sendcmd(printf('%s && %s', mycpp#getMakeCmd(target), mycpp#getRunCmd(target, targetArgs)))
+  call mycpp#sendcmd(printf('%s && [[ ${PIPESTATUS[0]} -eq 0 ]] && %s',
+        \ mycpp#getMakeCmd(target), mycpp#getRunCmd(target, targetArgs)))
 endfunction
 
 function! mycpp#makeDebug(args) abort
   let [success, target, targetArgs] = s:updateTarget(a:args)
   if !success | return | endif
-  call mycpp#sendcmd(printf('%s && %s', mycpp#getMakeCmd(target), mycpp#getDebugCmd()), 1)
+  call mycpp#sendcmd(printf('%s && [[ ${PIPESTATUS[0]} -eq 0 ]] && %s', 
+        \ mycpp#getMakeCmd(target), mycpp#getDebugCmd()), 1)
 endfunction
 
 function! mycpp#doTarget(args0, args1, args2) abort
@@ -212,7 +256,7 @@ endfunction
 
 " Get default make target.
 function! mycpp#getMakeDef() abort
-  return g:mycppLastTarget ==# '' ? mycpp#getMakeTargets()[0] : g:mycppLastTarget
+  return s:lastTarget ==# '' ? mycpp#getMakeTargets()[0] : s:lastTarget
 endfunction
 
 " Deprecated, this func requirs qf get opened first, but cw failed to open it
@@ -246,14 +290,8 @@ endfunction
 
 " {cmd [,insert]}
 function! mycpp#sendcmd(cmd, ...) abort
-  let insert = get(a:000, 0, 0)
   exec printf('T %s', a:cmd)
-  Topen
-  if insert == 1
-    let winid = bufwinid(g:neoterm.last().buffer_id)
-    call win_gotoid(winid)
-    normal! i
-  endif
+  call call('OpenNeoterm', a:000)
 endfunction
 
 function! mycpp#run(args) abort
@@ -265,7 +303,7 @@ endfunction
 function! mycpp#debug(args) abort
   let [success, target, targetArgs] = s:updateTarget(a:args)
   if !success | return | endif
-  call s:initDebugScript()
+  call s:updateDebugScript()
   call mycpp#sendcmd(mycpp#getDebugCmd(), 1)
 endfunction
 
@@ -282,13 +320,7 @@ function! mycpp#splitTargetAndArgs(cmd) abort
     let targetArgs = l[2]
   endif
 
-  "use predefined exe arg if it's empty, usually setted in pj.vim
-  if match(targetArgs, '\v^\s*$') != -1 && has_key(g:mycppExeArgs, target)
-    let targetArgs = g:mycppExeArgs[target]
-  endif
-
   return [target, targetArgs]
-
 endfunction
 
 " You need to create a dir and put all the third libs(or symbolic link) in it.
@@ -318,34 +350,82 @@ function! mycpp#getCmakeCache(name) abort
   return matchstr(cacheStr, rexValue)
 endfunction
 
-function! s:initDebugScript() abort
-  if empty(g:mycppLastTarget)
+function! s:updateDebugScript() abort
+  if g:mycppAutoDebugScript == 0
+    return
+  endif
+
+  if empty(s:lastTarget)
     echom 'empty las target, you must make or run it first'
     return
   endif
-  let file = printf('%s%s_%s', g:mycppBinaryDir, g:mycppDebugger, g:mycppLastTarget)
-  if !filereadable(file)
-    call system(printf('echo -e ''%s\n%s''>%s', s:debug_init(), s:dbgCmds.launch, file ))
-  endif
+  let file = printf('%s%s_%s', g:mycppBinaryDir, g:mycppDebugger, s:lastTarget)
+
+  " file ..
+  call system(printf('echo  ''%s''>%s', s:debug_init(), file ))
+  " breakpoint
+  let cmd = printf('jq -r ''.%s.%s.breakpoint | keys | .[]'' %s >> %s', 
+        \ s:lastTarget, g:mycppDebugger, s:pjcfg, file)
+  call system(cmd)
+  " launch
+  "call system(s:debug_run())
+  let args = mycpp#getTargetItem(s:lastTarget, 'args')
+  call system(printf('echo %s %s >> %s', s:debug_launch(), args, file))
+
   return file
 endfunction
 
 function! mycpp#openDebugScript() abort
-  silent! exec 'edit ' . s:initDebugScript()
+  silent! exec 'edit ' . s:updateDebugScript()
+endfunction
+
+function! mycpp#openProjectFile() abort
+  silent! exec 'edit ' . s:pjcfg
+  if s:lastTarget !=# ''
+    call search(printf('\v^\s*"<%s>"\s*:', s:lastTarget))
+  endif
 endfunction
 
 function! mycpp#singleLineBreak() abort
-  if empty(g:mycppLastTarget)
+  if empty(s:lastTarget)
     echom 'empty las target, you must make or run it first'
     return
   endif
-  let file = printf('%s%s_%s', g:mycppBinaryDir, g:mycppDebugger, g:mycppLastTarget)
-  call system(printf('echo -e ''%s\n%s\n%s''>%s', 
-        \ s:debug_init(), s:debug_break(), s:dbgCmds.launch, file ))
+  let cmd = printf('jq ''setpath(path(.%s.%s.breakpoint); {"%s" : null})''  ',
+        \ s:lastTarget, g:mycppDebugger, s:debug_break())
+  call mycpp#updateProjectFile(cmd)
+endfunction
+
+function! mycpp#toggleBreakpoint() abort
+  if empty(s:lastTarget)
+    echom 'empty las target, you must make or run it first'
+    return
+  endif
+
+  call mycpp#checkTarget(s:lastTarget)
+
+  let breakCmd = s:debug_break()
+  let cmd = printf('jq -e ''.%s.%s.breakpoint."%s"'' %s',
+        \ s:lastTarget, g:mycppDebugger, breakCmd, s:pjcfg)
+  call system(cmd)
+
+  if v:shell_error == 0
+    let cmd = printf('jq ''del(.%s.%s.breakpoint."%s")'' ',
+        \ s:lastTarget, g:mycppDebugger, breakCmd)
+    call mycpp#updateProjectFile(cmd)
+    echo printf('remove %s', breakCmd)
+  else
+    let cmd = printf('jq ''.%s.%s.breakpoint += {"%s":1}'' ',
+          \ s:lastTarget, g:mycppDebugger, breakCmd)
+    call mycpp#updateProjectFile(cmd)
+  
+    echom breakCmd
+  endif
+  
 endfunction
 
 function! s:debug_run() abort
-  return printf(s:dbgCmds.run, g:mycppLastTarget)
+  return printf(s:dbgCmds.run, s:lastTarget)
 endfunction
 
 function! s:debug_break() abort
@@ -357,8 +437,12 @@ function! s:debug_watch() abort
 endfunction
 
 function! s:debug_init() abort
-  let file = mycpp#getExe(g:mycppLastTarget)
+  let file = mycpp#getExe(s:lastTarget)
   return printf(s:dbgCmds.init, fnamemodify(file, ':p:t'))
+endfunction
+
+function! s:debug_launch() abort
+  return s:dbgCmds.launch
 endfunction
 
 function! mycpp#addDebugCommand(type) abort
@@ -369,42 +453,3 @@ function! mycpp#addDebugCommand(type) abort
   let cmd =  call('s:debug_'.a:type, [])
   let @d .= printf("%s\n", cmd)
 endfunction
-
-function! mycpp#loadAbbreviation()
-  "cpp abbrevation
-  :iab <buffer>  sI #include
-  :iab <buffer>  ssc static_cast<>()<Left><Left><Left>
-  :iab <buffer>  sdc dynamic_cast<>()<left><left><left>
-  :iab <buffer>  scc const_cast<>()<left><left><left>
-  :iab <buffer>  src reinterpret_cast<>()<left><left><left>
-  :iab <buffer>  sss std::stringstream
-  :iab <buffer>  sspc std::static_pointer_cast<>()<left><left><left>
-  :iab <buffer>  sdpc std::dynamic_pointer_cast<>()<left><left><left>
-  :iab <buffer>  scpc std::const_pointer_cast<>()<left><left><left>
-  :iab <buffer>  srpc std::reinterpret_pointer_cast<>()<left><left><left>
-  :iab <buffer>  sup std::unique_ptr<><Left>
-  :iab <buffer>  ssp std::shared_ptr<><Left>
-  :iab <buffer>  sup std::unique_ptr<><Left>
-  :iab <buffer>  swp std::weak_ptr<><Left>
-  :iab <buffer>  sap std::auto_ptr<><Left>
-  :iab <buffer>  sfl std::forward_list<><Left>
-  :iab <buffer>  sus std::unordered_set<><Left>
-  :iab <buffer>  sum std::unordered_map<><Left>
-  :iab <buffer>  stpt template<typename T><Left>
-  :iab <buffer>  stpc template<class T><Left>
-  :iab <buffer>  cfoff // clang-format off
-  :iab <buffer>  cfon // clang-format on
-
-  :iab <buffer> smd #ifdef _DEBUG<CR>#endif<esc>O
-  :iab <buffer> smif #if<CR>#endif<esc>O
-
-  "boost  abbreviation
-  :iab <buffer> br boost::regex
-  :iab <buffer> brm boost::regex_match()<Left>
-  :iab <buffer> brs boost::regex_search()<Left>
-  :iab <buffer> brr boost::regex_replace()<Left>
-  :iab <buffer> bsm boost::smatch
-
-  :iab <buffer>  Cfs //------------------------------------------------------------------------------
-
-endfunction()

@@ -28,7 +28,8 @@ nnoremap <leader>cI :call mycpp#gotoLastInclude({"jump":1})
 nnoremap <leader>csd :call mycpp#findInheritance()<CR>
 nnoremap <leader>csi :call mycpp#findIncludes()<CR>
 
-nnoremap <leader>bb :call mycpp#addDebugCommand('break')<CR>
+nnoremap <leader>bb :call mycpp#toggleBreakpoint()<CR>
+"nnoremap <leader>bb :call mycpp#addDebugCommand('break')<CR>
 nnoremap <leader>bw :call mycpp#addDebugCommand('watch')<CR>
 nnoremap <leader>bs :call mycpp#singleLineBreak()<CR>
 nnoremap <leader>mq :call mycpp#makeQuickfix()<CR>
@@ -36,7 +37,9 @@ nnoremap <leader>gt :call mycpp#doTarget("apitrace trace", "", "")<CR>
 nnoremap <leader>gq :call mycpp#openLastApitrace()<CR>
 nnoremap <leader>ga :call mycpp#doTarget("apitrace trace", "", 
 \ '<bar>& tee trace.log && qapitrace `grep -oP "(?<=tracing to ).*$" trace.log`')<CR>
+nnoremap <F5>       :Cmr<CR>
 
+nnoremap _p :call mycpp#openProjectFile()<CR>
 nnoremap _d :call mycpp#openDebugScript()<CR>
 
 let g:mycppDefSrcExt    = get(g:, 'mycppDefSrcExt'    , 'cpp')
@@ -51,7 +54,7 @@ let g:mycppBuildDir     = get(g:, 'mycppBuildDir'     , "./")
 " vim
 " ==============================================================================
 command! -nargs=0 V :source %
-command! -nargs=0 VV :call  myvim#reloadLoadedScript()
+command! -nargs=0 VV :call  reload#reloadLoadedScript()
 command! -nargs=0 Vb :breakadd here
 command! -nargs=0 Vbf :call myvim#breakFunction()
 command! -nargs=? Vgf :call myvim#gotoFunction(<f-args>)

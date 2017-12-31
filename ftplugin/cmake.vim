@@ -1,6 +1,6 @@
 "load guard
 if exists("g:loaded_cmake_cfg")
-  finicmake
+  fini
 endif
 let g:loaded_cmake_cfg = 1
 

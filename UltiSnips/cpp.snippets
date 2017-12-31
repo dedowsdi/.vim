@@ -285,6 +285,7 @@ glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
+
 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, IMAGE_WIDTH, IMAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 endsnippet
 
@@ -304,8 +305,8 @@ endsnippet
 
 snippet glDirectionalLight
 GLfloat light_position${1:0}[] = {1.0, 1.0, 1.0, 0.0};
-GLfloat light_diffuse$1[] = {1.0, 1.0, 1.0, 1.0};
-GLfloat light_specular$1[] = {1.0, 1.0, 1.0, 1.0};
+GLfloat light_diffuse$1[] = {0.0, 0.0, 0.0, 1.0};
+GLfloat light_specular$1[] = {0.0, 0.0, 0.0, 1.0};
 GLfloat light_ambient$1[] = {0.0, 0.0, 0.0, 1.0};
 
 glLightfv(GL_LIGHT$1, GL_POSITION, light_position$1);
@@ -316,8 +317,8 @@ endsnippet
 
 snippet glPointLight
 GLfloat light_position${1:0}[] = {1.0, 1.0, 1.0, 1.0};
-GLfloat light_diffuse$1[] = {1.0, 1.0, 1.0, 1.0};
-GLfloat light_specular$1[] = {1.0, 1.0, 1.0, 1.0};
+GLfloat light_diffuse$1[] = {0.0, 0.0, 0.0, 1.0};
+GLfloat light_specular$1[] = {0.0, 0.0, 0.0, 1.0};
 GLfloat light_ambient$1[] = {0.0, 0.0, 0.0, 1.0};
 GLfloat light_attenuation$1[] = {1, 0, 0};
 
@@ -332,7 +333,7 @@ endsnippet
 
 snippet glSpotLight
 GLfloat light_position${1:0}[] = {1.0, 1.0, 1.0, 1.0};
-GLfloat light_diffuse$1[] = {1.0, 1.0, 1.0, 1.0};
+GLfloat light_diffuse$1[] = {0.0, 0.0, 0.0, 1.0};
 GLfloat light_specular$1[] = {1.0, 1.0, 1.0, 1.0};
 GLfloat light_ambient$1[] = {0.0, 0.0, 0.0, 1.0};
 GLfloat light_attenuation$1[] = {1, 0, 0};
@@ -354,10 +355,10 @@ endsnippet
 
 snippet glMaterial
 GLfloat mat_ambient[] = {0.2, 0.2, 0.2, 1.0};
-GLfloat mat_diffuse[] = {1.0, 1.0, 1.0, 1.0};
+GLfloat mat_diffuse[] = {0.8, 0.8, 0.8, 0.8};
 GLfloat mat_specular[] = {0.0, 0.0, 0.0, 1.0};
 GLfloat mat_emission[] = {0.0, 0.0, 0.0, 1.0};
-GLfloat mat_shininess = 50.0;
+GLfloat mat_shininess = 0;
 
 glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
@@ -393,4 +394,48 @@ glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
 glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
 glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 0);
 glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
+endsnippet
+
+snippet glAttrib
+glGenVertexArrays(1, &vao);
+glBindVertexArray(vao);
+GLuint buffer;
+glGenBuffers(1, &buffer);
+glBindBuffer(GL_ARRAY_BUFFER, buffer);
+glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices),
+	value_ptr(vertices[0]), GL_STATIC_DRAW);
+
+glVertexAttribPointer(
+	location, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), BUFFER_OFFSET(0));
+glEnableVertexAttribArray(location);
+endsnippet
+
+snippet glMatrixAttrib
+GLint location = getAttribLocation(myProgram, "modelMatrix");
+
+glBindVertexArray(vao);
+GLuint buffer;
+glGenBuffers(1, &buffer);
+glBindBuffer(GL_ARRAY_BUFFER, buffer);
+glBufferData(GL_ARRAY_BUFFER, modelMatrixes.size() * sizeof(mat4),
+	value_ptr(modelMatrixes[0]), GL_STATIC_DRAW);
+
+glVertexAttribPointer
+	location + 0, 4, GL_FLOAT, GL_FALSE, sizeof(mat4), BUFFER_OFFSET(0));
+glVertexAttribPointer(
+	location + 1, 4, GL_FLOAT, GL_FALSE, sizeof(mat4), BUFFER_OFFSET(16));
+glVertexAttribPointer(
+	location + 2, 4, GL_FLOAT, GL_FALSE, sizeof(mat4), BUFFER_OFFSET(32));
+glVertexAttribPointer(
+	location + 3, 4, GL_FLOAT, GL_FALSE, sizeof(mat4), BUFFER_OFFSET(48));
+
+glEnableVertexAttribArray(location + 0);
+glEnableVertexAttribArray(location + 1);
+glEnableVertexAttribArray(location + 2);
+glEnableVertexAttribArray(location + 3);
+
+glVertexAttribDivisor(location + 0, 1);
+glVertexAttribDivisor(location + 1, 1);
+glVertexAttribDivisor(location + 2, 1);
+glVertexAttribDivisor(location + 3, 1);
 endsnippet
