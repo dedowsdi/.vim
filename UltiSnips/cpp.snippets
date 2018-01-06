@@ -439,3 +439,9 @@ glVertexAttribDivisor(location + 1, 1);
 glVertexAttribDivisor(location + 2, 1);
 glVertexAttribDivisor(location + 3, 1);
 endsnippet
+
+snippet glRotateState
+GLint ${1:polygonMode};
+glGetIntegerv(GL_POLYGON_MODE, $1);
+$1 = ${2:GL_POINT} + ($1 + 1 - $2) % ${3:3};
+endsnippet

@@ -200,20 +200,20 @@ function! mycpp#make(args) abort
   let [success, target, targetArgs] = s:updateTarget(a:args)
   if !success | return | endif
   cclose  " always close quickfix first
-  call mycpp#sendcmd(mycpp#getMakeCmd(target))
+  call mycpp#sendjob(mycpp#getMakeCmd(target))
 endfunction
 
 function! mycpp#makeRun(args) abort
   let [success, target, targetArgs] = s:updateTarget(a:args)
   if !success | return | endif
-  call mycpp#sendcmd(printf('%s && [[ ${PIPESTATUS[0]} -eq 0 ]] && %s',
+  call mycpp#sendjob(printf('%s && [[ ${PIPESTATUS[0]} -eq 0 ]] && %s',
         \ mycpp#getMakeCmd(target), mycpp#getRunCmd(target, targetArgs)))
 endfunction
 
 function! mycpp#makeDebug(args) abort
   let [success, target, targetArgs] = s:updateTarget(a:args)
   if !success | return | endif
-  call mycpp#sendcmd(printf('%s && [[ ${PIPESTATUS[0]} -eq 0 ]] && %s', 
+  call mycpp#sendjob(printf('%s && [[ ${PIPESTATUS[0]} -eq 0 ]] && %s', 
         \ mycpp#getMakeCmd(target), mycpp#getDebugCmd()), 1)
 endfunction
 
@@ -222,7 +222,7 @@ function! mycpp#doTarget(args0, args1, args2) abort
   if !success | return | endif
   let runCmd = printf('./%s %s', mycpp#getExe(target), targetArgs)
   let cmd = printf('cd %s && %s %s %s', g:mycppBinaryDir, a:args0, runCmd, a:args2)
-  call mycpp#sendcmd(cmd)
+  call mycpp#sendjob(cmd)
 endfunction
 
 function! mycpp#isLastMakeSuccessed() abort
@@ -244,14 +244,14 @@ endfunction
 function! mycpp#cmake() abort
   let buildType = fnamemodify(g:mycppBuildDir, ':h:t')
   let cmd = 'cd ' . g:mycppBuildDir . ' && cmake -DCMAKE_BUILD_TYPE:STRING=' . buildType . ' ' . getcwd()
-  call mycpp#sendcmd(cmd)
+  call mycpp#sendjob(cmd)
 endfunction
 
 function! mycpp#openLastApitrace() abort
   let traceCmd = printf('cd %s && ls -t -1 *.trace | head -n 1', g:mycppBinaryDir)
   let trace = system(traceCmd)[0:-2]
   let cmd = printf('cd %s && qapitrace ./%s', g:mycppBinaryDir, trace)
-  call mycpp#sendcmd(cmd)
+  call mycpp#sendjob(cmd)
 endfunction
 
 " Get default make target.
@@ -289,22 +289,23 @@ function! mycpp#getExe(target) abort
 endfunction
 
 " {cmd [,insert]}
-function! mycpp#sendcmd(cmd, ...) abort
-  exec printf('T %s', a:cmd)
-  call call('OpenNeoterm', a:000)
+function! mycpp#sendjob(cmd, ...) abort
+  let switch=get(a:000, 0, 0)
+  let autoInsert=get(a:000, 1, 0)
+  call misc#term#jtermopen({"cmd":a:cmd, "switch":switch, "autoInsert":autoInsert})
 endfunction
 
 function! mycpp#run(args) abort
   let [success, target, targetArgs] = s:updateTarget(a:args)
   if !success | return | endif
-  call mycpp#sendcmd(mycpp#getRunCmd(target, targetArgs))
+  call mycpp#sendjob(mycpp#getRunCmd(target, targetArgs))
 endfunction
 
 function! mycpp#debug(args) abort
   let [success, target, targetArgs] = s:updateTarget(a:args)
   if !success | return | endif
   call s:updateDebugScript()
-  call mycpp#sendcmd(mycpp#getDebugCmd(), 1)
+  call mycpp#sendjob(mycpp#getDebugCmd(), 1, 1)
 endfunction
 
 " return [target, args], args will be predefined args if it's empty
