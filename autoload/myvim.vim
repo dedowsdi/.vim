@@ -34,7 +34,7 @@ function! myvim#filename() abort
   return substitute(@%, '\V\^'.expand('~'), '~', '')
 endfunction
 
-" break at current line in current function
+" break at current line in current function, doesn't work if it's a dict
 " [funcName [,line, [,plugFileName]]]
 function! myvim#breakFunction() abort
   let [startLine, startCol] = [line('.'), col('.')]|try
