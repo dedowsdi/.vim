@@ -193,7 +193,7 @@ function! myvim#getC(lnum, cnum) abort
   return matchstr(getline(a:lnum), '\%' . a:cnum . 'c.')
 endfunction
 
-function! myvim#sourceBlock(lnum0, lnum1)
+function! myvim#sourceBlock(lnum0, lnum1) abort
   exec printf('%d,%dwrite! %s', a:lnum0, a:lnum1, s:blockFile)
   exec printf('source %s', s:blockFile)
 endfunction
@@ -666,6 +666,33 @@ function! myvim#getBraceBlock() abort
   finally
     call setpos('.', oldpos)
   endtry
+endfunction
+
+function! myvim#getVisualString() abort
+  let temp = @s | norm! gv"sy
+  let [str,@s] = [@s,temp] | return str
+endfunction
+
+" type: 
+"   0 : ex command involving shell command
+"   1 : function involving shell command
+"   2 : vim very no matic 
+function! myvim#literalize(str, type)
+
+  if a:type == 2
+    "return escape(escape(a:str, "\n/?\\"))
+    return substitute(escape(a:str, '/\?'), "\n", '\\n', 'g')
+  endif
+
+  " shellescale will escape ! and \n, but ! and \n doesn't need to be escaped in
+  " a literal match. shellescape also doesn't escape |, which will cause problem
+  " in ex command
+  let s = substitute(a:str, "'", "'\\\\''", "g")
+  if a:type == 0
+    let s = escape(s, "%#|\n")
+  endif
+  
+  return printf("'%s'", s)
 endfunction
 
 " ------------------------------------------------------------------------------
