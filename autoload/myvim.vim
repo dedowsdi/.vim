@@ -159,6 +159,15 @@ function! myvim#isLowercase(s) abort
   return match(a:s, re) == 0
 endfunction
 
+function! myvim#open(file)
+  let nr = bufnr(fnamemodify(a:file, ':p'))
+  if nr != -1
+    exec printf('buffer %d', nr)
+  else
+    exec printf('edit %s', a:file)
+  endif
+endfunction
+
 function! myvim#edit(file) abort
   if expand('%:p') != a:file && expand('%') != a:file
     silent! exec 'edit ' . a:file
@@ -674,22 +683,26 @@ function! myvim#getVisualString() abort
 endfunction
 
 " type: 
-"   0 : ex command involving shell command
-"   1 : function involving shell command
-"   2 : vim very no matic 
+"   0 : vim very no matic forward search pattern
+"   1 : grep
+"   2 : Fag
 function! myvim#literalize(str, type)
 
-  if a:type == 2
-    "return escape(escape(a:str, "\n/?\\"))
-    return substitute(escape(a:str, '/\?'), "\n", '\\n', 'g')
+  if a:type == 0
+    " only works forward search, backward search will fail due to / ? issue
+    return substitute(escape(a:str, '/\'), "\n", '\\n', 'g')
   endif
 
   " shellescale will escape ! and \n, but ! and \n doesn't need to be escaped in
   " a literal match. shellescape also doesn't escape |, which will cause problem
   " in ex command
   let s = substitute(a:str, "'", "'\\\\''", "g")
-  if a:type == 0
+  if a:type == 1
+    " i gusee :grep execute like !, so \n needs to be escaped
     let s = escape(s, "%#|\n")
+  else
+    " don't need to escape |, Fag has no -bar option 
+    let s = escape(s, "%#")
   endif
   
   return printf("'%s'", s)

@@ -15,7 +15,7 @@ command! -nargs=* -complete=customlist,mycpp#makeComplete Cmr    :wa|silent call
 command! -nargs=* -complete=customlist,mycpp#makeComplete Cmd    :wa|silent call mycpp#makeDebug(<q-args>)
 command! -nargs=0 -complete=customlist,mycpp#makeComplete Cmaker :wa|silent call mycpp#cmake()
 
-command! -nargs=* -complete=customlist,mycpp#makeComplete Crenderdoc :silent call mycpp#doTarget("renderdoccmd capture", <q-args>, '')
+command! -nargs=* -complete=customlist,mycpp#makeComplete Crenderdoc :silent call mycpp#doTarget("renderdoccmd capture", <q-args>, '', 1)
 command! -nargs=* -complete=customlist,mycpp#makeComplete Capitrace  :silent call mycpp#doTarget("apitrace trace", <q-args>, '')
 command! -nargs=* -complete=customlist,mycpp#makeComplete CnvidiaGfxDebugger   :silent call mycpp#doTarget("LD_PRELOAD=~/.tgd/libs/libNvidia_gfx_debugger.so", <q-args>, '')
 command! -nargs=* -complete=customlist,mycpp#makeComplete Cvalgrind   :silent call mycpp#doTarget("valgrind", <q-args>, '')
@@ -39,6 +39,7 @@ nnoremap <leader>gq :call mycpp#openLastApitrace()<CR>
 nnoremap <leader>ga :call mycpp#doTarget("apitrace trace", "", 
 \ '<bar>& tee trace.log && qapitrace `grep -oP "(?<=tracing to ).*$" trace.log`')<CR>
 nnoremap <leader>gr :Crenderdoc<CR>
+nnoremap <leader>gn :CnvidiaGfxDebugger<CR>
 nnoremap <F5>       :Cmr<CR>
 
 nnoremap _p :call mycpp#openProjectFile()<CR>

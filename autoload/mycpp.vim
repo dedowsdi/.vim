@@ -217,12 +217,19 @@ function! mycpp#makeDebug(args) abort
         \ mycpp#getMakeCmd(target), mycpp#getDebugCmd()), 1)
 endfunction
 
-function! mycpp#doTarget(args0, args1, args2) abort
+function! mycpp#doTarget(args0, args1, args2, ...) abort
+  let jobtype = get(a:000, 0, 0)
   let [success, target, targetArgs] = s:updateTarget(a:args1)
   if !success | return | endif
   let runCmd = printf('./%s %s', mycpp#getExe(target), targetArgs)
   let cmd = printf('cd %s && %s %s %s', g:mycppBinaryDir, a:args0, runCmd, a:args2)
-  call mycpp#sendjob(cmd)
+  if jobtype == 0
+    call mycpp#sendjob(cmd)
+  else
+    " some application(such as render doc) can not be called with term open,
+    " don't know why
+    call jobstart(cmd)
+  endif
 endfunction
 
 function! mycpp#isLastMakeSuccessed() abort

@@ -273,8 +273,8 @@ endsnippet
 snippet glTexture
 glGenTextures(1, &${1:tex});
 glBindTexture(GL_TEXTURE_2D, $1);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -385,7 +385,7 @@ glBindFramebuffer(GL_FRAMEBUFFER, $1);
 glFramebufferTexture2D(
 	GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ${2:colorTex}, 0);
 if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	printf("incomplete frame buffer");
+	printf("incomplete frame buffer\n");
 endsnippet
 
 snippet glLightModel
@@ -396,18 +396,20 @@ glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 0);
 glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
 endsnippet
 
-snippet glAttrib
-glGenVertexArrays(1, &vao);
-glBindVertexArray(vao);
-GLuint buffer;
-glGenBuffers(1, &buffer);
-glBindBuffer(GL_ARRAY_BUFFER, buffer);
-glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices),
+snippet glVertexAttrib
+GLuint ${1:vao};
+GLuint ${2:vbo};
+glGenVertexArrays(1, &$1);
+glGenBuffers(1, &$2);
+
+glBindVertexArray($1);
+glBindBuffer(GL_ARRAY_BUFFER, $2);
+glBufferData(GL_ARRAY_BUFFER, ${3:vertices}.size() * sizeof(item),
 	value_ptr(vertices[0]), GL_STATIC_DRAW);
 
 glVertexAttribPointer(
-	location, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), BUFFER_OFFSET(0));
-glEnableVertexAttribArray(location);
+	${4:location}, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+glEnableVertexAttribArray($4);
 endsnippet
 
 snippet glMatrixAttrib

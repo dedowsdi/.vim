@@ -5,7 +5,7 @@ let s:termbase = {'bufnr':-1, 'autoInsert':0}
 let s:jtermlog = system('mktemp /tmp/misc_term_$(date +%H_%M_%S)_XXXXXX.log')
 
 let s:jtermLayout = get(g:, 'miscJtermLayout', {})
-call extend(s:jtermLayout, {'position':'bot' , 'psize':0.35}, 'keep')
+call extend(s:jtermLayout, {'position':'bot' , 'psize':0.5}, 'keep')
 let s:gtermLayout = get(g:, 'miscGtermLayout', {})
 call extend(s:gtermLayout, {'position':'bot', 'psize':0.5}, 'keep')
 
@@ -80,15 +80,13 @@ function! s:term_close() dict abort
 endfunction
 
 function! s:jterm_close() dict abort
-  call system(printf('echo ------------------------------------------------------------>>%s', s:jtermlog))
-  call system(printf('echo $(date +%%H:%%M:%%S)>>%s', s:jtermlog))
-  call system(printf('echo ''%s''>>%s', self.cmd, s:jtermlog))
+  "call system(printf('echo ------------------------------------------------------------>>%s', s:jtermlog))
+  "call system(printf('echo $(date +%%H:%%M:%%S)>>%s', s:jtermlog))
+  "call system(printf('echo %s>>%s', myvim#literalize(self.cmd, 1), s:jtermlog))
   if bufexists(self.bufnr)
     " copy content to bak
-    let lines = getbufline(self.bufnr, 1, '$')
-    for line in lines
-      call system(printf('echo ''%s''>>%s', line, s:jtermlog))
-    endfor
+    "let lines = join(getbufline(self.bufnr, 1, '$'), "\n")
+    "call system(printf('echo %s>>%s', myvim#literalize(lines, 1), s:jtermlog))
     exec printf('bdelete! %d', self.bufnr)
   endif
   call filter(s:jterms, printf('v:val.bufnr != %d', self.bufnr))
