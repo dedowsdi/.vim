@@ -171,7 +171,7 @@ endfunction
 
 function! mycpp#getTargetItem(target, exp) abort
   call mycpp#checkTarget(a:target)
-  let cmd = printf('jq -r ''.%s.%s'' %s', a:target, a:exp, s:pjcfg)
+  let cmd = printf('jq -r ''.["%s"].%s'' %s', a:target, a:exp, s:pjcfg)
   return system(cmd)[0:-2]
 endfunction
 
@@ -291,7 +291,7 @@ function! mycpp#getExe(target) abort
   if !s:isTarget(a:target)
     call myvim#warn(a:target . ' is not a valid make target') | return ''
   endif
-  let grepTarget =  printf('grep -Po ''\s+\-o\s+\S*'' `find . -wholename ''*CMakeFiles/%s.dir/link.txt''` | grep -Po ''\b\w+$''', a:target)
+  let grepTarget =  printf('grep -Po ''\s+\-o\s+\S*'' `find . -wholename ''*CMakeFiles/%s.dir/link.txt''` | grep -Po ''[^\\/ \t]+$''', a:target)
   return system(grepTarget)[0:-2]
 endfunction
 

@@ -705,6 +705,7 @@ function! myvim#literalize(str, type)
     let s = escape(s, "%#")
   endif
   
+  " wrap in ''
   return printf("'%s'", s)
 endfunction
 
