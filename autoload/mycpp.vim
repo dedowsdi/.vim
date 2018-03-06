@@ -1,6 +1,9 @@
 "vars{{{1
 let g:mycppBuildDir = myvim#normDir(fnamemodify(g:mycppBuildDir, ':p'))
 let g:mycppBinaryDir = get(g:, 'mycppBinaryDir', myvim#normDir(g:mycppBuildDir) . 'bin/')
+if !isdirectory(g:mycppBinaryDir)
+  let g:mycppBinaryDir = g:mycppBuildDir
+endif
 let g:mycppMakeResult = g:mycppBuildDir . 'make_result'
 let g:mycppDebugger = get(g:, 'mycppDebugger', 'lldb')
 let g:mycppAutoDebugScript = get(g:, 'mycppAutoDebugScript', 1)
