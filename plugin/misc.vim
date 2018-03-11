@@ -26,7 +26,7 @@ nnoremap <leader>cI :call mycpp#gotoLastInclude({"jump":1})
       \ <bar>:exec 'normal! o#include '
       \ <bar>:startinsert! <CR>
 
-nnoremap <leader>csd :call mycpp#findInheritance()<CR>
+nnoremap <leader>csd :call mycpp#searchDerived()<CR>
 nnoremap <leader>csi :call mycpp#findIncludes()<CR>
 
 nnoremap <leader>bb :call mycpp#toggleBreakpoint()<CR>

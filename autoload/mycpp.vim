@@ -351,7 +351,7 @@ function! mycpp#addDependencies(libsDir) abort
   endfor
 endfunction
 
-function! mycpp#findInheritance(...) abort
+function! mycpp#searchDerived(...) abort
   let className = get(a:000, 0, expand('<cword>'))
   if className ==# ''
     call myvim#warn('empty class name') | return
