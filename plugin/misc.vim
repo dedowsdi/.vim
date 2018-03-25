@@ -21,6 +21,8 @@ command! -nargs=* -complete=customlist,mycpp#makeComplete CnvidiaGfxDebugger   :
 command! -nargs=* -complete=customlist,mycpp#makeComplete Cvalgrind   :silent call mycpp#doTarget("valgrind", <q-args>, '')
 "refactor
 command! -nargs=? Cgan :call mycpp#getArgNames({"type":"string", "reg":<q-args>})
+command! -nargs=0 Db :call mycpp#debugging_break_line()
+command! -nargs=0 Dp :call mycpp#debugging_print()
 
 nnoremap <leader>cI :call mycpp#gotoLastInclude({"jump":1}) 
       \ <bar>:exec 'normal! o#include '
@@ -52,7 +54,6 @@ tnoremap <C-h> <C-\><C-n>:call misc#term#hideall()<CR>
 
 "some cpp head file has no extension
 ":nnoremap <leader>t :set filetype=cpp<CR>
-
 
 let g:mycppDefSrcExt    = get(g:, 'mycppDefSrcExt'    , 'cpp')
 let g:mycppCreateSrc    = get(g:, 'mycppCreateSrc'    , 1)

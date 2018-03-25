@@ -13,21 +13,24 @@ let s:pjcfg = fnamemodify('./.vim/project.json', '%:p')
 let s:lastTarget = ''
 let s:updatingFunction = {}
 let s:ag = 'Ag'
+let s:debug_term = {}
 
 let s:dbgCmdsDict = {
   \ 'lldb':{
   \   'run' : 'lldb -s lldb_%s',
   \   'init' : 'file %s',
-  \   'launch' : 'process launch',
+  \   'launch' : 'process launch --',
   \   'break' : 'breakpoint set --file %s --line %d' ,
-  \   'watch' : 'watchpoint set var %s -w write'
+  \   'watch' : 'watchpoint set var %s -w write',
+  \   'print' : 'expression --'
   \ },
   \ 'gdb':{
   \   'run' : 'gdb -command gdb_%s',
   \   'init' : 'file %s',
   \   'launch' : 'run',
   \   'break' : 'b %s:%d' ,
-  \   'watch' : 'watch %s'
+  \   'watch' : 'watch %s',
+  \   'print' : 'expression --'
   \ }
   \ }
 
@@ -318,7 +321,7 @@ endfunction
 function! mycpp#sendjob(cmd, ...) abort
   let switch=get(a:000, 0, 0)
   let autoInsert=get(a:000, 1, 0)
-  call misc#term#jtermopen({"cmd":a:cmd, "switch":switch, "autoInsert":autoInsert})
+  let s:debug_term = misc#term#jtermopen({'cmd':a:cmd, 'switch':switch, 'autoInsert':autoInsert})
 endfunction
 
 function! mycpp#run(args) abort
@@ -457,6 +460,22 @@ function! mycpp#toggleBreakpoint() abort
   
 endfunction
 
+function! mycpp#send_debug_cmd(cmd) abort
+  if s:debug_term == {} || ! s:debug_term.is_alive()
+    return
+  endif
+
+  call jobsend(s:debug_term.jobid, a:cmd)
+endfunction
+
+function! mycpp#debugging_break_line() abort
+  call mycpp#send_debug_cmd(s:debug_break()."\n")
+endfunction
+
+function! mycpp#debugging_print() abort
+  call mycpp#send_debug_cmd(printf("%s %s\n", s:debug_print(), expand('<cword>')))
+endfunction
+
 function! s:debug_run() abort
   return printf(s:dbgCmds.run, s:lastTarget)
 endfunction
@@ -476,6 +495,10 @@ endfunction
 
 function! s:debug_launch() abort
   return s:dbgCmds.launch
+endfunction
+
+function! s:debug_print() abort
+  return s:dbgCmds.print
 endfunction
 
 function! mycpp#addDebugCommand(type) abort

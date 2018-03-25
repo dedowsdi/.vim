@@ -79,6 +79,10 @@ function! s:term_close() dict abort
   endif
 endfunction
 
+function! s:term_is_alive() dict abort
+  return bufexists(self.bufnr)
+endfunction
+
 function! s:jterm_close() dict abort
   "call system(printf('echo ------------------------------------------------------------>>%s', s:jtermlog))
   "call system(printf('echo $(date +%%H:%%M:%%S)>>%s', s:jtermlog))
@@ -109,6 +113,7 @@ let s:termbase.open     = function('s:term_open')
 let s:termbase.hide     = function('s:term_hide')
 let s:termbase.toggle   = function('s:term_toggle')
 let s:termbase.close    = function('s:term_close')
+let s:termbase.is_alive = function('s:term_is_alive')
 
 let s:jtermbase = deepcopy(s:termbase)
 call extend(s:jtermbase, {'jobFinished':0}, 'keep')
