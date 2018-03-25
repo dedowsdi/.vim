@@ -40,10 +40,18 @@ for (GLuint ${1:i} = 0; $1 < ${2:size}; ++$1) {
 endsnippet
 
 snippet forit
-	for(${1:std::vector<T>::iterator} iter = ${2:ctn.}begin(); iter !=
-	${2}end(); ++iter){
-		${0}
-	}
+for(${1:std::vector<T>::iterator} iter = ${2:ctn.}begin(); iter !=
+${2}end(); ++iter){
+	${0}
+}
+endsnippet
+
+snippet forin
+for(${1:item} : ${2:containers})
+{
+	${0}
+}
+
 endsnippet
 
 snippet box0
@@ -457,4 +465,22 @@ glm::vec4 perspective;
 glm::decompose(
 *mViewMatrix, scale, rotation, translation, skew, perspective);
 rotation = glm::conjugate(rotation);
+endsnippet
+
+snippet qtClass
+class ${1:ClassName} : public QWidget
+{
+	Q_OBJECT
+public:
+	$1(QWidget *parent = 0);
+
+signals:
+
+slots;
+
+};
+endsnippet
+
+snippet qtConnect
+connect(${1:buttonBox}, SIGNAL(${2:accepted()}), ${3:this}, ${4:SLOT(accept())});
 endsnippet

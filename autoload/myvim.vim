@@ -725,9 +725,3 @@ endfunction
 function! myvim#newChrono() abort
   return deepcopy(g:myvim#chrono) 
 endfunction
-
-function! myvim#loadAbbreviation(...) abort
-  for lang in a:000  
-    call call('misc#'.lang.'#loadAbbreviation', [])
-  endfor
-endfunction

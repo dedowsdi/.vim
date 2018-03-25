@@ -161,11 +161,11 @@ function! mycpp#createTargetIfNotExist(target) abort
   call system(printf('[[ ! -s "%s" ]] && echo "{}" > %s', s:pjcfg, s:pjcfg))
 
   " init target
-  let cmd = printf('jq -e ''.%s'' %s || ( jq ''. + {"%s" : {}}'' ', a:target, s:pjcfg, a:target )
+  let cmd = printf('jq -e ''.["%s"]'' %s || ( jq ''. + {"%s" : {}}'' ', a:target, s:pjcfg, a:target )
   call mycpp#updateProjectFile(cmd, ')')
 
   " init debugger. debugger might be changed, it's necessary to be check everytime.
-  let cmd = printf('jq -e ''.%s.%s'' %s || ( jq ''.%s += {"%s" : { breakpoint:{} }}'' ',
+  let cmd = printf('jq -e ''.["%s"].%s'' %s || ( jq ''.["%s"] += {"%s" : { breakpoint:{} ,"manual": []} }'' ',
         \ a:target, g:mycppDebugger, s:pjcfg, a:target, g:mycppDebugger)
   call mycpp#updateProjectFile(cmd, ')')
 endfunction
@@ -182,7 +182,7 @@ endfunction
 function! mycpp#setTargetItem(target, exp, value) abort
   call mycpp#createTargetIfNotExist(a:target)
   " setpath works nomatter item exists or not
-  call mycpp#updateProjectFile(printf('jq ''setpath(path(.%s.%s); "%s")'' ', a:target, a:exp, a:value))
+  call mycpp#updateProjectFile(printf('jq ''setpath(path(.["%s"].%s); "%s")'' ', a:target, a:exp, a:value))
 endfunction
 
 function! s:updateTarget(args) abort
@@ -297,7 +297,7 @@ function! mycpp#getExe(target) abort
     call myvim#warn(a:target . ' is not a valid make target') | return ''
   endif
   let grepTarget =  printf(
-        \ 'grep -Po ''\s+\-o\s+\S*'' `find %s -wholename ''*/CMakeFiles/%s.dir/link.txt''` | grep -Po ''[^\\/ \t]+$''', 
+        \ 'grep -Po ''\s+\-o\s+\S*'' `find %s 2>/dev/null -wholename ''*/CMakeFiles/%s.dir/link.txt''` | grep -Po ''[^\\/ \t]+$''', 
         \ g:mycppBuildDir, a:target)
   return system(grepTarget)[0:-2]
 endfunction
@@ -379,9 +379,15 @@ function! s:updateDebugScript() abort
   " file ..
   call system(printf('echo  ''%s''>%s', s:debug_init(), file ))
   " breakpoint
-  let cmd = printf('jq -r ''.%s.%s.breakpoint | keys | .[]'' %s >> %s', 
+  let cmd = printf('jq -r ''.["%s"].%s.breakpoint | keys | .[]'' %s >> %s', 
         \ s:lastTarget, g:mycppDebugger, s:pjcfg, file)
   call system(cmd)
+
+  " manual
+  let cmd = printf('jq -r ''.["%s"].%s.manual[]'' %s >> %s', 
+        \ s:lastTarget, g:mycppDebugger, s:pjcfg, file)
+  call system(cmd)
+
   " launch
   "call system(s:debug_run())
   let args = mycpp#getTargetItem(s:lastTarget, 'exe_args')
@@ -406,7 +412,7 @@ function! mycpp#singleLineBreak() abort
     echom 'empty las target, you must make or run it first'
     return
   endif
-  let cmd = printf('jq ''setpath(path(.%s.%s.breakpoint); {"%s" : null})''  ',
+  let cmd = printf('jq ''setpath(path(.["%s"].%s.breakpoint); {"%s" : null})''  ',
         \ s:lastTarget, g:mycppDebugger, s:debug_break())
   call mycpp#updateProjectFile(cmd)
 endfunction
