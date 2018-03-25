@@ -164,19 +164,31 @@ function! mycpp#createTargetIfNotExist(target) abort
   let cmd = printf('jq -e ''.["%s"]'' %s || ( jq ''. + {"%s" : {}}'' ', a:target, s:pjcfg, a:target )
   call mycpp#updateProjectFile(cmd, ')')
 
-  " init debugger. debugger might be changed, it's necessary to be check everytime.
+  " init debugger. debugger might be changed, it's necessary to check everytime.
   let cmd = printf('jq -e ''.["%s"].%s'' %s || ( jq ''.["%s"] += {"%s" : { breakpoint:{} ,"manual": []} }'' ',
         \ a:target, g:mycppDebugger, s:pjcfg, a:target, g:mycppDebugger)
   call mycpp#updateProjectFile(cmd, ')')
 endfunction
 
 " [default value]
-" return '' or default value if item does not exist
+" return '' or default value or value in default project if item does not exist
 function! mycpp#getTargetItem(target, exp, ...) abort
   call mycpp#createTargetIfNotExist(a:target)
   let cmd = printf('jq -r ''.["%s"].%s'' %s', a:target, a:exp, s:pjcfg)
   let value = system(cmd)[0:-2]
-  return value ==# 'null' ? get(a:000, 0, '') : value
+  if value !=# 'null'
+    return value
+  endif
+
+  if len(a:000) > 0
+    return a:1
+  endif
+
+  if a:target ==# '__default__'
+    return ''
+  endif
+
+  return mycpp#getTargetItem('__default__', a:exp)
 endfunction
 
 function! mycpp#setTargetItem(target, exp, value) abort
