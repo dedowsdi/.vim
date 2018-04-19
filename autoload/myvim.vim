@@ -159,7 +159,7 @@ function! myvim#isLowercase(s) abort
   return match(a:s, re) == 0
 endfunction
 
-function! myvim#open(file)
+function! myvim#open(file) abort
   let nr = bufnr(fnamemodify(a:file, ':p'))
   if nr != -1
     exec printf('buffer %d', nr)
@@ -385,6 +385,50 @@ function! myvim#searchWithJumpPair(expr, jumpPairs, opts) abort
   endwhile
 
   return 0
+endfunction
+
+" if you want to search > for < , make sure start is greater than pos of <
+function! myvim#searchOverPairs(str, start, target, openPairs, closePairs, direction) abort
+  if a:start >= len(a:str)
+    return -1
+  endif
+
+  let step = a:direction ==# 'l' ? 1 : -1
+  let pairs0 = a:direction ==# 'l' ? a:openPairs : a:closePairs
+  let pairs1 = a:direction ==# 'l' ? a:closePairs : a:openPairs
+
+  let stack = []
+
+  let pos = a:start + 1
+  let size = len(a:str)
+
+  while pos >= 0 && pos < size
+    let c = a:str[pos]
+
+    if len(stack) == 0 && stridx(a:target, c) != -1
+      return pos
+    endif
+
+    " check open pair
+    let idx = stridx(pairs0, c)
+    if idx != -1
+      let stack += [ pairs1[idx] ]
+      let pos += step
+      continue
+    endif
+
+      " search matching pair
+    if len(stack) != 0 && c ==# stack[-1]
+      call remove(stack, -1)
+      let pos += step
+      continue
+    endif
+
+    let pos += step
+
+  endwhile
+
+  return -1
 endfunction
 
 function! myvim#swapRange(range0, range1) abort
@@ -686,7 +730,7 @@ endfunction
 "   0 : vim very no matic forward search pattern
 "   1 : grep
 "   2 : Fag
-function! myvim#literalize(str, type)
+function! myvim#literalize(str, type) abort
 
   if a:type == 0
     " only works forward search, backward search will fail due to / ? issue
@@ -696,13 +740,13 @@ function! myvim#literalize(str, type)
   " shellescale will escape ! and \n, but ! and \n doesn't need to be escaped in
   " a literal match. shellescape also doesn't escape |, which will cause problem
   " in ex command
-  let s = substitute(a:str, "'", "'\\\\''", "g")
+  let s = substitute(a:str, "'", "'\\\\''", 'g')
   if a:type == 1
     " i gusee :grep execute like !, so \n needs to be escaped
     let s = escape(s, "%#|\n")
   else
     " don't need to escape |, Fag has no -bar option 
-    let s = escape(s, "%#")
+    let s = escape(s, '%#')
   endif
   
   " wrap in ''
@@ -725,3 +769,12 @@ endfunction
 function! myvim#newChrono() abort
   return deepcopy(g:myvim#chrono) 
 endfunction
+
+function! myvim#switchRtp(path) abort
+  if !has_key(s:, 'originalRtp')
+    let s:originalRtp = &rtp
+  endif
+
+  let &rtp = printf('%s,%s,%s', s:originalRtp, a:path, a:path.'/after')
+endfunction
+

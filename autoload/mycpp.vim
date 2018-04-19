@@ -1,10 +1,4 @@
-"vars{{{1
-let g:mycppBuildDir = myvim#normDir(fnamemodify(g:mycppBuildDir, ':p'))
-let g:mycppBinaryDir = get(g:, 'mycppBinaryDir', myvim#normDir(g:mycppBuildDir) . 'bin/')
-if !isdirectory(g:mycppBinaryDir)
-  let g:mycppBinaryDir = g:mycppBuildDir
-endif
-let g:mycppMakeResult = g:mycppBuildDir . 'make_result'
+" vars{{{1
 let g:mycppDebugger = get(g:, 'mycppDebugger', 'lldb')
 let g:mycppAutoDebugScript = get(g:, 'mycppAutoDebugScript', 1)
 
@@ -35,6 +29,21 @@ let s:dbgCmdsDict = {
   \ }
 
 let s:dbgCmds = s:dbgCmdsDict[g:mycppDebugger]
+
+function! mycpp#getBuildDir() abort
+  return myvim#normDir(fnamemodify(g:mycppBuildDir, ':p'))
+endfunction
+
+function! mycpp#getBinaryDir() abort
+  let buildDir = mycpp#getBuildDir()
+  let dir =  get(g:, 'mycppBinaryDir', buildDir) . 'bin/'
+  return isdirectory(dir) ? dir : buildDir
+endfunction
+
+function! mycpp#getMakeResult() abort
+  return 'make_result'
+  "return mycpp#getBuildDir() . 'make_result'
+endfunction
 
 " Get list of enumerations, it's placed at register e by default
 " @cursor range : enum name line, not after {
@@ -139,17 +148,25 @@ function! mycpp#makeComplete(ArgLead, CmdLine, CursorPos) abort
   return sort(filter(mycpp#getMakeTargets(), 'stridx(v:val, a:ArgLead)==0'))
 endfunction
 
-function! mycpp#getMakeCmd(target) abort
-  return printf('cd %s && unbuffer make %s %s |& tee %s',
-                \ g:mycppBuildDir, mycpp#getTargetItem(a:target, 'make_args'), a:target, g:mycppMakeResult)
+function! mycpp#getMakeCmd(target, ...) abort
+  let cd = get(a:000, 0, 1)
+  return printf(' %s unbuffer make %s %s |& tee %s',
+                \ cd ? printf('cd %s && ', mycpp#getBuildDir()) : '',
+                \ mycpp#getTargetItem(a:target, 'make_args'), a:target, mycpp#getMakeResult())
 endfunction
 
-function! mycpp#getRunCmd(target, targetArgs) abort
-  return  printf('cd %s && ./%s %s', g:mycppBinaryDir, mycpp#getExe(a:target), a:targetArgs)
+function! mycpp#getRunCmd(target, targetArgs, ...) abort
+  let cd = get(a:000, 0, 1)
+  return  printf('%s ./%s %s', 
+                \ cd ? printf('cd %s && ', mycpp#getBuildDir()) : '',
+                \  mycpp#getExe(a:target), a:targetArgs)
 endfunction
 
-function! mycpp#getDebugCmd() abort
-  return  printf('cd %s && %s', g:mycppBinaryDir, s:debug_run())
+function! mycpp#getDebugCmd(...) abort
+  let cd = get(a:000, 0, 1)
+  return  printf('%s %s',
+                \ cd ? printf('cd %s && ', mycpp#getBuildDir()) : '',
+                \ s:debug_run())
 endfunction
 
 " (cmd [, tail])
@@ -226,15 +243,15 @@ endfunction
 function! mycpp#makeRun(args) abort
   let [success, target, targetArgs] = s:updateTarget(a:args)
   if !success | return | endif
-  call mycpp#sendjob(printf('%s && [[ ${PIPESTATUS[0]} -eq 0 ]] && %s',
-        \ mycpp#getMakeCmd(target), mycpp#getRunCmd(target, targetArgs)))
+  call mycpp#sendjob(printf('%s && [[ ${pipestatus[1]} -eq 0 ]] && %s',
+        \ mycpp#getMakeCmd(target), mycpp#getRunCmd(target, targetArgs, 0)))
 endfunction
 
 function! mycpp#makeDebug(args) abort
   let [success, target, targetArgs] = s:updateTarget(a:args)
   if !success | return | endif
-  call mycpp#sendjob(printf('%s && [[ ${PIPESTATUS[0]} -eq 0 ]] && %s', 
-        \ mycpp#getMakeCmd(target), mycpp#getDebugCmd()), 1)
+  call mycpp#sendjob(printf('%s && [[ ${pipestatus[1]} -eq 0 ]] && %s', 
+        \ mycpp#getMakeCmd(target), mycpp#getDebugCmd(0)), 1)
 endfunction
 
 function! mycpp#doTarget(args0, args1, args2, ...) abort
@@ -242,7 +259,7 @@ function! mycpp#doTarget(args0, args1, args2, ...) abort
   let [success, target, targetArgs] = s:updateTarget(a:args1)
   if !success | return | endif
   let runCmd = printf('./%s %s', mycpp#getExe(target), targetArgs)
-  let cmd = printf('cd %s && %s %s %s', g:mycppBinaryDir, a:args0, runCmd, a:args2)
+  let cmd = printf('cd %s && %s %s %s', mycpp#getBinaryDir(), a:args0, runCmd, a:args2)
   if jobtype == 0
     call mycpp#sendjob(cmd)
   else
@@ -253,7 +270,7 @@ function! mycpp#doTarget(args0, args1, args2, ...) abort
 endfunction
 
 function! mycpp#isLastMakeSuccessed() abort
-  let cmd = 'tail -n 1 ' . g:mycppMakeResult
+  let cmd = 'tail -n 1 ' . mycpp#getMakeResult()
   let lastline = system(cmd)[0:-2]
   return lastline =~# '^\v\[100\%\]\s*built\s*target\s*\w+'
 endfunction
@@ -261,23 +278,23 @@ endfunction
 function! mycpp#makeQuickfix() abort
   if !mycpp#isLastMakeSuccessed()
     " remove color 
-    let cmd = 'sed -i -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})*)?[mK]//g" ' . g:mycppMakeResult
+    let cmd = 'sed -i -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})*)?[mK]//g" ' . mycpp#getMakeResult()
     call system(cmd)
-    exec 'cfile ' . g:mycppMakeResult
+    exec 'cfile ' . mycpp#getMakeResult()
     copen
   endif
 endfunction
 
 function! mycpp#cmake() abort
-  let buildType = fnamemodify(g:mycppBuildDir, ':h:t')
-  let cmd = 'cd ' . g:mycppBuildDir . ' && cmake -DCMAKE_BUILD_TYPE:STRING=' . buildType . ' ' . getcwd()
+  let buildType = fnamemodify(mycpp#getBuildDir(), ':h:t')
+  let cmd = 'cd ' . mycpp#getBuildDir() . ' && cmake -DCMAKE_BUILD_TYPE:STRING=' . buildType . ' ' . getcwd()
   call mycpp#sendjob(cmd)
 endfunction
 
 function! mycpp#openLastApitrace() abort
-  let traceCmd = printf('cd %s && ls -t -1 *.trace | head -n 1', g:mycppBinaryDir)
+  let traceCmd = printf('cd %s && ls -t -1 *.trace | head -n 1', mycpp#getBinaryDir())
   let trace = system(traceCmd)[0:-2]
-  let cmd = printf('cd %s && qapitrace ./%s', g:mycppBinaryDir, trace)
+  let cmd = printf('cd %s && qapitrace ./%s', mycpp#getBinaryDir(), trace)
   call mycpp#sendjob(cmd)
 endfunction
 
@@ -298,7 +315,7 @@ endfunction
 
 " generate make targets from Makefile
 function! mycpp#getMakeTargets() abort
-  let cmd = 'cd ' . g:mycppBuildDir . ' &&  make help | grep "\.\.\." | cut -d\  -f2'
+  let cmd = 'cd ' . mycpp#getBuildDir() . ' &&  make help | grep "\.\.\." | cut -d\  -f2'
   return systemlist(cmd)
 endfunction
 
@@ -313,7 +330,7 @@ function! mycpp#getExe(target) abort
   endif
   let grepTarget =  printf(
         \ 'grep -Po ''\s+\-o\s+\S*'' `find %s 2>/dev/null -wholename ''*/CMakeFiles/%s.dir/link.txt''` | grep -Po ''[^\\/ \t]+$''', 
-        \ g:mycppBuildDir, a:target)
+        \ mycpp#getBuildDir(), a:target)
   return system(grepTarget)[0:-2]
 endfunction
 
@@ -375,7 +392,7 @@ function! mycpp#searchDerived(...) abort
 endfunction
 
 function! mycpp#getCmakeCache(name) abort
-  let cacheStr = system('cd ' . g:mycppBuildDir . ' && cmake -LA -N ')
+  let cacheStr = system('cd ' . mycpp#getBuildDir() . ' && cmake -LA -N ')
   let rexValue = '\v' . a:name . ':\w+\=\zs.{-}\ze\n' 
   return matchstr(cacheStr, rexValue)
 endfunction
@@ -389,7 +406,7 @@ function! s:updateDebugScript() abort
     echom 'empty las target, you must make or run it first'
     return
   endif
-  let file = printf('%s%s_%s', g:mycppBinaryDir, g:mycppDebugger, s:lastTarget)
+  let file = printf('%s%s_%s', mycpp#getBinaryDir(), g:mycppDebugger, s:lastTarget)
 
   " file ..
   call system(printf('echo  ''%s''>%s', s:debug_init(), file ))
