@@ -148,25 +148,17 @@ function! mycpp#makeComplete(ArgLead, CmdLine, CursorPos) abort
   return sort(filter(mycpp#getMakeTargets(), 'stridx(v:val, a:ArgLead)==0'))
 endfunction
 
-function! mycpp#getMakeCmd(target, ...) abort
-  let cd = get(a:000, 0, 1)
-  return printf(' %s unbuffer make %s %s |& tee %s',
-                \ cd ? printf('cd %s && ', mycpp#getBuildDir()) : '',
-                \ mycpp#getTargetItem(a:target, 'make_args'), a:target, mycpp#getMakeResult())
+function! mycpp#getMakeCmd(target) abort
+  return printf('cd %s && unbuffer make %s %s |& tee %s',
+                \ g:mycppBuildDir, mycpp#getTargetItem(a:target, 'make_args'), a:target, mycpp#getMakeResult())
 endfunction
 
-function! mycpp#getRunCmd(target, targetArgs, ...) abort
-  let cd = get(a:000, 0, 1)
-  return  printf('%s ./%s %s', 
-                \ cd ? printf('cd %s && ', mycpp#getBuildDir()) : '',
-                \  mycpp#getExe(a:target), a:targetArgs)
+function! mycpp#getRunCmd(target, targetArgs) abort
+  return  printf('cd %s && ./%s %s', mycpp#getBinaryDir(), mycpp#getExe(a:target), a:targetArgs)
 endfunction
 
-function! mycpp#getDebugCmd(...) abort
-  let cd = get(a:000, 0, 1)
-  return  printf('%s %s',
-                \ cd ? printf('cd %s && ', mycpp#getBuildDir()) : '',
-                \ s:debug_run())
+function! mycpp#getDebugCmd() abort
+  return  printf('cd %s && %s', mycpp#getBinaryDir(), s:debug_run())
 endfunction
 
 " (cmd [, tail])
@@ -244,14 +236,14 @@ function! mycpp#makeRun(args) abort
   let [success, target, targetArgs] = s:updateTarget(a:args)
   if !success | return | endif
   call mycpp#sendjob(printf('%s && [[ ${pipestatus[1]} -eq 0 ]] && %s',
-        \ mycpp#getMakeCmd(target), mycpp#getRunCmd(target, targetArgs, 0)))
+        \ mycpp#getMakeCmd(target), mycpp#getRunCmd(target, targetArgs)))
 endfunction
 
 function! mycpp#makeDebug(args) abort
   let [success, target, targetArgs] = s:updateTarget(a:args)
   if !success | return | endif
   call mycpp#sendjob(printf('%s && [[ ${pipestatus[1]} -eq 0 ]] && %s', 
-        \ mycpp#getMakeCmd(target), mycpp#getDebugCmd(0)), 1)
+        \ mycpp#getMakeCmd(target), mycpp#getDebugCmd(0)))
 endfunction
 
 function! mycpp#doTarget(args0, args1, args2, ...) abort
