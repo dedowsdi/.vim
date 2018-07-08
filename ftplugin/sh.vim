@@ -1,7 +1,7 @@
 "load guard
-if exists("g:loaded_sh_cfg")
+if exists("b:loaded_sh_cfg")
   finish
 endif
-let g:loaded_sh_cfg = 1
+let b:loaded_sh_cfg = 1
 
-:setlocal expandtab textwidth=160
+:setlocal expandtab textwidth=160 shiftwidth=2 tabstop=2

@@ -14,6 +14,7 @@ let s:timing = 0
 let s:timeText = ''
 let s:optionStack = []
 let s:blockFile = system('mktemp /tmp/myvim_block_XXXXXX')[0:-2]
+let s:maps = {}
 
 function! myvim#getSid(fileName) abort
   let temp = @t|execute 'redir @t'
@@ -397,9 +398,9 @@ function! myvim#searchOverPairs(str, start, target, openPairs, closePairs, direc
   let pairs0 = a:direction ==# 'l' ? a:openPairs : a:closePairs
   let pairs1 = a:direction ==# 'l' ? a:closePairs : a:openPairs
 
-  let stack = []
+  let stack = [] " pair index stack
 
-  let pos = a:start + 1
+  let pos = a:start
   let size = len(a:str)
 
   while pos >= 0 && pos < size
@@ -409,22 +410,25 @@ function! myvim#searchOverPairs(str, start, target, openPairs, closePairs, direc
       return pos
     endif
 
+    let pos += step
+
+    " ignore everyting except open or close char of current pair
+    if len(stack) != 0
+      " search matching pair
+      if c ==# pairs1[ stack[-1] ]
+        call remove(stack, -1)
+      elseif c ==# pairs0[ stack[-1] ]
+        let stack += stack[-1]
+      endif
+      continue
+    endif
+
     " check open pair
     let idx = stridx(pairs0, c)
     if idx != -1
-      let stack += [ pairs1[idx] ]
-      let pos += step
+      let stack += [ idx ]
       continue
     endif
-
-      " search matching pair
-    if len(stack) != 0 && c ==# stack[-1]
-      call remove(stack, -1)
-      let pos += step
-      continue
-    endif
-
-    let pos += step
 
   endwhile
 
@@ -722,8 +726,8 @@ function! myvim#getBraceBlock() abort
 endfunction
 
 function! myvim#getVisualString() abort
-  let temp = @s | norm! gv"sy
-  let [str,@s] = [@s,temp] | return str
+  let temp = @" | norm! gvy
+  let [str,@"] = [@",temp] | return str
 endfunction
 
 " type: 
@@ -778,3 +782,65 @@ function! myvim#switchRtp(path) abort
   let &rtp = printf('%s,%s,%s', s:originalRtp, a:path, a:path.'/after')
 endfunction
 
+
+function! myvim#bindKey(key, mode, no, filetypes, map) abort
+  if a:map ==# ''
+    return
+  endif
+
+  if a:filetypes == []
+    " global map
+    for index in  range(len(a:mode))
+      exec printf('%s%smap %s %s', a:mode[index], a:no?'nore':'', a:key, a:map)
+    endfor
+    return
+  endif
+
+  for ft in a:filetypes
+    if !has_key(s:maps, ft)
+      let s:maps[ft] = []
+    endif
+
+    let s:maps[ft] += [{'key':a:key, 'mode':a:mode, 'no':a:no, 'map':a:map}]
+  endfor
+endfunction
+
+function! myvim#loadFiletypeMap(ft) abort
+  if !has_key(s:maps, a:ft)
+    return
+  endif
+
+  let maps = s:maps[a:ft]
+  for item in maps
+    if item.map ==# ''
+      echoe string(item).' has blank map'
+      continue
+    endif
+    for index in  range(len(item.mode))
+      exec printf('%s%smap <buffer> %s %s', item.mode[index], item.no?'nore':'', item.key, item.map)
+    endfor
+  endfor
+endfunction
+
+function! myvim#loadAutoMap(ft) abort
+  if !has_key(s:maps, a:ft)
+    return
+  endif
+
+  let maps = s:maps[a:ft]
+  for item in maps
+    if item.map ==# ''
+      echoe string(item).' has blank map'
+      continue
+    endif
+    for index in  range(len(item.mode))
+      exec printf('autocmd BufReadPost %s %s%smap <buffer> %s %s', a:ft, item.mode[index], item.no?'nore':'', item.key, item.map)
+    endfor
+  endfor
+endfunction
+
+function! myvim#updateTags() abort
+  if filereadable('.vim/ctags.sh')
+    call jobstart('.vim/ctags.sh')
+  endif
+endfunction

@@ -1,8 +1,12 @@
-nnoremap <F12> :call JsFuncComment()<CR>
-nnoremap <c-F12> :call JsOnComment()<CR>
+" nnoremap <F12> :call JsFuncComment()<CR>
+" nnoremap <c-F12> :call JsOnComment()<CR>
 
 " javascript function comment
 command! -nargs=0 Jsfc call JsFuncComment() 
+
+call myvim#loadFiletypeMap('javascript')
+
+
 function! JsFuncComment()
     let str = getline(".")
     let reName = '\vfunction\s*\zs<\w+>|\zs\S+\ze\s\='
@@ -69,10 +73,10 @@ endfunction
 
 
 " goto definition
-nnoremap <F3> :TernDef
+"nnoremap <F3> :TernDef
 
 " rename
-nnoremap <F2> :TernRename
+"nnoremap <F2> :TernRename
 
 "todo
 "nmap <SPACE>t O@TODO:<ESC>\c<SPACE>A

@@ -21,6 +21,10 @@ snippet tpt
 template<typename ${1:T}>
 endsnippet
 
+snippet ifs
+if(${0})
+endsnippet
+
 snippet forz
 for (${1:size_t} ${2:i} = 0; $2 < ${3:size}; ++$2) {
 	${0}
@@ -40,14 +44,13 @@ for (GLuint ${1:i} = 0; $1 < ${2:size}; ++$1) {
 endsnippet
 
 snippet forit
-for(${1:std::vector<T>::iterator} iter = ${2:ctn.}begin(); iter !=
-${2}end(); ++iter){
+for(${1:std::vector<T>::iterator} iter = ${2:ctn.}begin(); iter != $2end(); ++iter){
 	${0}
 }
 endsnippet
 
 snippet forin
-for(${1:item} : ${2:containers})
+for(${1:const auto& item} : ${2:containers})
 {
 	${0}
 }
@@ -468,7 +471,7 @@ rotation = glm::conjugate(rotation);
 endsnippet
 
 snippet qtClass
-class ${1:ClassName} : public QWidget
+class ${1:ClassName} : public ${2:QWidget}
 {
 	Q_OBJECT
 public:
@@ -476,11 +479,22 @@ public:
 
 signals:
 
-slots;
+slots:
 
 };
 endsnippet
 
 snippet qtConnect
-connect(${1:buttonBox}, SIGNAL(${2:accepted()}), ${3:this}, ${4:SLOT(accept())});
+connect(${1:buttonBox}, SIGNAL(${2:accepted()}), ${3:this}, SLOT(${4:accept())});
+endsnippet
+
+snippet qtMain
+#include <QApplication>
+
+int main(int argc, char *argv[])
+{
+	QApplication app(argc, argv);
+	${0}
+	return app.exec();
+}
 endsnippet

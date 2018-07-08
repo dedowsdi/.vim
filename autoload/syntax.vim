@@ -1,5 +1,5 @@
 function! syntax#opengl()
-  syn match glEnum /\v\CGL_\w+/
+  syn match glEnum /\v\C<GL_\w+/
 
   highlight link glEnum Define
 endfunction
@@ -19,18 +19,18 @@ function! syntax#glfw()
   syn match glfwType /\v\C<GLFW\l+/
 
   highlight link glfwMacro Constant
-  highlight link glfwType Define
+  highlight link glfwType Type
 endfunction
 
 function! syntax#qt()
   syn keyword qtNamespace Qt
   syn keyword qtMacro SIGNAL SLOT Q_OBJECT signals slots emit
-  syn match qtqMacro /\vQ_[A_Z_]+/
+  syn match qtMacro1 /\vQ_[A-Z_]+/
   syn keyword qtPrimitive qint8 quint8 qint16 quint16 qint32 quint32 qint64 quint64 qlonglong qulonglong
   syn match qtClass /\v<Q\u\w*>/
 
   highlight link qtMacro Macro
-  highlight link qtqMacro Macro
+  highlight link qtMacro1 Macro
   highlight link qtClass Type
   highlight link qtPrimitive Type
   highlight link qtNamespace Constant

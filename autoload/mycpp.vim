@@ -1,6 +1,8 @@
 " vars{{{1
-let g:mycppDebugger = get(g:, 'mycppDebugger', 'lldb')
+let g:mycppCompiler = ($CC =~# '\v.*clang$' || $CXX =~# '\v.*clang\+\+$') ? 'clang' : 'gcc'
+let g:mycppDebugger = g:mycppCompiler ==# 'clang' ? 'lldb' : 'gdb'
 let g:mycppAutoDebugScript = get(g:, 'mycppAutoDebugScript', 1)
+let g:mycppDebugGui = 0
 
 let s:jqtemp = system('mktemp /tmp/mycpp_jq_XXXXXX')[0:-2]
 let s:pjcfg = fnamemodify('./.vim/project.json', '%:p')
@@ -16,15 +18,18 @@ let s:dbgCmdsDict = {
   \   'launch' : 'process launch --',
   \   'break' : 'breakpoint set --file %s --line %d' ,
   \   'watch' : 'watchpoint set var %s -w write',
-  \   'print' : 'expression --'
+  \   'print' : 'expression --',
+  \   'setArgs'  : 'settings set target.run-args',
   \ },
   \ 'gdb':{
-  \   'run' : 'gdb -command gdb_%s',
+  \   'run' : 'gdb --silent -command gdb_%s',
+  \   'gui' : 'gdbgui -x gdb_%s',
   \   'init' : 'file %s',
   \   'launch' : 'run',
   \   'break' : 'b %s:%d' ,
   \   'watch' : 'watch %s',
-  \   'print' : 'expression --'
+  \   'print' : 'expression --',
+  \   'setArgs' : 'set args',
   \ }
   \ }
 
@@ -154,11 +159,11 @@ function! mycpp#getMakeCmd(target) abort
 endfunction
 
 function! mycpp#getRunCmd(target, targetArgs) abort
-  return  printf('cd %s && ./%s %s', mycpp#getBinaryDir(), mycpp#getExe(a:target), a:targetArgs)
+  return printf('cd %s && ./%s %s', mycpp#getBinaryDir(), mycpp#getExe(a:target), a:targetArgs)
 endfunction
 
 function! mycpp#getDebugCmd() abort
-  return  printf('cd %s && %s', mycpp#getBinaryDir(), s:debug_run())
+    return printf('cd %s && %s', mycpp#getBinaryDir(), get(g:, 'mycppDebugGui') ? s:debug_gui() : s:debug_run() )
 endfunction
 
 " (cmd [, tail])
@@ -173,12 +178,7 @@ function! mycpp#createTargetIfNotExist(target) abort
   call system(printf('[[ ! -s "%s" ]] && echo "{}" > %s', s:pjcfg, s:pjcfg))
 
   " init target
-  let cmd = printf('jq -e ''.["%s"]'' %s || ( jq ''. + {"%s" : {}}'' ', a:target, s:pjcfg, a:target )
-  call mycpp#updateProjectFile(cmd, ')')
-
-  " init debugger. debugger might be changed, it's necessary to check everytime.
-  let cmd = printf('jq -e ''.["%s"].%s'' %s || ( jq ''.["%s"] += {"%s" : { breakpoint:{} ,"manual": []} }'' ',
-        \ a:target, g:mycppDebugger, s:pjcfg, a:target, g:mycppDebugger)
+  let cmd = printf('jq -e ''.["%s"]'' %s || ( jq ''. + {"%s" : {"breakpoint":[],"manual":[]}}'' ', a:target, s:pjcfg, a:target )
   call mycpp#updateProjectFile(cmd, ')')
 endfunction
 
@@ -206,10 +206,11 @@ endfunction
 function! mycpp#setTargetItem(target, exp, value) abort
   call mycpp#createTargetIfNotExist(a:target)
   " setpath works nomatter item exists or not
-  call mycpp#updateProjectFile(printf('jq ''setpath(path(.["%s"].%s); "%s")'' ', a:target, a:exp, a:value))
+  let jqvalue = substitute(escape(a:value, '"\\'), "'", "'\\\\''", 'g')
+  call mycpp#updateProjectFile(printf('jq ''setpath(path(.["%s"].%s); "%s")'' ', a:target, a:exp, jqvalue))
 endfunction
 
-function! s:updateTarget(args) abort
+function! mycpp#updateTarget(args) abort
   let [target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
   if !s:isTarget(target)
     call myvim#warn(target . ' is not a valid make target') | return [0, target, targetArgs]
@@ -226,29 +227,29 @@ function! s:updateTarget(args) abort
 endfunction
 
 function! mycpp#make(args) abort
-  let [success, target, targetArgs] = s:updateTarget(a:args)
+  let [success, target, targetArgs] = mycpp#updateTarget(a:args)
   if !success | return | endif
   cclose  " always close quickfix first
   call mycpp#sendjob(mycpp#getMakeCmd(target))
 endfunction
 
 function! mycpp#makeRun(args) abort
-  let [success, target, targetArgs] = s:updateTarget(a:args)
+  let [success, target, targetArgs] = mycpp#updateTarget(a:args)
   if !success | return | endif
-  call mycpp#sendjob(printf('%s && [[ ${pipestatus[1]} -eq 0 ]] && %s',
+  call mycpp#sendjob(printf('%s && [[ ${pipestatus[0]} -eq 0 ]] && %s',
         \ mycpp#getMakeCmd(target), mycpp#getRunCmd(target, targetArgs)))
 endfunction
 
 function! mycpp#makeDebug(args) abort
-  let [success, target, targetArgs] = s:updateTarget(a:args)
+  let [success, target, targetArgs] = mycpp#updateTarget(a:args)
   if !success | return | endif
-  call mycpp#sendjob(printf('%s && [[ ${pipestatus[1]} -eq 0 ]] && %s', 
-        \ mycpp#getMakeCmd(target), mycpp#getDebugCmd(0)))
+  call mycpp#sendjob(printf('%s && [[ ${pipestatus[0]} -eq 0 ]] && %s', 
+        \ mycpp#getMakeCmd(target), mycpp#getDebugCmd()))
 endfunction
 
 function! mycpp#doTarget(args0, args1, args2, ...) abort
   let jobtype = get(a:000, 0, 0)
-  let [success, target, targetArgs] = s:updateTarget(a:args1)
+  let [success, target, targetArgs] = mycpp#updateTarget(a:args1)
   if !success | return | endif
   let runCmd = printf('./%s %s', mycpp#getExe(target), targetArgs)
   let cmd = printf('cd %s && %s %s %s', mycpp#getBinaryDir(), a:args0, runCmd, a:args2)
@@ -279,7 +280,11 @@ endfunction
 
 function! mycpp#cmake() abort
   let buildType = fnamemodify(mycpp#getBuildDir(), ':h:t')
-  let cmd = 'cd ' . mycpp#getBuildDir() . ' && cmake -DCMAKE_BUILD_TYPE:STRING=' . buildType . ' ' . getcwd()
+  if filereadable('.vim/cmake.sh')
+    let cmd = printf('%s %s %s', '.vim/cmake.sh', buildType, g:mycppCompiler)
+  else
+    let cmd = 'cd ' . mycpp#getBuildDir() . ' && cmake -DCMAKE_BUILD_TYPE:STRING=' . buildType . ' ' . getcwd()
+  endif
   call mycpp#sendjob(cmd)
 endfunction
 
@@ -334,13 +339,13 @@ function! mycpp#sendjob(cmd, ...) abort
 endfunction
 
 function! mycpp#run(args) abort
-  let [success, target, targetArgs] = s:updateTarget(a:args)
+  let [success, target, targetArgs] = mycpp#updateTarget(a:args)
   if !success | return | endif
   call mycpp#sendjob(mycpp#getRunCmd(target, targetArgs))
 endfunction
 
 function! mycpp#debug(args) abort
-  let [success, target, targetArgs] = s:updateTarget(a:args)
+  let [success, target, targetArgs] = mycpp#updateTarget(a:args)
   if !success | return | endif
   call s:updateDebugScript()
   call mycpp#sendjob(mycpp#getDebugCmd(), 1, 1)
@@ -398,24 +403,28 @@ function! s:updateDebugScript() abort
     echom 'empty las target, you must make or run it first'
     return
   endif
+
   let file = printf('%s%s_%s', mycpp#getBinaryDir(), g:mycppDebugger, s:lastTarget)
 
   " file ..
   call system(printf('echo  ''%s''>%s', s:debug_init(), file ))
   " breakpoint
-  let cmd = printf('jq -r ''.["%s"].%s.breakpoint | keys | .[]'' %s >> %s', 
-        \ s:lastTarget, g:mycppDebugger, s:pjcfg, file)
+  
+
+  let cmd = printf('jq -r ''.["%s"].breakpoint[] | "b " + .file + ":" + (.line|tostring) '' %s >> %s', 
+        \ s:lastTarget, s:pjcfg, file)
   call system(cmd)
 
   " manual
-  let cmd = printf('jq -r ''.["%s"].%s.manual[]'' %s >> %s', 
-        \ s:lastTarget, g:mycppDebugger, s:pjcfg, file)
+  let cmd = printf('jq -r ''.["%s"].manual[]'' %s >> %s', 
+        \ s:lastTarget, s:pjcfg, file)
   call system(cmd)
 
   " launch
   "call system(s:debug_run())
   let args = mycpp#getTargetItem(s:lastTarget, 'exe_args')
-  call system(printf('echo %s %s >> %s', s:debug_launch(), args, file))
+  call system(printf('echo %s %s >> %s', s:dbgCmds.setArgs, args, file))
+  call system(printf('echo %s >> %s', s:debug_launch(), file))
 
   return file
 endfunction
@@ -431,14 +440,49 @@ function! mycpp#openProjectFile() abort
   endif
 endfunction
 
+" {"file":, "line":}
+function! mycpp#indexBreakpoint(target, obj)
+  let file = a:obj.file
+  let line = a:obj.line
+  let strObj = printf('{"file":"%s", "line":%i}', a:obj.file, a:obj.line)
+  let cmd = printf('jq '' .["%s"].breakpoint | index(%s) '' %s', a:target, strObj, s:pjcfg)
+  let idx = system(cmd)
+  return idx ==# "null\n" ? -1 : str2nr(idx)
+endfunction
+
+" index
+function! mycpp#clearBreakpoint(target, ...)
+  
+  if a:0 == 0
+    let cmd = printf('jq ''setpath(path(.["%s"].breakpoint); [])''  ', s:lastTarget)
+    call mycpp#updateProjectFile(cmd)
+  else
+    "let strObj = printf('{"file":%s, "line":%i}', a:obj.file, a:obj.line)
+    "let cmd = printf('. as $f | .["%s"].breakpoint | index(%s) as $i
+          "\ | if $i >= 0 then $f | del(.["%s"].breakpoint[$i]) else $f end ',
+          "\ s:lastTarget, strObj, s:lastTarget)
+    let idx = get(a:000, 0)
+    let cmd = printf('jq ''del(.["%s"].breakpoint[%i])'' ', s:lastTarget, idx)
+    call mycpp#updateProjectFile(cmd)
+  endif
+endfunction
+
+function! mycpp#addBreakpoint(target, obj)
+    let strObj = printf('{"file":"%s", "line":%i}', a:obj.file, a:obj.line)
+    let cmd = printf('jq ''.["%s"].breakpoint |= .+ [%s] '' ', a:target, strObj)
+    call mycpp#updateProjectFile(cmd)
+endfunction
+
 function! mycpp#singleLineBreak() abort
   if empty(s:lastTarget)
     echom 'empty las target, you must make or run it first'
     return
   endif
-  let cmd = printf('jq ''setpath(path(.["%s"].%s.breakpoint); {"%s" : null})''  ',
-        \ s:lastTarget, g:mycppDebugger, s:debug_break())
-  call mycpp#updateProjectFile(cmd)
+  call mycpp#createTargetIfNotExist(s:lastTarget)
+  let obj = {'file':expand('%:t'), 'line':line('.')}
+
+  call mycpp#clearBreakpoint(s:lastTarget)
+  call mycpp#addBreakpoint(s:lastTarget, obj)
 endfunction
 
 function! mycpp#toggleBreakpoint() abort
@@ -448,25 +492,14 @@ function! mycpp#toggleBreakpoint() abort
   endif
 
   call mycpp#createTargetIfNotExist(s:lastTarget)
+  let obj = {'file':expand('%:t'), 'line':line('.')}
 
-  let breakCmd = s:debug_break()
-  let cmd = printf('jq -e ''.%s.%s.breakpoint."%s"'' %s',
-        \ s:lastTarget, g:mycppDebugger, breakCmd, s:pjcfg)
-  call system(cmd)
-
-  if v:shell_error == 0
-    let cmd = printf('jq ''del(.%s.%s.breakpoint."%s")'' ',
-        \ s:lastTarget, g:mycppDebugger, breakCmd)
-    call mycpp#updateProjectFile(cmd)
-    echo printf('remove %s', breakCmd)
+  let idx = mycpp#indexBreakpoint(s:lastTarget, obj)
+  if idx >= 0
+    call mycpp#clearBreakpoint(s:lastTarget, idx)
   else
-    let cmd = printf('jq ''.%s.%s.breakpoint += {"%s":1}'' ',
-          \ s:lastTarget, g:mycppDebugger, breakCmd)
-    call mycpp#updateProjectFile(cmd)
-  
-    echom breakCmd
+    call mycpp#addBreakpoint(s:lastTarget, obj)
   endif
-  
 endfunction
 
 function! mycpp#send_debug_cmd(cmd) abort
@@ -487,6 +520,10 @@ endfunction
 
 function! s:debug_run() abort
   return printf(s:dbgCmds.run, s:lastTarget)
+endfunction
+
+function! s:debug_gui() abort
+  return printf(s:dbgCmds.gui, s:lastTarget)
 endfunction
 
 function! s:debug_break() abort
@@ -517,4 +554,18 @@ function! mycpp#addDebugCommand(type) abort
   endif
   let cmd =  call('s:debug_'.a:type, [])
   let @d .= printf("%s\n", cmd)
+endfunction
+
+function! mycpp#manualInclude() abort
+  call mycpp#gotoLastInclude({'jump':1})
+  exec 'normal! o#include ' |:startinsert!
+endfunction
+
+" assume head name is the same as cword
+function! mycpp#autoInclude() abort
+  let filename = printf('<%s>', expand('<cword>'))
+  normal! mm
+  call mycpp#gotoLastInclude({'jump':1})
+  exec printf('normal! o#include %s', filename)
+  normal! `m
 endfunction

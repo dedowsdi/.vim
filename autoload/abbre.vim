@@ -556,3 +556,6 @@ function! abbre#ogre()
   :iab <buffer> Oellt Ogre::Light::LightTypes
   :iab <buffer> Oents Ogre::Node::TransformSpace
 endfunction
+
+function! abbre#qt()
+endfunction

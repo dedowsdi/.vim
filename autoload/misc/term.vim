@@ -199,6 +199,7 @@ function! misc#term#split(layout, splitCmd) abort
     exec printf('%s %d', wco.resize, a:layout.size)
   endif
 endfunction
+
 " get fixed win id, size pairs
 function! misc#term#getFixedWins() abort
   let l:count = winnr('$')
