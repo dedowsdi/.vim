@@ -328,7 +328,13 @@ function! mycpp#getExe(target) abort
   let grepTarget =  printf(
         \ 'grep -Po ''\s+\-o\s+\S*'' `find %s 2>/dev/null -wholename ''*/CMakeFiles/%s.dir/link.txt''` | grep -Po ''[^\\/ \t]+$''', 
         \ mycpp#getBuildDir(), a:target)
-  return system(grepTarget)[0:-2]
+  let path = system(grepTarget)[0:-2]
+  " if you change directory, but ditn't clean cmake cache, you will get multiple
+  " link result from above command.
+  if stridx(path, "\n") != -1
+    echoe  "found multiple link result : " path
+  endif
+  return path
 endfunction
 
 " {cmd [,insert]}

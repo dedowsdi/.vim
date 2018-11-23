@@ -844,3 +844,30 @@ function! myvim#updateTags() abort
     call jobstart('.vim/ctags.sh')
   endif
 endfunction
+
+function! myvim#isVimComment(lineString) abort
+  return matchstr(getline('.'), '\v^\s*\zs\S') ==# '"'
+endfunction
+
+function! myvim#clearDuplicatedAbbrevation() abort
+  while 1
+    normal! j
+    if line('.') == line('$')
+      break
+    endif
+
+    let l0 = getline('.')
+    if myvim#isVimComment(l0) | continue | endif
+    let abbre0 = matchstr(l0, '\v\<buffer\>\s+\zs\w+')
+    if abbre0 ==# '' | continue | endif
+
+    let l1 = getline(line('.')+1)
+    if myvim#isVimComment(l1) | continue | endif
+    let abbre1 = matchstr(l1, '\v\<buffer\>\s+\zs\w+')
+    if abbre1 ==# '' | continue | endif
+    if abbre0 ==# abbre1
+      normal! I" 
+    endif
+
+  endwhile
+endfunction

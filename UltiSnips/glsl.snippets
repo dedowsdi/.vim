@@ -20,10 +20,65 @@ while(${1:})
 }
 endsnippet
 
-snippet main
+snippet vsMain
+#version 430 core
+
+layout(location = 0)in vec4 vertex;
+layout(location = 1)in vec3 normal;
+layout(location = 2)in vec2 texcoord;
+
+uniform(location = 0) mat4 mvp_mat;
+
+out vs_out
+{
+	vec3 normal;
+	vec2 texcoord;
+}vo;
+
 void main(void)
 {
-	${0}
+	gl_Position = mvp_mat * vertex;
+	vo.texcoord = texcoord;
+	vo.normal = normal;
+}
+endsnippet
+
+snippet fsMain
+#version 430 core
+
+in vs_out
+{
+	vec2 texcoord;
+}fi;
+
+uniform sampler2D diffuse_map;
+
+out vec4 frag_color;
+
+void main(void)
+{
+	frag_color = texture(diffuse_map, fi.texcoord);
+}
+endsnippet
+
+snippet gsMain
+#version 430 core
+layout(lines) in;
+layout(line_strip, max_vertices = 1024) out;
+
+void main(void)
+{
+	gl_Position = gl_in[0].gl_Position;
+	EmitVertex();
+	EmitVertex();
+	EndPrimitive();
+}
+endsnippet
+
+snippet csMain
+layout (local_size_x = 16, local_size_y = 16) in;
+void main(void)
+{
 }
 endsnippet
 
@@ -35,4 +90,19 @@ snippet #ifdef
 #ifdef
 ${0}
 #endif
+endsnippet
+
+snippet fs
+#version 430 core
+
+#define PI 3.1415926535897932384626433832795
+
+uniform vec2 resolution;
+out vec4 frag_color;
+
+void main(void)
+{
+	vec2 st = gl_FragCoord.xy / resolution;
+	${0}
+}
 endsnippet

@@ -1,16 +1,12 @@
-extends c
-
-snippet std
-	std::${1:for_each}(${2:ctn}${3:.}begin(),
-	$2$3end(),[&](decltype(*$2$3begin()) ${4:v}) {
-		${0}
-	});
+snippet sbe
+${1:ctn.}begin(), $1end()
 endsnippet
 
-snippet stdi
-	std::${1:for_each}(${2:first}, ${3:last}(),[&](decltype(*$2) ${4:v}) {
-		${0}
-	});
+snippet lmd
+[&](const ${1:std::string& s})->void
+{
+	$0
+}
 endsnippet
 
 snippet tpc
@@ -26,31 +22,46 @@ if(${0})
 endsnippet
 
 snippet forz
-for (${1:size_t} ${2:i} = 0; $2 < ${3:size}; ++$2) {
+for (${1:size_t} ${2:i} = 0; $2 < ${3:size}; ++$2) 
+{
 	${0}
 }
 endsnippet
 
 snippet forui
-for (${1:unsigned int} ${2:i} = 0; $2 < ${3:size}; ++$2) {
+for (${1:unsigned int} ${2:i} = 0; $2 < ${3:size}; ++$2) 
+{
 	${0}
 }
 endsnippet
 
 snippet forgu
-for (GLuint ${1:i} = 0; $1 < ${2:size}; ++$1) {
+for (GLuint ${1:i} = 0; $1 < ${2:size}; ++$1) 
+{
 	${0}
 }
 endsnippet
 
 snippet forit
-for(${1:std::vector<T>::iterator} iter = ${2:ctn.}begin(); iter != $2end(); ++iter){
+for(${1:auto} iter = ${2:ctn.}begin(); iter != $2end(); ++iter)
+{
 	${0}
 }
 endsnippet
 
+snippet foryx
+for (int y = 0; y < ${1:rows}; ++y) 
+{
+	for (int x = 0; x < ${2:cols}; ++x) 
+	{
+		${0}
+	}
+}
+endsnippet
+
+
 snippet forin
-for(${1:const auto& item} : ${2:containers})
+for(auto${1} ${2:item} : ${3:containers})
 {
 	${0}
 }
@@ -73,63 +84,110 @@ snippet onew
 osg::ref_ptr<${1}> ${2} = new $1(${3});
 endsnippet
 
-snippet osgDemo
+snippet osgMain
 #include <osgViewer/Viewer>
 #include <osgViewer/ViewerEventHandlers>
-#include <osg/Geometry>
-#include <osgDB/ReadFile>
-#include <osg/MatrixTransform>
+#include <osgUtil/PrintVisitor>
 
-int main(int argc, char* argv[]) {
-	${0}
+osg::ref_ptr<osg::Group> root;
+
+int main(int argc, char* argv[])
+{
+	root = new osg::Group;
+	osg::StateSet* ss = root->getOrCreateStateSet();
+	ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+	ss->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
+	
 	osgViewer::Viewer viewer;
 	viewer.addEventHandler(new osgViewer::StatsHandler);
-	//viewer.setSceneData();
+	viewer.setSceneData(root);
 
+	osg::ref_ptr<osgUtil::PrintVisitor> pv = new osgUtil::PrintVisitor(osg::notify(osg::NOTICE));
+	root->accept(*pv);
+	
 	return viewer.run();
 }
 endsnippet
 
 snippet osgNodeCallback
-class ${1:MyUpdateCallback} : public osg::NodeCallback {
-		virtual void operator()(osg::Node* node, osg::NodeVisitor* nv) {
-			traverse(node,nv);
-		}
-};
-endsnippet
-
-snippet osgDrawCallback
-class ${1:MyDrawableDrawCallback} : public osg::Drawable::DrawCallback {
-		virtual void drawImplementation(osg::RenderInfo& renderInfo,const osg::Drawable* drawable) const {
-			//pre draw implementation
-
-			drawable->drawImplementation(renderInfo);
-
-			//post draw Implementation
-
-		}
-};
-endsnippet
-
-snippet osgDrawableUpdateCallback
-class ${1:MyDrawableUpdateCallback} : public osg::Drawable::UpdateCallback {
-	virtual void update(osg::NodeVisitor* nv, osg::Drawable* drawable) {
+class ${1:MyUpdateCallback} : public osg::NodeCallback
+{
+	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv)
+	{
+		traverse(node,nv);
 	}
 };
 endsnippet
 
+snippet osgDrawCallback
+class ${1:MyDrawableDrawCallback} : public osg::Drawable::DrawCallback
+{
+	virtual void drawImplementation(osg::RenderInfo& renderInfo,const osg::Drawable* drawable) const
+	{
+		//pre draw implementation
+
+		drawable->drawImplementation(renderInfo);
+
+		//post draw Implementation
+
+	}
+};
+endsnippet
+
+snippet osgText
+osg::ref_ptr<osgText::Text> ${1:text} = new osgText::Text;
+$1->setDataVariance(osg::Object::DYNAMIC);
+$1->setCharacterSize(20);
+$1->setAxisAlignment(osgText::TextBase::XY_PLANE);
+$1->setPosition(osg::Vec3(20, height - 30, 0));
+$1->setFont(osgText::readFontFile("fonts/arial.ttf"));
+$1->setText("$0");
+endsnippet
+
+snippet osgDeltaTime
+static GLfloat lastTime = ${1:nv}->getFrameStamp()->getReferenceTime();
+GLfloat currentTime = $1->getFrameStamp()->getReferenceTime();
+GLfloat deltaTime = currentTime - lastTime;
+lastTime = currentTime;
+endsnippet
+
+snippet osgDrawableUpdateCallback
+class ${1:MyDrawableUpdateCallback} : public osg::Drawable::UpdateCallback
+{
+	virtual void update(osg::NodeVisitor* nv, osg::Drawable* drawable)
+	{
+
+	}
+};
+endsnippet
+
+snippet osgComputeBoundingBoxCallback
+struct ${1:Classname} : public osg::Drawable::ComputeBoundingBoxCallback 
+{
+	virtual osg::BoundingBox computeBound(const osg::Drawable&) const
+	{ 
+		return osg::BoundingBox();
+	}
+};
+
+endsnippet
+
 snippet osgDrawableCullCallback
-class ${1:MyDrawableCullCallback} : public osg::Drawable::CullCallback {
-	virtual bool cull(osg::NodeVisitor* nv, osg::Drawable* drawable, osg::State* state) const {
+class ${1:MyDrawableCullCallback} : public osg::Drawable::CullCallback
+{
+	virtual bool cull(osg::NodeVisitor* nv, osg::Drawable* drawable, osg::State* state) const
+	{
 		return false;
 	}
 };
 endsnippet
 
 snippet osgReadFileCallback
-class ${1:MyReadFileCallback} : public osgDB::Registry::ReadFileCallback {
+class ${1:MyReadFileCallback} : public osgDB::Registry::ReadFileCallback
+{
 public:
-	virtual osgDB::ReaderWriter::ReadResult readNode(const std::string& fileName, const osgDB::ReaderWriter::Options* options) {
+	virtual osgDB::ReaderWriter::ReadResult readNode(const std::string& fileName, const osgDB::ReaderWriter::Options* options)
+	{
 		// before readNode
 		// note when calling the Registry to do the read you have to call readNodeImplementation NOT readNode, as this will
 		// cause on infinite recusive loop.
@@ -140,13 +198,61 @@ public:
 };
 endsnippet
 
+snippet osgParticleSystem
+osg::ref_ptr<osgParticle::ParticleSystemUpdater> psu = new osgParticle::ParticleSystemUpdater;
+osg::ref_ptr<osgParticle::ParticleSystem> ps  = new osgParticle::ParticleSystem();
+ps->getDefaultParticleTemplate().setShape(osgParticle::Particle::POINT);
+ps->getDefaultParticleTemplate().setColorRange(osgParticle::rangev4(INVADER_COLOR, INVADER_COLOR));
+
+osg::ref_ptr<osg::BlendFunc> blendFunc  = new osg::BlendFunc();
+blendFunc->setFunction(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+osg::ref_ptr<osg::Texture2D> texture  = new osg::Texture2D();
+texture->setImage(osgDB::readImageFile("Images/smoke.rgb"));
+
+osg::StateSet* ss = ps->getOrCreateStateSet();
+ss->setAttributeAndModes(blendFunc);
+ss->setTextureAttributeAndModes(0, texture);
+ss->setAttribute(new osg::Point(6));
+ss->setTextureAttributeAndModes(0, new osg::PointSprite);
+ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+ss->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+
+osg::ref_ptr<osgParticle::ModularEmitter> emitter  = new osgParticle::ModularEmitter();
+emitter->setParticleSystem(ps);
+
+osg::ref_ptr<osgParticle::RandomRateCounter> rrc  = new osgParticle::RandomRateCounter();
+rrc->setRateRange(60, 120);
+emitter->setCounter(rrc);
+
+osgParticle::RadialShooter* shooter = static_cast<osgParticle::RadialShooter*>(emitter->getShooter());
+shooter->setThetaRange(osg::PI * 0.5f, osg::PI * 0.5f);
+shooter->setInitialSpeedRange(1, 5);
+
+osg::ref_ptr<osgParticle::ModularProgram> program  = new osgParticle::ModularProgram();
+program->setParticleSystem(ps);
+osg::ref_ptr<osgParticle::AccelOperator> accel  = new osgParticle::AccelOperator();
+//accel->setAcceleration(osg::Vec3(0, 0, 100));
+//program->addOperator(accel);
+
+osg::ref_ptr<osg::Geode> psLeaf  = new osg::Geode();
+psLeaf->addDrawable(ps);
+
+addChild(psLeaf);
+addChild(program);
+addChild(emitter);
+psu->addParticleSystem(ps);
+endsnippet
+
 snippet osgGuiEventHandler
-class ${1:MyGuiEventHandler} : public osgGA::GUIEventHandler {
-	virtual bool handle(
-		const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa) {
-		switch (ea.getEventType()) {
+class ${1:MyGuiEventHandler} : public osgGA::GUIEventHandler
+{
+	virtual bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa)
+	{
+		switch (ea.getEventType())
+		{
 			case osgGA::GUIEventAdapter::KEYDOWN:
-				switch (ea.getKey()) {
+				switch (ea.getKey())
+				{
 					case osgGA::GUIEventAdapter::KEY_F1:
 						break;
 					default:
@@ -162,23 +268,23 @@ class ${1:MyGuiEventHandler} : public osgGA::GUIEventHandler {
 endsnippet
 
 snippet osgObjectDescendent
-	class ${1:Classname} : public osg::${2:Object} {
+class ${1:Classname} : public osg::${2:Object}
+{
 public:
 
-	$1(){}
-	$1(const $1& copy, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY)
-			: osg::$2(copy, copyop) {}
-	~$1(){}
-	META_${3:Object}(${4:zxd}, $1);
-	};
+$1(){}
+$1(const $1& copy, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY)
+		: osg::$2(copy, copyop) {}
+~$1(){}
+META_${3:Object}(${4:zxd}, $1);
 
+};
 endsnippet
 
-snippet osgCreateGeometry
+snippet osgGeometry
 osg::ref_ptr<osg::Geometry> ${1:geometry} = new osg::Geometry;
 osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array();
-osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array();
-colors->setBinding(osg::Array::BIND_OVERALL);
+osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array(osg::Array::BIND_OVERALL);
 
 $1->setVertexArray(vertices);
 $1->setColorArray(colors);
@@ -186,6 +292,16 @@ $1->setColorArray(colors);
 $1->addPrimitiveSet(new ${2:osg::DrawArrays(GL_POINTS, 0, 1)});
 
 osg::StateSet* ss = $1->getOrCreateStateSet();
+endsnippet
+
+snippet osgTexture2
+osg::Texture2D* ${1:texture} = new osg::Texture2D;
+$1->setTextureSize(width, height);
+$1->setInternalFormat(GL_RGBA);
+$1->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+$1->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
+$1->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
+$1->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
 endsnippet
 
 snippet osgCameraRayTest
