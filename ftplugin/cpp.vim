@@ -15,5 +15,5 @@ setlocal cinoptions+=+0
 :setlocal shiftwidth=2 tabstop=2 textwidth=80 expandtab
 
 call abbre#cpp()
-call myvim#loadFiletypeMap('c')
-call myvim#loadFiletypeMap('cpp')
+call misc#ui#loadFiletypeMap('c')
+call misc#ui#loadFiletypeMap('cpp')

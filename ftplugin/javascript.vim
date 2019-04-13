@@ -4,7 +4,7 @@
 " javascript function comment
 command! -nargs=0 Jsfc call JsFuncComment() 
 
-call myvim#loadFiletypeMap('javascript')
+call misc#ui#loadFiletypeMap('javascript')
 
 
 function! JsFuncComment()

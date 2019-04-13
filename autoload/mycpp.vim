@@ -36,13 +36,13 @@ let s:dbgCmdsDict = {
 let s:dbgCmds = s:dbgCmdsDict[g:mycppDebugger]
 
 function! mycpp#getBuildDir() abort
-  return myvim#normDir(fnamemodify(g:mycppBuildDir, ':p'))
+  return fnamemodify(g:mycppBuildDir, ':p')
 endfunction
 
 function! mycpp#getBinaryDir() abort
   let buildDir = mycpp#getBuildDir()
-  let dir =  get(g:, 'mycppBinaryDir', buildDir) . 'bin/'
-  return isdirectory(dir) ? dir : buildDir
+  let dir =  get(g:, 'mycppBinaryDir', buildDir . 'bin/')
+  return isdirectory(dir) ? fnamemodify(dir, ":p") : buildDir
 endfunction
 
 function! mycpp#getMakeResult() abort

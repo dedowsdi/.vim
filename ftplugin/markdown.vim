@@ -15,4 +15,4 @@ command! MdAddBackSlash  :%s/\v\\@<!<(
 nnoremap \$ :normal! ^i$<Esc>A$<Esc>
 
 command! MdAddLineBreak :global /\v^[^#]/ :s/\v\s*$/  
-call myvim#loadFiletypeMap('markdown')
+call misc#ui#loadFiletypeMap('markdown')

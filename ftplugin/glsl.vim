@@ -4,14 +4,16 @@ endif
 let b:loaded_glsl_cfg = 1
 
 :setlocal shiftwidth=2 tabstop=2 textwidth=80 expandtab
-call myvim#loadFiletypeMap('glsl')
+call misc#ui#loadFiletypeMap('glsl')
 
 " setup glslang option
 let s:glsl_stages = {
             \    'vert': ['vert', 'vs', 'vs.glsl'],
             \    'frag': ['frag', 'fs', 'fs.glsl'],
             \    'geom': ['geom', 'gs', 'gs.glsl'],
-            \    'comp': ['comp', 'cs', 'cs.glsl']
+            \    'comp': ['comp', 'cs', 'cs.glsl'],
+            \    'tesc': ['tesc', 'cont', 'tc', 'tc.glsl'],
+            \    'tese': ['tese', 'eval', 'te', 'te.glsl'],
             \   }
 
 

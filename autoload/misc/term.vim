@@ -125,7 +125,7 @@ function! misc#term#jtermopen(jterm) abort
   let oldwinid = win_getid()
   let jterm = copy(a:jterm)
   call extend(jterm, s:jtermbase, 'keep')
-  call extend(jterm, {'opts':{}, 'layout':s:jtermLayout, 'switch':0}, 'keep')
+  call extend(jterm, {'opts':{}, 'layout':s:jtermLayout, 'switch':0, 'closeFinished':1, 'closeAll':0}, 'keep')
 
   " hook default exit callback
   if !has_key(jterm.opts, 'on_exit')
@@ -133,7 +133,11 @@ function! misc#term#jtermopen(jterm) abort
   endif
   call extend(jterm.opts, {'jterm':jterm})
 
-  call misc#term#closeFinishedJterms()
+  if jterm.closeAll
+    call misc#term#closeAll()
+  elseif jterm.closeFinished
+    call misc#term#closeFinished()
+  endif
 
   let s:jterms += [jterm]
 
@@ -150,11 +154,17 @@ function! misc#term#jtermopen(jterm) abort
   return jterm
 endfunction
 
-function! misc#term#closeFinishedJterms() abort
+function! misc#term#closeFinished() abort
   for jt in s:jterms
     if jt.done()
       call jt.close()
     endif
+  endfor
+endfunction
+
+function! misc#term#closeAll() abort
+  for jt in s:jterms
+    call jt.close()
   endfor
 endfunction
 

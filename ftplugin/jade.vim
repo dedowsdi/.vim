@@ -1,4 +1,4 @@
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
-call myvim#loadFiletypeMap('vim')
+call misc#ui#loadFiletypeMap('vim')

@@ -37,7 +37,7 @@ let g:mycppBuildDir     = get(g:, 'mycppBuildDir'     , "./")
 " vim
 " ==============================================================================
 command! -nargs=0 V :source %
-command! -nargs=0 VV :call  reload#reloadLoadedScript()
+command! -nargs=0 VV :call  misc#viml#reloadLoadedScript()
 command! -nargs=0 Vb :breakadd here
-command! -nargs=0 Vbf :call myvim#breakFunction()
-command! -nargs=? Vgf :call myvim#gotoFunction(<f-args>)
+command! -nargs=0 Vbf :call misc#viml#breakFunction()
+command! -nargs=? Vgf :call misc#viml#gotoFunction(<f-args>)

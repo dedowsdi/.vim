@@ -3,24 +3,13 @@ endfunction
 
 function! abbre#cpp()
   :iab <buffer>  sI #include
-  :iab <buffer>  ssc static_cast<>()<Left><Left><Left>
-  :iab <buffer>  sdc dynamic_cast<>()<left><left><left>
-  :iab <buffer>  scc const_cast<>()<left><left><left>
   :iab <buffer>  src reinterpret_cast<>()<left><left><left>
   :iab <buffer>  sss std::stringstream
-  :iab <buffer>  sspc std::static_pointer_cast<>()<left><left><left>
-  :iab <buffer>  sdpc std::dynamic_pointer_cast<>()<left><left><left>
-  :iab <buffer>  scpc std::const_pointer_cast<>()<left><left><left>
-  :iab <buffer>  srpc std::reinterpret_pointer_cast<>()<left><left><left>
-  :iab <buffer>  sup std::unique_ptr<><Left>
-  :iab <buffer>  ssp std::shared_ptr<><Left>
-  :iab <buffer>  swp std::weak_ptr<><Left>
-  ":iab <buffer>  sap std::auto_ptr<><Left>
+  :iab <buffer>  np nullptr
+  :iab <buffer>  ce constexpr
   :iab <buffer>  sfl std::forward_list<><Left>
   :iab <buffer>  sus std::unordered_set<><Left>
   :iab <buffer>  sum std::unordered_map<><Left>
-  :iab <buffer>  stpt template<typename T><Left>
-  :iab <buffer>  stpc template<class T><Left>
   :iab <buffer>  cfoff // clang-format off
   :iab <buffer>  cfon // clang-format on
 
@@ -1647,8 +1636,14 @@ function! abbre#opengl()
   :iab <buffer> glvs GL_VERTEX_SHADER
   :iab <buffer> glfs GL_FRAGMENT_SHADER
   :iab <buffer> glcs GL_COMPUTE_SHADER
+  :iab <buffer> gltcs GL_TESS_CONTROL_SHADER
+  :iab <buffer> gltes GL_TESS_EVALUATION_SHADER
   :iab <buffer> glsa GL_SRC_ALPHA
   :iab <buffer> glppb GL_PIXEL_PACK_BUFFER
+  :iab <buffer> glls GL_LINE_SMOOTH
+  :iab <buffer> glsd GL_STATIC_DRAW
+  :iab <buffer> glsr GL_STATIC_READ
+  :iab <buffer> glsc GL_STATIC_COPY
 
   :iab <buffer> glc  GLchar
   :iab <buffer> glb  GLbyte
@@ -2841,4 +2836,28 @@ function! abbre#ogre()
 endfunction
 
 function! abbre#qt()
+endfunction
+
+" a little helper to comment duplicated abbrevation
+function! misc#abbre#clearDuplicatedAbbrevation() abort
+  while 1
+    normal! j
+    if line('.') == line('$')
+      break
+    endif
+
+    let l0 = getline('.')
+    if myvim#isVimComment(l0) | continue | endif
+    let abbre0 = matchstr(l0, '\v\<buffer\>\s+\zs\w+')
+    if abbre0 ==# '' | continue | endif
+
+    let l1 = getline(line('.')+1)
+    if myvim#isComment(l1) | continue | endif
+    let abbre1 = matchstr(l1, '\v\<buffer\>\s+\zs\w+')
+    if abbre1 ==# '' | continue | endif
+    if abbre0 ==# abbre1
+      exec 'normal! I" '
+    endif
+
+  endwhile
 endfunction

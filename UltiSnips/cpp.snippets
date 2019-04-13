@@ -1,71 +1,100 @@
-snippet sbe
+snippet be "begin end " i
 ${1:ctn.}begin(), $1end()
 endsnippet
 
-snippet lmd
-[&](const ${1:std::string& s})->void
+snippet hs "lhs rhs" i
+${1:cosnt T&} lhs, $1 rhs
+endsnippet
+
+snippet tp
+template <typename ${1:T}>
+endsnippet
+
+snippet spca "static pointer cast" i
+std::static_pointer_cast<${1:type}>($0)
+endsnippet
+
+snippet dpca "dynamic pointer cast" i
+std::dynamic_pointer_cast<${1:type}>($0)
+endsnippet
+
+snippet cpca "const pointer cast" i
+std::const_pointer_cast<${1:type}>($0)
+endsnippet
+
+snippet rpca "reinterpret pointer cast" i
+std::reinterpret_pointer_cast<${1:type}>($0)
+endsnippet
+
+snippet fort
+for (${1:size_t} ${2:i} = 0; $2 < ${3:size}; ++$2) 
 {
 	$0
 }
 endsnippet
 
-snippet tpc
-template<class ${1:T}>
-endsnippet
-
-snippet tpt
-template<typename ${1:T}>
-endsnippet
-
-snippet ifs
-if(${0})
-endsnippet
-
-snippet forz
-for (${1:size_t} ${2:i} = 0; $2 < ${3:size}; ++$2) 
+snippet fore
+for(auto${1:& item} : ${2:container})
 {
-	${0}
+	$0
 }
 endsnippet
 
-snippet forui
-for (${1:unsigned int} ${2:i} = 0; $2 < ${3:size}; ++$2) 
+snippet move "move" i
+std::move($0)
+endsnippet
+
+snippet fd "forward" i
+std::forward<${1:T}>($0)
+endsnippet
+
+snippet lmd "lambda" i
+[]()->void
 {
-	${0}
 }
 endsnippet
 
-snippet forgu
-for (GLuint ${1:i} = 0; $1 < ${2:size}; ++$1) 
-{
-	${0}
-}
+snippet dt "declare type" i
+decltype($0)
 endsnippet
 
-snippet forit
-for(${1:auto} iter = ${2:ctn.}begin(); iter != $2end(); ++iter)
-{
-	${0}
-}
+
+snippet sp "shared pointer" i
+std::shared_ptr<${1:type}>
 endsnippet
 
-snippet foryx
-for (int y = 0; y < ${1:rows}; ++y) 
+snippet ms "make shared"
+std::make_shared<$1>($0)
+endsnippet
+
+snippet up "unique pointer" i
+std::unique_ptr<${1:type}>
+endsnippet
+
+snippet mu "make unique" i
+std::make_unique<$1>($0)
+endsnippet
+
+snippet wp "weak pointer" i
+std::weap_ptr<${1:type}>
+endsnippet
+
+snippet map1 "functional map" i
+std::transform(${1:ctn.}begin(), $1end(), ${2:dest_iter}, ${3:unary_op});
+endsnippet
+
+snippet map2 "functional zip" i
+std::transform(${1:ctn1.}begin(), $1end(), ${2:ctn2.beg()}, ${3:dest_iter}, ${3:binary_op});
+endsnippet
+
+snippet for2
+for (int ${1:y} = 0; $1 < ${2:rows}; ++$1) 
 {
-	for (int x = 0; x < ${2:cols}; ++x) 
+	for (int ${3:x} = 0; $3 < ${4:cols}; ++$3) 
 	{
 		${0}
 	}
 }
-endsnippet
-
-
-snippet forin
-for(auto${1} ${2:item} : ${3:containers})
-{
-	${0}
-}
-
 endsnippet
 
 snippet box0
@@ -78,6 +107,21 @@ snippet box1
 //------------------------------------------------------------------------------
 //${0}
 //------------------------------------------------------------------------------
+endsnippet
+
+snippet raii
+class ${1:name}
+{
+public:
+	$1();
+	~$1();
+	
+	// no copy
+	$1(const $1& rhs) = delete;
+	$1& operator=($1 rhs) = delete;
+private:
+};
+
 endsnippet
 
 snippet onew
@@ -106,8 +150,7 @@ int main(int argc, char* argv[])
 	root->accept(*pv);
 	
 	return viewer.run();
-}
-endsnippet
+} endsnippet
 
 snippet osgNodeCallback
 class ${1:MyUpdateCallback} : public osg::NodeCallback
@@ -575,6 +618,18 @@ glGetIntegerv(GL_POLYGON_MODE, $1);
 $1 = ${2:GL_POINT} + ($1 + 1 - $2) % ${3:3};
 endsnippet
 
+snippet ar
+std::${1:sort}(${2:ctn.}begin(), $2end());
+endsnippet
+
+snippet arm
+std::${1:sort}(${2:ctn.}begin(), $0, $2end());
+endsnippet
+
+snippet arr
+std::${1:sort}(${2:ctn.}begin(), $2end(), ${3:ctn.}begin(), $3end());
+endsnippet
+
 snippet glDecompose
 glm::vec3 scale;
 glm::quat rotation;
@@ -612,5 +667,28 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	${0}
 	return app.exec();
+}
+endsnippet
+
+snippet boostTestDynamic
+#define BOOST_TEST_MODULE ${1:test decorator}
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
+#include <boost/test/data/test_case.hpp>
+
+namespace ut = boost::unit_test;
+namespace utd = boost::unit_test::data;
+namespace utf = boost::unit_test::framework;
+endsnippet
+
+snippet boostAutoTestSuite
+BOOST_AUTO_TEST_SUITE(${1:suiteName})
+BOOST_AUTO_TEST_SUITE_END()
+endsnippet
+
+snippet boostTestCase
+BOOST_${1:AUTO}_TEST_CASE${2:}(${3:caseName})
+{
+$0
 }
 endsnippet

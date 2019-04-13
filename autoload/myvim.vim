@@ -4,55 +4,8 @@ if exists('g:loaded_myvim')
 endif
 let g:loaded_myvim = 1
 
-"search regex------------------------------------------------
-let s:reFuncStart = '^s*fu'
-let s:reFuncEnd = '^s*endfu'
-
-"extract regex------------------------------------------
-let s:rexFuncName = '\v\zs[^ \t]+\ze\s*\(.*\)'
-let s:timing = 0
-let s:timeText = ''
-let s:optionStack = []
-let s:blockFile = system('mktemp /tmp/myvim_block_XXXXXX')[0:-2]
-let s:maps = {}
-
-function! myvim#getSid(fileName) abort
-  let temp = @t|execute 'redir @t'
-  try
-    silent execute 'scriptnames'
-    "becareful string is different from file
-    let sid = matchstr(@t, printf('\v\zs\d+\ze:[^:]+%s%(\n|$)', escape(a:fileName, '.%~+-\')))
-    if empty(sid)
-      throw a:fileName . ' not found'
-    endif	
-  finally
-    let @t = temp|execute 'redir End'|return sid
-  endtry
-endfunction
-
-" reserve ~
-function! myvim#filename() abort
-  return substitute(@%, '\V\^'.expand('~'), '~', '')
-endfunction
-
-" break at current line in current function, doesn't work if it's a dict
-" [funcName [,line, [,plugFileName]]]
-function! myvim#breakFunction() abort
-  let [startLine, startCol] = [line('.'), col('.')]|try
-    if myvim#gotoFunction()
-      let funcName = matchstr(getline('.'), s:rexFuncName)
-      let breakLine = startLine - line('.')
-      if myvim#isScopeScript()
-        "add <SNR>SID_ prefix
-        let plugFileName = myvim#filename()
-        let funcName = '<SNR>'.myvim#getSid(plugFileName).'_'.funcName[2:]
-      endif
-    else
-      echoe 'function not found'
-    endif
-
-    execute 'breakadd func ' . breakLine . ' ' . funcName
-  finally|call cursor(startLine, startCol)|endtry
+function! myvim#reverseQfList()
+  call setqflist(reverse(getqflist()))
 endfunction
 
 function! myvim#isNumber(e) abort
@@ -74,73 +27,21 @@ function! myvim#isFloat(e) abort
   return type(a:e) == 5
 endfunction
 
-function! myvim#isScopeScript() abort
-  return stridx(getline('.'), 's:') >= 0
-endfunction
-
-" [lnum]
-function! myvim#gotoFunction(...) abort
-  let oldpos = getpos('.')
-  let lnum = get(a:000, 0, 0)
-
-  normal! $
-  if search(s:reFuncStart, 'bW')
-      if lnum == 0 | return 1 | endif
-      execute 'normal! '. lnum .'j'
-      return 1
-  endif
-
-  return 0
-endfunction
-
-function! myvim#getFuncBlock() abort
-  let [startLine, startCol] = [line('.'), col('.')]|try
-    if myvim#gotoFunction()
-      let funcStartLine = startLine
-      if search(s:reFuncEnd, 'W')
-        return [funcStartLine, line('.')]
-      else
-        throw 'function end not found!'
-      endif
-    endif
-    return [0,0]
-  finally|call cursor(startLine, startCol)|endtry
-endfunction
-
-
-function! myvim#scanGarbage() abort
-  let re = '\v^\s*\w+\s*\='
-  if search(re)
-    echoe 'missing let in line ' . line('.')
-  endif
-
-  " false positive for normal! A;
-  let re = '\v\;\s*%($|\|)'
-  if search(re)
-    echoe 'illegal semicolon in line ' . line('.')
-  endif
-
-  let re = '\v^\s*[1234567890~!@#$%^&*()_\-+={}[\]|;:'',<.>/?]'
-  if search(re)
-    echoe 'illegal start letter in line ' . line('.')
-  endif
-endfunction
-
 function! myvim#warn(mes) abort
   echohl WarningMsg | echom a:mes | echohl None
 endfunction
 
 " a hack, maybe i should do it in another way
 function! myvim#hasjob(job) abort
-  try | call jobpid(a:job)
-    return 1
-  catch /^Vim\%((\a\+)\)\=:E900/	" catch error E900
+  try
+    call jobpid(a:job) | return 1
+  catch /^Vim\%((\a\+)\)\=:E900/ " catch error E900
     return 0
   endtry
 endfunction
 
 " check if quickfix window is open
-function! myvim#qfixexists() abort
+function! myvim#isQfListOpen() abort
   for i in range(1, winnr('$'))
     let bufnr = winbufnr(i)
     if getbufvar(bufnr, '&buftype') ==# 'quickfix'
@@ -150,18 +51,9 @@ function! myvim#qfixexists() abort
   return 0
 endfunction
 
-function! myvim#isUppercase(s) abort
-  let re = '\v^\C[A-Z_0-9]+$'
-  return match(a:s, re) == 0
-endfunction
-
-function! myvim#isLowercase(s) abort
-  let re = '\v^\C[a-z_0-9]+$'
-  return match(a:s, re) == 0
-endfunction
-
+" is this necessary?
 function! myvim#open(file) abort
-  let nr = bufnr(fnamemodify(a:file, ':p'))
+  let nr = bufnr(a:file)
   if nr != -1
     exec printf('buffer %d', nr)
   else
@@ -175,37 +67,22 @@ function! myvim#edit(file) abort
   endif
 endfunction
 
-function! myvim#countLines(file) abort
-  let s = system('wc -l ' . a:file)
-  return s[0 : stridx(s, ' ') - 1]
-endfunction
-
-" make sure 1 and only 1 trailing /
-function! myvim#normDir(splitdir) abort
-  if a:splitdir ==# ''|return a:splitdir|endif
-  return substitute(a:splitdir, '\v//*$', '', '').'/'
-endfunction
-
-function! myvim#fileExists(file) abort
-  return !empty(glob(a:file))
-endfunction
-
-function! myvim#dirExists(dir) abort
-  call system('[[ -d ' . a:dir . ' ]]')  
-  return !v:shell_error
-endfunction
-
-function! myvim#getCC() abort
-  return matchstr(getline('.'), '\%' . col('.') . 'c.')
-endfunction
-
 function! myvim#getC(lnum, cnum) abort
   return matchstr(getline(a:lnum), '\%' . a:cnum . 'c.')
 endfunction
+function! myvim#getCC() abort
+  return myvim#getC(line('.'), col('.'))
+endfunction
 
-function! myvim#sourceBlock(lnum0, lnum1) abort
-  exec printf('%d,%dwrite! %s', a:lnum0, a:lnum1, s:blockFile)
-  exec printf('source %s', s:blockFile)
+function! myvim#getV(lnum, vnum) abort
+  return matchstr(getline(a:lnum), '\%' . a:vnum . 'v.')
+endfunction
+function! myvim#getVV() abort
+  return myvim#getV(line('.'), col('.'))
+endfunction
+
+function! myvim#getCharacter(lnum, cnum, cv) abort
+  return matchstr(getline(a:lnum), '\%' . a:cnum . a:cv)
 endfunction
 
 " opts{direction:'h or l' , delim: default to "," 
@@ -213,7 +90,7 @@ endfunction
 " cursorAction : 'f_to_start'(default), 'f_to_end', 'static' }
 function! myvim#shiftItem(opts) abort
 
-  let ranges = myvim#getItemRanges(a:opts)
+  let ranges = myvim#getArgs(a:opts)
   if ranges == []
     call myvim#warn('illigal range')|return
   endif
@@ -231,185 +108,74 @@ function! myvim#shiftItem(opts) abort
         \ || (itemIndex ==# len(itemRanges) -1 && direction ==# 'l') 
     call myvim#warn('no more items to shift')|return
   endif
-  
 
   let targetIndex = direction ==# 'h' ? itemIndex -1 : itemIndex + 1
   if targetIndex < 0 || targetIndex >= len(itemRanges)
     call myvim#warn('no more items to shift') 
     return
   endif
-  call myvim#swapRange(itemRanges[itemIndex], itemRanges[targetIndex])
+  call myvim#swapRange(itemRanges[itemIndex], itemRanges[targetIndex], 'v')
 
   if cursorActoin !=# 'static'
      "place cursor at start of total range to avoid inner () problem
      call cursor(totalRange[0])
      "update item ranges
-     let ranges = myvim#getItemRanges(a:opts)
+     let ranges = myvim#getArgs(a:opts)
      let targetRange = ranges[2][targetIndex]
      if cursorActoin ==# 'f_to_start'
        "place cursor at 1st non blank character in this item
        call cursor(targetRange[0])
-       call myvim#charBackward()
+       call myvim#charLeft()
        call search('\v\S')
      elseif cursorActoin ==# 'f_to_end'
        "place cursor at last non blank character in this item
        call cursor(targetRange[1])
-       call myvim#charForward()
+       call myvim#charRight()
        call search('\v\S', 'bW')
      endif
   endif
 
 endfunction
 
-"return [itemIndex, [total range] [item1 range, item 2 range ....]]
-"opts : {'excludeSpace':1}, itemIndex will be -1 if it can not be found(ie,
-"cursor on comma or cursor on '(' or ')' )
-function! myvim#getItemRanges(opts) abort
-
-  let [startLine, startCol] = [line('.'), col('.')] | try
-
-    let delim = get(a:opts, 'delim', ',')
-    let guard = get(a:opts, 'guard', '()')
-    let excludeSpace = get(a:opts, 'excludeSpace', 1)
-    let jumpPairs = get(a:opts, 'jumpPairs', ['()','[]','{}','<>'])
-    let [leftGuard, rightGuard] = [guard[0], guard[1]]
-    let totalRange = [[0,0], [0,0]]
-    let itemRanges = []
-
-    let [leftPairs, rightPairs] = ['', '']
-
-    for scope in jumpPairs
-      let leftPairs .= scope[0]
-      let rightPairs .= scope[1]
-    endfor
-
-    let c = myvim#getCC()
-    "do nothing if curson under delim
-    "if delim == c
-      "return empty if cursor under , or ( or )
-      "call myvim#warn("you should move your cursor away from delim \''.c."\'') 
-      "return []
-    "endif
-
-    "goto left guard first
-    if c != leftGuard
-      if !myvim#searchWithJumpPair(leftGuard, rightPairs, {'direction':'h'})|return []|endif
-    endif
-    let totalRange[0] = [line('.'), col('.')]
-    call search('\v.')
-    let itemRangeStart = [line('.'), col('.')]
-    call myvim#charBackward()
-
-    "find item ranges and right guard
-    while myvim#searchWithJumpPair(rightGuard.delim, leftPairs, {'direction':'l'})
-      let c = myvim#getCC()
-      if c == delim
-        call myvim#charBackward()  " move cursor back away from ','
-        let itemRanges += [[itemRangeStart, [line('.'),col('.')] ]]
-        " move cursor forward away from ','
-        " TODO figure out why call search('\v..', 'e') not working
-        "call search('\v..', 'e')
-        call myvim#charForward(2)
-        let itemRangeStart = [line('.'), col('.')]
-        call myvim#charBackward()  " move cursor back to  ','
-      else
-        let totalRange[1] = [line('.'), col('.')]
-        call myvim#charBackward()  " move cursor back away from ','
-        let itemRanges += [[itemRangeStart, [line('.'),col('.')] ]]
-        break
-      endif
-    endwhile
-
-    "find current item index
-    let cursorRange = [startLine, startCol]
-    let [itemIndex, size]  = [0, len(itemRanges)]
-    while itemIndex != size
-      let range = itemRanges[itemIndex]
-      if myvim#cmpPos(range[0], cursorRange) <= 0 && myvim#cmpPos(range[1], cursorRange) >=0 
-        break
-      endif
-      let itemIndex += 1
-    endwhile
-
-    "set itemIndex to -1 if it's invalid
-    if itemIndex == len(itemRanges)|let itemIndex = -1 |endif
-
-    "exclude space after find current item, allow current character to be space
-    if excludeSpace
-      for range in itemRanges
-        "carefule here, don't use let range = myvim#trimRange(range)
-        let trimedRange = myvim#trimRange(range) 
-        let range[0] = trimedRange[0]
-        let range[1] = trimedRange[1]
-      endfor
-    endif
-
-    return [itemIndex, totalRange, itemRanges]
-
-  finally | call cursor(startLine, startCol) | endtry
-endfunction
-
-"visual select cur arg, by default space included
-function! myvim#selCurArg(opts) abort
-  call extend(a:opts, {'excludeSpace':0}, 'keep') 
-  let ranges = myvim#getItemRanges(a:opts)
-
-  if ranges == []
-    call myvim#warn('illigal range')|return
-  endif
-
-  let [itemIndex, totalRange, itemRanges] = [ranges[0], ranges[1], ranges[2]]
-  if itemIndex == -1
-    call myvim#warn('you should not place your cursor at ' . myvim#getCC() ) 
-    return
-  endif
-
-  let curItemRange = ranges[2][ranges[0]]
-  call myvim#visualSelect(curItemRange)
-endfunction
-
-" search until one of expr found, ignore everything in scope and it's %
-" eg : ( ',(',  ')}]>',  {direction:h} )
-function! myvim#searchWithJumpPair(expr, jumpPairs, opts) abort
-  let direction = get(a:opts, 'direction', 'h') 
-  let flag = direction ==# 'h' ? 'bW' : 'W'
+" search until one of expr found, ignore everything in pairs, doesn't include
+" current character
+" jumpPairs and expr should be completely different
+" expr : desired pattern
+" jumpPairs : such as (<{[ or )>}], when meet, execute %
+function! myvim#searchOverPairs(expr, jumpPairs, flags) abort
 
   let searchExpr = '\v[' . a:expr . escape(a:jumpPairs, ']') . ']'
-
-  while search(searchExpr, flag)
-    let c = myvim#getCC()
-    if match(a:expr, c) != -1
+  " c in flags will be used only for the 1st time search.
+  let [firstTime, flags] = [1, a:flags]
+  while search(searchExpr, flags)
+    if firstTime
+      let firstTime = 0
+      let flags = substitute(flags, 'c', '', 'g')
+    endif
+    if stridx(a:expr, myvim#getCC()) != -1
       return 1
     else
       keepjumps normal! %
     endif
   endwhile
-
   return 0
+
 endfunction
 
 " if you want to search > for < , make sure start is greater than pos of <
-function! myvim#searchOverPairs(str, start, target, openPairs, closePairs, direction) abort
-  if a:start >= len(a:str)
-    return -1
-  endif
+function! myvim#searchStringOverPairs(str, start, target, openPairs, closePairs, direction) abort
+  if a:start >= len(a:str) | return -1 | endif
 
   let step = a:direction ==# 'l' ? 1 : -1
   let pairs0 = a:direction ==# 'l' ? a:openPairs : a:closePairs
   let pairs1 = a:direction ==# 'l' ? a:closePairs : a:openPairs
 
-  let stack = [] " pair index stack
-
-  let pos = a:start
-  let size = len(a:str)
+  " pair index stack
+  let [stack, pos, size] = [a:start, len(a:str)]
 
   while pos >= 0 && pos < size
     let c = a:str[pos]
-
-    if len(stack) == 0 && stridx(a:target, c) != -1
-      return pos
-    endif
-
+    if len(stack) == 0 && stridx(a:target, c) != -1 | return pos | endif
     let pos += step
 
     " ignore everyting except open or close char of current pair
@@ -425,91 +191,77 @@ function! myvim#searchOverPairs(str, start, target, openPairs, closePairs, direc
 
     " check open pair
     let idx = stridx(pairs0, c)
-    if idx != -1
-      let stack += [ idx ]
-      continue
-    endif
+    if idx != -1 | let stack += [ idx ] | continue | endif
 
   endwhile
 
   return -1
 endfunction
 
-function! myvim#swapRange(range0, range1) abort
+function! myvim#visualSelect(range, mode) abort
+  call setpos('.', a:range[0]) | exec 'normal! ' . a:mode | call setpos('.', a:range[1])
+endfunction
+
+function! myvim#swapRange(range0, range1, mode) abort
   if myvim#cmpPos(a:range0[0], a:range1[0]) < 0
      let [leftRange, rightRange] = [a:range0, a:range1]
   else
      let [leftRange, rightRange] = [a:range1, a:range0]
   endif
 
-	let leftItem = myvim#getRange(leftRange)
-	let rightItem = myvim#getRange(rightRange)
   " replace right rangre 1st, otherwise left range will be corrupted
-  call myvim#replaceRange(rightRange, leftItem)
-  call myvim#replaceRange(leftRange, rightItem)
+  let tmp = myvim#getRange(rightRange, a:mode)
+  call myvim#replaceRange(rightRange, myvim#getRange(leftRange, a:mode), a:mode)
+  call myvim#replaceRange(leftRange, tmp, a:mode)
 endfunction
 
-function! myvim#getRange(range) abort
-  let [startLine, startCol, bak]= [line('.'), col('.'), @t] | try
-  call myvim#visualSelect(a:range)
-  normal! "ty 
-  let s = @t "this is needed, because @t is restored at finally clause
-  return s 
-  finally | let @t = bak | call cursor(startLine, startCol) | endtry
+function! myvim#getRange(range, mode) abort
+  let [cursorPos, regText, regType]= [getcurpos(), @a, getregtype('a')] | try
+  call myvim#visualSelect(a:range, a:mode)
+  normal! "ay
+  let s = @a "this is needed, because @t is restored at finally clause
+  return s
+  finally | call setreg('a', regText, regType) | call setpos('.', cursorPos) | endtry
 endfunction
 
-" opts:{'ioe':'i'}
-function! myvim#deleteRange(range,...) abort
-  let [startLine, startCol]= [line('.'), col('.')] | try
-  call myvim#visualSelect(a:range)
-  normal! d 
-  finally | call cursor(startLine, startCol) | endtry
+function! myvim#replaceRange(range, content, mode) abort
+  let [cursorPos, paste, regText, regType]= [getcurpos(), &paste, @a, getregtype('a')] 
+  try
+    let [&paste, @a]= [1, a:content]
+    call myvim#visualSelect(a:range, a:mode)
+    silent normal! "ap
+  finally 
+    call setpos('.', cursorPos) | let &paste = paste | call setreg('a', regText, regType) 
+  endtry
 endfunction
 
-function! myvim#replaceRange(range, content) abort
-  let [startLine, startCol, paste, rbak]= [line('.'), col('.'), &paste, @t] | try
-    let [&paste, @t]= [1, a:content]
-    call myvim#visualSelect(a:range) 
-    silent normal! "tp 
-  finally | call cursor(startLine, startCol)| let [&paste, @t] = [paste, rbak] | endtry
-endfunction
-
-"return new trimed range
+"return new trimed characterwise range
 function! myvim#trimRange(range) abort
-  let [startLine, startCol]= [line('.'), col('.')] | try
+  let pos = getcurpos() | try
     let newRange = deepcopy(a:range)
 
-    call cursor(a:range[0])
-    if match(" \t", myvim#getCC()) != -1|call search('\v\S')|endif
-    let newRange[0] = [line('.'), col('.')]
-
-    call cursor(a:range[1])
-    if match(" \t", myvim#getCC()) != -1|call search('\v\S', 'bW')|endif
-    let newRange[1] = [line('.'), col('.')]
+    call setpos('.', a:range[0]) | call search('\v\S', 'cW') | let newRange[0] = getpos('.')
+    call setpos('.', a:range[1]) | call search('\v\S', 'bcW') | let newRange[1] = getpos('.')
 
     return newRange
-  finally | call cursor(startLine, startCol) | endtry
+  finally | call setpos('.', pos) | endtry
 endfunction
 
-" lhs:[line, col],  etc
 function! myvim#cmpPos(lhs, rhs) abort
-  if len(a:lhs) == 2
-    let [lnum, cnum] = [0, 1] 
-  elseif len(a:lhs) == 4
-    let [lnum, cnum] = [1, 2] 
-  else
-    call myvim#warn('unknow position') | return 0 " return 0 ?
+  if a:lhs[0] != a:rhs[0]
+    throw 'cmpPos support only pos on the same buffer'
   endif
 
-  if a:lhs[lnum] < a:rhs[lnum]
+  if a:lhs[1] < a:rhs[1]
     return -1
-  elseif a:lhs[lnum] > a:rhs[lnum]
+  elseif a:lhs[1] > a:rhs[1]
     return 1
-  elseif a:lhs[cnum] < a:rhs[cnum]
+  elseif a:lhs[2] < a:rhs[2]
     return -1
-  elseif a:lhs[cnum] > a:rhs[cnum]
+  elseif a:lhs[2] > a:rhs[2]
     return 1
   endif
+
   return 0
 endfunction
 
@@ -517,9 +269,9 @@ function! myvim#translatePos(pos, step) abort
   let [startLine, startCol]= [line('.'), col('.')] | try
     call cursor(a:pos)
     if(a:step < 0)
-      call myvim#charBackward(-a:step) 
+      call myvim#charLeft(-a:step)
     else 
-      call myvim#charForward(a:step)
+      call myvim#charRight(a:step)
     endif
     return getpos('.')[1:2]
   finally | call cursor(startLine, startCol) | endtry
@@ -531,83 +283,18 @@ function! myvim#stretchRange(range, step) abort
   return [myvim#translatePos(a:range[0], -a:step), myvim#translatePos(a:range[1], a:step)]
 endfunction
 
-function! myvim#charForward(...) abort
+function! myvim#charRight(...) abort
   let step = get(a:000, 0, 1)
   " are there any option the same as backspace ?
   exec 'normal! '.step.' '
 endfunction
 
-function! myvim#charBackward(...) abort
+function! myvim#charLeft(...) abort
   let step = get(a:000, 0, 1)
   let backspace = &backspace|try
     let &backspace='indent,eol,start' 
     exec 'normal! '.step.''
   finally|let &backspace = backspace|endtry
-endfunction
-
-function! myvim#startTimer(desc) abort
-  if s:timing | call myvim#endTimer() | endif
-  let s:scriptTimer = reltime()
-  let s:timeText = a:desc
-  let s:timeing = 1
-endfunction
-
-function! myvim#endTimer() abort
-  if !s:timing
-    echom s:timeText.' Done in '.reltimestr(reltime(s:scriptTimer)).' seconds'
-    let s:timeing = 0
-  endif
-endfunction
-
-" push original settings into stack, apply options in opts
-function! myvim#pushOptions(opts) abort
-  "let opts =  {'more':0, 'eventignore':'all'}
-  let backup = {}
-  for [key,value] in items(a:opts)
-    exec 'let backup[key] = &'.key
-    exec 'let &'.key . ' = value'
-  endfor
-  let s:optionStack += [backup]
-endfunction
-
-function! myvim#popOptions() abort
-  if empty(s:optionStack)
-    throw 'nothing to pop, empty option stack'
-  endif
-  let opts = remove(s:optionStack, len(s:optionStack) - 1)
-  for [key,value] in items(opts)
-    exec 'let &'.key . ' = value'
-  endfor
-endfunction
-
-function! myvim#getTail(str, delim) abort
-  let idx = strridx(a:str, a:delim)
-  return idx >= 0 ? a:str[(idx+len(a:delim)):] : a:str
-endfunction
-
-function! myvim#getBlock(block) abort
-  let [lnum0,cnum0] = a:block[0]
-  let [lnum1,cnum1] = a:block[1]
-  let fragment = getline(lnum0, lnum1)
-  if len(fragment) == 0
-    return []
-  endif
-  "becareful here, last fragment must be picked first, it will break cnum1 if
-  "if lnum0 = lnum1
-  let fragment[-1] = fragment[-1][: cnum1 - 1]
-  let fragment[0] = fragment[0][cnum0 - 1:]
-  return fragment
-endfunction
-
-function! myvim#visualSelect(block) abort
-  let [lnum0,cnum0] = a:block[0]
-  let [lnum1,cnum1] = a:block[1]
-  call cursor(lnum0, cnum0)
-  "don't know why '< failed to be sett by cursor, have to do it again by setpos
-  call setpos("'<",[0,lnum0,cnum0,0])
-  normal! v
-  call cursor(lnum1, cnum1)
-  call setpos("'>",[0,lnum1,cnum1,0])
 endfunction
 
 function! myvim#trim(s, ...) abort
@@ -617,79 +304,6 @@ function! myvim#trim(s, ...) abort
   if !noLeft|let res = matchstr(res, '\v^\s*\zs.*')|endif
   if !noRight|let res = matchstr(res, '\v.{-}\ze\s*$')|endif
   return res
-endfunction
-
-"\w and \d only
-function! myvim#selectSmallWord() abort
-  let c = myvim#getCC()
-  if match(c, '\v\w') == -1
-    "do nothing if c is not a \w
-    return -1 
-  endif
-
-  call myvim#charForward()
-  call search('\v[a-zA-Z]*', 'bW')  " don't add flag e to ?
-  normal! v
-  call search('\v[a-zA-Z]*', 'e')  " \w+ will jump to next word if it's a single letter
-
-  "check tail character
-  let c = myvim#getCC()
-  if match(c, '\v\w') == -1
-    "TODO this doesn't work if whol match is a single character, don't know y
-    call myvim#charBackward()
-  endif
-
-endfunction
-
-" lnum, cnum
-function! myvim#isSingleWord(...) abort
-  let [startLine, startCol]= [line('.'), col('.')] | try
-  let lnum = get(a:000, 0, line('.'))
-  let cnum = get(a:000, 1, col('.'))
-  call cursor(lnum, cnum)
-  let w = expand('<cword>')
-  return len(w) == 1
-  finally |  call cursor(startLine, startCol) | endtry
-endfunction
-
-"move cursor up or down to search character 
-"opt:{'direction':j or k, 'pat': regex pattern, 'ignoreChop' : bool,  'greedy' :
-"bool }  
-"return getpos() 
-function! myvim#verticalSearch(...) abort
-  let opt = get(a:000, 0, {})
-  let opt = extend(opt, 
-        \ {'direction':'j', 'pattern':'\v.', 'ignoreChop':0, 'greedy':0 }, 'keep')
-  let lstep = opt.direction ==# 'j' ? 1 : -1
-  let [lastValidLine, lnum, cnum] = [line('.'), line('.'), col('.')]
-  while 1 
-    let lnum = lnum + lstep
-    let c = myvim#getC(lnum, cnum)
-    if c ==# '' && !opt.ignoreChop   "shorter line
-      break  
-    elseif match(c, opt.pattern ) == 0 "match line
-      let lastValidLine = lnum 
-      if !opt.greedy | break | endif
-    endif
-  endwhile
-  call cursor(lastValidLine, cnum)
-  return getcurpos()
-endfunction
-
-"select visual end, and keep in visual mode
-function! myvim#visualEnd(func, ...) abort
-  let startpos = getpos("'<")
-  let endpos = call(a:func, a:000)
-  echo endpos
-  call setpos("'>", endpos)
-  normal! gv
-endfunction
-
-function! myvim#getPercentPos() abort
-  keepjumps normal! %
-  let pos = getcurpos()[1:2]
-  keepjumps normal! %
-  return pos
 endfunction
 
 "add lnum, cnum to jump list
@@ -705,40 +319,20 @@ function! myvim#createJumps(lnum,cnum) abort
   endtry
 endfunction
 
-"return [[line,col],[line,col]] or []
-function! myvim#getBraceBlock() abort
-  try
-    let oldpos = getpos('.')
-
-    let block = [[],[]]
-    normal! [{
-    let block[0] = [line('.'), col('.')]
-    normal! ]}
-    let block[1] = [line('.'), col('.')]
-    if block[0] == block[1]
-      return [] 
-    endif
-    return block
-
-  finally
-    call setpos('.', oldpos)
-  endtry
-endfunction
-
+" copy last visual without side effect
 function! myvim#getVisualString() abort
-  let temp = @" | norm! gvy
-  let [str,@"] = [@",temp] | return str
+  let [regText, regType] = [getreg('a'), getregtype('a')] | norm! gv"ay
+  let str = @a | call setreg('a', regText, regType) | return str
 endfunction
 
-" type: 
-"   0 : vim very no matic forward search pattern
-"   1 : grep
+" type:
+"   0 : vim very no magic forward search pattern
+"   1 : :grep
 "   2 : Fag
 function! myvim#literalize(str, type) abort
 
   if a:type == 0
-    " only works forward search, backward search will fail due to / ? issue
-    return substitute(escape(a:str, '/\'), "\n", '\\n', 'g')
+    return '\V' . substitute(escape(a:str, '\'), "\n", '\\n', 'g')
   endif
 
   " shellescale will escape ! and \n, but ! and \n doesn't need to be escaped in
@@ -746,32 +340,34 @@ function! myvim#literalize(str, type) abort
   " in ex command
   let s = substitute(a:str, "'", "'\\\\''", 'g')
   if a:type == 1
-    " i gusee :grep execute like !, so \n needs to be escaped
-    let s = escape(s, "%#|\n")
+    let s = escape(s, '%#|')
   else
     " don't need to escape |, Fag has no -bar option 
     let s = escape(s, '%#')
   endif
-  
+
   " wrap in ''
   return printf("'%s'", s)
 endfunction
 
-" ------------------------------------------------------------------------------
-" chrono 
-" ------------------------------------------------------------------------------
-let myvim#chrono = { 'time':reltime()}
-
-function! myvim#chrono.reset() abort dict 
-  let self.time = reltime()
+" [literalType, []]
+function! myvim#literalCopy(wiseType, literalType, visual)
+  if a:visual " visual mode
+    silent exe printf('normal! gv"%sy', v:register)
+  elseif a:wiseType ==# 'line'
+    silent exe printf("normal! '[V']\"%sy", v:register)
+  else
+    silent exe printf("normal! `[v`]\"%sy", v:register)
+  endif
+  exec printf('let @%s = myvim#literalize(@%s, a:literalType)', v:register, v:register)
 endfunction
 
-function! myvim#chrono.get() abort dict
-  return reltimestr(reltime(self.time))   
+function! myvim#literalCopyVim(wiseType, ...)
+  call myvim#literalCopy(a:wiseType, 0, a:0)
 endfunction
 
-function! myvim#newChrono() abort
-  return deepcopy(g:myvim#chrono) 
+function! myvim#literalCopyGrep(wiseType, ...)
+  call myvim#literalCopy(a:wiseType, 1, a:0)
 endfunction
 
 function! myvim#switchRtp(path) abort
@@ -782,92 +378,8 @@ function! myvim#switchRtp(path) abort
   let &rtp = printf('%s,%s,%s', s:originalRtp, a:path, a:path.'/after')
 endfunction
 
-
-function! myvim#bindKey(key, mode, no, filetypes, map) abort
-  if a:map ==# ''
-    return
-  endif
-
-  if a:filetypes == []
-    " global map
-    for index in  range(len(a:mode))
-      exec printf('%s%smap %s %s', a:mode[index], a:no?'nore':'', a:key, a:map)
-    endfor
-    return
-  endif
-
-  for ft in a:filetypes
-    if !has_key(s:maps, ft)
-      let s:maps[ft] = []
-    endif
-
-    let s:maps[ft] += [{'key':a:key, 'mode':a:mode, 'no':a:no, 'map':a:map}]
-  endfor
-endfunction
-
-function! myvim#loadFiletypeMap(ft) abort
-  if !has_key(s:maps, a:ft)
-    return
-  endif
-
-  let maps = s:maps[a:ft]
-  for item in maps
-    if item.map ==# ''
-      echoe string(item).' has blank map'
-      continue
-    endif
-    for index in  range(len(item.mode))
-      exec printf('%s%smap <buffer> %s %s', item.mode[index], item.no?'nore':'', item.key, item.map)
-    endfor
-  endfor
-endfunction
-
-function! myvim#loadAutoMap(ft) abort
-  if !has_key(s:maps, a:ft)
-    return
-  endif
-
-  let maps = s:maps[a:ft]
-  for item in maps
-    if item.map ==# ''
-      echoe string(item).' has blank map'
-      continue
-    endif
-    for index in  range(len(item.mode))
-      exec printf('autocmd BufReadPost %s %s%smap <buffer> %s %s', a:ft, item.mode[index], item.no?'nore':'', item.key, item.map)
-    endfor
-  endfor
-endfunction
-
 function! myvim#updateTags() abort
   if filereadable('.vim/ctags.sh')
     call jobstart('.vim/ctags.sh')
   endif
-endfunction
-
-function! myvim#isVimComment(lineString) abort
-  return matchstr(getline('.'), '\v^\s*\zs\S') ==# '"'
-endfunction
-
-function! myvim#clearDuplicatedAbbrevation() abort
-  while 1
-    normal! j
-    if line('.') == line('$')
-      break
-    endif
-
-    let l0 = getline('.')
-    if myvim#isVimComment(l0) | continue | endif
-    let abbre0 = matchstr(l0, '\v\<buffer\>\s+\zs\w+')
-    if abbre0 ==# '' | continue | endif
-
-    let l1 = getline(line('.')+1)
-    if myvim#isVimComment(l1) | continue | endif
-    let abbre1 = matchstr(l1, '\v\<buffer\>\s+\zs\w+')
-    if abbre1 ==# '' | continue | endif
-    if abbre0 ==# abbre1
-      normal! I" 
-    endif
-
-  endwhile
 endfunction

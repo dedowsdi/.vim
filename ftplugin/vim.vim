@@ -5,4 +5,4 @@ endif
 let b:loaded_vim_cfg = 1
 
 :setlocal shiftwidth=2 tabstop=2 textwidth=80 expandtab
-call myvim#loadFiletypeMap('vim')
+call misc#ui#loadFiletypeMap('vim')
