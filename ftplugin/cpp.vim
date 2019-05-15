@@ -10,10 +10,15 @@ setlocal cinoptions+=g0  " no accessor indent
 setlocal cinoptions+=N-s " no namespace indent
 " no indent for contiuous state ment, avoid indent after Q_OBJECT kind stuff.
 " you need to manually indent for continuous line.
-setlocal cinoptions+=+0 
+setlocal cinoptions+=+0
 
 :setlocal shiftwidth=2 tabstop=2 textwidth=80 expandtab
 
 call abbre#cpp()
 call misc#ui#loadFiletypeMap('c')
 call misc#ui#loadFiletypeMap('cpp')
+
+vnoremap <buffer> af :<C-U>silent! call cdef#selPf('a')<cr>
+vnoremap <buffer> if :<C-U>silent! call cdef#selPf('i')<cr>
+onoremap <buffer> af :normal vaf<cr>
+onoremap <buffer> if :normal vif<cr>

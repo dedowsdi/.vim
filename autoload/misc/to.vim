@@ -24,28 +24,28 @@ function! misc#to#getArgs(opts) abort
       let rightPairs .= item[1]
     endfor
 
-    if myvim#getCC() == rightGuard
-      call myvim#charLeft()
+    if misc#getCC() == rightGuard
+      call misc#charLeft()
     endif
     "goto left guard first
-    if !myvim#searchWithJumpPair(leftGuard, rightPairs, 'bcW')|return []|endif
+    if !misc#searchOverPairs(leftGuard, rightPairs, 'bcW')|return []|endif
     let totalRange[0] = getpos('.')
-    call myvim#charRight() " move away from (
+    call misc#charRight() " move away from (
     let argRangeStart = getpos('.')
-    call myvim#charLeft() " move back to (
+    call misc#charLeft() " move back to (
 
     "find item ranges and right guard
-    while myvim#searchWithJumpPair(rightGuard.delim, leftPairs, 'W')
-      let c = myvim#getCC()
+    while misc#searchOverPairs(rightGuard.delim, leftPairs, 'W')
+      let c = misc#getCC()
       if c ==# delim
-        call myvim#charLeft()  " move cursor away from ','
+        call misc#charLeft()  " move cursor away from ','
         let argRanges += [[argRangeStart, getpos('.') ]]
-        call myvim#charRight(2) " move cursor forward away from ','
+        call misc#charRight(2) " move cursor forward away from ','
         let argRangeStart = getpos('.')
-        call myvim#charLeft()  " move cursor back to  ','
+        call misc#charLeft()  " move cursor back to  ','
       else
         let totalRange[1] = getpos('.')
-        call myvim#charLeft()  " move cursor back away from ','
+        call misc#charLeft()  " move cursor back away from ','
         let argRanges += [[argRangeStart, getpos('.')]]
         break
       endif
@@ -55,7 +55,7 @@ function! misc#to#getArgs(opts) abort
     let [argIndex, size]  = [0, len(argRanges)]
     while argIndex != size
       let range = argRanges[argIndex]
-      if myvim#cmpPos(range[0], curPos) <= 0 && myvim#cmpPos(range[1], curPos) >=0
+      if misc#cmpPos(range[0], curPos) <= 0 && misc#cmpPos(range[1], curPos) >=0
         break
       endif
       let argIndex += 1
@@ -67,8 +67,8 @@ function! misc#to#getArgs(opts) abort
     "exclude space after find current item, allow current character to be space
     if excludeSpace
       for range in argRanges
-        "carefule here, don't use let range = myvim#trimRange(range)
-        let trimedRange = myvim#trimRange(range)
+        "carefule here, don't use let range = misc#trimRange(range)
+        let trimedRange = misc#trimRange(range)
         let [range[0], range[1]] = [trimedRange[0], trimedRange[1] ]
       endfor
     endif
@@ -83,22 +83,65 @@ function! misc#to#selCurArg(opts) abort
   call extend(a:opts, {'excludeSpace':0}, 'keep')
   let ranges = misc#to#getArgs(a:opts)
 
-  if ranges == [] | call myvim#warn('illigal range') | return | endif
+  if ranges == [] | call misc#warn('illigal range') | return | endif
 
   let [argIndex, totalRange, argRanges] = [ranges[0], ranges[1], ranges[2]]
   if argIndex == -1
-    call myvim#warn('you should not place your cursor at ' . myvim#getCC() )
+    call misc#warn('you should not place your cursor at ' . misc#getCC() )
     return
   endif
 
   let curArgRange = ranges[2][argIndex]
-  call myvim#visualSelect(curArgRange, 'v')
+  call misc#visualSelect(curArgRange, 'v')
 endfunction
+
+" opts{direction:'h or l' , delim: default to ","
+" jumpPairs: default to ["()","[]","{}","<>"], guard : default to "()",
+" cursorAction : 'argFirstChar'(default), 'argLastChar', 'static' }
+function! misc#to#bubbleArg(opts) abort
+
+  let args = misc#to#getArgs(a:opts)
+  if args == [] | call misc#warn('illigal range')| return | endif
+
+  let direction = get(a:opts, 'direction', 'h')
+  let cursorActoin = get(a:opts, 'cursorAction', 'argFirstChar')
+
+  let [argIndex, totalRange, argRanges] = [args[0], args[1], args[2]]
+  if argIndex == -1
+    call misc#warn('you should not place your cursor at ' . misc#getCC() )  | return
+  endif
+
+  let targetIndex = direction ==# 'h' ? argIndex - 1 : argIndex + 1
+  if targetIndex < 0
+    let targetIndex = len(argRanges) - 1
+  elseif targetIndex >= len(argRanges)
+    let targetIndex = 0
+  endif
+  call misc#swapRange(argRanges[argIndex], argRanges[targetIndex], 'v')
+
+  " place cursor
+  if cursorActoin !=# 'static'
+     " cursor might in inner () after bubble, to be safe, place it at outmost (
+     call setpos('.', totalRange[0])
+     " get new args
+     let args = misc#to#getArgs(a:opts)
+     let targetRange = args[2][targetIndex]
+     if cursorActoin ==# 'argFirstChar'
+       "place cursor at 1st non blank character in this arg
+       call setpos('.', targetRange[0]) |  call search('\v\S', 'cW')
+     elseif cursorActoin ==# 'argLastChar'
+       "place cursor at last non blank character in this arg
+       call setpos('.', targetRange[1]) | call search('\v\S', 'bcW')
+     endif
+  endif
+
+endfunction
+
 
 "\w and \d only
 function! misc#to#selLetter() abort
   let pattern = '\v[a-zA-Z]+'
-  if myvim#getCC() !~# pattern | return -1 | endif
+  if misc#getCC() !~# pattern | return -1 | endif
   call search(pattern, 'bc')
   normal! v
   call search(pattern, 'ce')  " \w+ will jump to next word if it's a single letter
@@ -112,7 +155,7 @@ function! misc#to#selColumn(ov, jk) abort
   let [curVnum, curLnum, colLnum0, colLnum1, lnum] =
               \ [virtcol('.')] + repeat([line('.')], 4)
   " do nothing if cursor in blank
-  if myvim#getV(curLnum, curVnum) =~# '\v\s'
+  if misc#getV(curLnum, curVnum) =~# '\v\s'
     if a:ov ==# 'v' | exec 'normal! ' | endif | return
   endif
 
@@ -120,8 +163,8 @@ function! misc#to#selColumn(ov, jk) abort
   if stridx(a:jk, 'j') != -1
     while 1
       let lnum = lnum + 1
-      if lnum > line('$') || myvim#getV(lnum, curVnum) =~# '\v^$|\s'
-        let colLnum0 = lnum - 1 | break
+      if lnum > line('$') || misc#getV(lnum, curVnum) =~# '\v^$|\s'
+        let colLnum1 = lnum - 1 | break
       endif
     endwhile
   endif
@@ -131,14 +174,14 @@ function! misc#to#selColumn(ov, jk) abort
     let lnum = curLnum
     while 1
       let lnum = lnum - 1
-      if lnum <= 0 || myvim#getV(lnum, curVnum) =~# '\v^$|\s'
-        let colLnum1 = lnum + 1 | break
+      if lnum <= 0 || misc#getV(lnum, curVnum) =~# '\v^$|\s'
+        let colLnum0 = lnum + 1 | break
       endif
     endwhile
   endif
 
   " visual select
   call cursor(colLnum0, col('.'))
-  exec 'normal! '
+  exec "normal! \<c-v>"
   call cursor(colLnum1, col('.'))
 endfunction

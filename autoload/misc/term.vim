@@ -3,6 +3,7 @@ let s:jterms=[]
 let s:gterm = {}  " unique global term
 let s:termbase = {'bufnr':-1, 'autoInsert':0}
 let s:jtermlog = system('mktemp /tmp/misc_term_$(date +%H_%M_%S)_XXXXXX.log')
+let s:hasnvim = has('nvim')
 
 let s:jtermLayout = get(g:, 'miscJtermLayout', {})
 call extend(s:jtermLayout, {'position':'bot' , 'psize':0.5}, 'keep')
@@ -38,16 +39,14 @@ function! s:term_open() dict abort
   else
     call misc#term#split(self.layout, printf('sbuffer %d', self.bufnr))
   endif
-  if self.autoInsert
-    normal! ii
+  if self.autoInsert && s:hasnvim
+    normal! i
   endif
 endfunction
 
 " [hideOnly]
 function! s:term_hide(...) dict abort
-  if !self.isOpen()
-    return
-  endif
+  if !self.isOpen() | return | endif
 
   let hideOnly = get(a:000, 0, 0)
   if !hideOnly
@@ -55,11 +54,8 @@ function! s:term_hide(...) dict abort
   endif
 
   let oldwinid=win_getid('')
-  call self.gotoWin()
-  q
-  if hideOnly
-    return
-  endif
+  call self.gotoWin() | hide
+  if hideOnly | return | endif
   call win_gotoid(oldwinid)
   "call self.winrest()
   call misc#term#resetFixedWinSize(fixedWins)
@@ -86,11 +82,11 @@ endfunction
 function! s:jterm_close() dict abort
   "call system(printf('echo ------------------------------------------------------------>>%s', s:jtermlog))
   "call system(printf('echo $(date +%%H:%%M:%%S)>>%s', s:jtermlog))
-  "call system(printf('echo %s>>%s', myvim#literalize(self.cmd, 1), s:jtermlog))
+  "call system(printf('echo %s>>%s', misc#literalize(self.cmd, 1), s:jtermlog))
   if bufexists(self.bufnr)
     " copy content to bak
     "let lines = join(getbufline(self.bufnr, 1, '$'), "\n")
-    "call system(printf('echo %s>>%s', myvim#literalize(lines, 1), s:jtermlog))
+    "call system(printf('echo %s>>%s', misc#literalize(lines, 1), s:jtermlog))
     exec printf('bdelete! %d', self.bufnr)
   endif
   call filter(s:jterms, printf('v:val.bufnr != %d', self.bufnr))
@@ -100,9 +96,13 @@ function! s:jterm_done() dict abort
   return self.jobFinished
 endfunction
 
-function! s:jterm_onJobExit(job_id, data, event) dict abort
+function! s:jterm_onJobExit_nvim(job_id, data, event) dict abort
   let self.jterm.jobFinished = 1
 endfunction
+
+"function! s:jterm_onJobExit_vim(job, status) dict abort
+  "let self.jterm.jobFinished = 1
+"endfunction
 
 let s:termbase.exists   = function('s:term_exists')
 let s:termbase.isOpen   = function('s:term_isOpen')
@@ -122,16 +122,12 @@ let s:jtermbase.done = function('s:jterm_done')
 
 " jterm: { cmd:, opts:, switch: }
 function! misc#term#jtermopen(jterm) abort
-  let oldwinid = win_getid()
-  let jterm = copy(a:jterm)
+  let [oldwinid, jterm] = [win_getid(), copy(a:jterm)]
   call extend(jterm, s:jtermbase, 'keep')
   call extend(jterm, {'opts':{}, 'layout':s:jtermLayout, 'switch':0, 'closeFinished':1, 'closeAll':0}, 'keep')
 
   " hook default exit callback
-  if !has_key(jterm.opts, 'on_exit')
-    call extend(jterm.opts, {'on_exit': function('s:jterm_onJobExit')})
-  endif
-  call extend(jterm.opts, {'jterm':jterm})
+  call extend(jterm.opts, {'jterm':jterm, 'on_exit':function('s:jterm_onJobExit_nvim')})
 
   if jterm.closeAll
     call misc#term#closeAll()
@@ -143,9 +139,16 @@ function! misc#term#jtermopen(jterm) abort
 
   call misc#term#split(jterm.layout, 'new')
   let jterm.bufnr = bufnr('')
-  let jterm.jobid = termopen(jterm.cmd, jterm.opts )
+  if s:hasnvim
+    let jterm.job = termopen(jterm.cmd, jterm.opts)
+  else
+    function jterm.opts.exit_cb(job, status)
+      let self.jobFinished = 1
+    endfunction
+    let jterm.job = term_start(jterm.cmd, {'curwin':1, 'exit_cb':jterm.opts.exit_cb})
+  endif
 
-  if ! jterm.switch
+  if !jterm.switch
     call win_gotoid(oldwinid)
   else
     call jterm.open() " trigger insert
@@ -174,15 +177,17 @@ let s:gtermbase.autoInsert=1
 function! misc#term#toggleGterm() abort
   if s:gterm == {} || !s:gterm.exists()
     " create new global termianl
-    let s:gterm = deepcopy(s:gtermbase)
-    let s:gterm.layout = s:gtermLayout
-    call misc#term#split(s:gterm.layout, 'new')
-    let s:gterm.bufnr = bufnr('')
+    let [s:gterm, s:gterm.layout] = [deepcopy(s:gtermbase), s:gtermLayout]
     " terminal and term will consume the newly created blank buffer
-    exec 'terminal'
-    let s:gterm.jobid = b:terminal_job_id
-    let s:gterm.title = b:term_title
-    let s:gterm.pid = b:terminal_job_pid
+    call misc#term#split(s:gterm.layout, 'new')
+    if s:hasnvim
+      terminal
+      let [s:gterm.bufnr, s:gterm.job, s:gterm.title, s:gterm.pid]
+            \ = [bufnr(''), b:terminal_job_id, b:term_title, b:terminal_job_pid]
+    else
+      terminal ++curwin
+      let [s:gterm.bufnr] = [bufnr('')]
+    endif
     call s:gterm.open()
   else
     call s:gterm.toggle()
@@ -191,10 +196,10 @@ endfunction
 
 " wnd commands and options
 let s:wcos={
-  \ 'top' : { 'split':'to'     , 'resize':'res', 'searchFix':'wfh', 'fixedSize':'height', 'size':'lines'} ,
-  \ 'left': { 'split':'to vert', 'resize':'vert res'     , 'searchFix':'wfw', 'fixedSize':'width' , 'size':'co'   } ,
-  \ 'bot':  { 'split':'bo'     , 'resize':'res', 'searchFix':'wfh', 'fixedSize':'height', 'size':'lines'} ,
-  \ 'right':{ 'split':'bo vert', 'resize':'vert res'     , 'searchFix':'wfw', 'fixedSize':'width' , 'size':'co'   }
+  \ 'top' : { 'split':'to'     , 'resize':'res'     , 'searchFix':'wfh', 'fixedSize':'height', 'size':'lines'},
+  \ 'left': { 'split':'to vert', 'resize':'vert res', 'searchFix':'wfw', 'fixedSize':'width' , 'size':'co'   },
+  \ 'bot':  { 'split':'bo'     , 'resize':'res'     , 'searchFix':'wfh', 'fixedSize':'height', 'size':'lines'},
+  \ 'right':{ 'split':'bo vert', 'resize':'vert res', 'searchFix':'wfw', 'fixedSize':'width' , 'size':'co'   }
   \ }
 
 function! misc#term#split(layout, splitCmd) abort
@@ -217,7 +222,6 @@ function! misc#term#getFixedWins() abort
   let wco = s:wcos[s:gtermLayout.position]
 
   for i in range(l:count)
-    " do i have to goto specific window to get option?
     let fix = getwinvar(i+1, '&'.wco.searchFix)
     if fix == 1
       let winid = win_getid(i+1)
@@ -243,14 +247,8 @@ endfunction
 function! misc#term#hideall() abort
   let oldwinid = win_getid()
   let fixedWins = misc#term#getFixedWins()
-  for jt in s:jterms
-    call jt.hide(1)
-  endfor
-  if s:gterm != {}
-    call s:gterm.hide(1)
-  endif
+  for jt in s:jterms | call jt.hide(1) | endfor
+  if s:gterm != {} | call s:gterm.hide(1) | endif
   call misc#term#resetFixedWinSize(fixedWins)
   call win_gotoid(oldwinid)
 endfunction
-
-" vim: set foldmethod=indent:

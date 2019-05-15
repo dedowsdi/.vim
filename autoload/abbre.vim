@@ -22,6 +22,10 @@ function! abbre#cpp()
   :iab <buffer> brs boost::regex_search()<Left>
   :iab <buffer> brr boost::regex_replace()<Left>
   :iab <buffer> bsm boost::smatch
+  :iab <buffer> u8t uint8_t
+  :iab <buffer> u16t uint16_t
+  :iab <buffer> u32t uint32_t
+  :iab <buffer> u64t uint64_t
 
   :iab <buffer>  Cfs //------------------------------------------------------------------------------
 endfunction
@@ -2839,7 +2843,7 @@ function! abbre#qt()
 endfunction
 
 " a little helper to comment duplicated abbrevation
-function! misc#abbre#clearDuplicatedAbbrevation() abort
+function! abbre#clearDuplicatedAbbrevation() abort
   while 1
     normal! j
     if line('.') == line('$')
@@ -2847,12 +2851,12 @@ function! misc#abbre#clearDuplicatedAbbrevation() abort
     endif
 
     let l0 = getline('.')
-    if myvim#isVimComment(l0) | continue | endif
+    if misc#isVimComment(l0) | continue | endif
     let abbre0 = matchstr(l0, '\v\<buffer\>\s+\zs\w+')
     if abbre0 ==# '' | continue | endif
 
     let l1 = getline(line('.')+1)
-    if myvim#isComment(l1) | continue | endif
+    if misc#isComment(l1) | continue | endif
     let abbre1 = matchstr(l1, '\v\<buffer\>\s+\zs\w+')
     if abbre1 ==# '' | continue | endif
     if abbre0 ==# abbre1
