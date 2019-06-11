@@ -4,50 +4,23 @@
 function! misc#viml#gotoFunction(...) abort
   let lnum = get(a:000, 0, 0)
   let range = misc#viml#getFunctionRange()
-  if range[0] == [] | return 0 | endif
+  if range == [] | return 0 | endif
   call setpos('.', range[0])
   if lnum == 0 | return 1 | endif
   execute 'normal! '. lnum .'j' | return 1
 endfunction
 
-" [leadingSpace]
-function! misc#viml#getFunctionRange(...) abort
-  let [cpos, range] = [getcurpos(), [[],[]]] | normal! $
-  let re = get(a:000, 0, 0) ? '\v^\s*' : '\v^'
-  if search(re.'fu(n(c(t(i(on?)?)?)?)?)?\!?\s+\S+\(' , 'bW')
-    let start = getpos('.')
-    if search(re.'endf(u(n(c(t(i(on?)?)?)?)?)?)?\s*$')
-      let end = getpos('.')
-      if misc#cmpPos(start, cpos) <= 0 && misc#cmpPos(cpos, end) <= 0
-        let range = [start, end]
-      endif
-    endif
-  endif
-  call setpos('.', cpos) | return range
+function! misc#viml#getFunctionRange() abort
+  let cpos = getcurpos()
+  exec 'norm! v' | call misc#viml#selFunction('i') | exec "norm! \<esc>"
+  call setpos('.', cpos)
+  let [pos0, pos1] = [getpos("'<"), getpos("'>")]
+  return pos0 == pos1 ? [] : [pos0, pos1]
 endfunction
 
 function! misc#viml#selFunction(ai)
-  let range = misc#viml#getFunctionRange()
-  if range == [] | return | endif
-  call setpos('.', range[0])
-  normal! V
-  call setpos('.', range[1])
-
-  " add trailing or preceding space for 'a'
-  if a:ai ==# 'a'
-    " | branch is used to handle leader and trailing blank lines in the buffer
-    if search('\v^.*\S.*$|%$', 'W')
-      if getline('.') =~# '\S' | :- | endif
-    endif
-    if line('.') == range[1][1]
-      normal! o
-      " include preceding spaces if no following spaces exist
-      if search('\v^.*\S.*$|%1l', 'bW')
-        if getline('.') =~# '\S' | :- | endif
-      endif
-      normal! o
-    endif
-  endif
+  call misc#to#selLines('\v^\s*fu%[nction]?\!?\s+\S+\(',
+        \ '\v^\s*endf%[unction]?\s*$', a:ai, 1)
 endfunction
 
 " support both relative and absolute filename
@@ -88,8 +61,8 @@ function! misc#viml#breakHere() abort
 endfunction
 
 function! misc#viml#breakNumberedFunction() abort
-  let range = misc#viml#getFunctionRange(1)
-  if range[0] != []
+  let range = misc#viml#getFunctionRange()
+  if range != []
     let candidates = misc#viml#searchNumberedFunctions(
           \ join(getline(range[0][1], range[1][1]), "\n"), 1000)
     let n = len(candidates)
@@ -143,6 +116,67 @@ function! misc#viml#isScopeScript() abort
   return stridx(getline('.'), 's:') >= 0
 endfunction
 
+
+function! misc#viml#join() abort
+  exec "normal! A |\<esc>gJ"
+  if misc#getCC() =~# '\v\s'
+    exec 'normal! cw '
+  else
+    exec 'normal! i '
+  endif
+endfunction
+
+" [+-][size]
+function! misc#viml#list(sfile, slnum, ...) abort
+  let symbol = a:0 > 0 ? matchstr(a:1, '\v^[+\-]') : ''
+  let size = a:0 > 0 ? matchstr(a:1, '\v\d+') : 10
+  if empty(size) | let size = 10 | endif
+
+  if a:sfile =~# '\v^function.*'
+
+    " note that function head and end is also returned from :function. slnum
+    " starts from 1 after function head
+    let lidx = a:slnum
+    let funcName = split(a:sfile[9:], '\v\.\.')[-1]
+
+    " take care of numbered function
+    if funcName =~# '\v^\d+$'
+      let funcName = printf('{%d}', funcName)
+    endif
+
+    let lines = split(execute('function ' . funcName), "\n")
+    call map(lines, {idx, val -> printf('%s%',
+          \ (idx == lidx ? '* ' : '  ')) . val})
+  else
+    let lidx = a:slnum - 1
+    let lines = readfile(a:sfile)
+    let digits = len(len(lines) + '')
+    call map(lines, {idx, val -> printf('%s%*d : ',
+          \ (idx == lidx ? '* ' : '  '), digits, idx+1) . val})
+  endif
+
+  if symbol ==# '+'
+    let start_line = lidx
+    let end_line = lidx + size - 1
+  elseif symbol ==# '-'
+    let start_line = lidx - size + 1
+    let end_line = lidx
+  else
+    let hsize = (size - 1) * 0.5
+    if hsize < 0 | let hsize = 0 | endif
+    " display one more line after current line if slnum is even
+    let start_line = max([lidx - float2nr(floor(hsize)), 0])
+    let end_line = min([lidx + float2nr(round(hsize)), len(lines) - 1])
+  endif
+
+  while start_line <= end_line
+    if start_line >= 0 && start_line < len(lines)
+      echo lines[start_line]
+    endif
+    let start_line += 1
+  endwhile
+endfunction
+
 " be careful, you can't redefine misc#viml#reloadloadedScript while it's being
 " called
 if exists('*misc#viml#reloadLoadedScript')
@@ -164,13 +198,4 @@ function! misc#viml#reloadLoadedScript() abort
   finally
     call setpos('.', oldpos)
   endtry
-endfunction
-
-function! misc#viml#join() abort
-  exec "normal! A |\<esc>gJ"
-  if misc#getCC() =~# '\v\s'
-    exec 'normal! cw '
-  else
-    exec 'normal! i '
-  endif
 endfunction

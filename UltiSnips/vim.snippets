@@ -76,3 +76,18 @@ snippet while
 while ${0}
 endwhile
 endsnippet
+
+# add trailing r to use retular expression style trigger_word
+snippet '(\b\w+\b)\.iter' "loop list" r
+for _, ${1:`!p snip.rv = match.group(1)[:-1]`} := range `!p snip.rv = match.group(1)` {
+	${0}
+}
+endsnippet
+
+snippet guard
+if exists('b:${1:loaded}')
+    finish
+endif
+let b:$1 = 1
+
+endsnippet

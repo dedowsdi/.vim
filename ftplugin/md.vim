@@ -13,4 +13,3 @@ command! MdAddBackSlash  :%s/\v\\@<!<(
       \)>/\\\0/g
 nnoremap \$ :normal! ^i$<Esc>A$<Esc>
 command! MdAddLineBreak :global /\v^[^#]/ :s/\v\s*$/  
-call misc#ui#loadFiletypeMap('md')

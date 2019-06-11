@@ -30,3 +30,10 @@ command! -nargs=0 VimlBreakHere :call misc#viml#breakHere()
 command! -nargs=0 VimlBreakNumberedFunction :call misc#viml#breakNumberedFunction()
 command! -nargs=? VimlGotoFunction :call misc#viml#gotoFunction(<f-args>)
 command! -nargs=0 VimlJoin :call misc#viml#join()
+command! -nargs=? List call misc#viml#list(expand('<sfile>'), expand('<slnum>'), <f-args>)
+
+command! RecordYank :call misc#dc#startCopy(1)
+command! RecordYankAppend :call misc#dc#startCopy(0)
+command! RecordPaste :call misc#dc#paste()
+command! RecordStop :call misc#dc#stopCopy()
+

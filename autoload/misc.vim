@@ -17,15 +17,15 @@ function! misc#hasjob(job) abort
 endfunction
 
 " check if quickfix window is open
-function! misc#isQfListOpen() abort
-  for i in range(1, winnr('$'))
-    let bufnr = winbufnr(i)
-    if getbufvar(bufnr, '&buftype') ==# 'quickfix'
-      return 1
-    endif
-  endfor
-  return 0
-endfunction
+"function! misc#isQfListOpen() abort
+  "for i in range(1, winnr('$'))
+    "let bufnr = winbufnr(i)
+    "if getbufvar(bufnr, '&buftype') ==# 'quickfix'
+      "return 1
+    "endif
+  "endfor
+  "return 0
+"endfunction
 
 " is this necessary?
 function! misc#open(file) abort
@@ -216,13 +216,11 @@ function! misc#createJumps(lnum,cnum) abort
 endfunction
 
 function! misc#synstack()
-  if !exists('*synstack')
-    return
-  endif
+  if !exists('*synstack') | return | endif
   return map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
 endfunc
 
-" copy last visual without side effect
+" copy last visual without side effect. Won't work for <c-v>$
 function! misc#getVisualString() abort
   return misc#getMarkString("'<", "'>", visualmode())
 endfunction
@@ -235,7 +233,7 @@ function! misc#getPosString(p0, p1, vmode)
   let [lnum1, col1] = a:p0[1:2]
   let [lnum2, col2] = a:p1[1:2]
   let lines = getline(lnum1, lnum2)
-  if a:vmode ==# 'v'
+  if a:vmode =~# "\<c-v>"
     let lines = map(lines, 'v:val[col1-1 : col2-1]')
   elseif a:vmode ==# 'V'
     let lines[-1] .= "\n"
@@ -261,12 +259,19 @@ function! misc#switchRtp(path) abort
 endfunction
 
 function! s:getHelpFile(tag) abort
+  let throwMsg=''
   try
     let tagsBak = &tags
     let &tags = $VIMRUNTIME . '/doc/tags'
-    let l = taglist('\V\^' . escape(a:tag, '\') . '\$')
-    if empty(l) | throw a:tag . ' not found' | endif
-    if len(l) > 1 | throw 'multiple tags found : ' . string(l) | endif
+    let l = taglist('\V\C\^' . escape(a:tag, '\') . '\$')
+
+    " very weird, if i combime throw and if to one line, it doesn't throw ...
+    if empty(l)
+      throw a:tag . ' not found'
+    endif
+    if len(l) > 1
+      throw 'multiple tags found : ' . string(l)
+    endif
     return fnamemodify(l[0].filename, ':t')
   finally
     let &tags = tagsBak
@@ -299,7 +304,7 @@ function! misc#updateLink(type) abort
   try
     let idx = 1 | norm! gg
     let @/ = '\v\:h(elp)?\s+\S+'
-    while search(@/, 'W')
+    while search(@/, 'Wc')
       norm! ygn
       let tag = matchstr(@", '\v\S+$')
       " escape [ and ]

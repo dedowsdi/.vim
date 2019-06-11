@@ -137,7 +137,6 @@ function! misc#to#bubbleArg(opts) abort
 
 endfunction
 
-
 "\w and \d only
 function! misc#to#selLetter() abort
   let pattern = '\v[a-zA-Z]+'
@@ -148,40 +147,102 @@ function! misc#to#selLetter() abort
   return 1
 endfunction
 
+function! misc#to#verticalE() abort
+  exec "norm! \<c-v>"
+  call misc#mo#vertical_motion('E')
+endfunction
+
+" select lines if current line is between patterns, otherwise do nothing
+" style : 0 : use ai to include or exclude pattern line
+" style : 1 : use ai to include or exclude space
+function! misc#to#selLines(pattern0, pattern1, ai, style)
+  let cpos = getcurpos()
+
+  try
+
+    " jump to start line or exit
+    if !search(a:pattern0, 'bcW') | return | endif
+    let startline = line('.')
+
+    " jump to end line or exit
+    if !search(a:pattern1, 'W') | return | endif
+    let endline = line('.')
+    if endline < cpos[1] | return | endif
+
+    " adjust start and end for i
+    if a:ai ==# 'i' && a:style == 0
+      let startline += 1
+      let endline -= 1
+      if startline > endline | return | endif
+    endif
+
+    " add trailing or preceding space for 'a' if style is 1
+    if a:style == 1 && a:ai ==# 'a'
+
+      " | branch is used to handle leading and trailing blank lines in the buffer
+      if search('\v^.*\S|%$', 'W')
+        if getline('.') =~# '\S' | - | endif
+      endif
+
+      " if no space after endline, search backward from startline
+      if line('.') != endline
+        let endline = line('.')
+      else
+        exec startline
+        if search('\v^.*\S|%1l', 'bW')
+          if getline('.') =~# '\S' | + | endif
+          let startline = line('.')
+        endif
+      endif
+    endif
+
+  finally
+
+    " restore current position before return
+    call setpos('.', cpos)
+  endtry
+
+  " visually select from startline to endline
+  norm! V
+  exec startline
+  norm! o
+  exec endline
+endfunction
+
 " ov : o for omap, v for v map
 " jk : j or k or jk. j for down, k for up.
 " visuall block wisely select current column until blank line.
-function! misc#to#selColumn(ov, jk) abort
-  let [curVnum, curLnum, colLnum0, colLnum1, lnum] =
-              \ [virtcol('.')] + repeat([line('.')], 4)
-  " do nothing if cursor in blank
-  if misc#getV(curLnum, curVnum) =~# '\v\s'
-    if a:ov ==# 'v' | exec 'normal! ' | endif | return
-  endif
+"function! misc#to#selColumn(ov, jk) abort
+  "let [curVnum, curLnum, colLnum0, colLnum1, lnum] =
+              "\ [virtcol('.')] + repeat([line('.')], 4)
+  "" do nothing if cursor in blank
+  "if misc#getV(curLnum, curVnum) =~# '\v\s'
+    "if a:ov ==# 'v' | exec 'normal! ' | endif | return
+  "endif
 
-  " get column end
-  if stridx(a:jk, 'j') != -1
-    while 1
-      let lnum = lnum + 1
-      if lnum > line('$') || misc#getV(lnum, curVnum) =~# '\v^$|\s'
-        let colLnum1 = lnum - 1 | break
-      endif
-    endwhile
-  endif
+  "" get column end
+  "if stridx(a:jk, 'j') != -1
+    "while 1
+      "let lnum = lnum + 1
+      "if lnum > line('$') || misc#getV(lnum, curVnum) =~# '\v^$|\s'
+        "let colLnum1 = lnum - 1 | break
+      "endif
+    "endwhile
+  "endif
 
-  " get column start
-  if stridx(a:jk, 'k') != -1
-    let lnum = curLnum
-    while 1
-      let lnum = lnum - 1
-      if lnum <= 0 || misc#getV(lnum, curVnum) =~# '\v^$|\s'
-        let colLnum0 = lnum + 1 | break
-      endif
-    endwhile
-  endif
+  "" get column start
+  "if stridx(a:jk, 'k') != -1
+    "let lnum = curLnum
+    "while 1
+      "let lnum = lnum - 1
+      "if lnum <= 0 || misc#getV(lnum, curVnum) =~# '\v^$|\s'
+        "let colLnum0 = lnum + 1 | break
+      "endif
+    "endwhile
+  "endif
 
-  " visual select
-  call cursor(colLnum0, col('.'))
-  exec "normal! \<c-v>"
-  call cursor(colLnum1, col('.'))
-endfunction
+  "" visual select
+  "call cursor(colLnum0, col('.'))
+  "exec "normal! \<c-v>"
+  "call cursor(colLnum1, col('.'))
+"endfunction

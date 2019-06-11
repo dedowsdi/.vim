@@ -4,9 +4,6 @@
 " javascript function comment
 command! -nargs=0 Jsfc call JsFuncComment() 
 
-call misc#ui#loadFiletypeMap('javascript')
-
-
 function! JsFuncComment()
     let str = getline(".")
     let reName = '\vfunction\s*\zs<\w+>|\zs\S+\ze\s\='

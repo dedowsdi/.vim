@@ -143,7 +143,7 @@ function! misc#term#jtermopen(jterm) abort
     let jterm.job = termopen(jterm.cmd, jterm.opts)
   else
     function jterm.opts.exit_cb(job, status)
-      let self.jobFinished = 1
+      let self.jterm.jobFinished = 1
     endfunction
     let jterm.job = term_start(jterm.cmd, {'curwin':1, 'exit_cb':jterm.opts.exit_cb})
   endif

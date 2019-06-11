@@ -15,4 +15,3 @@ command! MdAddBackSlash  :%s/\v\\@<!<(
 nnoremap \$ :normal! ^i$<Esc>A$<Esc>
 
 command! MdAddLineBreak :global /\v^[^#]/ :s/\v\s*$/  
-call misc#ui#loadFiletypeMap('markdown')

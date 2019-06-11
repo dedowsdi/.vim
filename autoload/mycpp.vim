@@ -29,11 +29,11 @@ endfunction
 
 function! mycpp#getMakeCmd(target) abort
   let obj = mycpp#getTarget(a:target)
-  return printf('bash -c "cd %s && make %s %s "', g:mycppBuildDir, obj.make, a:target)
+  return printf('cd %s && make %s %s', g:mycppBuildDir, obj.make, a:target)
 endfunction
 
 function! mycpp#getRunCmd(target, targetArgs) abort
-  return printf('bash -c "cd %s && ./%s %s "', mycpp#getBinaryDir(), mycpp#getExe(a:target), a:targetArgs)
+  return printf('cd %s && ./%s %s', mycpp#getBinaryDir(), mycpp#getExe(a:target), a:targetArgs)
 endfunction
 
 function! mycpp#make(args) abort
@@ -107,9 +107,11 @@ endfunction
 
 " {cmd [,insert]}
 function! mycpp#sendjob(cmd, ...) abort
+  let cmd = a:cmd
+  if !has('nvim') | let cmd = printf('bash -c "%s"', cmd) | endif
   let switch=get(a:000, 0, 0)
   let autoInsert=get(a:000, 1, 0)
-  let s:debug_term = misc#term#jtermopen({'cmd':a:cmd, 'switch':switch, 'autoInsert':autoInsert})
+  let s:debug_term = misc#term#jtermopen({'cmd':cmd, 'switch':switch, 'autoInsert':autoInsert})
 endfunction
 
 function! mycpp#run(args) abort

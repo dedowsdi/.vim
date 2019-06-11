@@ -13,10 +13,8 @@ setlocal cinoptions+=N-s " no namespace indent
 setlocal cinoptions+=+0
 
 :setlocal shiftwidth=2 tabstop=2 textwidth=80 expandtab
-
-call abbre#cpp()
-call misc#ui#loadFiletypeMap('c')
-call misc#ui#loadFiletypeMap('cpp')
+setlocal commentstring=//\ %s
+setlocal formatoptions-=o
 
 vnoremap <buffer> af :<C-U>silent! call cdef#selPf('a')<cr>
 vnoremap <buffer> if :<C-U>silent! call cdef#selPf('i')<cr>
