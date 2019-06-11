@@ -132,6 +132,9 @@ function! misc#viml#list(sfile, slnum, ...) abort
   let size = a:0 > 0 ? matchstr(a:1, '\v\d+') : 10
   if empty(size) | let size = 10 | endif
 
+  let fname = a:sfile
+  let lnum = a:slnum
+
   if a:sfile =~# '\v^function.*'
 
     " note that function head and end is also returned from :function. slnum
@@ -144,16 +147,17 @@ function! misc#viml#list(sfile, slnum, ...) abort
       let funcName = printf('{%d}', funcName)
     endif
 
-    let lines = split(execute('function ' . funcName), "\n")
-    call map(lines, {idx, val -> printf('%s%',
-          \ (idx == lidx ? '* ' : '  ')) . val})
-  else
-    let lidx = a:slnum - 1
-    let lines = readfile(a:sfile)
-    let digits = len(len(lines) + '')
-    call map(lines, {idx, val -> printf('%s%*d : ',
-          \ (idx == lidx ? '* ' : '  '), digits, idx+1) . val})
+    " get script file of this function
+    let def = split(execute('verbose function ' . funcName), "\n")[1]
+    let [fname, funcLnum] = matchlist(def, '\v\s*Last set from\s*(.*) line (\d+)')[1:2]
+    let lnum += funcLnum
   endif
+
+  let lidx = lnum - 1
+  let lines = readfile(fname)
+  let digits = len(len(lines) + '')
+  call map(lines, {idx, val -> printf('%s%*d : ',
+        \ (idx == lidx ? '* ' : '  '), digits, idx+1) . val})
 
   if symbol ==# '+'
     let start_line = lidx
