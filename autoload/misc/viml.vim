@@ -67,23 +67,22 @@ function! misc#viml#breakNumberedFunction() abort
           \ join(getline(range[0][1], range[1][1]), "\n"), 1000)
     let n = len(candidates)
     if n == 0 | echom 'no candidates found' | return | endif
-    if n > 1
-      " print results, and return
-      for item in values(candidates)
-        echo item | echo '' | echo ''
+    if n >= 1
+
+      let breakLine = line('.') - range[0][1]
+      for fnum in keys(candidates)
+        let cmd = 'breakadd func ' . breakLine . ' ' . fnum | echom cmd
+        execute cmd
       endfor
       return
     endif
 
-    let funcNumber = keys(candidates)[0]
-    let breakLine = line('.') - range[0][1]
-    let cmd = 'breakadd func ' . breakLine . ' ' . funcNumber | echom cmd
-    execute cmd
   else
     echoe 'function not found' | return
   endif
 endfunction
 
+" return {fnum : def}
 function! misc#viml#searchNumberedFunctions(funcDef, maxNumber)
   let lines0 = map(split(a:funcDef, "\n"), 'trim(v:val)')
   let prototype = matchstr(lines0[0], '\v(\(.*\))')
