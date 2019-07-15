@@ -1,3 +1,10 @@
 snippet modeline "modeline"
 vim:set filetype=sh et sw=4 ts=8 sts=4 $0:
 endsnippet
+
+snippet loopfile "loop file in old style (while)"
+find . -type f $0 -print0 |
+while IFS='' read -r -d $'\0' item ; do
+    echo $item
+done
+endsnippet

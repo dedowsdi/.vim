@@ -1,8 +1,3 @@
-"load guard
-function! misc#reverseQfList()
-  call setqflist(reverse(getqflist()))
-endfunction
-
 function! misc#warn(mes) abort
   echohl WarningMsg | echom a:mes | echohl None
 endfunction

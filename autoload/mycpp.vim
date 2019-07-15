@@ -16,8 +16,8 @@ function! mycpp#getBinaryDir() abort
 endfunction
 
 function! mycpp#getTarget(target)
-  if !filereadable(s:pjcfg) | echoe s:pjcfg . ' not found' | return | endif
-  let targetObj = get(json_decode(join(readfile(s:pjcfg), "\n")), a:target, {})
+  let targetObj = filereadable(s:pjcfg) ?
+        \ get(json_decode(join(readfile(s:pjcfg), "\n")), a:target, {}) : {}
   call extend(targetObj, {'name':a:target, 'make':'-j 2', 'exe_args':''}, 'keep')
   return targetObj
 endfunction
@@ -36,9 +36,22 @@ function! mycpp#getRunCmd(target, targetArgs) abort
   return printf('cd %s && ./%s %s', mycpp#getBinaryDir(), mycpp#getExe(a:target), a:targetArgs)
 endfunction
 
+" jterm, channel for vim8 (close_cb)
+" jterm, jobid, data, event for neovim
+" not working for tmux
+function! s:make_callback(...)
+  let jterm = a:1
+  if jterm.exitCode == 0 || !has_key(jterm, 'bufnr')
+    call setqflist([])
+    return
+  endif
+  sleep 200ms
+  exe 'cbuffer' s:jobTerm.bufnr
+endfunction
+
 function! mycpp#make(args) abort
   let [target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
-  cclose | call mycpp#sendjob(mycpp#getMakeCmd(target))
+  cclose | call mycpp#sendjob(mycpp#getMakeCmd(target), {'close_cb' : function('s:make_callback')})
 endfunction
 
 function! mycpp#makeRun(args) abort
@@ -50,7 +63,8 @@ endfunction
 function! mycpp#makeDebug(args) abort
   let [target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
   call mycpp#sendjob(printf('%s && [[ ${pipestatus[0]} -eq 0 ]] && %s',
-        \ mycpp#getMakeCmd(target), mycpp#getDebugCmd()))
+        \ mycpp#getMakeCmd(target), mycpp#getDebugCmd()),
+        \ {'close_cb' : function('s:make_callback')})
 endfunction
 
 function! mycpp#doTarget(args0, args1, args2, ...) abort
@@ -63,7 +77,13 @@ function! mycpp#doTarget(args0, args1, args2, ...) abort
   else
     " some application(such as render doc) can not be called with term open,
     " don't know why
-    call jobstart(cmd)
+    if(has('nvim'))
+      call jobstart(cmd)
+    else
+      " job_start in vim8 can't handle gui application ?
+      " call job_start(printf('bash -c "%s"', cmd))
+      exe printf('!bash -c "%s"', cmd)
+    endif
   endif
 endfunction
 
@@ -90,6 +110,11 @@ function! s:isTarget(target) abort
 endfunction
 
 function! mycpp#getExe(target) abort
+
+  if !filereadable(s:pjcfg)
+    return a:target
+  endif
+
   if !s:isTarget(a:target)
     call misc#warn(a:target . ' is not a valid make target') | return ''
   endif
@@ -107,11 +132,15 @@ endfunction
 
 " {cmd [,insert]}
 function! mycpp#sendjob(cmd, ...) abort
+  if exists('s:jobTerm')
+    call s:jobTerm.close()
+    unlet s:jobTerm
+  endif
   let cmd = a:cmd
   if !has('nvim') | let cmd = printf('bash -c "%s"', cmd) | endif
-  let switch=get(a:000, 0, 0)
-  let autoInsert=get(a:000, 1, 0)
-  let s:debug_term = misc#term#jtermopen({'cmd':cmd, 'switch':switch, 'autoInsert':autoInsert})
+  let opts = get(a:000, 0, {})
+  call extend(opts, {'cmd':cmd, 'switch':0, 'autoInsert':1}, 'keep')
+  let s:jobTerm = misc#term#jtermopen(opts)
 endfunction
 
 function! mycpp#run(args) abort
@@ -121,7 +150,8 @@ endfunction
 
 function! mycpp#debug(args) abort
   let [ target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
-  exec 'GdbDebug ' . mycpp#getBinaryDir() . mycpp#getExe(target) . ' ' . targetArgs
+  " exec 'GdbDebug ' . mycpp#getBinaryDir() . mycpp#getExe(target) . ' ' . targetArgs
+  exec 'Termdebug ' . mycpp#getBinaryDir() . mycpp#getExe(target) . ' ' . targetArgs
 endfunction
 
 " return [target, args], args will be predefined args if it's empty
@@ -138,6 +168,10 @@ function! mycpp#splitTargetAndArgs(cmd) abort
   return [target, targetArgs]
 endfunction
 
+function! mycpp#setLastTarget(target)
+  let s:lastTarget = a:target
+endfunction
+
 function! mycpp#searchDerived(...) abort
   let className = get(a:000, 0, expand('<cword>'))
   if className ==# ''
@@ -148,8 +182,16 @@ endfunction
 
 function! mycpp#getCmakeCache(name) abort
   let cacheStr = system('cd ' . mycpp#getBuildDir() . ' && cmake -LA -N ')
-  let rexValue = '\v' . a:name . ':\w+\=\zs.{-}\ze\n' 
+  let rexValue = '\v' . a:name . ':\w+\=\zs.{-}\ze\n'
   return matchstr(cacheStr, rexValue)
+endfunction
+
+function! mycpp#cmake()
+  let path = findfile('cmake.sh', '**')
+  if empty(path)
+    return
+  endif
+  call mycpp#sendjob('./' . path)
 endfunction
 
 function! mycpp#openProjectFile() abort
@@ -173,6 +215,13 @@ function! mycpp#gotoLastInclude(...) abort
   endif
   normal! zz
   return 1
+endfunction
+
+function! mycpp#createTempTest()
+  if !executable('cpptt')
+    echoe 'cpptt not found'
+    return
+  endif
 endfunction
 
 function! mycpp#manualInclude() abort

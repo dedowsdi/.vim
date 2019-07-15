@@ -4,4 +4,4 @@ if exists("b:loaded_sh_cfg")
 endif
 let b:loaded_sh_cfg = 1
 
-:setlocal expandtab textwidth=160 shiftwidth=2 tabstop=2
+:setlocal expandtab textwidth=160

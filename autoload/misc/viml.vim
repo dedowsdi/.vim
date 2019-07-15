@@ -153,7 +153,7 @@ function! misc#viml#list(sfile, slnum, ...) abort
   endif
 
   let lidx = lnum - 1
-  let lines = readfile(fname)
+  let lines = readfile(expand(fname))
   let digits = len(len(lines) + '')
   call map(lines, {idx, val -> printf('%s%*d : ',
         \ (idx == lidx ? '* ' : '  '), digits, idx+1) . val})

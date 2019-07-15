@@ -3,7 +3,8 @@ if exists("b:loaded_glsl_cfg")
 endif
 let b:loaded_glsl_cfg = 1
 
-:setlocal shiftwidth=2 tabstop=2 textwidth=80 expandtab
+setlocal shiftwidth=2 tabstop=2 textwidth=80 expandtab
+setlocal commentstring=//\ %s
 
 " setup glslang option
 let s:glsl_stages = {

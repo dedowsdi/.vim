@@ -10,33 +10,87 @@ snippet tp
 template <typename ${1:T}>
 endsnippet
 
-snippet spca "static pointer cast" i
-std::static_pointer_cast<${1:type}>($0)
+snippet spca "static smart pointer cast" i
+std::static_pointer_cast<${1:type}>(${VISUAL}$0)
 endsnippet
 
-snippet dpca "dynamic pointer cast" i
-std::dynamic_pointer_cast<${1:type}>($0)
+snippet dpca "dynamic smart pointer cast" i
+std::dynamic_pointer_cast<${1:type}>(${VISUAL}$0)
 endsnippet
 
-snippet cpca "const pointer cast" i
-std::const_pointer_cast<${1:type}>($0)
+snippet cpca "const smart pointer cast" i
+std::const_pointer_cast<${1:type}>(${VISUAL}$0)
 endsnippet
 
-snippet rpca "reinterpret pointer cast" i
-std::reinterpret_pointer_cast<${1:type}>($0)
+snippet rpca "reinterpret smart pointer cast" i
+std::reinterpret_pointer_cast<${1:type}>(${VISUAL}$0)
 endsnippet
 
-snippet fort
-for (${1:size_t} ${2:i} = 0; $2 < ${3:size}; ++$2) 
+snippet sca "static pointer cast" i
+std::static_cast<${1:type}>(${VISUAL}$0)
+endsnippet
+
+snippet dca "dynamic pointer cast" i
+std::dynamic_cast<${1:type}>(${VISUAL}$0)
+endsnippet
+
+snippet cca "const pointer cast" i
+std::const_cast<${1:type}>(${VISUAL}$0)
+endsnippet
+
+snippet rca "reinterpret pointer cast" i
+std::reinterpret_cast<${1:type}>(${VISUAL}$0)
+endsnippet
+
+snippet fore
+for (auto${1:& item} : ${2:container})
+{
+	${VISUAL}$0
+}
+endsnippet
+
+snippet fori "for int loop (fori)"
+for (${4:int} ${2:i} = 0; $2 < ${1:count}; ${3:++$2})
+{
+	${VISUAL}$0
+}
+endsnippet
+
+snippet func
+${2:void} ${1:name}(${3:})
 {
 	$0
 }
 endsnippet
 
-snippet fore
-for(auto${1:& item} : ${2:container})
+snippet while "while"
+while (${1:/* condition */})
 {
-	$0
+	${VISUAL}$0
+}
+endsnippet
+
+snippet if "if"
+if (${1:/* condition */})
+{
+	${VISUAL}$0
+}
+endsnippet
+
+snippet ife "if"
+if (${1:/* condition */})
+{
+	${VISUAL}$0
+} else
+{
+	
+}
+endsnippet
+
+snippet eli "else if .. (eli)"
+else if (${1:/* condition */})
+{
+	${VISUAL}$0
 }
 endsnippet
 
@@ -48,9 +102,10 @@ snippet fd "forward" i
 std::forward<${1:T}>($0)
 endsnippet
 
-snippet lmd "lambda" i
-[]()->void
+snippet lambda "lambda" i
+[](${1:arg})->void
 {
+	${VISUAL}$0
 }
 endsnippet
 
@@ -566,7 +621,7 @@ glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 0);
 glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
 endsnippet
 
-snippet glVertexAttrib
+snippet glVao
 GLuint ${1:vao};
 GLuint ${2:vbo};
 glGenVertexArrays(1, &$1);
@@ -691,4 +746,12 @@ BOOST_${1:AUTO}_TEST_CASE${2:}(${3:caseName})
 {
 $0
 }
+endsnippet
+
+snippet cr "const reference" i
+const ${1:std::string}& ${2:name}
+endsnippet
+
+snippet cp "const pointer" i
+const ${1:std::string}* ${2:name}
 endsnippet

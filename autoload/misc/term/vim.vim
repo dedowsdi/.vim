@@ -82,10 +82,22 @@ endfunction
 
 " start job
 function! s:term.jobStart(opts) abort
-  function self.exit_cb(job, status)
+
+  function self.exit_cb(job, status) closure
     let self.jobFinished = 1
+    let self.exitCode = a:status
+    if has_key(a:opts, 'exit_cb')
+      call a:opts.exit_cb(self, a:job, a:status)
+    endif
   endfunction
-  let self.job = term_start(a:opts.cmd, {'curwin':1, 'exit_cb':self.exit_cb})
+
+  function self.close_cb(channel) closure
+    if has_key(a:opts, 'close_cb')
+      call a:opts.close_cb(self, a:channel)
+    endif
+  endfunction
+
+  let self.job = term_start(a:opts.cmd, {'curwin':1, 'exit_cb':self.exit_cb, 'close_cb':self.close_cb})
 endfunction
 
 " start terminal, no job

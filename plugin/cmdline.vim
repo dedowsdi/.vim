@@ -36,7 +36,7 @@ function! s:cmdlineAltD()
 endfunction
 
 cnoremap <c-a> <c-b>
-cnoremap <c-b> <c-a>
+cnoremap <a-a> <c-a>
 cnoremap <a-k> <c-\>e(getcmdpos() == 1 ? '' : getcmdline()[0:getcmdpos()-2])<cr>
 cnoremap <a-u> <c-r>=<sid>setPos0()<cr><c-right><c-\>e<sid>cmdlineAltUL('u')<cr>
 cnoremap <a-l> <c-r>=<sid>setPos0()<cr><c-right><c-\>e<sid>cmdlineAltUL('l')<cr>

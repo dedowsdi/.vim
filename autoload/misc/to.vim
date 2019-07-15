@@ -181,7 +181,9 @@ function! misc#to#selLines(pattern0, pattern1, ai, style)
 
       " | branch is used to handle leading and trailing blank lines in the buffer
       if search('\v^.*\S|%$', 'W')
-        if getline('.') =~# '\S' | - | endif
+        if getline('.') =~# '\S'
+          -
+        endif
       endif
 
       " if no space after endline, search backward from startline
@@ -190,7 +192,9 @@ function! misc#to#selLines(pattern0, pattern1, ai, style)
       else
         exec startline
         if search('\v^.*\S|%1l', 'bW')
-          if getline('.') =~# '\S' | + | endif
+          if getline('.') =~# '\S'
+            +
+          endif
           let startline = line('.')
         endif
       endif

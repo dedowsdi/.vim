@@ -12,15 +12,23 @@ function! misc#mo#vertical_motion(motion)
     " \S.* : start from non-blank character
     " (\n.*%%<%dv$|\n.*%%%dv\s|%%$)
     "   \n.*%%<%dv$ : next line that's too short
-    "   \n.*%%%dv\s : next line that's empty in this column
+    "   \n.*%%%dv\s : next line that's empty (only work for space or leading space in tab) in this column
+    "   \n.*%%<%dv\t%%>%dv : next line that's empty, tab style.
     "   %%$         : end of file
-    let pattern = printf('\v%%%dv\S.*(\n.*%%<%dv$|\n.*%%%dv\s|%%$)', curcol, nextcol, curcol)
+    let pattern = printf('\v%%%dv\S.*(\n.*%%<%dv$|\n.*%%%dv\s|\n.*%%<%dv\t%%>%dv|%%$)',
+          \ curcol, nextcol, curcol, curcol, curcol)
     let flag = 'W'
   elseif a:motion == 'B'
-    let pattern = printf('\v^.*(%%<%dv$|%%%dv\s.*)\n.*\zs%%%dv\S', nextcol, curcol, curcol)
+    " \v^.*...\n.*\zs : previous line that's too short or has empty or tab in this column
+    " %%1l%%%dv : line 1 that has character in this column
+    let pattern = printf('\v^.*(%%<%dv$|%%%dv\s.*|%%<%dv\t%%>%dv.*)\n.*\zs%%%dv\S|%%1l%%%dv',
+          \ nextcol, curcol, curcol, curcol, curcol, curcol)
     let flag = 'bW'
   elseif a:motion == 'W'
-    let pattern = printf('\v^.*(%%<%dv$|%%%dv\s.*)\n.*\zs%%%dv\S', nextcol, curcol, curcol)
+    " \v^.*...\n.*\zs : previous line that's too short or has empty or tab in this column
+    " |%%%dv\S.*(\_s)*%%$ : last line in the file which has non blank character in this column
+    let pattern = printf('\v^.*(%%<%dv$|%%%dv\s.*|%%<%dv\t%%>%dv.*)\n.*\zs%%%dv\S|%%%dv\S.*(\_s)*%%$',
+          \ nextcol, curcol, curcol, curcol, curcol, curcol)
     let flag = 'W'
   else
     echohl ErrorMsg | echo 'Not a valid motion: ' . a:motion | echohl None

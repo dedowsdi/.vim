@@ -33,9 +33,7 @@ endfunction
 " search pattern is <word> or literal
 function! misc#op#substitude(type, ...)
   call call('misc#op#searchLiteral', [a:type] + a:000)
-  let cmd = @/[2:] ==# expand('<cword>') ?
-        \ printf(':%%s/\v<%s>/', expand('<cword>')) : ':%s//'
-  call feedkeys(cmd)
+  call feedkeys(':%s//')
 endfunction
 
 function! misc#op#searchInBrowser(type, ...)
@@ -63,7 +61,7 @@ function! misc#op#system(type, ...)
     if empty(wise) | return | endif
   endif
 
-  call setreg('"', system(cmd, operand[0]), wise)
+  call setreg(v:register, system(cmd, operand[0]), wise)
 endfunction
 
 " a-b        : range(a, b)

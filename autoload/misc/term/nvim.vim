@@ -11,11 +11,16 @@ function! s:term.openTerm(opts) abort
         \ = [bufnr(''), b:terminal_job_id, b:term_title, b:terminal_job_pid]
 endfunction
 
-function! s:term.onExit(job_id, data, event) abort
-  let self.term.jobFinished = 1
-endfunction
-
 function! s:term.jobStart(opts) abort
+
+  function self.exit_cb(job_id, data, event) closure
+    let self.jobFinished = 1
+    let self.exitCode = a:data
+    if has_key(opts, 'exit_cb')
+      call opts.exit_cb(self, job_id, data, event)
+    endif
+  endfunction
+
   call extend(a:opts.cmdopts, {'term':self, 'on_exit':self.onExit})
   let self.job = termopen(a:opts.cmd, a:opts.cmdopts)
   let self.cmd = a:opts.cmd

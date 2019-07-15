@@ -91,3 +91,15 @@ endif
 let b:$1 = 1
 
 endsnippet
+
+snippet prg
+!This is file : `!v expand('%:t:r')`
+! Author= `!v $USER`
+! Started at: `date +%d.%m.%y`
+! Last Modified : Sun 16 Jun 2019 12:30:58 IST
+!
+Program  ${1:<++`!v expand('%:t:r')`}
+Implicit None
+${2}
+End Program  ${1/([^\n$]+).*/$1/}
+endsnippet

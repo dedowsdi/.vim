@@ -20,3 +20,4 @@ vnoremap <buffer> af :<C-U>silent! call cdef#selPf('a')<cr>
 vnoremap <buffer> if :<C-U>silent! call cdef#selPf('i')<cr>
 onoremap <buffer> af :normal vaf<cr>
 onoremap <buffer> if :normal vif<cr>
+call abbre#cpp()
