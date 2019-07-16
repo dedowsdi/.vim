@@ -104,3 +104,12 @@ function! misc#op#column(type, ...)
 
   call call ('misc#op#system', [a:type] + [get(a:000, 0, 0), cmd, 'b'])
 endfunction
+
+function! misc#op#clangFormat(type, ...)
+  let curpos = getcurpos()
+  let lines = getpos("'[")[1] . ':' . getpos("']")[1]
+  let cmd = '%!clang-format -style=file -fallback-style=LLVM -lines=' . lines . ' ' . expand('%')
+  call misc#log#debug('ClangFormat command : ' . cmd)
+  silent exec cmd
+  call setpos('.', curpos)
+endfunction
