@@ -107,8 +107,11 @@ endfunction
 
 function! misc#op#clangFormat(type, ...)
   let curpos = getcurpos()
-  let lines = getpos("'[")[1] . ':' . getpos("']")[1]
-  let cmd = '%!clang-format -style=file -fallback-style=LLVM -lines=' . lines . ' ' . expand('%')
+  let l0 = getpos("'[")[1]
+  let l1 = getpos("']")[1]
+  let cmd = printf('%d,%d!clang-format -style=file -fallback-style=LLVM
+        \ -lines=%d:%d %s | tail -n +%d | head -n -%d',
+        \ l0, l1, l0, l1,  expand('%'), l0, line('$') - l1)
   call misc#log#debug('ClangFormat command : ' . cmd)
   silent exec cmd
   call setpos('.', curpos)
