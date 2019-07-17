@@ -1,9 +1,9 @@
-if exists("b:loaded_glsl_cfg")
+if exists('b:loaded_glsl_cfg')
   finish
 endif
 let b:loaded_glsl_cfg = 1
 
-setlocal shiftwidth=2 tabstop=2 textwidth=80 expandtab
+setlocal shiftwidth=2 tabstop=2 textwidth=80
 setlocal commentstring=//\ %s
 
 " setup glslang option
@@ -29,9 +29,17 @@ function! s:getStage()
     return ''
 endfunction
 
-let stage = s:getStage()
-if stage ==# ''
+let s:stage = s:getStage()
+if s:stage ==# ''
   echoe 'faled to determine stage'
 endif
 
-let b:ale_glsl_glslang_options = printf('-S %s', stage)
+let b:ale_glsl_glslang_options = printf('-S %s', s:stage)
+
+" text object
+vnoremap <buffer> if :<C-U>silent! call cdef#selPf('i')<cr>
+onoremap <buffer> af :normal vaf<cr>
+onoremap <buffer> if :normal vif<cr>
+
+nnoremap <buffer> <c-j> :call G_fzf_cpp_btags()<cr>
+nnoremap <buffer> <a-o> :call myglsl#alternate()<cr>
