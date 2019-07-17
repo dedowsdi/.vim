@@ -1,4 +1,4 @@
-function! misc#op#operand(type, visual)
+function! misc#op#operand(type, visual) abort
   if a:visual
     return [misc#getVisualString(), visualmode()]
   else
@@ -7,7 +7,7 @@ function! misc#op#operand(type, visual)
   endif
 endfunction
 
-function! misc#op#execute(type, visual, operator)
+function! misc#op#execute(type, visual, operator) abort
   if a:visual | exec 'norm gv'.a:operator | return | endif
   " backup last visual
   let [m0, m1, lvm] = [getpos("'<"), getpos("'>"), visualmode()]
@@ -19,19 +19,19 @@ function! misc#op#execute(type, visual, operator)
   call setpos('.', pos)
 endfunction
 
-function! misc#op#searchLiteral(type, ...)
+function! misc#op#searchLiteral(type, ...) abort
   let @/ = misc#op#operand(a:type, a:0 > 0)[0]
   let @/ = misc#literalizeVim(@/)
 endfunction
 
-function! misc#op#literalGrep(type, ...)
+function! misc#op#literalGrep(type, ...) abort
   let operand = misc#op#operand(a:type, a:0>0)
   call setreg('"', misc#literalizeGrep(operand[0]))
   call feedkeys(":grep -F \<c-r>=@\"\<cr> ")
 endfunction
 
 " search pattern is <word> or literal
-function! misc#op#substitude(type, ...)
+function! misc#op#substitude(type, ...) abort
   call call('misc#op#searchLiteral', [a:type] + a:000)
   call feedkeys(':%s//')
 endfunction
@@ -45,7 +45,7 @@ endfunction
 " opfunc must be a real function, function reference won't work?
 "
 " (type, visual, cmd, wise)
-function! misc#op#system(type, ...)
+function! misc#op#system(type, ...) abort
   let visual = get(a:000, 0, 0)
   let operand = misc#op#operand(a:type, visual)
 
@@ -68,7 +68,7 @@ endfunction
 " a,b        : a and b
 " a-         : a until last
 " -b         : 1 until b
-function! misc#op#column(type, ...)
+function! misc#op#column(type, ...) abort
   let column = input('column : ')
   if empty(column) || column <= 0 | return | endif
 
@@ -105,14 +105,33 @@ function! misc#op#column(type, ...)
   call call ('misc#op#system', [a:type] + [get(a:000, 0, 0), cmd, 'b'])
 endfunction
 
-function! misc#op#clangFormat(type, ...)
-  let curpos = getcurpos()
+function! misc#op#clangFormat(type, ...) abort
   let l0 = getpos("'[")[1]
   let l1 = getpos("']")[1]
-  let cmd = printf('%d,%d!clang-format -style=file -fallback-style=LLVM
-        \ -lines=%d:%d %s | tail -n +%d | head -n -%d',
-        \ l0, l1, l0, l1,  expand('%'), l0, line('$') - l1)
+
+  " note that -style=file search upward until /
+  let cmd = printf('%%!clang-format -style=file -fallback-style=LLVM
+        \ -lines=%d:%d', l0, l1)
+
   call misc#log#debug('ClangFormat command : ' . cmd)
   silent exec cmd
-  call setpos('.', curpos)
+  call s:restoreCursor()
 endfunction
+
+function! misc#op#setupKeepCursor(func)
+  let &opfunc = a:func
+  call s:storeCursor()
+  return 'g@'
+endfunction
+
+function! s:restoreCursor() abort
+  if !exists('s:cpos')
+    return
+  endif
+  call setpos('.', s:cpos)
+endfunction
+
+function! s:storeCursor() abort
+  let s:cpos = getcurpos()
+endfunction
+
