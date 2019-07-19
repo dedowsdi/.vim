@@ -147,9 +147,17 @@ function! misc#to#selLetter() abort
   return 1
 endfunction
 
-function! misc#to#verticalE() abort
+function! misc#to#column() abort
   exec "norm! \<c-v>"
-  call misc#mo#vertical_motion('E')
+  if misc#getCC() !~# '\s'
+    call misc#mo#vertical_motion('E')
+  else
+    " doesn't exist or is blank
+    call misc#mo#vertical_motion('W')
+    if misc#getCC() !~# '\s'
+      norm! k
+    endif
+  endif
 endfunction
 
 " select lines if current line is between patterns, otherwise do nothing
