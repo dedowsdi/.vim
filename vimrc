@@ -1,10 +1,5 @@
 autocmd!
 
-" should I export it instead?
-if !empty($TMUX) && !has('nvim')
-  set term=xterm-256color
-endif
-
 " ------------------------------------------------------------------------------
 " basic setting
 " ------------------------------------------------------------------------------
@@ -46,86 +41,6 @@ syntax enable
 packadd cfilter
 runtime! ftplugin/man.vim
 
-" setup maps ctrl|shift + fuc_keys, alt+[a-z]
-if !has('gui_running')
-  " set termguicolors
-  let xterm_maps = {
-    \   'ctrl_fn': [ '[1;5P]', '[1;5Q]', '[1;5R]', '[1;5S]' ],
-    \   'shift_fn':[ '[1;2P]', '[1;2Q]', '[1;2R]', '[1;2S]' ],
-    \   'sets' : {},
-    \   'maps' : {}
-    \ }
-
-  let rxvt_maps = {
-    \   'ctrl_fn': [ '[11^', '[12^', '[13^', '[14^',
-    \                '[15^', '[17^', '[18^', '[19^',
-    \                '[20^', '[21^', '[23^', '[24^'  ],
-    \   'shift_fn':[ '[23~', '[24~', '[25~', '[26~',
-    \                '[28~', '[29~', '[31~', '[32~',
-    \                '[33~', '[34~', '[23$', '[24$'  ],
-    \   'sets' : {},
-    \   'maps' : {}
-    \ }
-
-  let maps = xterm_maps
-  if &term =~? 'rxvt'
-    let maps = rxvt_maps
-  endif
-
-  let i = 1
-  for key in maps.ctrl_fn
-    exec printf('set <f%d>=%s', 24 + i, key)
-    exec printf('map <f%d> <c-f%d>', 24 + i, i)
-    let i += 1
-  endfor
-
-  let i = 1
-  for key in maps.shift_fn
-    exec printf('set <f%d>=%s', 12 + i, key)
-    exec printf('map <f%d> <s-f%d>', 12 + i, i)
-    let i += 1
-  endfor
-
-  " for [key, value] in items(maps.sets)
-  "   exec printf('set %s=%s', key, value)
-  " endfor
-  " for [key, value] in items(maps.maps)
-  "   exec printf('map %s %s', key, value)
-  "   exec printf('map! %s %s', key, value)
-  " endfor
-
-  if &term =~# 'xterm' || &term =~# 'rxvt'
-    for letter in map(range(26), {i,v->nr2char(char2nr('a')+v)})
-      exec printf('set <a-%s>=%s', letter, letter)
-    endfor
-  endif
-
-else
-
-endif
-
-if has('gui_running') || &termguicolors
-  " 16 ansi colors (gruvbox) for gvim or if 'termguicolors' is on
-  let g:terminal_ansi_colors = [
-              \ '#282828',
-              \ '#cc241d',
-              \ '#98971a',
-              \ '#d79921',
-              \ '#458588',
-              \ '#b16286',
-              \ '#689d6a',
-              \ '#a89984',
-              \ '#928374',
-              \ '#fb4934',
-              \ '#b8bb26',
-              \ '#fabd2f',
-              \ '#83a598',
-              \ '#d3869b',
-              \ '#8ec07c',
-              \ '#ebdbb2',
-              \ ]
-endif
-
 if has('nvim')
   set rtp^=$HOME/.vim,$HOME/.vim/after
   let g:python3_host_prog = '/usr/bin/python3'
@@ -141,12 +56,9 @@ else
   " viminfo= doesn't expand environment variable, check n of viminfo for detail
   let &viminfo .= ',r'.$VIMRUNTIME.'/doc'
   packadd termdebug
-
-  if has('gui_running')
-    set lines=100 columns=999
-    set guioptions=aegim " remove menu, scroll bars
-  endif
 endif
+
+call misc#terminal#setup()
 
 " ------------------------------------------------------------------------------
 " auto commands
@@ -395,45 +307,7 @@ nnoremap <leader>yd :YcmShowDetailedDiagnostic<cr>
 nnoremap <leader>yf :YcmCompleter FixIt<cr>
 nnoremap <leader>yt :YcmCompleter GetType<cr>
 
-if has('nvim')
-  let g:projMaps =
-        \ {'c': [
-        \         ['<f5>',         'n', 1, [], ':CppMakeRun<cr>'],
-        \         ['<f6>',         'n', 1, [], ':CppCmake<cr>'],
-        \         ['<f7>',         'n', 1, [], ':CppMake<cr>'],
-        \         ['<f9>',         'n', 1, [], ':GdbToggleBreakpoint<cr>'],
-        \         ['<f10>',        'n', 1, [], ':GdbNext<cr>'],
-        \         ['<f11>',        'n', 1, [], ':GdbStep<cr>'],
-        \         ['<f35>',        'n', 1, [], ':GdbFinish<cr>'],
-        \         ['<m-f9>',       'n', 1, [], ':GdbWatchWord<cr>'],
-        \         ['<m-f9>',       'n', 1, [], ':GdbWatchRange<cr>'],
-        \         ['<leader>ds',   'n', 1, [], ':GdbDebugStop<cr>'],
-        \         ['<leader>dd',   'n', 1, [], ':CppDebug<cr>'],
-        \         ['<leader>de',   'n', 1, [], ':GdbEvalWord<cr>'],
-        \         ['<leader>de',   'n', 1, [], ':GdbEvalRange<cr>'],
-        \         ['<m-pageup>',   'n', 1, [], ':GdbFrameUp<cr>'],
-        \         ['<m-pagedown>', 'n', 1, [], ':GdbFrameDown<cr>'],
-        \       ]
-        \ }
-else
-  let g:projMaps  = {
-        \ 'c' : [
-        \         ['<f5>',         'n', 1, [], ':CppMakeRun<cr>'],
-        \         ['<f6>',         'n', 1, [], ':CppCmake<cr>'],
-        \         ['<f7>',         'n', 1, [], ':CppMake<cr>'],
-        \         ['<f9>',         'n', 1, [], ':Break<cr>'],
-        \         ['<c-f9>',       'n', 1, [], ':Clear<cr>'],
-        \         ['<f10>',        'n', 1, [], ':Over<cr>'],
-        \         ['<c-f11>',      'n', 1, [], ':Step<cr>'],
-        \         ['<s-f11>',      'n', 1, [], ':Finish<cr>'],
-        \         ['<leader>dc',   'n', 1, [], ':Continue<cr>'],
-        \         ['<leader>de',   'n', 1, [], ':Evaluate<cr>'],
-        \         ['<leader>de',   'v', 1, [], ':Evaluate<cr>'],
-        \ ]
-        \ }
-endif
-
-set rtp+=~/.fzf
+set rtp+=~/.fzf,.vim,.vim/after
 call plug#begin('~/.config/nvim/plugged')
 "Plug 'scrooloose/syntastic'
 Plug 'w0rp/ale'
@@ -473,11 +347,6 @@ call plug#end()
 
 let g:gruvbox_number_column='bg1'
 colorscheme gruvbox
-if !has('gui_running')
-  " undercurl doesn't work on terminal
-  hi clear SpellBad
-  hi SpellBad cterm=underline
-endif
 
 function! s:less(cmd)
   exec 'e ' . tempname()
