@@ -234,7 +234,7 @@ function! s:setupOpfunc(func)
 endfunction
 
 function! s:addOp(key, func)
-  exe printf('nnoremap <expr> %s <sid>etupOpfunc(%s)', a:key, a:func)
+  exe printf('nnoremap <expr> %s <sid>setupOpfunc("%s")', a:key, a:func)
   exe printf('vnoremap %s :<c-u>call %s(visualmode(), 1)', a:key, a:func)
 endfunction
 
