@@ -1,45 +1,30 @@
-function! s:setPos0()
-  let s:pos0 = getcmdpos() | return ''
-endfunction
-function! s:setPos1()
-  let s:pos1 = getcmdpos() | return ''
-endfunction
-function! s:checkPos0()
-  if !exists('s:pos0') | throw 'missing s:pos0, forget to call s:getPos0()?' | endif
-endfunction
-function! s:checkPos1()
-  call s:checkPos0()
-  if !exists('s:pos1') | throw 'missing s:pos1, forget to call s:getPos0()?' | endif
-endfunction
-function! s:clearPos0()
-  unlet s:pos0
-endfunction
-function! s:clearPos1()
-  call s:clearPos0
-  unlet s:pos1
+function! s:split_cmd()
+
+  " split cmdline into 3 parts
+  let matches = matchlist(getcmdline(),
+        \ printf('\v^(.*)(%%%dc\s*\S+)(.*)', getcmdpos()))
+  return len(matches) < 4 ? ['','','', 0] : matches[1:3] + [1]
 endfunction
 
-function! s:cmdlineAltUL(ul)
-  call s:checkPos0()
-  let [pos1, cmdline ] = [getcmdpos(), getcmdline()]
-  let ToCase = a:ul == 'u' ? function('toupper') : function('tolower')
-  let cmdline = cmdline[0 : s:pos0-2] . ToCase(cmdline[s:pos0 - 1 : pos1-1]) . cmdline[pos1:]
-  call s:clearPos0() | return cmdline
+function! s:word_case(up)
+  let [pre, word, post, valid] = s:split_cmd()
+  if !valid | return | endif
+  call setcmdpos(len(pre) + len(word) + 1)
+  return pre . (a:up ? toupper(word) : tolower(word)) . post
 endfunction
 
-function! s:cmdlineAltD()
-  call s:checkPos0()
-  let [pos1, cmdline ] = [getcmdpos(), getcmdline()]
-  let cmdline = cmdline[0 : s:pos0-2] . cmdline[pos1-1:]
-  call setcmdpos(s:pos0)
-  call s:clearPos0() | return cmdline
+function! s:forward_delete()
+  let [pre, word, post, valid] = s:split_cmd()
+  if !valid | return | endif
+  call setcmdpos(len(pre) + 1)
+  return pre . post
 endfunction
 
 cnoremap <c-a> <c-b>
 cnoremap <a-a> <c-a>
 cnoremap <a-k> <c-\>e(getcmdpos() == 1 ? '' : getcmdline()[0:getcmdpos()-2])<cr>
-cnoremap <a-u> <c-r>=<sid>setPos0()<cr><c-right><c-\>e<sid>cmdlineAltUL('u')<cr>
-cnoremap <a-l> <c-r>=<sid>setPos0()<cr><c-right><c-\>e<sid>cmdlineAltUL('l')<cr>
-cnoremap <a-d> <c-r>=<sid>setPos0()<cr><c-right><c-\>e<sid>cmdlineAltD()<cr>
+cnoremap <a-u> <c-\>e<sid>word_case(1)<cr>
+cnoremap <a-l> <c-\>e<sid>word_case(0)<cr>
+cnoremap <a-d> <c-\>e<sid>forward_delete()<cr>
 cnoremap <a-b> <c-left>
 cnoremap <a-f> <c-right>
