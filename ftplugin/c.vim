@@ -35,7 +35,7 @@ nnoremap <buffer> <leader>al :call mycpp#openLastApitrace()<cr>
 nnoremap <buffer> <leader>ar :CppRenderdoc<cr>
 
 " misc
-nnoremap <buffer> <c-j>      :call G_fzf_cpp_btags()<cr>
+nnoremap <buffer> <c-j>      :call <sid>fzf_cpp_btags()<cr>
 nnoremap <buffer> <a-o>      :CdefSwitchFile<cr>
 nnoremap <buffer> <c-f7>     :YcmDiags<cr>
 inoremap <buffer> <c-j>      ->
@@ -44,3 +44,23 @@ nnoremap <buffer> <leader>ed :CdefDef<cr>
 vnoremap <buffer> <leader>ed :CdefDef<cr>
 nnoremap <buffer> <leader>ei :call mycpp#manualInclude()<cr>
 nnoremap <buffer> <s-f7>     :CppMakeFileName<cr>
+
+if !exists(':FZF')
+  finish
+endif
+
+"type, scope, signature, inheritance
+
+function s:fzf_cpp_btags()
+
+  let fzf_btags_cmd = 'ctags -D "META_Object(library,name)=" -f -
+            \ --excmd=number --sort=no --fields-c++=+{properties}{template}
+            \ --fields=KsSi --kinds-c++=+pUN --links=yes --language-force=c++'
+  " display everything except filename and line number.
+  " fuzzy search all fields.
+  call fzf#vim#buffer_tags(
+        \ '',[fzf_btags_cmd . ' ' . expand('%:S')],
+        \ {'options' :
+        \      '--tiebreak=begin --with-nth 1,4.. --nth .. --prompt "Ctags> "'}
+        \ )
+endfunction

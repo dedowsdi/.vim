@@ -227,3 +227,43 @@ endfunction
 function! mycpp#manualInclude() abort
   call mycpp#gotoLastInclude({'jump':1}) | exec 'normal! o#include ' | startinsert!
 endfunction
+
+function mycpp#debugToggleBreak()
+  if empty(sign_getplaced('', {'lnum':9, 'group':''})[0].signs)
+    Break
+  else
+    Clear
+  endif
+endfunction
+
+function mycpp#debugStep()
+  Step
+endfunction
+
+function mycpp#debugNext()
+  Over
+endfunction
+
+function mycpp#debugContinue()
+  Continue
+endfunction
+
+function mycpp#debugFinish()
+  Finish
+endfunction
+
+function mycpp#debugEvaluate()
+  Evaluate
+endfunction
+
+function mycpp#debugStop()
+  Stop
+endfunction
+
+function mycpp#debugFrameUp()
+  call TermDebugSendCommand('up')
+endfunction
+
+function mycpp#debugFrameDown()
+  call TermDebugSendCommand('down')
+endfunction

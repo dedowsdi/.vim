@@ -319,3 +319,13 @@ function! misc#updateLink(type) abort
     let &paste = pasteBack
   endtry
 endfunction
+
+function! misc#createTestMap()
+  for i in range(1, 12)
+    exec printf('map <buffer> <f%d> :echo "f%d"<cr>', i, i)
+    exec printf('map <buffer> <c-f%d> :echo "c-f%d"<cr>', i, i)
+    exec printf('map <buffer> <s-f%d> :echo "s-f%d"<cr>', i, i)
+  endfor
+  nnoremap <buffer> <c-left> :echo 'c-left'<cr>
+  nnoremap <buffer> <c-right> :echo 'c-right'<cr>
+endfunction
