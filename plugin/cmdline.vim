@@ -1,6 +1,8 @@
 function! s:split_cmd()
 
-  " split cmdline into 3 parts
+  " split cmdline into 3 parts (| is cursor):
+  " pre---->|   word<-----post or:
+  " pre----w>|ord<-----post or:
   let matches = matchlist(getcmdline(),
         \ printf('\v^(.*)(%%%dc\s*\S+)(.*)', getcmdpos()))
   return len(matches) < 4 ? ['','','', 0] : matches[1:3] + [1]
