@@ -153,7 +153,7 @@ function! misc#to#column() abort
     call misc#mo#vertical_motion('E')
   else
     " doesn't exist or is blank
-    call misc#mo#vertical_motion('W')
+    call misc#mo#vertical_motion('S')
     if misc#getCC() !~# '\s'
       norm! k
     endif
