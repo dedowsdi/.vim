@@ -83,9 +83,9 @@ let g:ale_linters_explicit = 1
 
 " you can not disable lint while enable language server, so i turn off auto
 " lint.
-let g:ale_lint_on_text_changed = 'always'
+let g:ale_lint_on_text_changed = 'never'
 let g:ale_lint_on_enter = 0
-let g:ale_lint_on_save = 0
+let g:ale_lint_on_save = 1
 let g:ale_lint_on_filetype_changed = 0
 let g:ale_lint_on_insert_leave = 0
 
@@ -259,13 +259,13 @@ nnoremap ,,  ,
 
 call s:addOp(',l', 'misc#op#searchLiteral')
 call s:addOp(',s', 'misc#op#substitude')
-call s:addOp('.h', 'misc#op#system')
-call s:addOp('.<bar>', 'misc#op#column')
+call s:addOp(',h', 'misc#op#system')
+call s:addOp(',<bar>', 'misc#op#column')
 nmap     ,sl :let @/="\\v<".expand("<cword>").">"<cr>vif:s/<c-r><c-/>/
 nmap     ,s} :let @/="\\v<".expand("<cword>").">"<cr>vi}:s/<c-r><c-/>/
 nmap     ,s{ ,s}
-call s:addOp('.G', 'misc#op#literalGrep')
-call s:addOp('.g', 'misc#op#searchInBrowser')
+call s:addOp(',G', 'misc#op#literalGrep')
+call s:addOp(',g', 'misc#op#searchInBrowser')
 
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap -- :edit $MYVIMRC<cr>
@@ -324,6 +324,7 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-rhubarb'
 " Plug 'tpope/vim-scriptease'
 " Plug 'alx741/vinfo'
 Plug 'tommcdo/vim-exchange'
