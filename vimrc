@@ -259,7 +259,7 @@ nnoremap ,,  ,
 
 call s:addOp(',l', 'misc#op#searchLiteral')
 call s:addOp(',s', 'misc#op#substitude')
-call s:addOp(',h', 'misc#op#system')
+call s:addOp(',S', 'misc#op#system')
 call s:addOp(',<bar>', 'misc#op#column')
 nmap     ,sl :let @/="\\v<".expand("<cword>").">"<cr>vif:s/<c-r><c-/>/
 nmap     ,s} :let @/="\\v<".expand("<cword>").">"<cr>vi}:s/<c-r><c-/>/
