@@ -186,6 +186,14 @@ endfunction
 let g:clang_library_path='/home/pntandcnt/plugged/YouCompleteMe/third_party/ycmd/third_party/clang/lib/libclang.so.8'
 let g:clang_complete_macros=1
 
+" coc.nvim
+inoremap <silent><expr> <c-space> coc#refresh()
+nmap <f12> <Plug>(coc-definition)
+nmap <c-f12> <Plug>(coc-type-definition)
+nmap <s-f12> <Plug>(coc-implementation)
+nmap <s-f10> <Plug>(coc-references)
+nmap <f2> <Plug>(coc-rename)
+
 " easyalign
 
 " fugitive
@@ -341,8 +349,8 @@ nnoremap gc :SelectLastPaste<cr>
 nnoremap <f3>    :set hlsearch!<cr>
 nnoremap <f4>    :ALEHover<cr>
 nnoremap <c-f7>  :ALELint<cr>
-nnoremap <f12>   :YcmCompleter GoToDefinition<cr>
-nnoremap <c-f12> :YcmCompleter GoToDeclaration<cr>
+" nnoremap <f12>   :YcmCompleter GoToDefinition<cr>
+" nnoremap <c-f12> :YcmCompleter GoToDeclaration<cr>
 
 nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
 nnoremap <c-j> :BTags<cr>
@@ -395,6 +403,11 @@ Plug 'scrooloose/nerdcommenter'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'             " snippets used in ultisnips
 Plug 'itchyny/lightline.vim'
+<<<<<<< 6ce1c803791caa3ec9b85de523b79f7d2f0b458b
+=======
+" Plug 'Valloric/YouCompleteMe'         " auto complete
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+>>>>>>> setup coc
 Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Plug 'octol/vim-cpp-enhanced-highlight'
 " Plug 'rhysd/vim-clang-format'         "clang c/c++ format
