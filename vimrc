@@ -13,7 +13,7 @@ set concealcursor=vn conceallevel=0
 set autoindent smartindent expandtab smarttab
 set shiftwidth=4 tabstop=8 softtabstop=4
 set showmatch matchtime=3
-set laststatus=2 cmdheight=1 scrolloff=1
+set laststatus=2 cmdheight=2 scrolloff=1
 set spell spelllang=en_us dictionary+=spell
 set nrformats=octal,hex,bin
 set path+=/usr/local/include
@@ -109,10 +109,22 @@ let g:UltiSnipsEditSplit='vertical'
 
 " ycm
 let g:ycm_confirm_extra_conf = 0
-let g:ycm_min_num_of_chars_for_completion = 2
-" let g:ycm_auto_trigger = 0
+" let g:ycm_min_num_of_chars_for_completion = 2
+let g:ycm_auto_trigger = 0
+nnoremap <a-i> :let g:ycm_auto_trigger = !g:ycm_auto_trigger<cr>
+inoremap <a-i> <c-r>=<sid>ycm_trigger_identifier()<cr>
+
+function! s:ycm_trigger_identifier()
+  let g:ycm_auto_trigger = 1
+  augroup ycm_trigger_identifier
+    au!
+    autocmd InsertLeave * ++once let g:ycm_auto_trigger = 0
+  augroup end
+  do TextChangedI
+  return ''
+endfunction
 " following semantic triggers will break ultisnips suggestion
-let g:ycm_semantic_triggers = {'c':['re!\w{4}'], 'cpp':['re!\w{4}']}
+" let g:ycm_semantic_triggers = {'c':['re!\w{4}'], 'cpp':['re!\w{4}']}
 let g:ycm_server_python_interpreter = '/usr/bin/python3'
 " default ycm cfg file
 let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
@@ -120,6 +132,7 @@ let g:ycm_seed_identifiers_with_syntax = 1
 " remove tab from select_completion, it's used in ultisnips
 let g:ycm_key_list_select_completion = ['<Down>']
 " compile_command.json exists?
+let g:ycm_autoclose_preview_window_after_insertion = 1
 
 " easyalign
 
@@ -235,7 +248,7 @@ endfunction
 
 function! s:addOp(key, func)
   exe printf('nnoremap <expr> %s <sid>setupOpfunc("%s")', a:key, a:func)
-  exe printf('vnoremap %s :<c-u>call %s(visualmode(), 1)', a:key, a:func)
+  exe printf('vnoremap %s :<c-u>call %s(visualmode(), 1)<cr>', a:key, a:func)
 endfunction
 
 " motion and operator
