@@ -46,7 +46,7 @@ function! s:make_callback(...)
     return
   endif
   sleep 200ms
-  exe 'cbuffer' s:jobTerm.bufnr
+  exe 'cgetbuffer' s:jobTerm.bufnr
 endfunction
 
 function! mycpp#make(args) abort
