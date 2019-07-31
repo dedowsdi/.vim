@@ -30,15 +30,16 @@ nmap <expr> ,ff ',f' . v:count1 . '_'
 " external application
 nnoremap <buffer> <leader>aa :call mycpp#doTarget("apitrace trace", "",
       \ "<bar>& tee trace.log &&
-      \ qapitrace `grep -oP ''(?<=tracing to ).*$'' trace.log`")<cr>
+      \ qapitrace `grep -oP '(?<=tracing to ).*$' trace.log`")<cr>
 nnoremap <buffer> <leader>al :call mycpp#openLastApitrace()<cr>
 nnoremap <buffer> <leader>ar :CppRenderdoc<cr>
 
 " misc
+nnoremap <f4>  :YcmCompleter GetType<cr>
 nnoremap <buffer> <c-j>      :call <sid>fzf_cpp_btags()<cr>
 nnoremap <buffer> <a-o>      :CdefSwitchFile<cr>
 nnoremap <buffer> <c-f7>     :YcmDiags<cr>
-inoremap <buffer> <c-j>      ->
+inoremap <buffer> <c-l>      ->
 nnoremap <buffer> <f8>       :CdefSwitch<cr>
 nnoremap <buffer> <leader>ed :CdefDef<cr>
 vnoremap <buffer> <leader>ed :CdefDef<cr>
