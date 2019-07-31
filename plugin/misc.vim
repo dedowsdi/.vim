@@ -1,4 +1,4 @@
-if exists("g:loaded_misc_plugin")
+if exists('g:loaded_misc_plugin')
   finish
 endif
 let g:loaded_misc_plugin = 1
@@ -8,13 +8,13 @@ let g:loaded_misc_plugin = 1
 " ==============================================================================
 
 let g:mycppDefSrcExt    = get(g:, 'mycppDefSrcExt'    , 'cpp')
-let g:mycppBuildDir     = get(g:, 'mycppBuildDir'     , "./")
+let g:mycppBuildDir     = get(g:, 'mycppBuildDir'     , './')
 
 com -nargs=* -complete=customlist,mycpp#makeComplete CppRun           call mycpp#run(<q-args>)
-com -nargs=* -complete=customlist,mycpp#makeComplete CppMake          wa|silent call mycpp#make(<q-args>)
+com -nargs=* -complete=customlist,mycpp#makeComplete CppMake          update|silent call mycpp#make(<q-args>)
 com -nargs=* -complete=customlist,mycpp#makeComplete CppMakeFileName  exec 'CppMake ' . expand('%:t:r')
-com -nargs=* -complete=customlist,mycpp#makeComplete CppMakeRun       wa|silent call mycpp#makeRun(<q-args>)
-com -nargs=* -complete=customlist,mycpp#makeComplete CppMakeDebug     wa|silent call mycpp#makeDebug(<q-args>)
+com -nargs=* -complete=customlist,mycpp#makeComplete CppMakeRun       update|silent call mycpp#makeRun(<q-args>)
+com -nargs=* -complete=customlist,mycpp#makeComplete CppMakeDebug     update|silent call mycpp#makeDebug(<q-args>)
 com -nargs=* -complete=customlist,mycpp#makeComplete CppRenderdoc     silent call mycpp#doTarget('renderdoccmd capture', <q-args>, '', 1)
 com -nargs=* -complete=customlist,mycpp#makeComplete CppApitrace      silent call mycpp#doTarget('apitrace trace', <q-args>, '')
 com -nargs=* -complete=customlist,mycpp#makeComplete CppValgrind      silent call mycpp#doTarget('valgrind', <q-args>, '')
