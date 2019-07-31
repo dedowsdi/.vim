@@ -1,7 +1,7 @@
 function! syntax#opengl()
   syn match glEnum /\v\C<GL_\w+/
 
-  highlight link glEnum Define
+  highlight link glEnum Macro
 endfunction
 
 function! syntax#glm()
