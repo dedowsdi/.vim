@@ -17,6 +17,7 @@ set laststatus=2 cmdheight=2 scrolloff=1
 set spell spelllang=en_us dictionary+=spell
 set nrformats=octal,hex,bin
 set path+=/usr/local/include
+set complete-=i
 set backspace=indent,eol,start
 let &backup = !has('vms')
 set wildmenu history=200
@@ -40,6 +41,7 @@ filetype plugin indent on
 syntax enable
 packadd cfilter
 runtime! ftplugin/man.vim
+set keywordprg=:Man
 
 if has('nvim')
   set rtp^=$HOME/.vim,$HOME/.vim/after
@@ -108,7 +110,13 @@ let g:UltiSnipsJumpBackwardTrigger='<c-k>'
 let g:UltiSnipsEditSplit='vertical'
 
 " ycm
+let g:ycm_log_level = 'debug'
 let g:ycm_confirm_extra_conf = 0
+
+let g:ycm_use_clangd = 0
+" let g:ycm_clangd_binary_path='/usr/local/source/llvm8.0.0/bin/clangd'
+let g:ycm_clangd_args = '-background-index'
+
 " let g:ycm_min_num_of_chars_for_completion = 2
 let g:ycm_auto_trigger = 0
 nnoremap <a-i> :let g:ycm_auto_trigger = !g:ycm_auto_trigger<cr>
@@ -118,21 +126,31 @@ function! s:ycm_trigger_identifier()
   let g:ycm_auto_trigger = 1
   augroup ycm_trigger_identifier
     au!
-    autocmd InsertLeave * ++once let g:ycm_auto_trigger = 0
+    autocmd InsertLeave <buffer> ++once let g:ycm_auto_trigger = 0
   augroup end
-  do TextChangedI
+  doautocmd TextChangedI
   return ''
 endfunction
+
 " following semantic triggers will break ultisnips suggestion
 " let g:ycm_semantic_triggers = {'c':['re!\w{4}'], 'cpp':['re!\w{4}']}
 let g:ycm_server_python_interpreter = '/usr/bin/python3'
-" default ycm cfg file
-let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
+
+" global conf is only used when no compilation database and local ( until root)
+" .ycm_extra_conf.py exists
+let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 let g:ycm_seed_identifiers_with_syntax = 1
+" let g:ycm_collect_identifiers_from_tags_files = 1
 " remove tab from select_completion, it's used in ultisnips
 let g:ycm_key_list_select_completion = ['<Down>']
 " compile_command.json exists?
-let g:ycm_autoclose_preview_window_after_insertion = 1
+" let g:ycm_autoclose_preview_window_after_insertion = 1
+
+
+" clang_complete
+let g:clang_library_path='/home/pntandcnt/plugged/YouCompleteMe/third_party/ycmd/third_party/clang/lib/libclang.so.8'
+let g:clang_complete_macros=1
+
 
 " easyalign
 
@@ -317,8 +335,6 @@ tnoremap <leader>tt <c-\><c-n>:call misc#term#toggleGterm()<cr>
 nnoremap <leader>th :call misc#term#hideall()<cr>
 tnoremap <leader>th <c-\><c-n>:call misc#term#hideall()<cr>
 nnoremap <leader>yd :YcmShowDetailedDiagnostic<cr>
-nnoremap <leader>yf :YcmCompleter FixIt<cr>
-nnoremap <leader>yt :YcmCompleter GetType<cr>
 
 set rtp+=~/.fzf,.vim,.vim/after
 call plug#begin('~/.config/nvim/plugged')
@@ -345,7 +361,6 @@ Plug 'scrooloose/nerdcommenter'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'             " snippets used in ultisnips
 Plug 'itchyny/lightline.vim'
-Plug 'Valloric/YouCompleteMe'         " auto complete
 Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Plug 'octol/vim-cpp-enhanced-highlight'
 " Plug 'rhysd/vim-clang-format'         "clang c/c++ format
@@ -357,6 +372,8 @@ Plug 'dedowsdi/cdef'
 " Plug 'klen/python-mode'
 " Plug 'pangloss/vim-javascript'
 " Plug 'lervag/vimtex'                   " latex
+Plug 'Valloric/YouCompleteMe', { 'do': 'python3 ./install.py --clang-completer' }
+" Plug 'xavierd/clang_complete'
 call plug#end()
 
 let g:gruvbox_number_column='bg1'
