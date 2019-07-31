@@ -2,32 +2,33 @@ function! abbre#glsl()
 endfunction
 
 function! abbre#cpp()
-  :iab <buffer>  sI #include
-  :iab <buffer>  src reinterpret_cast<>()<left><left><left>
-  :iab <buffer>  sss std::stringstream
-  :iab <buffer>  np nullptr
-  :iab <buffer>  ce constexpr
-  :iab <buffer>  sfl std::forward_list<><Left>
-  :iab <buffer>  sus std::unordered_set<><Left>
-  :iab <buffer>  sum std::unordered_map<><Left>
-  :iab <buffer>  cfoff // clang-format off
-  :iab <buffer>  cfon // clang-format on
-
-  :iab <buffer> smd #ifdef _DEBUG<CR>#endif<esc>O
-  :iab <buffer> smif #if<CR>#endif<esc>O
 
   "boost  abbreviation
-  :iab <buffer> br boost::regex
-  :iab <buffer> brm boost::regex_match()<Left>
-  :iab <buffer> brs boost::regex_search()<Left>
-  :iab <buffer> brr boost::regex_replace()<Left>
-  :iab <buffer> bsm boost::smatch
-  :iab <buffer> u8t uint8_t
-  :iab <buffer> u16t uint16_t
-  :iab <buffer> u32t uint32_t
-  :iab <buffer> u64t uint64_t
 
-  :iab <buffer>  Cfs //------------------------------------------------------------------------------
+  " :iab <buffer> i8  int8_t
+  " :iab <buffer> i16 int16_t
+  " :iab <buffer> i32 int32_t
+  " :iab <buffer> i64 int64_t
+  " :iab <buffer> if8  int_fast8_t
+  " :iab <buffer> if16 int_fast16_t
+  " :iab <buffer> if32 int_fast32_t
+  " :iab <buffer> if64 int_fast64_t
+  " :iab <buffer> il8  int_least8_t
+  " :iab <buffer> il16 int_least16_t
+  " :iab <buffer> il32 int_least32_t
+  " :iab <buffer> il64 int_least64_t
+  " :iab <buffer> u8  uint8_t
+  " :iab <buffer> u16 uint16_t
+  " :iab <buffer> u32 uint32_t
+  " :iab <buffer> u64 uint64_t
+  " :iab <buffer> uf8  uint_fast8_t
+  " :iab <buffer> uf16 uint_fast16_t
+  " :iab <buffer> uf32 uint_fast32_t
+  " :iab <buffer> uf64 uint_fast64_t
+  " :iab <buffer> ul8  uint_least8_t
+  " :iab <buffer> ul16 uint_least16_t
+  " :iab <buffer> ul32 uint_least32_t
+  " :iab <buffer> ul64 uint_least64_t
 endfunction
 
 function! abbre#opengl()
