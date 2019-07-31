@@ -18,6 +18,7 @@ com -nargs=* -complete=customlist,mycpp#makeComplete CppMakeDebug     wa|silent 
 com -nargs=* -complete=customlist,mycpp#makeComplete CppRenderdoc     silent call mycpp#doTarget('renderdoccmd capture', <q-args>, '', 1)
 com -nargs=* -complete=customlist,mycpp#makeComplete CppApitrace      silent call mycpp#doTarget('apitrace trace', <q-args>, '')
 com -nargs=* -complete=customlist,mycpp#makeComplete CppValgrind      silent call mycpp#doTarget('valgrind', <q-args>, '')
+com CppMakePP       update|silent call mycpp#makePP()
 com -nargs=0 CppJsonProj                                              call mycpp#openProjectFile()
 com -nargs=0 CppSearchDerived                                         call mycpp#searchDerived()
 com -nargs=0 CppCmake call mycpp#cmake()

@@ -54,6 +54,35 @@ function! mycpp#make(args) abort
   cclose | call mycpp#sendjob(mycpp#getMakeCmd(target), {'close_cb' : function('s:make_callback')})
 endfunction
 
+function! mycpp#makePP() abort
+
+  let cmakeDir = fnamemodify(findfile('CMakeLists.txt', '.;'), ':h')
+  if empty(cmakeDir)
+    throw 'failed to find CMakeLists.txt'
+  endif
+
+  let makeDir = mycpp#getBuildDir() . '/' . cmakeDir
+  if !isdirectory(makeDir)
+    throw makeDir . ' doesn''t exist'
+  endif
+
+  " common makeTarget is src/*.cpp.i
+  let makeTarget = expand('%:p')[len(fnamemodify(cmakeDir, ':p')) : ] . '.i'
+
+  let cmd = printf('cd %s && make %s', makeDir, makeTarget)
+  call misc#log#debug(cmd)
+  call system(cmd)
+  if v:shell_error != 0
+    throw 'failed to execute ' . cmd
+  endif
+
+  let wildignore = &wildignore
+  set wildignore&
+  vsplit
+  exec printf('find %s/**/%s', makeDir, fnamemodify(makeTarget, ':t'))
+  let &wildignore = wildignore
+endfunction
+
 function! mycpp#makeRun(args) abort
   let [target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
   call mycpp#sendjob(printf('%s && %s', mycpp#getMakeCmd(target),
