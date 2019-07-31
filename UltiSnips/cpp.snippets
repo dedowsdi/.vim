@@ -1,45 +1,174 @@
-snippet be "begin end " i
-${1:ctn.}begin(), $1end()
+## macros
+
+snippet #def "#define ..."
+#define $1
 endsnippet
 
-snippet hs "lhs rhs" i
-${1:cosnt T&} lhs, $1 rhs
+snippet #if "#if #endif" b
+#if ${1:0}
+${VISUAL}$0
+#endif
 endsnippet
 
-snippet tp
-template <typename ${1:T}>
+snippet #ifndef "#ifndef ... #define ... #endif"
+#ifndef ${1/([A-Za-z0-9_]+).*/$1/}
+#define ${1:SYMBOL} ${2:value}
+#endif /* ifndef $1 */
 endsnippet
 
-snippet spca "static smart pointer cast" i
-std::static_pointer_cast<${1:type}>(${VISUAL}$0)
+snippet #in "include " b
+#include "${1:name.h}"
 endsnippet
 
-snippet dpca "dynamic smart pointer cast" i
-std::dynamic_pointer_cast<${1:type}>(${VISUAL}$0)
+snippet #i "include <>" b
+#include <${1:iostream}>
 endsnippet
 
-snippet cpca "const smart pointer cast" i
-std::const_pointer_cast<${1:type}>(${VISUAL}$0)
+snippet #c
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+${0}
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+##
+## Control Statements
+# if
+snippet if
 endsnippet
 
-snippet rpca "reinterpret smart pointer cast" i
-std::reinterpret_pointer_cast<${1:type}>(${VISUAL}$0)
+## class, namespace
+snippet struct "struct"
+struct ${1:`!p snip.rv = (snip.basename or "name") + "_t"`}
+{
+	${0:/* data */}
+};
 endsnippet
 
-snippet sca "static pointer cast" i
-std::static_cast<${1:type}>(${VISUAL}$0)
+snippet class "class .. (class)"
+class ${1:`!p snip.rv = snip.basename or "name"`}
+{
+public:
+	${1/(\w+).*/$1/} (${2:arguments});
+	virtual ~${1/(\w+).*/$1/} ();
+
+private:
+	${0:/* data */}
+};
 endsnippet
 
-snippet dca "dynamic pointer cast" i
-std::dynamic_cast<${1:type}>(${VISUAL}$0)
+snippet raii
+class ${1:name}
+{
+public:
+	$1();
+	~$1();
+	
+	// no copy
+	$1(const $1& rhs) = delete;
+	$1& operator=($1 rhs) = delete;
+private:
+};
 endsnippet
 
-snippet cca "const pointer cast" i
-std::const_cast<${1:type}>(${VISUAL}$0)
+snippet namespace "namespace .. (namespace)"
+namespace${1/.+/ /m}${1:`!p snip.rv = snip.basename or "name"`}
+{
+	${VISUAL}$0
+}${1/.+/ \/* /m}$1${1/.+/ *\/ /m}
 endsnippet
 
-snippet rca "reinterpret pointer cast" i
-std::reinterpret_cast<${1:type}>(${VISUAL}$0)
+## functions
+snippet main "main() (main)"
+int main(int argc, char *argv[])
+{
+	${VISUAL}$0
+	return 0;
+}
+endsnippet
+
+snippet mainv "int main(void){ ... }"
+int main(void)
+{
+	${0}
+	return 0;
+}
+endsnippet
+
+snippet af "auto function"
+auto ${1:name}(${2}) -> ${3:void}
+{
+	${0}
+};
+endsnippet
+
+## flow control
+snippet if
+if (${1:true})
+{
+	${0:${VISUAL}}
+}
+endsnippet
+
+snippet ife "if .. else"
+if (${1:true})
+{
+	${2:${VISUAL}}
+}
+else
+{
+	${0}
+}
+endsnippet
+
+snippet else "else {}"
+else
+{
+	${0:${VISUAL}}
+}
+endsnippet
+
+snippet elif "else if"
+else if (${1:true})
+{
+	${0:${VISUAL}}
+}
+endsnippet
+
+snippet ifi "one line if"
+if (${1:true}) ${0};
+endsnippet
+
+snippet "(?<=\W)t|^t" "ternary " r
+${1:/* condition */} ? ${2:a} : ${3:b}
+endsnippet
+
+snippet switch
+switch (${1:/* variable */})
+{
+	case ${2:/* variable case */}:
+		${3}
+		${4:break;}${5}
+	default:
+		break;
+}
+endsnippet
+
+snippet case
+case ${1:/* variable case */}:
+	${2}
+	${3:break;}
+endsnippet
+
+snippet for "for loop (for)"
+for (${2:i} = 0; $2 < ${1:count}; ${3:++$2})
+{
+	${VISUAL}$0
+}
 endsnippet
 
 snippet fore
@@ -56,10 +185,27 @@ for (${4:int} ${2:i} = 0; $2 < ${1:count}; ${3:++$2})
 }
 endsnippet
 
-snippet func
-${2:void} ${1:name}(${3:})
+snippet for2
+for (int ${1:y} = 0; $1 < ${2:rows}; ++$1) 
 {
-	$0
+	for (int ${3:x} = 0; $3 < ${4:cols}; ++$3) 
+	{
+		${0}
+	}
+}
+endsnippet
+
+snippet forit "for(iter = ; iter != .. ; ++iter)"
+for (${1:std::vector}<${2:type}>::${3:const_iterator} ${4:i} = ${5:container}.begin(); $4 != $5.end(); ++$4)
+{
+	${6}
+}
+endsnippet
+
+snippet forita
+for (auto ${1:i} = ${2:container}.begin(); $1 != $2.end(); ++$1)
+{
+	${3:std::cout << *$1 << std::endl;}
 }
 endsnippet
 
@@ -70,86 +216,200 @@ while (${1:/* condition */})
 }
 endsnippet
 
-snippet if "if"
-if (${1:/* condition */})
+snippet try "try .. catch .."
+try
 {
-	${VISUAL}$0
+
+}
+catch(${1})
+{
+
 }
 endsnippet
 
-snippet ife "if"
-if (${1:/* condition */})
-{
-	${VISUAL}$0
-} else
-{
-	
-}
+## basic
+snippet s "std::string " w
+std::string
 endsnippet
 
-snippet eli "else if .. (eli)"
-else if (${1:/* condition */})
-{
-	${VISUAL}$0
-}
+snippet ce "constexpr" w
+constexpr 
 endsnippet
 
-snippet move "move" i
+snippet ns "namespace" w
+namespace 
+endsnippet
+
+snippet us "using" w
+using ${1:name} = ${2:value};
+endsnippet
+
+snippet te "template<typename T> " w
+template <typename ${1:T}>
+endsnippet
+
+snippet be "begin end " w
+${1:ctn.}begin(), $1end()
+endsnippet
+
+snippet cout "cout<T>" w
+std::cout << ${1} << std::endl;
+endsnippet
+
+snippet cin "cin<T>" w
+std::cin >> ${1};
+endsnippet
+
+## stl
+snippet array "array<T>" w
+std::array<${1:T}, ${2:N}> ${3};
+endsnippet
+
+snippet vector "vector<T>" w
+std::vector<${1:T}> ${2};
+endsnippet
+
+snippet deque "deque<T>" w
+std::deque<${1:T}> ${2};
+endsnippet
+
+snippet flist "forward_list<T>" w
+std::forward_list<${1:T}> ${2};
+endsnippet
+
+snippet list "list<T>" w
+std::list<${1:T}> ${2};
+endsnippet
+
+snippet set "set<T>" w
+std::set<${1:T}> ${2};
+endsnippet
+
+snippet map "map<T>" w
+std::map<${1:Key}, ${2:T}> ${3};
+endsnippet
+
+snippet mset "multiset<T>" w
+std::multiset<${1:T}> ${2};
+endsnippet
+
+snippet mmap "multimap<T>" w
+std::multimap<${1:Key}, ${2:T}> ${3};
+endsnippet
+
+snippet uset "unordered_set<T>" w
+std::unordered_set<${1:T}> ${2};
+endsnippet
+
+snippet umap "unordered_map<T>" w
+std::unordered_map<${1:Key}, ${2:T}> ${3};
+endsnippet
+
+snippet umset "unordered_multiset<T>" w
+std::unordered_multiset<${1:T}> ${2};
+endsnippet
+
+snippet ummap "unordered_multimap<T>" w
+std::unordered_multimap<${1:Key}, ${2:T}> ${3};
+endsnippet
+
+snippet stack "stack<T>" w
+std::stack<${1:T}> ${2};
+endsnippet
+
+snippet queue "queue<T>" w
+std::queue<${1:T}> ${2};
+endsnippet
+
+snippet pqueue "priority_queue<T>" w
+std::priority_queue<${1:T}> ${2};
+endsnippet
+
+snippet spca "static smart pointer cast" w
+std::static_pointer_cast<${1:type}>(${VISUAL}$0)
+endsnippet
+
+snippet dpca "dynamic smart pointer cast" w
+std::dynamic_pointer_cast<${1:type}>(${VISUAL}$0)
+endsnippet
+
+snippet cpca "const smart pointer cast" w
+std::const_pointer_cast<${1:type}>(${VISUAL}$0)
+endsnippet
+
+snippet rpca "reinterpret smart pointer cast" w
+std::reinterpret_pointer_cast<${1:type}>(${VISUAL}$0)
+endsnippet
+
+snippet sca "static pointer cast" w
+std::static_cast<${1:type}>(${VISUAL}$0)
+endsnippet
+
+snippet dca "dynamic pointer cast" w
+std::dynamic_cast<${1:type}>(${VISUAL}$0)
+endsnippet
+
+snippet cca "const pointer cast" w
+std::const_cast<${1:type}>(${VISUAL}$0)
+endsnippet
+
+snippet rca "reinterpret pointer cast" w
+std::reinterpret_cast<${1:type}>(${VISUAL}$0)
+endsnippet
+
+snippet move "move" w
 std::move($0)
 endsnippet
 
-snippet fd "forward" i
+snippet fd "forward" w
 std::forward<${1:T}>($0)
 endsnippet
 
-snippet lambda "lambda" i
+snippet ar
+std::${1:sort}(${2:ctn.}begin(), $2end());
+endsnippet
+
+snippet arr
+std::${1:sort}(${2:ctn.}begin(), $2end(), ${3:ctn.}begin(), $3end());
+endsnippet
+
+snippet lambda "lambda" w
 [](${1:arg})->void
 {
 	${VISUAL}$0
 }
 endsnippet
 
-snippet dt "declare type" i
+snippet dt "declare type" w
 decltype($0)
 endsnippet
 
-
-snippet sp "shared pointer" i
+snippet sp "shared pointer" w
 std::shared_ptr<${1:type}>
 endsnippet
 
-snippet ms "make shared"
+snippet ms "make shared" w
 std::make_shared<$1>($0)
 endsnippet
 
-snippet up "unique pointer" i
+snippet up "unique pointer" w
 std::unique_ptr<${1:type}>
 endsnippet
 
-snippet mu "make unique" i
+snippet mu "make unique" w
 std::make_unique<$1>($0)
 endsnippet
 
-snippet wp "weak pointer" i
+snippet wp "weak pointer" w
 std::weap_ptr<${1:type}>
 endsnippet
 
-snippet map1 "functional map" i
+snippet map1 "functional map" w
 std::transform(${1:ctn.}begin(), $1end(), ${2:dest_iter}, ${3:unary_op});
 endsnippet
 
-snippet map2 "functional zip" i
+snippet map2 "functional zip" w
 std::transform(${1:ctn1.}begin(), $1end(), ${2:ctn2.beg()}, ${3:dest_iter}, ${3:binary_op});
-endsnippet
-
-snippet for2
-for (int ${1:y} = 0; $1 < ${2:rows}; ++$1) 
-{
-	for (int ${3:x} = 0; $3 < ${4:cols}; ++$3) 
-	{
-		${0}
-	}
-}
 endsnippet
 
 snippet box0
@@ -164,21 +424,7 @@ snippet box1
 //------------------------------------------------------------------------------
 endsnippet
 
-snippet raii
-class ${1:name}
-{
-public:
-	$1();
-	~$1();
-	
-	// no copy
-	$1(const $1& rhs) = delete;
-	$1& operator=($1 rhs) = delete;
-private:
-};
-
-endsnippet
-
+## osg
 snippet onew
 osg::ref_ptr<${1}> ${2} = new $1(${3});
 endsnippet
@@ -495,6 +741,7 @@ osg::ref_ptr<osgAnimation::UpdateMatrixTransform> updater =
 
 endsnippet
 
+## opengl
 snippet glTexture
 glGenTextures(1, &${1:tex});
 glBindTexture(GL_TEXTURE_2D, $1);
@@ -673,18 +920,6 @@ glGetIntegerv(GL_POLYGON_MODE, $1);
 $1 = ${2:GL_POINT} + ($1 + 1 - $2) % ${3:3};
 endsnippet
 
-snippet ar
-std::${1:sort}(${2:ctn.}begin(), $2end());
-endsnippet
-
-snippet arm
-std::${1:sort}(${2:ctn.}begin(), $0, $2end());
-endsnippet
-
-snippet arr
-std::${1:sort}(${2:ctn.}begin(), $2end(), ${3:ctn.}begin(), $3end());
-endsnippet
-
 snippet glDecompose
 glm::vec3 scale;
 glm::quat rotation;
@@ -696,6 +931,7 @@ glm::decompose(
 rotation = glm::conjugate(rotation);
 endsnippet
 
+## qt
 snippet qtClass
 class ${1:ClassName} : public ${2:QWidget}
 {
@@ -725,6 +961,7 @@ int main(int argc, char *argv[])
 }
 endsnippet
 
+## boost
 snippet boostTestDynamic
 #define BOOST_TEST_MODULE ${1:test decorator}
 #define BOOST_TEST_DYN_LINK
@@ -746,12 +983,4 @@ BOOST_${1:AUTO}_TEST_CASE${2:}(${3:caseName})
 {
 $0
 }
-endsnippet
-
-snippet cr "const reference" i
-const ${1:std::string}& ${2:name}
-endsnippet
-
-snippet cp "const pointer" i
-const ${1:std::string}* ${2:name}
 endsnippet
