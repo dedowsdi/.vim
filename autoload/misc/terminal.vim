@@ -31,6 +31,8 @@ function! misc#terminal#setup()
     return
   endif
 
+  imap <Nul> <c-space>
+
   " undercurl doesn't work on terminal
   hi clear SpellBad
   hi SpellBad cterm=underline
