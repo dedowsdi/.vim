@@ -8,7 +8,7 @@ set list listchars=trail:┄,tab:†·,extends:>,precedes:<,nbsp:+
 scriptencoding
 set ttimeout ttimeoutlen=5 timeoutlen=1000
 set number ruler novisualbell showmode showcmd hidden mouse=a background=dark
-set incsearch  ignorecase smartcase
+set incsearch ignorecase smartcase
 set concealcursor=vn conceallevel=0
 set autoindent smartindent expandtab smarttab
 set shiftwidth=4 tabstop=8 softtabstop=4
@@ -110,27 +110,13 @@ let g:UltiSnipsJumpBackwardTrigger='<c-k>'
 let g:UltiSnipsEditSplit='vertical'
 
 " ycm
-let g:ycm_log_level = 'debug'
+" let g:ycm_log_level = 'debug'
+" let g:ycm_use_clangd = 0
+
 let g:ycm_confirm_extra_conf = 0
 
-let g:ycm_use_clangd = 0
-" let g:ycm_clangd_binary_path='/usr/local/source/llvm8.0.0/bin/clangd'
+let g:ycm_clangd_binary_path='/usr/local/source/llvm8.0.0/bin/clangd'
 let g:ycm_clangd_args = '-background-index'
-
-" let g:ycm_min_num_of_chars_for_completion = 2
-let g:ycm_auto_trigger = 0
-nnoremap <a-i> :let g:ycm_auto_trigger = !g:ycm_auto_trigger<cr>
-inoremap <a-i> <c-r>=<sid>ycm_trigger_identifier()<cr>
-
-function! s:ycm_trigger_identifier()
-  let g:ycm_auto_trigger = 1
-  augroup ycm_trigger_identifier
-    au!
-    autocmd InsertLeave <buffer> ++once let g:ycm_auto_trigger = 0
-  augroup end
-  doautocmd TextChangedI
-  return ''
-endfunction
 
 " following semantic triggers will break ultisnips suggestion
 " let g:ycm_semantic_triggers = {'c':['re!\w{4}'], 'cpp':['re!\w{4}']}
@@ -140,17 +126,64 @@ let g:ycm_server_python_interpreter = '/usr/bin/python3'
 " .ycm_extra_conf.py exists
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 let g:ycm_seed_identifiers_with_syntax = 1
-" let g:ycm_collect_identifiers_from_tags_files = 1
+let g:ycm_collect_identifiers_from_tags_files = 1
+
 " remove tab from select_completion, it's used in ultisnips
 let g:ycm_key_list_select_completion = ['<Down>']
-" compile_command.json exists?
-" let g:ycm_autoclose_preview_window_after_insertion = 1
 
+let g:ycm_auto_trigger = 0
+nnoremap <a-n> :let g:ycm_auto_trigger = !g:ycm_auto_trigger<cr>
+inoremap <a-n> <c-r>=<sid>ycm_trigger_identifier()<cr>
+
+let g:ycm_key_invoke_completion = '<Plug>YcmInvoke'
+imap <c-space> <Plug>YcmInvoke<c-r>=<sid>ycm_next()<cr>
+
+function! s:ycm_trigger_identifier()
+  let g:ycm_auto_trigger = 1
+  augroup ycm_trigger_identifier
+    au!
+    autocmd InsertLeave <buffer> ++once let g:ycm_auto_trigger = 0
+  augroup end
+
+  doautocmd ycmcompletemecursormove TextChangedI
+  call s:ycm_next()
+  return ''
+endfunction
+
+function! s:ycm_next()
+
+  " ycm use timer_start to check completion result in s:PollCompletion, i have
+  " to do the same to apply <c-n>
+  call timer_start(5, function('s:ycm_next_callback'), {'repeat' : 100})
+  let s:ycm_id_trigger_pos = [bufnr(''), getcurpos()]
+  return ''
+endfunction
+
+function! s:ycm_next_callback(timer)
+
+  " stop listening if cursor position changed
+  if [bufnr(''), getcurpos()] != s:ycm_id_trigger_pos
+    call timer_stop(a:timer)
+    return
+  endif
+
+  if pumvisible()
+    call feedkeys("\<c-n>", 'n')
+    call timer_stop(a:timer)
+
+    " close pum cause blink, that's not good
+    " if len(complete_info(['items']).items) == 1
+    "   ycm remap <c-y> to stop completion
+    "   call feedkeys("\<c-y>", '')
+    " endif
+    return
+  endif
+
+endfunction
 
 " clang_complete
 let g:clang_library_path='/home/pntandcnt/plugged/YouCompleteMe/third_party/ycmd/third_party/clang/lib/libclang.so.8'
 let g:clang_complete_macros=1
-
 
 " easyalign
 
