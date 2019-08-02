@@ -115,8 +115,9 @@ let g:UltiSnipsEditSplit='vertical'
 
 let g:ycm_confirm_extra_conf = 0
 
-let g:ycm_clangd_binary_path='/usr/local/source/llvm8.0.0/bin/clangd'
-let g:ycm_clangd_args = '-background-index'
+" set this option will change completer to clangd ? Must be a bug.
+" let g:ycm_clangd_binary_path='/usr/local/source/llvm8.0.0/bin/clangd'
+" let g:ycm_clangd_args = '-background-index'
 
 " following semantic triggers will break ultisnips suggestion
 " let g:ycm_semantic_triggers = {'c':['re!\w{4}'], 'cpp':['re!\w{4}']}
@@ -135,8 +136,8 @@ let g:ycm_auto_trigger = 0
 nnoremap <a-n> :let g:ycm_auto_trigger = !g:ycm_auto_trigger<cr>
 inoremap <a-n> <c-r>=<sid>ycm_trigger_identifier()<cr>
 
-let g:ycm_key_invoke_completion = '<Plug>YcmInvoke'
-imap <c-space> <Plug>YcmInvoke<c-r>=<sid>ycm_next()<cr>
+" let g:ycm_key_invoke_completion = '<Plug>YcmInvoke'
+" imap <c-space> <Plug>YcmInvoke<c-r>=<sid>ycm_next()<cr>
 
 function! s:ycm_trigger_identifier()
   let g:ycm_auto_trigger = 1
