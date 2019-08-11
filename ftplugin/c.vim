@@ -23,7 +23,7 @@ onoremap <buffer> af :normal vaf<cr>
 onoremap <buffer> if :normal vif<cr>
 
 " operator
-nnoremap <expr> ,f misc#op#setupKeepCursor('misc#op#clangFormat')
+nnoremap ,f :set opfunc=misc#op#clangFormat<cr>g@
 vnoremap ,f  :<c-u>call misc#op#clangFormat(visualmode(), 1)<cr>
 nmap <expr> ,ff ',f' . v:count1 . '_'
 
@@ -35,7 +35,7 @@ nnoremap <buffer> <leader>al :call mycpp#openLastApitrace()<cr>
 nnoremap <buffer> <leader>ar :CppRenderdoc<cr>
 
 " misc
-nnoremap <f4>  :YcmCompleter GetType<cr>
+" nnoremap <f4>  :YcmCompleter GetType<cr>
 nnoremap <buffer> <c-j>      :call <sid>fzf_cpp_btags()<cr>
 nnoremap <buffer> <a-o>      :CdefSwitchFile<cr>
 nnoremap <buffer> <c-f7>     :YcmDiags<cr>

@@ -5,6 +5,10 @@ let b:loaded_glsl_cfg = 1
 
 setlocal shiftwidth=2 tabstop=2 textwidth=80
 setlocal commentstring=//\ %s
+setlocal complete-=t
+" setlocal complete+=s
+" setlocal thesaurus+=~/.vim/thesaurus/glsl.txt
+setlocal omnifunc=syntaxcomplete#Complete
 
 " setup glslang option
 let s:glsl_stages = {
