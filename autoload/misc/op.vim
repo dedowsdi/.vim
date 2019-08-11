@@ -106,16 +106,12 @@ function! misc#op#column(type, ...) abort
 endfunction
 
 function! misc#op#clangFormat(type, ...) abort
-  let l0 = getpos("'[")[1]
-  let l1 = getpos("']")[1]
 
-  " note that -style=file search upward until /
-  let cmd = printf('%%!clang-format -style=file -fallback-style=LLVM
-        \ -lines=%d:%d', l0, l1)
-
+  " clang-format.py will check l:lines to determine range
+  let l:lines = printf('%d:%d', getpos("'[")[1], getpos("']")[1])
+  let cmd = printf('py3file %s', g:clang_format_py_path)
   call misc#log#debug('ClangFormat command : ' . cmd)
-  silent exec cmd
-  call s:restoreCursor()
+  exec cmd
 endfunction
 
 function! misc#op#setupKeepCursor(func)
