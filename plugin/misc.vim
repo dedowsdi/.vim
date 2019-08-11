@@ -48,7 +48,11 @@ com! RecordYank :call misc#dc#startCopy(1)
 com! RecordYankAppend :call misc#dc#startCopy(0)
 com! RecordPaste :call misc#dc#paste()
 com! RecordStop :call misc#dc#stopCopy()
-com! TTcpp call system('tmux_tt cpp "sil e main.cpp | sil 11"')
-com! TTgl43app call system('tmux_tt gl43app')
-com! -nargs=+ TT call system('tmux_tt ' . <q-args>)
+
+com! -nargs=+ -complete=customlist,s:tt_complete TT call system('tmux_tt ' . <q-args>)
+
+function! s:tt_complete(ArgLead, CmdLine, CursorPos)
+  return sort(filter(systemlist('cd ~/.tt_template && printf "%s\n" *'),
+        \ 'stridx(v:val, a:ArgLead)==0'))
+endfunction
 
