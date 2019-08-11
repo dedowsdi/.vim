@@ -28,7 +28,7 @@ set sessionoptions+=unix,slash                     " use unix /
 " nothing found
 set tags=./tags;,tags
 set wildmode=longest,list " set wildmode to unix glob
-set wildignore=*.o,*.a,*.so,tags,TAGS,*/.git/*,.git,*/build/*,build
+set wildignore=*.o,*.a,*.so,tags,TAGS,*/.git/*,*/build/*,*/.clangd/*
 set matchpairs+=<:>                                " add match pair for < and >
 set fileencodings=ucs-bom,utf-8,default,gb18030,utf-16,latin1
 let &grepprg = 'grep -n $* /dev/null --exclude-dir={.git,.hg} -I'
@@ -95,6 +95,7 @@ let g:ale_linters = {
 \   'vim': ['vint'],
 \   'sh': ['shellcheck'],
 \   'glsl' : ['glslang'],
+\   'python' : [],
 \   'cpp'  : []
 \}
 
@@ -193,8 +194,14 @@ nmap <c-f12> <Plug>(coc-type-definition)
 nmap <s-f12> <Plug>(coc-implementation)
 nmap <s-f10> <Plug>(coc-references)
 nmap <f2> <Plug>(coc-rename)
-
-" easyalign
+nnoremap <c-s> :call CocActionAsync('showSignatureHelp')<cr>
+inoremap <c-s> <c-r>=CocActionAsync('showSignatureHelp')<cr>
+nnoremap <expr> <c-d> coc#util#has_float() ? coc#util#float_scroll(1) : "\<c-d>"
+nnoremap <expr> <c-u> coc#util#has_float() ? coc#util#float_scroll(0) : "\<c-u>"
+command CocDiagnosticInfo exec "norm \<plug>(coc-diagnostic-info)"
+command CocReference exec "norm \<plug>(coc-references)"
+command CocHover call CocActionAsync('doHover')
+command CocCodeAction call CocActionAsync('codeAction')
 
 " fugitive
 command! -nargs=* Glg Git! lg --color=never <args>
@@ -204,16 +211,22 @@ command! -nargs=* Glg Git! log --graph --pretty=format:'%h - <%an> (%ad)%d %s' -
 let g:lightline = {
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'gitbranch', 'readonly', 'filename', 'modified'] ]
+      \             [ 'gitbranch', 'cocstatus', 'readonly', 'filename', 'modified'] ]
       \ },
       \ 'component_function': {
       \   'gitbranch': 'fugitive#head',
+      \   'cocstatus': 'coc#status',
       \ },
       \ 'component':
       \ {
       \     'test':'hello tabline'
       \ },
       \ }
+augroup au_coc_status
+  au!
+  autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
+augroup end
+
 if &t_Co == 256
   let g:lightline.colorscheme = 'gruvbox'
 endif
@@ -283,6 +296,10 @@ let g:gutentags_exclude_project_root = [$HOME]
 let g:gutentags_exclude_filetypes = ['cmake', 'sh', 'json', 'md']
 let g:gutentags_define_advanced_commands = 1
 
+" mine
+let g:clang_format_py_path = '/usr/local/source/llvm8.0.0/share/clang/clang-format.py'
+let g:clang_format_fallback_style = 'LLVM'
+
 " maps
 function! s:omap(to)
   return printf(":normal v%s\"%s\<cr>", a:to, v:register)
@@ -347,7 +364,8 @@ nnoremap K  :exec 'norm! K' <bar> wincmd p<cr>
 nnoremap gc :SelectLastPaste<cr>
 
 nnoremap <f3>    :set hlsearch!<cr>
-nnoremap <f4>    :ALEHover<cr>
+" nnoremap <f4>    :ALEHover<cr>
+nnoremap <f4>    :CocHover<cr>
 nnoremap <c-f7>  :ALELint<cr>
 " nnoremap <f12>   :YcmCompleter GoToDefinition<cr>
 " nnoremap <c-f12> :YcmCompleter GoToDeclaration<cr>
@@ -403,12 +421,7 @@ Plug 'scrooloose/nerdcommenter'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'             " snippets used in ultisnips
 Plug 'itchyny/lightline.vim'
-<<<<<<< 6ce1c803791caa3ec9b85de523b79f7d2f0b458b
-=======
-" Plug 'Valloric/YouCompleteMe'         " auto complete
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
->>>>>>> setup coc
-Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Plug 'octol/vim-cpp-enhanced-highlight'
 " Plug 'rhysd/vim-clang-format'         "clang c/c++ format
 Plug 'othree/html5.vim'
@@ -419,7 +432,8 @@ Plug 'dedowsdi/cdef'
 " Plug 'klen/python-mode'
 " Plug 'pangloss/vim-javascript'
 " Plug 'lervag/vimtex'                   " latex
-Plug 'Valloric/YouCompleteMe', { 'do': 'python3 ./install.py --clang-completer' }
+" Plug 'Valloric/YouCompleteMe', { 'do': 'python3 ./install.py --clang-completer' }
+" Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 " Plug 'xavierd/clang_complete'
 call plug#end()
 
