@@ -1,6 +1,6 @@
 extends c
 
-snippet fori
+snippet fori "for(int ......)" bm
 for (int ${2:i} = 0; $2 < ${1:count}; $2${3:++}) {
 	${4}
 }
@@ -13,7 +13,7 @@ if(${1:})
 }
 endsnippet
 
-snippet while
+snippet while "while" bm
 while(${1:})
 {
 	${0}
@@ -26,16 +26,14 @@ void main()
 }
 endsnippet
 
-snippet vsMain
+snippet vsMain "vsMain" bm
 #version 430 core
 
-layout(location = 0)in vec4 vertex;
-layout(location = 1)in vec3 normal;
-layout(location = 2)in vec2 texcoord;
+layout(location = 0) uniform in vec4 vertex;
 
-uniform(location = 0) mat4 mvp_mat;
+layout(location = 0) uniform mat4 mvp_mat;
 
-out vs_out
+out vertex_data
 {
 	vec3 normal;
 	vec2 texcoord;
@@ -49,66 +47,43 @@ void main(void)
 }
 endsnippet
 
-snippet fsMain
+snippet gsMain "gsMain" bm
 #version 430 core
 
-in vs_out
-{
-	vec2 texcoord;
-}fi;
-
-uniform sampler2D diffuse_map;
-
-out vec4 frag_color;
-
-void main(void)
-{
-	frag_color = texture(diffuse_map, fi.texcoord);
-}
-endsnippet
-
-snippet gsMain
-#version 430 core
 layout(lines) in;
 layout(line_strip, max_vertices = 1024) out;
 
 void main(void)
 {
-	gl_Position = gl_in[0].gl_Position;
-	EmitVertex();
-	EmitVertex();
-	EndPrimitive();
 }
 endsnippet
 
-snippet csMain
+snippet csMain "csMain" bm
 layout (local_size_x = 16, local_size_y = 16) in;
 void main(void)
 {
 }
 endsnippet
 
-snippet saturate
+snippet saturate "clamp to 0 1" w
 clamp(${1:dot}, 0.0, 1.0);
 endsnippet
 
-snippet #ifdef
+snippet #ifdef "#ifdef ...#endif" b
 #ifdef
 ${0}
 #endif
 endsnippet
 
-snippet fs
+snippet fsMain "fsMain"
 #version 430 core
 
 #define PI 3.1415926535897932384626433832795
 
-uniform vec2 resolution;
 out vec4 frag_color;
 
 void main(void)
 {
-	vec2 st = gl_FragCoord.xy / resolution;
 	${0}
 }
 endsnippet
