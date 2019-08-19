@@ -26,7 +26,7 @@ set backupdir=$HOME/.vimbak directory=$HOME/.vimswap//
 set sessionoptions+=unix,slash                     " use unix /
 " search tag in dir of current file upward until root, use current dir tags if
 " nothing found
-set tags=./tags;,tags
+" set tags=./tags;,tags
 set wildmode=longest,list " set wildmode to unix glob
 set wildignore=*.o,*.a,*.so,tags,TAGS,*/.git/*,*/build/*,*/.clangd/*
 set matchpairs+=<:>                                " add match pair for < and >

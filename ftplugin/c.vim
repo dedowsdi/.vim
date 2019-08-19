@@ -28,11 +28,10 @@ vnoremap ,f  :<c-u>call misc#op#clangFormat(visualmode(), 1)<cr>
 nmap <expr> ,ff ',f' . v:count1 . '_'
 
 " external application
-nnoremap <buffer> <leader>aa :call mycpp#doTarget("apitrace trace", "",
-      \ "<bar>& tee trace.log &&
-      \ qapitrace `grep -oP '(?<=tracing to ).*$' trace.log`")<cr>
-nnoremap <buffer> <leader>al :call mycpp#openLastApitrace()<cr>
+nnoremap <buffer> <leader>aa :CppApitrace
+nnoremap <buffer> <leader>al :CppOpenLastApitrace
 nnoremap <buffer> <leader>ar :CppRenderdoc<cr>
+nnoremap <buffer> <leader>an :CppNNL<cr>
 
 " misc
 " nnoremap <f4>  :YcmCompleter GetType<cr>

@@ -8,13 +8,6 @@ function! mycpp#getBuildDir() abort
   return fnamemodify(g:mycppBuildDir, ':p')
 endfunction
 
-" use use g:mycppBuildDir/bin or g:mycppBuildDir as binary dir
-function! mycpp#getBinaryDir() abort
-  let buildDir = mycpp#getBuildDir()
-  let dir =  get(g:, 'mycppBinaryDir', buildDir . 'bin/')
-  return isdirectory(dir) ? fnamemodify(dir, ':p') : buildDir
-endfunction
-
 function! mycpp#getTarget(target)
   let targetObj = filereadable(s:pjcfg) ?
         \ get(json_decode(join(readfile(s:pjcfg), "\n")), a:target, {}) : {}
@@ -27,13 +20,13 @@ function! mycpp#makeComplete(ArgLead, CmdLine, CursorPos) abort
   return sort(filter(mycpp#getMakeTargets(), 'stridx(v:val, a:ArgLead)==0'))
 endfunction
 
-function! mycpp#getMakeCmd(target) abort
-  let obj = mycpp#getTarget(a:target)
-  return printf('cd %s && make %s %s', g:mycppBuildDir, obj.make, a:target)
-endfunction
-
-function! mycpp#getRunCmd(target, targetArgs) abort
-  return printf('cd %s && ./%s %s', mycpp#getBinaryDir(), mycpp#getExe(a:target), a:targetArgs)
+function! mycpp#makePPComplete(ArgLead, CmdLine, CursorPos) abort
+  let l = split(a:CmdLine, '\v\s+', 1)
+  if l[0] ==# ''
+    call remove(l, 0)
+  endif
+  let makeDir = len(l) < 3 ? mycpp#getBuildDir() : mycpp#getTargetPath(l[1]).makePath
+  return sort(filter(mycpp#getMakeTargets(makeDir), 'stridx(v:val, a:ArgLead)==0'))
 endfunction
 
 " jterm, channel for vim8 (close_cb)
@@ -50,58 +43,51 @@ function! s:make_callback(...)
 endfunction
 
 function! mycpp#make(args) abort
-  let [target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
-  cclose | call mycpp#sendjob(mycpp#getMakeCmd(target), {'close_cb' : function('s:make_callback')})
+  call mycpp#exe('cd %B && make %t', 1, a:args)
 endfunction
 
-function! mycpp#makePP() abort
-
-  let cmakeDir = fnamemodify(findfile('CMakeLists.txt', '.;'), ':h')
-  if empty(cmakeDir)
-    throw 'failed to find CMakeLists.txt'
-  endif
-
-  let makeDir = mycpp#getBuildDir() . '/' . cmakeDir
-  if !isdirectory(makeDir)
-    throw makeDir . ' doesn''t exist'
-  endif
-
-  " common makeTarget is src/*.cpp.i
-  let makeTarget = expand('%:p')[len(fnamemodify(cmakeDir, ':p')) : ] . '.i'
-
-  let cmd = printf('cd %s && make %s', makeDir, makeTarget)
-  call misc#log#debug(cmd)
-  call system(cmd)
-  if v:shell_error != 0
-    throw 'failed to execute ' . cmd
-  endif
-
-  let wildignore = &wildignore
-  set wildignore&
-  vsplit
-  exec printf('find %s/**/%s', makeDir, fnamemodify(makeTarget, ':t'))
-  let &wildignore = wildignore
+function! mycpp#makePP(target, tu) abort
+  call mycpp#exe('cd %m && make ' . a:tu, 1, a:target)
 endfunction
 
 function! mycpp#makeRun(args) abort
-  let [target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
-  call mycpp#sendjob(printf('%s && %s', mycpp#getMakeCmd(target),
-        \ mycpp#getRunCmd(target, targetArgs)))
+  call mycpp#exe('cd %B && make %t && cd %b &&./%e', 1, a:args)
 endfunction
 
 function! mycpp#makeDebug(args) abort
-  let [target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
-  call mycpp#sendjob(printf('%s && [[ ${pipestatus[0]} -eq 0 ]] && %s',
-        \ mycpp#getMakeCmd(target), mycpp#getDebugCmd()),
-        \ {'close_cb' : function('s:make_callback')})
+  call mycpp#exe('cd %B && make %t && cd %b && gdb ./%e', 1, a:args)
 endfunction
 
-function! mycpp#doTarget(args0, args1, args2, ...) abort
-  let jobtype = get(a:000, 0, 0)
-  let [target, targetArgs] = mycpp#splitTargetAndArgs(a:args1)
-  let runCmd = printf('./%s %s', mycpp#getExe(target), targetArgs)
-  let cmd = printf('cd %s && %s %s %s', mycpp#getBinaryDir(), a:args0, runCmd, a:args2)
-  if jobtype == 0
+" cmd:
+"   %a : args
+"   %b : binary dir
+"   %B : build dir
+"   %e : executable
+"   %E : absolute path of executable
+"   %m : deepest make dir
+"   %t : target
+"   %% : literal %
+function! mycpp#exe(cmd, term, args) abort
+  let [target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
+  let targetPath = mycpp#getTargetPath(target)
+  let absExe = targetPath.exePath
+  let makeDir = targetPath.makePath
+  let exe = fnamemodify(absExe, ':t')
+  let binDir = fnamemodify(absExe, ':h')
+  let buildDir = mycpp#getBuildDir()
+
+  let cmd = escape(a:cmd, '"')
+  let cmd = substitute(cmd, '\V\C%a', targetArgs, 'g')
+  let cmd = substitute(cmd, '\V\C%b', binDir,     'g')
+  let cmd = substitute(cmd, '\V\C%B', buildDir,   'g')
+  let cmd = substitute(cmd, '\V\C%e', exe,        'g')
+  let cmd = substitute(cmd, '\V\C%E', absExe,     'g')
+  let cmd = substitute(cmd, '\V\C%m', makeDir,    'g')
+  let cmd = substitute(cmd, '\V\C%t', target,     'g')
+  let cmd = substitute(cmd, '\V\C%%', '%',        'g')
+  call misc#log#debug(cmd)
+
+  if a:term
     call mycpp#sendjob(cmd)
   else
     " some application(such as render doc) can not be called with term open,
@@ -111,16 +97,10 @@ function! mycpp#doTarget(args0, args1, args2, ...) abort
     else
       " job_start in vim8 can't handle gui application ?
       " call job_start(printf('bash -c "%s"', cmd))
-      exe printf('!bash -c "%s"', cmd)
+      exe printf('!bash -c "%s" &', cmd)
     endif
   endif
-endfunction
 
-function! mycpp#openLastApitrace() abort
-  let traceCmd = printf('cd %s && ls -t -1 *.trace | head -n 1', mycpp#getBinaryDir())
-  let trace = system(traceCmd)[0:-2]
-  let cmd = printf('cd %s && qapitrace ./%s', mycpp#getBinaryDir(), trace)
-  call mycpp#sendjob(cmd)
 endfunction
 
 " Get default make target.
@@ -129,8 +109,9 @@ function! mycpp#getMakeDef() abort
 endfunction
 
 " generate make targets from Makefile
-function! mycpp#getMakeTargets() abort
-  let cmd = 'cd ' . mycpp#getBuildDir() . ' &&  make help | grep "\.\.\." | cut -d\  -f2'
+function! mycpp#getMakeTargets(...) abort
+  let dir = get(a:000, 0, mycpp#getBuildDir())
+  let cmd = 'cd ' . dir . ' &&  make help | grep -Po "\.\.\. \K.+"'
   return systemlist(cmd)
 endfunction
 
@@ -139,24 +120,58 @@ function! s:isTarget(target) abort
 endfunction
 
 function! mycpp#getExe(target) abort
+  return fnamemodify(mycpp#getTargetPath(a:target).exePath, ':t')
+endfunction
 
-  if !filereadable(s:pjcfg)
-    return a:target
+function! mycpp#getTargetPath(target) abort
+  if a:target ==# 'all'
+    throw 'all has no target path'
   endif
+
+  " if !filereadable(s:pjcfg)
+    " return a:target
+  " endif
 
   if !s:isTarget(a:target)
     call misc#warn(a:target . ' is not a valid make target') | return ''
   endif
-  let grepTarget =  printf(
-        \ 'grep -Po ''\s+\-o\s+\S*'' `find %s 2>/dev/null -wholename ''*/CMakeFiles/%s.dir/link.txt''` | grep -Po ''[^\\/ \t]+$''', 
-        \ mycpp#getBuildDir(), a:target)
-  let path = system(grepTarget)[0:-2]
-  " if you change directory, but ditn't clean cmake cache, you will get multiple
-  " link result from above command.
-  if stridx(path, "\n") != -1
-    echoe  'found multiple link result : ' . path
+
+  let buildDir = mycpp#getBuildDir()
+
+  " find make_dir/target.dir/CMakeFiles/link.txt
+  let linkTail = printf('CMakeFiles/%s.dir/link.txt', a:target)
+  let cmd = printf('find %s -type f -wholename ''*/%s'' ', buildDir, linkTail)
+  call misc#log#debug(cmd)
+  let linkPath = systemlist(cmd)
+
+  if linkPath == []
+    echoe 'failed to get link.txt path for target ' . a:target
+  elseif len(linkPath) > 1
+    " if you change directory, but ditn't clean cmake cache, you will get multiple
+    " link result from above command.
+    echoe 'multiple link.txt found for target '
+          \ . a:target . ' : ' . string(linkPath)
   endif
-  return path
+  if v:shell_error != 0
+    throw 'failed to execute : ' . cmd
+  endif
+
+  let linkPath = linkPath[0]
+  let makePath = linkPath[ 0 : -len(linkTail) - 1]
+
+  let cmd = printf('grep -Po ''\s+\-o\s+\K\S+'' ''%s'' ', linkPath)
+  call misc#log#debug(cmd)
+  let exePath = simplify(makePath . systemlist(cmd)[0])
+  if v:shell_error != 0
+    throw 'failed to execute : ' . cmd
+  endif
+
+  return { "makePath" : makePath, "exePath" : exePath }
+endfunction
+
+function! mycpp#getArgs()
+  let [target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
+  return targetArgs
 endfunction
 
 " {cmd [,insert]}
@@ -173,14 +188,14 @@ function! mycpp#sendjob(cmd, ...) abort
 endfunction
 
 function! mycpp#run(args) abort
-  let [ target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
-  call mycpp#sendjob(mycpp#getRunCmd(target, targetArgs))
+  call mycpp#exe('cd %b && ./%e', 1, a:args)
 endfunction
 
 function! mycpp#debug(args) abort
   let [ target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
-  " exec 'GdbDebug ' . mycpp#getBinaryDir() . mycpp#getExe(target) . ' ' . targetArgs
-  exec 'Termdebug ' . mycpp#getBinaryDir() . mycpp#getExe(target) . ' ' . targetArgs
+  exec 'Termdebug ' . mycpp#getTargetPath(target).exePath . ' ' . targetArgs
+  wincmd p
+  wincmd H
 endfunction
 
 " return [target, args], args will be predefined args if it's empty

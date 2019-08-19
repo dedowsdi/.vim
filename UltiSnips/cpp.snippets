@@ -255,7 +255,7 @@ snippet tp "template<typename T> " w
 template <typename ${1:T}>
 endsnippet
 
-snippet be "begin end " w
+snippet range "begin end " w
 ${1:ctn.}begin(), $1end()
 endsnippet
 
@@ -380,7 +380,7 @@ snippet fd "forward" w
 std::forward<${1:T}>($0)
 endsnippet
 
-snippet ar
+snippet ag
 std::${1:sort}(${2:ctn.}begin(), $2end());
 endsnippet
 
@@ -427,6 +427,7 @@ snippet map2 "functional zip" w
 std::transform(${1:ctn1.}begin(), $1end(), ${2:ctn2.beg()}, ${3:dest_iter}, ${3:binary_op});
 endsnippet
 
+## snippet
 snippet box0
 //==============================================================================
 //${0}
@@ -437,6 +438,20 @@ snippet box1
 //------------------------------------------------------------------------------
 //${0}
 //------------------------------------------------------------------------------
+endsnippet
+
+snippet r5 "rule of 5" bm
+
+~${1:name};
+
+$1(const $1& v);
+
+$1& operator=(const $1& v);
+
+$1($1&& v);
+
+$1& operator=($1&& v);
+
 endsnippet
 
 ## osg
