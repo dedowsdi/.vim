@@ -219,7 +219,7 @@ function! mycpp#parse_command(cmd, exe_arg_idx) abort
   return [target, exe_args, cmd_args]
 endfunction
 
-function! mycpp#setLastTarget(target)
+function! mycpp#set_last_target(target)
   let s:last_target = a:target
 endfunction
 
