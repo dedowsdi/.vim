@@ -7,51 +7,55 @@ let g:loaded_misc_plugin = 1
 " cpp
 " ==============================================================================
 
-let g:mycppDefSrcExt    = get(g:, 'mycppDefSrcExt'    , 'cpp')
-let g:mycppBuildDir     = get(g:, 'mycppBuildDir'     , './')
+let g:mycpp_def_src_ext    = get(g:, 'mycpp_def_src_ext'    , 'cpp')
+let g:mycpp_build_dir     = get(g:, 'mycpp_build_dir'     , './')
 
-com -nargs=* -complete=customlist,mycpp#makeComplete CppRun           call mycpp#run(<q-args>)
-com -nargs=* -complete=customlist,mycpp#makeComplete CppMake          update| call mycpp#make(<q-args>)
-com -nargs=* -complete=customlist,mycpp#makeComplete CppMakeFileName  exec 'CppMake ' . expand('%:t:r')
-com -nargs=* -complete=customlist,mycpp#makeComplete CppMakeRun       update|silent call mycpp#makeRun(<q-args>)
-com -nargs=* -complete=customlist,mycpp#makeComplete CppMakeDebug     update|silent call mycpp#makeDebug(<q-args>)
-com -nargs=* -complete=customlist,mycpp#makeComplete CppRenderdoc     call mycpp#exe('cd "%b" && renderdoccmd capture "./%e"', 1, <q-args>)
+com -nargs=* -complete=customlist,mycpp#make_complete CppRun           call mycpp#exe('cd %b && ./%e %a', 1, <q-args>, 0)
+com -nargs=* -complete=customlist,mycpp#make_complete CppMake          update | call mycpp#exe('cd %B && make %A %t', 1, <q-args>)
+com -nargs=* -complete=customlist,mycpp#make_complete CppMakeFileName  exec 'CppMake ' . expand('%:t:r')
+com -nargs=* -complete=customlist,mycpp#make_complete CppMakeRun       update | call mycpp#exe('cd %B && make %A %t && cd %b &&./%e %a', 1, <q-args>, 0)
+com -nargs=* -complete=customlist,mycpp#make_complete CppMakeDebug     update | call mycpp#exe('cd %B && make %t && cd %b && gdb %A --args ./%e %a', 1, <q-args>)
+com -nargs=* -complete=customlist,mycpp#make_complete CppRenderdoc     call mycpp#exe('cd "%b" && renderdoccmd capture %A "./%e" %a', 1, <q-args>)
 
 let s:apitrace_opencmd = 'cd "%b" && qapitrace $(grep -oP "(?<=tracing to ).*$" trace.log)'
-com -nargs=* -complete=customlist,mycpp#makeComplete -bar CppApitrace   call mycpp#exe('cd "%b" && apitrace trace "./%e" |& tee trace.log && ' . s:apitrace_opencmd, 1, <q-args>)
-com -nargs=* -complete=customlist,mycpp#makeComplete CppOpenLastApitrace      call mycpp#exe(s:apitrace_opencmd, 1, <q-args>)
-com -nargs=* -complete=customlist,mycpp#makeComplete CppNNL           silent call mycpp#exe('cd "%b" && nnl --activity="Frame Debugger" --exe="%e" --args="%a" ', 0, <q-args>)
-com -nargs=* -complete=customlist,mycpp#makeComplete CppValgrind      silent call mycpp#exe('cd "%b" && valgrind ./%e ', 1, <q-args>)
-com -nargs=+ -complete=customlist,mycpp#makePPComplete CppMakePP  update|silent call mycpp#makePP(<f-args>)
-com -nargs=0 CppJsonProj                                              call mycpp#openProjectFile()
-com -nargs=0 CppSearchDerived                                         call mycpp#searchDerived()
+com -nargs=* -complete=customlist,mycpp#make_complete -bar CppApitrace   call mycpp#exe('cd "%b" && apitrace trace "./%e" |& tee trace.log && ' . s:apitrace_opencmd, 1, <q-args>)
+com -nargs=* -complete=customlist,mycpp#make_complete CppOpenLastApitrace      call mycpp#exe(s:apitrace_opencmd, 1, <q-args>)
+com -nargs=* -complete=customlist,mycpp#make_complete CppNNL           call mycpp#exe('cd "%b" && nnl --activity="Frame Debugger" --exe="%e" --args="%a" ', 0, <q-args>)
+com -nargs=* -complete=customlist,mycpp#make_complete CppValgrind      call mycpp#exe('cd "%b" && valgrind %A ./%e ', 1, <q-args>)
+com -nargs=+ -complete=customlist,mycpp#makePPComplete CppMakePP  update | call mycpp#make_pp(<f-args>)
+com -nargs=0 CppJsonProj                                              call mycpp#open_project_file()
+com -nargs=0 CppSearchDerived                                         call mycpp#search_derived()
 com -nargs=0 CppCmake call mycpp#cmake()
 
-com -nargs=* -complete=customlist,mycpp#makeComplete CppDebug         call mycpp#debug(<q-args>)
-com CppDebugToggleBreak call mycpp#debugToggleBreak()
-com CppDebugStep        call mycpp#debugStep()
-com CppDebugNext        call mycpp#debugNext()
-com CppDebugContinue    call mycpp#debugContinue()
-com CppDebugFinish      call mycpp#debugFinish()
-com CppDebugEvaluate    call mycpp#debugEvaluate()
-com CppDebugStop        call mycpp#debugStop()
-com CppDebugFrameUp     call mycpp#debugFrameUp()
-com CppDebugFrameDown   call mycpp#debugFrameDown()
+com -nargs=* -complete=customlist,mycpp#make_complete CppDebug         call mycpp#debug(<q-args>)
+com CppDebugToggleBreak call ycpp#debug_toggle_break()
+com CppDebugStep        call mycpp#debug_step()
+com CppDebugNext        call mycpp#debug_next()
+com CppDebugContinue    call mycpp#debug_continue()
+com CppDebugFinish      call mycpp#debug_finish()
+com CppDebugEvaluate    call mycpp#debug_evaluate()
+com CppDebugStop        call mycpp#debug_stop()
+com CppDebugFrameUp     call mycpp#debug_frame_up()
+com CppDebugFrameDown   call mycpp#debug_frame_down()
 
 " ==============================================================================
 " vim
 " ==============================================================================
-com! -nargs=0 VimlReloadScript :call  misc#viml#reloadLoadedScript()
-com! -nargs=0 VimlBreakHere :call misc#viml#breakHere()
-com! -nargs=0 VimlBreakNumberedFunction :call misc#viml#breakNumberedFunction()
-com! -nargs=? VimlGotoFunction :call misc#viml#gotoFunction(<f-args>)
+com! -nargs=0 VimlReloadScript :call  misc#viml#reload_loaded_script()
+com! -nargs=0 VimlBreakHere :call misc#viml#break_here()
+com! -nargs=0 VimlBreakNumberedFunction :call misc#viml#break_numbered_function()
+com! -nargs=? VimlGotoFunction :call misc#viml#goto_function(<f-args>)
 com! -nargs=0 VimlJoin :call misc#viml#join()
 com! -nargs=? List call misc#viml#list(expand('<sfile>'), expand('<slnum>'), <f-args>)
 
-com! RecordYank :call misc#dc#startCopy(1)
-com! RecordYankAppend :call misc#dc#startCopy(0)
+com! RecordYank :call misc#dc#start_copy(1)
+com! RecordYankAppend :call misc#dc#start_copy(0)
 com! RecordPaste :call misc#dc#paste()
-com! RecordStop :call misc#dc#stopCopy()
+com! RecordStop :call misc#dc#stop_copy()
+com! -bar CamelToUnderscore exe printf('%%s/\v\C<%s>/%s/g', expand('<cword>'),
+      \ misc#camel_to_underscore(expand('<cword>')))
+com! CamelToUnderscoreAndSearchNext CamelToUnderscore | exec "norm! \<c-o>" | SearchNextCamel
+com! SearchNextCamel call search('\v\C\w*[A-Z]\w*', 'W')
 
 com! -nargs=+ -complete=customlist,s:tt_complete TT call system('tmux_tt ' . <q-args>)
 

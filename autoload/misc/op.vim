@@ -1,9 +1,9 @@
 function! misc#op#operand(type, visual) abort
   if a:visual
-    return [misc#getVisualString(), visualmode()]
+    return [misc#get_visual_string(), visualmode()]
   else
     let vmode = a:type ==# 'line' ? 'V' : a:type ==# 'char' ? 'v' : "\<ctrl-v>"
-    return [misc#getMarkString("'[", "']", vmode), vmode]
+    return [misc#get_mark_string("'[", "']", vmode), vmode]
   endif
 endfunction
 
@@ -19,24 +19,24 @@ function! misc#op#execute(type, visual, operator) abort
   call setpos('.', pos)
 endfunction
 
-function! misc#op#searchLiteral(type, ...) abort
+function! misc#op#search_literal(type, ...) abort
   let @/ = misc#op#operand(a:type, a:0 > 0)[0]
-  let @/ = misc#literalizeVim(@/)
+  let @/ = misc#literalize_vim(@/)
 endfunction
 
-function! misc#op#literalGrep(type, ...) abort
+function! misc#op#literal_grep(type, ...) abort
   let operand = misc#op#operand(a:type, a:0>0)
-  call setreg('"', misc#literalizeGrep(operand[0]))
+  call setreg('"', misc#literalize_grep(operand[0]))
   call feedkeys(":grep -F \<c-r>=@\"\<cr> ")
 endfunction
 
 " search pattern is <word> or literal
 function! misc#op#substitude(type, ...) abort
-  call call('misc#op#searchLiteral', [a:type] + a:000)
+  call call('misc#op#search_literal', [a:type] + a:000)
   call feedkeys(':%s//')
 endfunction
 
-function! misc#op#searchInBrowser(type, ...)
+function! misc#op#search_in_browser(type, ...)
   let operand = misc#op#operand(a:type, a:0>0)
   silent! exec 'silent! !google-chrome "http://google.com/search?q=' . operand[0] . '" &>/dev/null &'
   redraw!
@@ -105,7 +105,7 @@ function! misc#op#column(type, ...) abort
   call call ('misc#op#system', [a:type] + [get(a:000, 0, 0), cmd, 'b'])
 endfunction
 
-function! misc#op#clangFormat(type, ...) abort
+function! misc#op#clang_format(type, ...) abort
 
   " clang-format.py will check l:lines to determine range
   let l:lines = printf('%d:%d', getpos("'[")[1], getpos("']")[1])
@@ -114,20 +114,20 @@ function! misc#op#clangFormat(type, ...) abort
   exec cmd
 endfunction
 
-function! misc#op#setupKeepCursor(func)
+function! misc#op#setup_keep_cursor(func)
   let &opfunc = a:func
-  call s:storeCursor()
+  call s:store_cursor()
   return 'g@'
 endfunction
 
-function! s:restoreCursor() abort
+function! s:restore_cursor() abort
   if !exists('s:cpos')
     return
   endif
   call setpos('.', s:cpos)
 endfunction
 
-function! s:storeCursor() abort
+function! s:store_cursor() abort
   let s:cpos = getcurpos()
 endfunction
 

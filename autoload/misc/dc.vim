@@ -1,6 +1,6 @@
 let s:data = []
 
-function! misc#dc#startCopy(reset)
+function! misc#dc#start_copy(reset)
   if a:reset | let s:data = [] | endif
   augroup DATA_COPY_PASTE
     au!
@@ -9,7 +9,7 @@ function! misc#dc#startCopy(reset)
   echohl Title | echo 'start recording yank delete' | echohl None
 endfunction
 
-function! misc#dc#stopCopy()
+function! misc#dc#stop_copy()
   augroup DATA_COPY_PASTE
     au!
     autocmd TextYankPost * call s:copy()
@@ -18,7 +18,7 @@ function! misc#dc#stopCopy()
 endfunction
 
 function! misc#dc#paste()
-  call misc#dc#stopCopy()
+  call misc#dc#stop_copy()
   call s:paste()
 endfunction
 
@@ -43,13 +43,13 @@ function! s:paste()
           \ idx != -1 ? entry.text[0:stridx(entry.text, "\n")-1] . '...' : entry.text)
   endfor
   let prompt .= "\n[numbers][*][ex command] : "
-  echohl ModeMsg | let inputStr = input(prompt, 'norm! ') | echohl None
-  if inputStr ==# '' | return | endif
+  echohl ModeMsg | let input_str = input(prompt, 'norm! ') | echohl None
+  if input_str ==# '' | return | endif
 
-  let matches = matchlist(inputStr, '\v^([0-9\-,]*)(\*)?\s*(.*)')
-  let [range, doTail, cmd] = [matches[1], matches[2], matches[3]]
+  let matches = matchlist(input_str, '\v^([0-9\-,]*)(\*)?\s*(.*)')
+  let [range, do_tail, cmd] = [matches[1], matches[2], matches[3]]
 
-  call s:print(s:getSelection(range), cmd, !empty(doTail))
+  call s:print(s:get_selection(range), cmd, !empty(do_tail))
 endfunction
 
 " * or blank : all
@@ -58,7 +58,7 @@ endfunction
 " a-         : a until last
 " -b         : 1 until b
 " currently not used
-function! s:getSelection(str)
+function! s:get_selection(str)
   if empty(a:str)
     return range(len(s:data))
   endif
@@ -77,8 +77,8 @@ function! s:getSelection(str)
   call filter(indices, 'v:val < len(s:data)') | return indices
 endfunction
 
-function! s:print(indices, cmd, doTail)
-  let [regText, regType, i] = [@", getregtype('"'), 0]
+function! s:print(indices, cmd, do_tail)
+  let [reg_text, reg_type, i] = [@", getregtype('"'), 0]
   for index in a:indices
     let [entry, cpos, i] = [s:data[index], getcurpos(), i+1]
 
@@ -89,17 +89,17 @@ function! s:print(indices, cmd, doTail)
     if entry.mode =~# 'V'
 
       " place cursor at 1st non space character of pasted lines
-      let numLines = count(@", "\n")
-      if numLines >1 | exec '+'.(numLines-1) | endif
+      let num_lines = count(@", "\n")
+      if num_lines >1 | exec '+'.(num_lines-1) | endif
     elseif entry.mode =~# ''
 
       " place cursor at right up corner of pasted block
       call cursor(line('.'), col('.') + 1 - str2nr(matchstr(entry.mode, '\v\d+')))
     endif
-    if empty(a:cmd) || (!a:doTail && i == len(a:indices)) | continue | endif
+    if empty(a:cmd) || (!a:do_tail && i == len(a:indices)) | continue | endif
     exec a:cmd
   endfor
-  call setreg('"', regText, regType)
+  call setreg('"', reg_text, reg_type)
 endfunction
 
 finish
@@ -107,28 +107,28 @@ finish
 " ------------------------------------------------------------------------------
 " test
 " ------------------------------------------------------------------------------
-command! RecordYank :call misc#dc#startCopy(1)
-command! RecordYankAppend :call misc#dc#startCopy(0)
+command! RecordYank :call misc#dc#start_copy(1)
+command! RecordYankAppend :call misc#dc#start_copy(0)
 command! RecordPaste :call misc#dc#paste()
-command! RecordStop :call misc#dc#stopCopy()
+command! RecordStop :call misc#dc#stop_copy()
 
-nnoremap <leader>ry :call misc#dc#startCopy(1)<cr>
-nnoremap <leader>rY :call misc#dc#startCopy(0)<cr>
+nnoremap <leader>ry :call misc#dc#start_copy(1)<cr>
+nnoremap <leader>rY :call misc#dc#start_copy(0)<cr>
 nnoremap <leader>rp :call misc#dc#paste()<cr>
 
 let v:errors = []
 let s:data = [{'mode':'v', 'text':'a'}, {'mode':'v', 'text':'b'}, {'mode':'v', 'text':'c'}]
-call assert_equal([0,  1,  2], s:getSelection(''))
-call assert_equal([0,  1,  2], s:getSelection('1-'))
-call assert_equal([0,  1,  2], s:getSelection('1-3'))
-call assert_equal([0,  1,  2], s:getSelection('1,2,3'))
-call assert_equal([0,  1,  2], s:getSelection('1-1,2-3'))
-call assert_equal([0,  1,  2], s:getSelection('-3'))
-call assert_equal([0],         s:getSelection('1'))
-call assert_equal([2],         s:getSelection('3'))
-call assert_equal([1],         s:getSelection('2-2'))
-call assert_equal([0,  1],     s:getSelection('1-2'))
-call assert_equal([0,  1,  2], s:getSelection('1-9'))
+call assert_equal([0,  1,  2], s:get_selection(''))
+call assert_equal([0,  1,  2], s:get_selection('1-'))
+call assert_equal([0,  1,  2], s:get_selection('1-3'))
+call assert_equal([0,  1,  2], s:get_selection('1,2,3'))
+call assert_equal([0,  1,  2], s:get_selection('1-1,2-3'))
+call assert_equal([0,  1,  2], s:get_selection('-3'))
+call assert_equal([0],         s:get_selection('1'))
+call assert_equal([2],         s:get_selection('3'))
+call assert_equal([1],         s:get_selection('2-2'))
+call assert_equal([0,  1],     s:get_selection('1-2'))
+call assert_equal([0,  1,  2], s:get_selection('1-9'))
 for err in v:errors | echom err | endfor
 
 call s:paste()

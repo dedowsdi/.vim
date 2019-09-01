@@ -1,4 +1,4 @@
-let s:term = extend(deepcopy(misc#term#new()), {'bufnr':-1, 'autoInsert':1})
+let s:term = extend(deepcopy(misc#term#new()), {'bufnr':-1, 'auto_insert':1})
 
 function! misc#term#vim#new() abort
   return deepcopy(s:term)
@@ -8,44 +8,44 @@ function! s:term.exists() abort
   return self.bufnr != -1 && bufexists(self.bufnr)
 endfunction
 
-function! s:term.isOpen() abort
+function! s:term.is_open() abort
   return bufwinid(self.bufnr) != -1
 endfunction
 
-function! s:term.isActive() abort
+function! s:term.is_active() abort
   return bufnr('') == self.bufnr
 endfunction
 
-function! s:term.gotoWin() abort
+function! s:term.goto_win() abort
   call win_gotoid(bufwinid(self.bufnr))
 endfunction
 
 " open buf or jump to buf wnd, do nothing if term buf doesn't exists
 function! s:term.open() abort
-  if self.isOpen()
-    call self.gotoWin()
+  if self.is_open()
+    call self.goto_win()
   else
     call self.split(printf('sbuffer %d', self.bufnr))
   endif
-  call self.postOpen()
+  call self.post_open()
 endfunction
 
-function! s:term.postOpen() abort
-  if mode() ==# 'n' && self.autoInsert
+function! s:term.post_open() abort
+  if mode() ==# 'n' && self.auto_insert
     norm! A
   endif
 endfunction
 
 function! s:term.hide() abort
-  if !self.isOpen() | return | endif
+  if !self.is_open() | return | endif
 
   let oldwinid = win_getid('')
-  call self.gotoWin()
-  call self.doHide()
+  call self.goto_win()
+  call self.do_hide()
   call win_gotoid(oldwinid)
 endfunction
 
-function! s:term.doHide() abort
+function! s:term.do_hide() abort
   " :hide will cause the buffer in normal mode
   call feedkeys("\<c-w>q")
 endfunction
@@ -67,11 +67,11 @@ function! s:term.spawn(opts) abort
   let self.bufnr = bufnr('')
 
   if has_key(a:opts, 'cmd')
-    call self.jobStart(a:opts)
+    call self.job_start(a:opts)
   else
-    call self.openTerm(a:opts)
+    call self.open_term(a:opts)
   endif
-  call self.postOpen()
+  call self.post_open()
 endfunction
 
 function! misc#term#vim#spawn(opts) abort
@@ -81,11 +81,11 @@ function! misc#term#vim#spawn(opts) abort
 endfunction
 
 " start job
-function! s:term.jobStart(opts) abort
+function! s:term.job_start(opts) abort
 
   function self.exit_cb(job, status) closure
-    let self.jobFinished = 1
-    let self.exitCode = a:status
+    let self.job_finished = 1
+    let self.exit_code = a:status
     if has_key(a:opts, 'exit_cb')
       call a:opts.exit_cb(self, a:job, a:status)
     endif
@@ -101,21 +101,21 @@ function! s:term.jobStart(opts) abort
 endfunction
 
 " start terminal, no job
-function! s:term.openTerm(opts) abort
+function! s:term.open_term(opts) abort
   terminal ++curwin
 endfunction
 
 " wnd commands and options
 let s:wcos={
-  \ 'top' : { 'split':'to'     , 'resize':'res'     , 'fixedSize':'height', 'size':'lines'},
-  \ 'left': { 'split':'to vert', 'resize':'vert res', 'fixedSize':'width' , 'size':'co'   },
-  \ 'bot':  { 'split':'bo'     , 'resize':'res'     , 'fixedSize':'height', 'size':'lines'},
-  \ 'right':{ 'split':'bo vert', 'resize':'vert res', 'fixedSize':'width' , 'size':'co'   }
+  \ 'top' : { 'split':'to'     , 'resize':'res'     , 'fixed_size':'height', 'size':'lines'},
+  \ 'left': { 'split':'to vert', 'resize':'vert res', 'fixed_size':'width' , 'size':'co'   },
+  \ 'bot':  { 'split':'bo'     , 'resize':'res'     , 'fixed_size':'height', 'size':'lines'},
+  \ 'right':{ 'split':'bo vert', 'resize':'vert res', 'fixed_size':'width' , 'size':'co'   }
   \ }
 
-function! s:term.split(splitCmd) abort
+function! s:term.split(split_cmd) abort
   let wco = s:wcos[self.layout.position]
-  exe printf('%s %s', wco.split, a:splitCmd)
+  exe printf('%s %s', wco.split, a:split_cmd)
 
   if has_key(self.layout, 'psize')
     let wndsize=0

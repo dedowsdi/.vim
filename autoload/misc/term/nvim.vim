@@ -5,35 +5,35 @@ function! misc#term#nvim#new() abort
 endfunction
 
 " start terminal, no job
-function! s:term.openTerm(opts) abort
+function! s:term.open_term(opts) abort
   terminal
   let [self.bufnr, self.job, self.title, self.pid]
         \ = [bufnr(''), b:terminal_job_id, b:term_title, b:terminal_job_pid]
 endfunction
 
-function! s:term.jobStart(opts) abort
+function! s:term.job_start(opts) abort
 
   function self.exit_cb(job_id, data, event) closure
-    let self.jobFinished = 1
-    let self.exitCode = a:data
+    let self.job_finished = 1
+    let self.exit_code = a:data
     if has_key(opts, 'exit_cb')
       call opts.exit_cb(self, job_id, data, event)
     endif
   endfunction
 
-  call extend(a:opts.cmdopts, {'term':self, 'on_exit':self.onExit})
+  call extend(a:opts.cmdopts, {'term':self, 'on_exit':self.on_exit})
   let self.job = termopen(a:opts.cmd, a:opts.cmdopts)
   let self.cmd = a:opts.cmd
   let self.cmdopts = a:opts.cmdopts
 endfunction
 
-function! s:term.postOpen() abort
-  if self.autoInsert && !has_key(self, 'cmd')
+function! s:term.post_open() abort
+  if self.auto_insert && !has_key(self, 'cmd')
     normal! i
   endif
 endfunction
 
-function! s:term.doHide() abort
+function! s:term.do_hide() abort
   hide
 endfunction
 

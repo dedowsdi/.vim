@@ -23,13 +23,13 @@ onoremap <buffer> af :normal vaf<cr>
 onoremap <buffer> if :normal vif<cr>
 
 " operator
-nnoremap ,f :set opfunc=misc#op#clangFormat<cr>g@
-vnoremap ,f  :<c-u>call misc#op#clangFormat(visualmode(), 1)<cr>
+nnoremap ,f :set opfunc=misc#op#clang_format<cr>g@
+vnoremap ,f  :<c-u>call misc#op#clang_format(visualmode(), 1)<cr>
 nmap <expr> ,ff ',f' . v:count1 . '_'
 
 " external application
-nnoremap <buffer> <leader>aa :CppApitrace
-nnoremap <buffer> <leader>al :CppOpenLastApitrace
+nnoremap <buffer> <leader>aa :CppApitrace<cr>
+nnoremap <buffer> <leader>al :CppOpenLastApitrace<cr>
 nnoremap <buffer> <leader>ar :CppRenderdoc<cr>
 nnoremap <buffer> <leader>an :CppNNL<cr>
 
@@ -37,12 +37,12 @@ nnoremap <buffer> <leader>an :CppNNL<cr>
 " nnoremap <f4>  :YcmCompleter GetType<cr>
 nnoremap <buffer> <c-j>      :call <sid>fzf_cpp_btags()<cr>
 nnoremap <buffer> <a-o>      :CdefSwitchFile<cr>
-nnoremap <buffer> <c-f7>     :YcmDiags<cr>
+" nnoremap <buffer> <c-f7>     :YcmDiags<cr>
 inoremap <buffer> <c-l>      ->
 nnoremap <buffer> <f8>       :CdefSwitch<cr>
 nnoremap <buffer> <leader>ed :CdefDef<cr>
 vnoremap <buffer> <leader>ed :CdefDef<cr>
-nnoremap <buffer> <leader>ei :call mycpp#manualInclude()<cr>
+nnoremap <buffer> <leader>ei :call mycpp#manual_include()<cr>
 nnoremap <buffer> <s-f7>     :CppMakeFileName<cr>
 
 if !exists(':FZF')

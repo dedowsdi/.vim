@@ -6,6 +6,8 @@ autocmd!
 scriptencoding utf-8
 set list listchars=trail:┄,tab:†·,extends:>,precedes:<,nbsp:+
 scriptencoding
+" set signcolumn=yes
+set updatetime=300
 set ttimeout ttimeoutlen=5 timeoutlen=1000
 set number ruler novisualbell showmode showcmd hidden mouse=a background=dark
 set incsearch ignorecase smartcase
@@ -57,7 +59,6 @@ else
   set viminfo='500,<50,s10,h
   " viminfo= doesn't expand environment variable, check n of viminfo for detail
   let &viminfo .= ',r'.$VIMRUNTIME.'/doc'
-  packadd termdebug
 endif
 
 call misc#terminal#setup()
@@ -267,7 +268,7 @@ function! s:fzf(fzf_default_cmd, cmd)
 endfunction
 
 let g:fzf_file_project = 'find . \( -name ".hg" -o -name ".git" -o
-            \ -name "build" -o -name ".vscode" \) -prune -o -type f -print'
+            \ -name "build" -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
 
 " tex
 let g:tex_flavor = 'latex'
@@ -306,25 +307,25 @@ function! s:omap(to)
 endfunction
 
 " text object
-vnoremap aa :<C-U>silent! call misc#to#selCurArg({})<cr>
-vnoremap ia :<C-U>silent! call misc#to#selCurArg({'excludeSpace':1})<cr>
+vnoremap aa :<C-U>silent! call misc#to#sel_cur_arg({})<cr>
+vnoremap ia :<C-U>silent! call misc#to#sel_cur_arg({'excludeSpace':1})<cr>
 onoremap <expr> ia <sid>omap('ia')
 onoremap <expr> aa <sid>omap('aa')
-vnoremap al :<C-U>silent! call misc#to#selLetter()<cr>
+vnoremap al :<C-U>silent! call misc#to#sel_letter()<cr>
 onoremap <expr> al <sid>omap('al')
-vnoremap il :<C-U>silent! call misc#to#selLetter()<cr>
+vnoremap il :<C-U>silent! call misc#to#sel_letter()<cr>
 onoremap <expr> il <sid>omap('il')
 vnoremap ic :<c-u>call misc#to#column()<cr>
 onoremap <expr> ic <sid>omap('ic')
 
 " circumvent count, register changes
-function! s:setupOpfunc(func)
+function! s:setup_opfunc(func)
   let &opfunc = a:func
   return 'g@'
 endfunction
 
-function! s:addOp(key, func)
-  exe printf('nnoremap <expr> %s <sid>setupOpfunc("%s")', a:key, a:func)
+function! s:add_op(key, func)
+  exe printf('nnoremap <expr> %s <sid>setup_opfunc("%s")', a:key, a:func)
   exe printf('vnoremap %s :<c-u>call %s(visualmode(), 1)<cr>', a:key, a:func)
 endfunction
 
@@ -347,15 +348,15 @@ onoremap ,w  :normal v,w<cr>
 onoremap ,b  :normal v,b<cr>
 nnoremap ,,  ,
 
-call s:addOp(',l', 'misc#op#searchLiteral')
-call s:addOp(',s', 'misc#op#substitude')
-call s:addOp(',S', 'misc#op#system')
-call s:addOp(',<bar>', 'misc#op#column')
+call s:add_op(',l', 'misc#op#searchLiteral')
+call s:add_op(',s', 'misc#op#substitude')
+call s:add_op(',S', 'misc#op#system')
+call s:add_op(',<bar>', 'misc#op#column')
 nmap     ,sl :let @/="\\v<".expand("<cword>").">"<cr>vif:s/<c-r><c-/>/
 nmap     ,s} :let @/="\\v<".expand("<cword>").">"<cr>vi}:s/<c-r><c-/>/
 nmap     ,s{ ,s}
-call s:addOp(',G', 'misc#op#literalGrep')
-call s:addOp(',g', 'misc#op#searchInBrowser')
+call s:add_op(',G', 'misc#op#literalGrep')
+call s:add_op(',g', 'misc#op#searchInBrowser')
 
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap -- :edit $MYVIMRC<cr>
@@ -439,6 +440,7 @@ call plug#end()
 
 let g:gruvbox_number_column='bg1'
 colorscheme gruvbox
+packadd termdebug
 
 function! s:less(cmd)
   exec 'e ' . tempname()
@@ -447,10 +449,10 @@ function! s:less(cmd)
 endfunction
 
 " some tiny util
-command! -nargs=+ LinkVimHelp let @+ = misc#createVimhelpLink(<q-args>)
-command! -nargs=+ LinkNvimHelp let @+ = misc#createNvimhelpLink(<q-args>)
-command! UpdateVimHelpLink call misc#updateLink(0)
-command! UpdateNvimHelpLink call misc#updateLink(1)
+command! -nargs=+ LinkVimHelp let @+ = misc#create_vimhelp_link(<q-args>)
+command! -nargs=+ LinkNvimHelp let @+ = misc#create_nvimhelp_link(<q-args>)
+command! UpdateVimHelpLink call misc#update_link(0)
+command! UpdateNvimHelpLink call misc#update_link(1)
 command! -nargs=* EditTemp e `=tempname().'_'.<q-args>`
 command! Synstack echo misc#synstack()
 command! SynID echo synIDtrans(synID(line('.'), col('.'), 1))

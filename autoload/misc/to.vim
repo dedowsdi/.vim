@@ -5,142 +5,142 @@
 "
 " search starts at current cursor.
 "
-" opts : {excludeSpace:1, delim:',', guard:'()', 'jumpPairs':[(),[],{},<>}
-function! misc#to#getArgs(opts) abort
+" opts : {exclude_space:1, delim:',', guard:'()', 'jump_pairs':[(),[],{},<>}
+function! misc#to#get_args(opts) abort
 
-  let curPos = getpos('.') | try
+  let cur_pos = getpos('.') | try
 
     let delim = get(a:opts, 'delim', ',')
     let guard = get(a:opts, 'guard', '()')
-    let excludeSpace = get(a:opts, 'excludeSpace', 1)
-    let jumpPairs = get(a:opts, 'jumpPairs', ['()','[]','{}','<>'])
-    let [leftGuard, rightGuard] = [guard[0], guard[1]]
-    let totalRange = [[0,0], [0,0]]
-    let argRanges = []
+    let exclude_space = get(a:opts, 'exclude_space', 1)
+    let jump_pairs = get(a:opts, 'jump_pairs', ['()','[]','{}','<>'])
+    let [left_guard, right_guard] = [guard[0], guard[1]]
+    let total_range = [[0,0], [0,0]]
+    let arg_ranges = []
 
-    let [leftPairs, rightPairs] = ['', '']
-    for item in jumpPairs
-      let leftPairs .= item[0]
-      let rightPairs .= item[1]
+    let [left_pairs, right_pairs] = ['', '']
+    for item in jump_pairs
+      let left_pairs .= item[0]
+      let right_pairs .= item[1]
     endfor
 
-    if misc#getCC() == rightGuard
-      call misc#charLeft()
+    if misc#get_c_c() == right_guard
+      call misc#char_left()
     endif
     "goto left guard first
-    if !misc#searchOverPairs(leftGuard, rightPairs, 'bcW')|return []|endif
-    let totalRange[0] = getpos('.')
-    call misc#charRight() " move away from (
-    let argRangeStart = getpos('.')
-    call misc#charLeft() " move back to (
+    if !misc#search_over_pairs(left_guard, right_pairs, 'bcW')|return []|endif
+    let total_range[0] = getpos('.')
+    call misc#char_right() " move away from (
+    let arg_range_start = getpos('.')
+    call misc#char_left() " move back to (
 
     "find item ranges and right guard
-    while misc#searchOverPairs(rightGuard.delim, leftPairs, 'W')
-      let c = misc#getCC()
+    while misc#search_over_pairs(right_guard.delim, left_pairs, 'W')
+      let c = misc#get_c_c()
       if c ==# delim
-        call misc#charLeft()  " move cursor away from ','
-        let argRanges += [[argRangeStart, getpos('.') ]]
-        call misc#charRight(2) " move cursor forward away from ','
-        let argRangeStart = getpos('.')
-        call misc#charLeft()  " move cursor back to  ','
+        call misc#char_left()  " move cursor away from ','
+        let arg_ranges += [[arg_range_start, getpos('.') ]]
+        call misc#char_right(2) " move cursor forward away from ','
+        let arg_range_start = getpos('.')
+        call misc#char_left()  " move cursor back to  ','
       else
-        let totalRange[1] = getpos('.')
-        call misc#charLeft()  " move cursor back away from ','
-        let argRanges += [[argRangeStart, getpos('.')]]
+        let total_range[1] = getpos('.')
+        call misc#char_left()  " move cursor back away from ','
+        let arg_ranges += [[arg_range_start, getpos('.')]]
         break
       endif
     endwhile
 
     "find current item index
-    let [argIndex, size]  = [0, len(argRanges)]
-    while argIndex != size
-      let range = argRanges[argIndex]
-      if misc#cmpPos(range[0], curPos) <= 0 && misc#cmpPos(range[1], curPos) >=0
+    let [arg_index, size]  = [0, len(arg_ranges)]
+    while arg_index != size
+      let range = arg_ranges[arg_index]
+      if misc#cmp_pos(range[0], cur_pos) <= 0 && misc#cmp_pos(range[1], cur_pos) >=0
         break
       endif
-      let argIndex += 1
+      let arg_index += 1
     endwhile
 
-    "set argIndex to -1 if it's invalid
-    if argIndex == len(argRanges) | let argIndex = -1 | endif
+    "set arg_index to -1 if it's invalid
+    if arg_index == len(arg_ranges) | let arg_index = -1 | endif
 
     "exclude space after find current item, allow current character to be space
-    if excludeSpace
-      for range in argRanges
-        "carefule here, don't use let range = misc#trimRange(range)
-        let trimedRange = misc#trimRange(range)
-        let [range[0], range[1]] = [trimedRange[0], trimedRange[1] ]
+    if exclude_space
+      for range in arg_ranges
+        "carefule here, don't use let range = misc#trim_range(range)
+        let trimed_range = misc#trim_range(range)
+        let [range[0], range[1]] = [trimed_range[0], trimed_range[1] ]
       endfor
     endif
 
-    return [argIndex, totalRange, argRanges]
+    return [arg_index, total_range, arg_ranges]
 
-  finally | call setpos('.', curPos) | endtry
+  finally | call setpos('.', cur_pos) | endtry
 endfunction
 
 " visual select cur arg, by default space included
-function! misc#to#selCurArg(opts) abort
-  call extend(a:opts, {'excludeSpace':0}, 'keep')
-  let ranges = misc#to#getArgs(a:opts)
+function! misc#to#sel_cur_arg(opts) abort
+  call extend(a:opts, {'exclude_space':0}, 'keep')
+  let ranges = misc#to#get_args(a:opts)
 
   if ranges == [] | call misc#warn('illigal range') | return | endif
 
-  let [argIndex, totalRange, argRanges] = [ranges[0], ranges[1], ranges[2]]
-  if argIndex == -1
-    call misc#warn('you should not place your cursor at ' . misc#getCC() )
+  let [arg_index, total_range, arg_ranges] = [ranges[0], ranges[1], ranges[2]]
+  if arg_index == -1
+    call misc#warn('you should not place your cursor at ' . misc#get_c_c() )
     return
   endif
 
-  let curArgRange = ranges[2][argIndex]
-  call misc#visualSelect(curArgRange, 'v')
+  let cur_arg_range = ranges[2][arg_index]
+  call misc#visual_select(cur_arg_range, 'v')
 endfunction
 
 " opts{direction:'h or l' , delim: default to ","
-" jumpPairs: default to ["()","[]","{}","<>"], guard : default to "()",
-" cursorAction : 'argFirstChar'(default), 'argLastChar', 'static' }
-function! misc#to#bubbleArg(opts) abort
+" jump_pairs: default to ["()","[]","{}","<>"], guard : default to "()",
+" cursor_action : 'arg_first_char'(default), 'arg_last_char', 'static' }
+function! misc#to#bubble_arg(opts) abort
 
-  let args = misc#to#getArgs(a:opts)
+  let args = misc#to#get_args(a:opts)
   if args == [] | call misc#warn('illigal range')| return | endif
 
   let direction = get(a:opts, 'direction', 'h')
-  let cursorActoin = get(a:opts, 'cursorAction', 'argFirstChar')
+  let cursor_actoin = get(a:opts, 'cursor_action', 'arg_first_char')
 
-  let [argIndex, totalRange, argRanges] = [args[0], args[1], args[2]]
-  if argIndex == -1
-    call misc#warn('you should not place your cursor at ' . misc#getCC() )  | return
+  let [arg_index, total_range, arg_ranges] = [args[0], args[1], args[2]]
+  if arg_index == -1
+    call misc#warn('you should not place your cursor at ' . misc#get_c_c() )  | return
   endif
 
-  let targetIndex = direction ==# 'h' ? argIndex - 1 : argIndex + 1
-  if targetIndex < 0
-    let targetIndex = len(argRanges) - 1
-  elseif targetIndex >= len(argRanges)
-    let targetIndex = 0
+  let target_index = direction ==# 'h' ? arg_index - 1 : arg_index + 1
+  if target_index < 0
+    let target_index = len(arg_ranges) - 1
+  elseif target_index >= len(arg_ranges)
+    let target_index = 0
   endif
-  call misc#swapRange(argRanges[argIndex], argRanges[targetIndex], 'v')
+  call misc#swap_range(arg_ranges[arg_index], arg_ranges[target_index], 'v')
 
   " place cursor
-  if cursorActoin !=# 'static'
+  if cursor_actoin !=# 'static'
      " cursor might in inner () after bubble, to be safe, place it at outmost (
-     call setpos('.', totalRange[0])
+     call setpos('.', total_range[0])
      " get new args
-     let args = misc#to#getArgs(a:opts)
-     let targetRange = args[2][targetIndex]
-     if cursorActoin ==# 'argFirstChar'
+     let args = misc#to#get_args(a:opts)
+     let target_range = args[2][target_index]
+     if cursor_actoin ==# 'arg_first_char'
        "place cursor at 1st non blank character in this arg
-       call setpos('.', targetRange[0]) |  call search('\v\S', 'cW')
-     elseif cursorActoin ==# 'argLastChar'
+       call setpos('.', target_range[0]) |  call search('\v\S', 'cW')
+     elseif cursor_actoin ==# 'arg_last_char'
        "place cursor at last non blank character in this arg
-       call setpos('.', targetRange[1]) | call search('\v\S', 'bcW')
+       call setpos('.', target_range[1]) | call search('\v\S', 'bcW')
      endif
   endif
 
 endfunction
 
 "\w and \d only
-function! misc#to#selLetter() abort
+function! misc#to#sel_letter() abort
   let pattern = '\v[a-zA-Z]+'
-  if misc#getCC() !~# pattern | return -1 | endif
+  if misc#get_c_c() !~# pattern | return -1 | endif
   call search(pattern, 'bc')
   normal! v
   call search(pattern, 'ce')  " \w+ will jump to next word if it's a single letter
@@ -149,12 +149,12 @@ endfunction
 
 function! misc#to#column() abort
   exec "norm! \<c-v>"
-  if misc#getCC() !~# '\s'
+  if misc#get_c_c() !~# '\s'
     call misc#mo#vertical_motion('E')
   else
     " doesn't exist or is blank
     call misc#mo#vertical_motion('S')
-    if misc#getCC() !~# '\s'
+    if misc#get_c_c() !~# '\s'
       norm! k
     endif
   endif
@@ -163,7 +163,7 @@ endfunction
 " select lines if current line is between patterns, otherwise do nothing
 " style : 0 : use ai to include or exclude pattern line
 " style : 1 : use ai to include or exclude space
-function! misc#to#selLines(pattern0, pattern1, ai, style)
+function! misc#to#sel_lines(pattern0, pattern1, ai, style)
   let cpos = getcurpos()
 
   try
@@ -224,11 +224,11 @@ endfunction
 " ov : o for omap, v for v map
 " jk : j or k or jk. j for down, k for up.
 " visuall block wisely select current column until blank line.
-"function! misc#to#selColumn(ov, jk) abort
-  "let [curVnum, curLnum, colLnum0, colLnum1, lnum] =
+"function! misc#to#sel_column(ov, jk) abort
+  "let [cur_vnum, cur_lnum, col_lnum0, col_lnum1, lnum] =
               "\ [virtcol('.')] + repeat([line('.')], 4)
   "" do nothing if cursor in blank
-  "if misc#getV(curLnum, curVnum) =~# '\v\s'
+  "if misc#get_v(cur_lnum, cur_vnum) =~# '\v\s'
     "if a:ov ==# 'v' | exec 'normal! ' | endif | return
   "endif
 
@@ -236,25 +236,25 @@ endfunction
   "if stridx(a:jk, 'j') != -1
     "while 1
       "let lnum = lnum + 1
-      "if lnum > line('$') || misc#getV(lnum, curVnum) =~# '\v^$|\s'
-        "let colLnum1 = lnum - 1 | break
+      "if lnum > line('$') || misc#get_v(lnum, cur_vnum) =~# '\v^$|\s'
+        "let col_lnum1 = lnum - 1 | break
       "endif
     "endwhile
   "endif
 
   "" get column start
   "if stridx(a:jk, 'k') != -1
-    "let lnum = curLnum
+    "let lnum = cur_lnum
     "while 1
       "let lnum = lnum - 1
-      "if lnum <= 0 || misc#getV(lnum, curVnum) =~# '\v^$|\s'
-        "let colLnum0 = lnum + 1 | break
+      "if lnum <= 0 || misc#get_v(lnum, cur_vnum) =~# '\v^$|\s'
+        "let col_lnum0 = lnum + 1 | break
       "endif
     "endwhile
   "endif
 
   "" visual select
-  "call cursor(colLnum0, col('.'))
+  "call cursor(col_lnum0, col('.'))
   "exec "normal! \<c-v>"
-  "call cursor(colLnum1, col('.'))
+  "call cursor(col_lnum1, col('.'))
 "endfunction

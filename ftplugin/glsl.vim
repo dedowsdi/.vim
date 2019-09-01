@@ -45,5 +45,4 @@ vnoremap <buffer> if :<C-U>silent! call cdef#selPf('i')<cr>
 onoremap <buffer> af :normal vaf<cr>
 onoremap <buffer> if :normal vif<cr>
 
-nnoremap <buffer> <c-j> :call G_fzf_cpp_btags()<cr>
 nnoremap <buffer> <a-o> :call myglsl#alternate()<cr>

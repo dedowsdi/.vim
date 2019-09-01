@@ -1,14 +1,14 @@
-let g:termType = get(g:, 'termType', '')
-if empty(g:termType)
-  let g:termType = has('nvim') ? 'nvim' : 'vim'
+let g:term_type = get(g:, 'term_type', '')
+if empty(g:term_type)
+  let g:term_type = has('nvim') ? 'nvim' : 'vim'
 endif
 
-let s:jtermLayout = get(g:, 'miscJtermLayout', {})
-call extend(s:jtermLayout, {'position':'bot' , 'psize':0.4}, 'keep')
-let s:gtermLayout = get(g:, 'miscGtermLayout', {})
-call extend(s:gtermLayout, {'position':'bot', 'psize':0.5}, 'keep')
+let s:jterm_layout = get(g:, 'misc_jterm_layout', {})
+call extend(s:jterm_layout, {'position':'bot' , 'psize':0.4}, 'keep')
+let s:gterm_layout = get(g:, 'misc_gterm_layout', {})
+call extend(s:gterm_layout, {'position':'bot', 'psize':0.5}, 'keep')
 
-let s:term = {'jobFinished':0}
+let s:term = {'job_finished':0}
 
 " a jterm represents a job term
 let s:jterms=[]
@@ -21,7 +21,7 @@ function! misc#term#new()
 endfunction
 
 function! s:term.toggle() abort
-  if self.isOpen()
+  if self.is_open()
     call self.hide()
   else
     call self.open()
@@ -29,7 +29,7 @@ function! s:term.toggle() abort
 endfunction
 
 function! s:term.done() abort
-  return self.jobFinished
+  return self.job_finished
 endfunction
 
 " opts: { cmd:, cmdopts:, switch: }
@@ -41,7 +41,7 @@ function! misc#term#jtermopen(opts) abort
 
   let oldwinid = win_getid()
 
-  call extend(a:opts, {'cmdopts':{}, 'layout':s:jtermLayout, 'switch':0, 'list':s:jterms}, 'keep')
+  call extend(a:opts, {'cmdopts':{}, 'layout':s:jterm_layout, 'switch':0, 'list':s:jterms}, 'keep')
   let jterm = s:spawn(a:opts)
 
   let s:jterms += [jterm]
@@ -53,7 +53,7 @@ function! misc#term#jtermopen(opts) abort
   return jterm
 endfunction
 
-function! misc#term#closeFinished() abort
+function! misc#term#close_finished() abort
   for jt in s:jterms
     if jt.done()
       call jt.close()
@@ -61,7 +61,7 @@ function! misc#term#closeFinished() abort
   endfor
 endfunction
 
-function! misc#term#closeAll() abort
+function! misc#term#close_all() abort
   for jt in s:jterms
     call jt.close()
   endfor
@@ -69,11 +69,11 @@ endfunction
 
 function! s:spawn(opts) abort
 
-  call extend(a:opts, {'layout': s:gtermLayout}, 'keep')
+  call extend(a:opts, {'layout': s:gterm_layout}, 'keep')
 
-  if g:termType ==# 'vim'
+  if g:term_type ==# 'vim'
     return misc#term#vim#spawn(a:opts)
-  elseif g:termType ==# 'nvim'
+  elseif g:term_type ==# 'nvim'
     return misc#term#nvim#spawn(a:opts)
   else
     return misc#term#tmux#spawn(a:opts)
@@ -81,7 +81,7 @@ function! s:spawn(opts) abort
 
 endfunction
 
-function! misc#term#toggleGterm() abort
+function! misc#term#toggle_gterm() abort
   if type(s:gterm) != v:t_dict
     let s:gterm = {}
   endif

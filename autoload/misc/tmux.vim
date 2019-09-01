@@ -23,12 +23,12 @@ endfunction
 " string in keys will be surround with '', be careful with that
 function! misc#tmux#send(keys, ...)
   let target = a:0 > 0 ? ('-t ' . a:1) : ''
-  let keyString = "'" . join(a:keys, "' '") . "'"
+  let key_string = "'" . join(a:keys, "' '") . "'"
   return misc#tmux#exe(
-        \ printf('send-keys %s %s', target, keyString))
+        \ printf('send-keys %s %s', target, key_string))
 endfunction
 
-function! misc#tmux#lastPaneId() abort
+function! misc#tmux#last_pane_id() abort
   return trim(system(
         \ misc#tmux#cmd() . 'display-message -p -t {last} -F "#{pane_id}"'))
 endfunction
@@ -36,19 +36,19 @@ endfunction
 " split and come back, return new pane id
 function! misc#tmux#split(args) abort
   cal misc#tmux#exe(printf('split-window %s', a:args))
-  return misc#tmux#pane(misc#tmux#currentPaneId())
+  return misc#tmux#pane(misc#tmux#current_pane_id())
 endfunction
 
 " vim wrap
 function! misc#tmux#pane(...)
-  let paneId = get(a:000, 0, misc#tmux#currentPaneId())
+  let pane_id = get(a:000, 0, misc#tmux#current_pane_id())
   let pane = deepcopy(s:pane)
-  let pane.pane_id = paneId
+  let pane.pane_id = pane_id
   call pane.realize()
   return pane
 endfunction
 
-function! misc#tmux#currentPaneId()
+function! misc#tmux#current_pane_id()
   return trim(system(misc#tmux#cmd() . 'display-message -p -F "#{pane_id}"'))
 endfunction
 
@@ -97,20 +97,20 @@ function! s:pane.window_id()
   return self.message('#{window_id}')
 endfunction
 
-function! s:pane.isActive()
+function! s:pane.is_active()
   return self.message('#{pane_active}') == 1
 endfunction
 
-function! s:pane.isWindowActive()
+function! s:pane.is_window_active()
   return self.message('#{window_active}') == 1
 endfunction
 
-function! s:pane.targetString()
+function! s:pane.target_string()
   return ' -t ' . self.pane_id
 endfunction
 
 function! s:pane.select()
-  call self.exe('select-pant ' . self.targetString())
+  call self.exe('select-pant ' . self.target_string())
 endfunction
 
 function! s:pane.hide()
@@ -118,7 +118,7 @@ function! s:pane.hide()
 endfunction
 
 function! s:pane.kill()
-  call self.exe('kill-pane ' . self.targetString())
+  call self.exe('kill-pane ' . self.target_string())
 endfunction
 
 function! s:pane.last_pane()
@@ -126,7 +126,7 @@ function! s:pane.last_pane()
 endfunction
 
 " args : -t target -h -p percent
-function! s:pane.join(targetPane, args)
-  call self.exe(printf('join-pane -s %s -t %s %s', self.pane_id, a:targetPane, a:args))
+function! s:pane.join(target_pane, args)
+  call self.exe(printf('join-pane -s %s -t %s %s', self.pane_id, a:target_pane, a:args))
   "call self.last_pane()
 endfunction

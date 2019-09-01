@@ -1,14 +1,14 @@
 
 let myglsl#sequence = ['vert', 'geom', 'frag']
 
-let myglsl#shaderTypeDict = {
+let myglsl#shader_type_dict = {
       \ 'vert' : ['vs', 'vert'],
       \ 'geom' : ['gs', 'geom'],
       \ 'frag' : ['fs', 'frag']
       \ }
 
-function! s:getShaderType(name) abort
-  for [type, values] in items(g:myglsl#shaderTypeDict)
+function! s:get_shader_type(name) abort
+  for [type, values] in items(g:myglsl#shader_type_dict)
     for value in values
       if value == a:name
         return type
@@ -37,27 +37,27 @@ function! myglsl#alternate() abort
     let postfix = '.' . names[-1]
   endif
 
-  let type = s:getShaderType(type)
+  let type = s:get_shader_type(type)
   if type ==# ''
     echom printf('illegal filename %s', filename)
     return
   endif
 
   let idx = index(g:myglsl#sequence, type)
-  let nextIdx = (idx+1)%len(g:myglsl#sequence)
+  let next_idx = (idx+1)%len(g:myglsl#sequence)
 
-  while nextIdx != idx
-    let nextType = g:myglsl#sequence[nextIdx]
+  while next_idx != idx
+    let next_type = g:myglsl#sequence[next_idx]
 
-    for name in g:myglsl#shaderTypeDict[nextType]
-      let altFilename = printf('%s%s%s', prefix, name, postfix)
-      let altPath = printf('%s/%s', dir, altFilename)
-      if filereadable(altPath)
-        exec printf('edit %s', altPath)
+    for name in g:myglsl#shader_type_dict[next_type]
+      let alt_filename = printf('%s%s%s', prefix, name, postfix)
+      let alt_path = printf('%s/%s', dir, alt_filename)
+      if filereadable(alt_path)
+        exec printf('edit %s', alt_path)
         return 1
       endif
     endfor
-    let nextIdx = (nextIdx+1)%len(g:myglsl#sequence)
+    let next_idx = (next_idx+1)%len(g:myglsl#sequence)
 
   endwhile
 

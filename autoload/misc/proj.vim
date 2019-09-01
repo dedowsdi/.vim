@@ -1,4 +1,4 @@
-function misc#proj#loadMap(type)
+function misc#proj#load_map(type)
   if a:type ==# 'c'
     nnoremap <f5> :CppMakeRun<cr>
     nnoremap <c-f5> :CppDebug<cr>

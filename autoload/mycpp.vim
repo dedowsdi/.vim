@@ -1,32 +1,30 @@
-let g:mycppCompiler = ($CC =~# '\v.*clang$' || $CXX =~# '\v.*clang\+\+$') ? 'clang' : 'gcc'
-
 let s:pjcfg = fnamemodify('./.vim/project.json', '%:p')
-let s:lastTarget = ''
+let s:last_target = ''
 let s:debug_term = {}
 
-function! mycpp#getBuildDir() abort
-  return fnamemodify(g:mycppBuildDir, ':p')
+function! mycpp#get_build_dir() abort
+  return fnamemodify(g:mycpp_build_dir, ':p')
 endfunction
 
-function! mycpp#getTarget(target)
-  let targetObj = filereadable(s:pjcfg) ?
+function! mycpp#get_target(target)
+  let target_obj = filereadable(s:pjcfg) ?
         \ get(json_decode(join(readfile(s:pjcfg), "\n")), a:target, {}) : {}
-  call extend(targetObj, {'name':a:target, 'make':'-j 2', 'exe_args':''}, 'keep')
-  return targetObj
+  call extend(target_obj, {'name':a:target, 'make_args':'-j 3', 'exe_args':''}, 'keep')
+  return target_obj
 endfunction
 
 " command complete
-function! mycpp#makeComplete(ArgLead, CmdLine, CursorPos) abort
-  return sort(filter(mycpp#getMakeTargets(), 'stridx(v:val, a:ArgLead)==0'))
+function! mycpp#make_complete(arg_lead, cmd_line, cursor_pos) abort
+  return sort(filter(mycpp#get_make_targets(), 'stridx(v:val, a:arg_lead)==0'))
 endfunction
 
-function! mycpp#makePPComplete(ArgLead, CmdLine, CursorPos) abort
-  let l = split(a:CmdLine, '\v\s+', 1)
+function! mycpp#make_pp_complete(arg_lead, cmd_line, cursor_pos) abort
+  let l = split(a:cmd_line, '\v\s+', 1)
   if l[0] ==# ''
     call remove(l, 0)
   endif
-  let makeDir = len(l) < 3 ? mycpp#getBuildDir() : mycpp#getTargetPath(l[1]).makePath
-  return sort(filter(mycpp#getMakeTargets(makeDir), 'stridx(v:val, a:ArgLead)==0'))
+  let make_dir = len(l) < 3 ? mycpp#get_build_dir() : mycpp#get_target_path(l[1]).make_path
+  return sort(filter(mycpp#get_make_targets(make_dir), 'stridx(v:val, a:arg_lead)==0'))
 endfunction
 
 " jterm, channel for vim8 (close_cb)
@@ -34,32 +32,21 @@ endfunction
 " not working for tmux
 function! s:make_callback(...)
   let jterm = a:1
-  if jterm.exitCode == 0 || !has_key(jterm, 'bufnr')
+  if jterm.exit_code == 0 || !has_key(jterm, 'bufnr')
     call setqflist([])
     return
   endif
   sleep 200ms
-  exe 'cgetbuffer' s:jobTerm.bufnr
+  exe 'cgetbuffer' s:job_term.bufnr
 endfunction
 
-function! mycpp#make(args) abort
-  call mycpp#exe('cd %B && make %t', 1, a:args)
-endfunction
-
-function! mycpp#makePP(target, tu) abort
+function! mycpp#make_pp(target, tu) abort
   call mycpp#exe('cd %m && make ' . a:tu, 1, a:target)
 endfunction
 
-function! mycpp#makeRun(args) abort
-  call mycpp#exe('cd %B && make %t && cd %b &&./%e', 1, a:args)
-endfunction
-
-function! mycpp#makeDebug(args) abort
-  call mycpp#exe('cd %B && make %t && cd %b && gdb ./%e', 1, a:args)
-endfunction
-
 " cmd:
-"   %a : args
+"   %a : exe args
+"   %A : cmd args
 "   %b : binary dir
 "   %B : build dir
 "   %e : executable
@@ -67,24 +54,32 @@ endfunction
 "   %m : deepest make dir
 "   %t : target
 "   %% : literal %
-function! mycpp#exe(cmd, term, args) abort
-  let [target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
-  let targetPath = mycpp#getTargetPath(target)
-  let absExe = targetPath.exePath
-  let makeDir = targetPath.makePath
-  let exe = fnamemodify(absExe, ':t')
-  let binDir = fnamemodify(absExe, ':h')
-  let buildDir = mycpp#getBuildDir()
+function! mycpp#exe(cmd, term, args, ...) abort
+  let exe_arg_idx = get(a:000, 0, 1)
+  let [target, exe_args, cmd_args] = mycpp#parse_command(a:args, exe_arg_idx)
+  let target_path = mycpp#get_target_path(target)
+  let abs_exe = target_path.exe_path
+  let make_dir = target_path.make_path
+  let exe = fnamemodify(abs_exe, ':t')
+  let bin_dir = fnamemodify(abs_exe, ':h')
+  let build_dir = mycpp#get_build_dir()
 
-  let cmd = escape(a:cmd, '"')
-  let cmd = substitute(cmd, '\V\C%a', targetArgs, 'g')
-  let cmd = substitute(cmd, '\V\C%b', binDir,     'g')
-  let cmd = substitute(cmd, '\V\C%B', buildDir,   'g')
-  let cmd = substitute(cmd, '\V\C%e', exe,        'g')
-  let cmd = substitute(cmd, '\V\C%E', absExe,     'g')
-  let cmd = substitute(cmd, '\V\C%m', makeDir,    'g')
-  let cmd = substitute(cmd, '\V\C%t', target,     'g')
-  let cmd = substitute(cmd, '\V\C%%', '%',        'g')
+  if exe ==# '' && a:cmd =~? '\v\%e'
+    echom target 'doesn''t have a corresponding executable file'
+    return
+  endif
+
+  let cmd = escape(a:cmd,   '"')
+  let cmd = substitute(cmd, '\V\C%a', exe_args, 'g')
+  let cmd = substitute(cmd, '\V\C%A', cmd_args, 'g')
+  let cmd = substitute(cmd, '\V\C%b', bin_dir,  'g')
+  let cmd = substitute(cmd, '\V\C%B', build_dir, 'g')
+  let cmd = substitute(cmd, '\V\C%e', exe,      'g')
+  let cmd = substitute(cmd, '\V\C%E', abs_exe,  'g')
+  let cmd = substitute(cmd, '\V\C%m', make_dir,  'g')
+  let cmd = substitute(cmd, '\V\C%t', target,   'g')
+  let cmd = substitute(cmd, '\V\C%%', '%',      'g')
+
   call misc#log#debug(cmd)
 
   if a:term
@@ -103,88 +98,76 @@ function! mycpp#exe(cmd, term, args) abort
 
 endfunction
 
-" Get default make target.
-function! mycpp#getMakeDef() abort
-  return s:lastTarget ==# '' ? mycpp#getMakeTargets()[0] : s:lastTarget
+function! mycpp#get_default_target() abort
+  return s:last_target ==# '' ? mycpp#get_make_targets()[0] : s:last_target
 endfunction
 
 " generate make targets from Makefile
-function! mycpp#getMakeTargets(...) abort
-  let dir = get(a:000, 0, mycpp#getBuildDir())
+function! mycpp#get_make_targets(...) abort
+  let dir = get(a:000, 0, mycpp#get_build_dir())
   let cmd = 'cd ' . dir . ' &&  make help | grep -Po "\.\.\. \K.+"'
   return systemlist(cmd)
 endfunction
 
-function! s:isTarget(target) abort
-  return index(mycpp#getMakeTargets(), a:target) != -1
+function! s:is_target(target) abort
+  return index(mycpp#get_make_targets(), a:target) != -1
 endfunction
 
-function! mycpp#getExe(target) abort
-  return fnamemodify(mycpp#getTargetPath(a:target).exePath, ':t')
-endfunction
-
-function! mycpp#getTargetPath(target) abort
-  if a:target ==# 'all'
-    throw 'all has no target path'
+function! mycpp#get_target_path(target) abort
+  let blank_res = { "make_path" : mycpp#get_build_dir(), "exe_path" : '' }
+  if a:target =~# '\v^all>'
+    return blank_res
   endif
 
-  " if !filereadable(s:pjcfg)
-    " return a:target
-  " endif
-
-  if !s:isTarget(a:target)
-    call misc#warn(a:target . ' is not a valid make target') | return ''
+  if !s:is_target(a:target)
+    call misc#warn(a:target . ' is not a valid make target')
+    return blank_res
   endif
 
-  let buildDir = mycpp#getBuildDir()
+  let build_dir = mycpp#get_build_dir()
 
   " find make_dir/target.dir/CMakeFiles/link.txt
-  let linkTail = printf('CMakeFiles/%s.dir/link.txt', a:target)
-  let cmd = printf('find %s -type f -wholename ''*/%s'' ', buildDir, linkTail)
+  let link_tail = printf('CMakeFiles/%s.dir/link.txt', a:target)
+  let cmd = printf('find %s -type f -wholename ''*/%s'' ', build_dir, link_tail)
   call misc#log#debug(cmd)
-  let linkPath = systemlist(cmd)
+  let link_path = systemlist(cmd)
 
-  if linkPath == []
+  if link_path == []
     echoe 'failed to get link.txt path for target ' . a:target
-  elseif len(linkPath) > 1
+  elseif len(link_path) > 1
     " if you change directory, but ditn't clean cmake cache, you will get multiple
     " link result from above command.
     echoe 'multiple link.txt found for target '
-          \ . a:target . ' : ' . string(linkPath)
+          \ . a:target . ' : ' . string(link_path)
   endif
   if v:shell_error != 0
     throw 'failed to execute : ' . cmd
   endif
 
-  let linkPath = linkPath[0]
-  let makePath = linkPath[ 0 : -len(linkTail) - 1]
+  let link_path = link_path[0]
+  let make_path = link_path[ 0 : -len(link_tail) - 1]
 
-  let cmd = printf('grep -Po ''\s+\-o\s+\K\S+'' ''%s'' ', linkPath)
+  let cmd = printf('grep -Po ''\s+\-o\s+\K\S+'' ''%s'' ', link_path)
   call misc#log#debug(cmd)
-  let exePath = simplify(makePath . systemlist(cmd)[0])
+  let exe_path = simplify(make_path . systemlist(cmd)[0])
   if v:shell_error != 0
     throw 'failed to execute : ' . cmd
   endif
 
-  return { "makePath" : makePath, "exePath" : exePath }
-endfunction
-
-function! mycpp#getArgs()
-  let [target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
-  return targetArgs
+  return { "make_path" : make_path, "exe_path" : exe_path }
 endfunction
 
 " {cmd [,insert]}
 function! mycpp#sendjob(cmd, ...) abort
-  if exists('s:jobTerm')
-    call s:jobTerm.close()
-    unlet s:jobTerm
+  if exists('s:job_term')
+    call s:job_term.close()
+    unlet s:job_term
   endif
   let cmd = a:cmd
   if !has('nvim') | let cmd = printf('bash -c "%s"', cmd) | endif
   let opts = get(a:000, 0, {})
-  call extend(opts, {'cmd':cmd, 'switch':0, 'autoInsert':1}, 'keep')
-  let s:jobTerm = misc#term#jtermopen(opts)
+  call extend(opts, {'cmd':cmd, 'switch':0, 'auto_insert':1}, 'keep')
+  let s:job_term = misc#term#jtermopen(opts)
 endfunction
 
 function! mycpp#run(args) abort
@@ -192,42 +175,58 @@ function! mycpp#run(args) abort
 endfunction
 
 function! mycpp#debug(args) abort
-  let [ target, targetArgs] = mycpp#splitTargetAndArgs(a:args)
-  exec 'Termdebug ' . mycpp#getTargetPath(target).exePath . ' ' . targetArgs
+  let [target, exe_args, cmd_args] = mycpp#parse_command(a:args, 0)
+  let path = mycpp#get_target_path(target)
+  exec 'Termdebug ' . path.exe_path . ' ' . exe_args
+  call term_sendkeys('', printf("set cwd %s\<cr>",
+        \ fnameescape(fnamemodify(path.exe_path, ':h')) ) )
   wincmd p
   wincmd H
+  wincmd p
 endfunction
 
-" return [target, args], args will be predefined args if it's empty
-function! mycpp#splitTargetAndArgs(cmd) abort
+" return [target, exe_args, cmd_args]
+function! mycpp#parse_command(cmd, exe_arg_idx) abort
   if a:cmd ==# ''
-    let target = mycpp#getMakeDef()
-    let targetArgs = mycpp#getTarget(target).exe_args
+    let target = mycpp#get_default_target()
+    let exe_args = ''
+    let cmd_args = ''
   else
-    let l = matchlist(a:cmd, '\v\s*(\S*)\s*(.*)$')
-    let [target, targetArgs ] = [l[1], l[2]]
-    if targetArgs ==# '' | let targetArgs = mycpp#getTarget(target).exe_args | endif
+    let [cmd, target, args; rest] = matchlist(a:cmd, '\v\s*(\S*)\s*(.*)$')
+    let l = split(args, '--')
+    while len(l) < 2
+      call add(l, '')
+    endwhile
+
+    if a:exe_arg_idx >= 2
+      throw 'exe arg index overflow : ' . a:exe_arg_idx
+    endif
+
+    let exe_args = l[a:exe_arg_idx]
+    let cmd_args = l[xor(a:exe_arg_idx, 1)]
+
+    if l[a:exe_arg_idx] ==# ''
+      let exe_args = mycpp#get_target(target).exe_args
+    endif
   endif
-  let s:lastTarget = target
-  return [target, targetArgs]
+
+  if exe_args ==# ''
+    let exe_args = mycpp#get_target(target).exe_args
+  endif
+
+  let s:last_target = target
+
+  return [target, exe_args, cmd_args]
 endfunction
 
 function! mycpp#setLastTarget(target)
-  let s:lastTarget = a:target
+  let s:last_target = a:target
 endfunction
 
-function! mycpp#searchDerived(...) abort
-  let className = get(a:000, 0, expand('<cword>'))
-  if className ==# ''
-    call misc#warn('empty class name') | return
-  endif
-  exec 'Ctags inherits:' . className
-endfunction
-
-function! mycpp#getCmakeCache(name) abort
-  let cacheStr = system('cd ' . mycpp#getBuildDir() . ' && cmake -LA -N ')
-  let rexValue = '\v' . a:name . ':\w+\=\zs.{-}\ze\n'
-  return matchstr(cacheStr, rexValue)
+function! mycpp#get_cmake_cache(name) abort
+  let cache_str = system('cd ' . mycpp#get_build_dir() . ' && cmake -LA -N ')
+  let rex_value = '\v' . a:name . ':\w+\=\zs.{-}\ze\n'
+  return matchstr(cache_str, rex_value)
 endfunction
 
 function! mycpp#cmake()
@@ -240,8 +239,8 @@ endfunction
 
 function! mycpp#openProjectFile() abort
   silent! exec 'edit ' . s:pjcfg
-  if s:lastTarget !=# ''
-    call search(printf('\v^\s*"<%s>"\s*:', s:lastTarget))
+  if s:last_target !=# ''
+    call search(printf('\v^\s*"<%s>"\s*:', s:last_target))
   endif
 endfunction
 
@@ -249,8 +248,8 @@ endfunction
 function! mycpp#gotoLastInclude(...) abort
   "keepjumps normal! G
   let opts = get(a:000, 0, {'jump':0})
-  let jumpFlag = opts.jump ? 's' : ''
-  if !search('\v^\s*#include', 'bW'.jumpFlag)
+  let jump_flag = opts.jump ? 's' : ''
+  if !search('\v^\s*#include', 'bW'.jump_flag)
     "if not found, goto 1st blank line
     keepjumps normal! gg
     if !search('\v^\s*$')
@@ -268,10 +267,6 @@ function! mycpp#createTempTest()
   endif
 endfunction
 
-function! mycpp#manualInclude() abort
-  call mycpp#gotoLastInclude({'jump':1}) | exec 'normal! o#include ' | startinsert!
-endfunction
-
 function mycpp#debugToggleBreak()
   if empty(sign_getplaced('', {'lnum':9, 'group':''})[0].signs)
     Break
@@ -280,34 +275,34 @@ function mycpp#debugToggleBreak()
   endif
 endfunction
 
-function mycpp#debugStep()
+function mycpp#debug_step()
   Step
 endfunction
 
-function mycpp#debugNext()
+function mycpp#debug_next()
   Over
 endfunction
 
-function mycpp#debugContinue()
+function mycpp#debug_continue()
   Continue
 endfunction
 
-function mycpp#debugFinish()
+function mycpp#debug_finish()
   Finish
 endfunction
 
-function mycpp#debugEvaluate()
+function mycpp#debug_evaluate()
   Evaluate
 endfunction
 
-function mycpp#debugStop()
+function mycpp#debug_stop()
   Stop
 endfunction
 
-function mycpp#debugFrameUp()
+function mycpp#_debug_frame_up()
   call TermDebugSendCommand('up')
 endfunction
 
-function mycpp#debugFrameDown()
+function mycpp#debug_frame_down()
   call TermDebugSendCommand('down')
 endfunction
