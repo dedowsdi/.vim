@@ -236,13 +236,17 @@ endif
 let g:pymode_rope_completion = 0
 
 " fzf
+function! s:build_quickfix_list(lines)
+  call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
+  copen | cc
+endfunction
 let g:fzf_action = {
       \ 'ctrl-t': 'tab split',
       \ 'ctrl-x': 'split',
       \ 'ctrl-v': 'vertical rightbelow split',
       \ 'ctrl-a': 'argadd',
       \ 'ctrl-o': '!gvfs-open',
-      \ 'ctrl-q': '!qapitrace'
+      \ 'ctrl-q': function('s:build_quickfix_list')
       \ }
 let g:fzf_layout = {'up':'~40%'}
 
