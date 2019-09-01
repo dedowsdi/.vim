@@ -400,7 +400,7 @@ decltype($0)
 endsnippet
 
 snippet sp "shared pointer" w
-std::shared_ptr<${1:type}>
+std::shared_ptr<${1:${VISUAL}}>
 endsnippet
 
 snippet ms "make shared" w
@@ -442,7 +442,7 @@ endsnippet
 
 snippet r5 "rule of 5" bm
 
-~${1:name};
+~${1:name}();
 
 $1(const $1& v);
 
