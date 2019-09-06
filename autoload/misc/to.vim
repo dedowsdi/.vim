@@ -24,7 +24,7 @@ function! misc#to#get_args(opts) abort
       let right_pairs .= item[1]
     endfor
 
-    if misc#get_c_c() == right_guard
+    if misc#get_cc() == right_guard
       call misc#char_left()
     endif
     "goto left guard first
@@ -36,7 +36,7 @@ function! misc#to#get_args(opts) abort
 
     "find item ranges and right guard
     while misc#search_over_pairs(right_guard.delim, left_pairs, 'W')
-      let c = misc#get_c_c()
+      let c = misc#get_cc()
       if c ==# delim
         call misc#char_left()  " move cursor away from ','
         let arg_ranges += [[arg_range_start, getpos('.') ]]
@@ -87,7 +87,7 @@ function! misc#to#sel_cur_arg(opts) abort
 
   let [arg_index, total_range, arg_ranges] = [ranges[0], ranges[1], ranges[2]]
   if arg_index == -1
-    call misc#warn('you should not place your cursor at ' . misc#get_c_c() )
+    call misc#warn('you should not place your cursor at ' . misc#get_cc() )
     return
   endif
 
@@ -108,7 +108,7 @@ function! misc#to#bubble_arg(opts) abort
 
   let [arg_index, total_range, arg_ranges] = [args[0], args[1], args[2]]
   if arg_index == -1
-    call misc#warn('you should not place your cursor at ' . misc#get_c_c() )  | return
+    call misc#warn('you should not place your cursor at ' . misc#get_cc() )  | return
   endif
 
   let target_index = direction ==# 'h' ? arg_index - 1 : arg_index + 1
@@ -140,7 +140,7 @@ endfunction
 "\w and \d only
 function! misc#to#sel_letter() abort
   let pattern = '\v[a-zA-Z]+'
-  if misc#get_c_c() !~# pattern | return -1 | endif
+  if misc#get_cc() !~# pattern | return -1 | endif
   call search(pattern, 'bc')
   normal! v
   call search(pattern, 'ce')  " \w+ will jump to next word if it's a single letter
@@ -149,12 +149,12 @@ endfunction
 
 function! misc#to#column() abort
   exec "norm! \<c-v>"
-  if misc#get_c_c() !~# '\s'
+  if misc#get_cc() !~# '\s'
     call misc#mo#vertical_motion('E')
   else
     " doesn't exist or is blank
     call misc#mo#vertical_motion('S')
-    if misc#get_c_c() !~# '\s'
+    if misc#get_cc() !~# '\s'
       norm! k
     endif
   endif
@@ -219,6 +219,14 @@ function! misc#to#sel_lines(pattern0, pattern1, ai, style)
   exec startline
   norm! o
   exec endline
+endfunction
+
+function! misc#to#sel_expr() abort
+  if misc#get_cc() !~? '[a-z]'
+    return
+  endif
+  norm! viw
+  call misc#mo#expr()
 endfunction
 
 " ov : o for omap, v for v map

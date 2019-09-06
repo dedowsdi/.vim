@@ -64,7 +64,7 @@ endfun
 function! misc#get_c(lnum, cnum) abort
   return matchstr(getline(a:lnum), '\%' . a:cnum . 'c.')
 endfunction
-function! misc#get_c_c() abort
+function! misc#get_cc() abort
   return misc#get_c(line('.'), col('.'))
 endfunction
 
@@ -90,7 +90,7 @@ function! misc#search_over_pairs(expr, jump_pairs, flags) abort
       let first_time = 0
       let flags = substitute(flags, 'c', '', 'g')
     endif
-    if stridx(a:expr, misc#get_c_c()) != -1
+    if stridx(a:expr, misc#get_cc()) != -1
       return 1
     else
       keepjumps normal! %
@@ -325,12 +325,33 @@ function! misc#create_test_map()
     exec printf('map <buffer> <f%d> :echo "f%d"<cr>', i, i)
     exec printf('map <buffer> <c-f%d> :echo "c-f%d"<cr>', i, i)
     exec printf('map <buffer> <s-f%d> :echo "s-f%d"<cr>', i, i)
-  endfor
-  nnoremap <buffer> <c-left> :echo 'c-left'<cr>
+  endfor nnoremap <buffer> <c-left> :echo 'c-left'<cr>
   nnoremap <buffer> <c-right> :echo 'c-right'<cr>
 endfunction
 
 function! misc#camel_to_underscore(name)
   let s = substitute(a:name, '\v\C^[A-Z]', '\l\0', '')
   return substitute(s, '\v\C[A-Z]', '_\l\0', 'g')
+endfunction
+
+function! misc#complete_expresson(backward)
+  let l = matchlist(getline('.'), printf('\v(.*)(<\w+)\zs%%%dc', col('.')))
+  if empty(l) || l[2] ==# ''
+    return ''
+  endif
+  let start_col = len(l[1])+1
+  let base = l[2]
+
+  let view = winsaveview()
+  norm! B
+  let completions = []
+  while search('\v<'.base, a:backward ? 'bW' : 'W')
+    norm yie
+    let completions += [ @" ]
+    call misc#log#debug('add completion : ' . completions[-1])
+  endwhile
+
+  call winrestview(view)
+  call complete(start_col, completions)
+  return ''
 endfunction

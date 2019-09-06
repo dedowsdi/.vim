@@ -14,7 +14,7 @@ set incsearch ignorecase smartcase
 set concealcursor=vn conceallevel=0
 set autoindent smartindent expandtab smarttab
 set shiftwidth=4 tabstop=8 softtabstop=4
-set showmatch matchtime=3
+set noshowmatch matchtime=3
 set laststatus=2 cmdheight=2 scrolloff=1
 set spell spelllang=en_us dictionary+=spell
 set nrformats=octal,hex,bin
@@ -314,6 +314,8 @@ endfunction
 vnoremap aa :<C-U>silent! call misc#to#sel_cur_arg({})<cr>
 vnoremap ia :<C-U>silent! call misc#to#sel_cur_arg({'excludeSpace':1})<cr>
 onoremap <expr> ia <sid>omap('ia')
+vnoremap ie :<C-U>call misc#to#sel_expr()<cr>
+onoremap <expr> ie <sid>omap('ie')
 onoremap <expr> aa <sid>omap('aa')
 vnoremap al :<C-U>silent! call misc#to#sel_letter()<cr>
 onoremap <expr> al <sid>omap('al')
@@ -350,23 +352,29 @@ vnoremap ,b  :<c-u>exec 'norm! gv' <bar> call misc#mo#vertical_motion('B')<cr>
 onoremap ,e  :normal v,e<cr>
 onoremap ,w  :normal v,w<cr>
 onoremap ,b  :normal v,b<cr>
+nnoremap ,E  :call misc#mo#expr()<cr>
+vnoremap ,E  :<c-u>exec 'norm! gv' <bar> call misc#mo#expr()<cr>
+onoremap ,E  :normal v,E<cr>
 nnoremap ,,  ,
 
-call s:add_op(',l', 'misc#op#searchLiteral')
+call s:add_op(',l', 'misc#op#search_literal')
 call s:add_op(',s', 'misc#op#substitude')
 call s:add_op(',S', 'misc#op#system')
 call s:add_op(',<bar>', 'misc#op#column')
 nmap     ,sl :let @/="\\v<".expand("<cword>").">"<cr>vif:s/<c-r><c-/>/
 nmap     ,s} :let @/="\\v<".expand("<cword>").">"<cr>vi}:s/<c-r><c-/>/
 nmap     ,s{ ,s}
-call s:add_op(',G', 'misc#op#literalGrep')
-call s:add_op(',g', 'misc#op#searchInBrowser')
+call s:add_op(',G', 'misc#op#literal_grep')
+call s:add_op(',g', 'misc#op#search_in_browser')
 
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap -- :edit $MYVIMRC<cr>
 nnoremap Y  y$
 nnoremap K  :exec 'norm! K' <bar> wincmd p<cr>
 nnoremap gc :SelectLastPaste<cr>
+
+inoremap <c-x><c-p> <c-r>=misc#complete_expresson(1)<cr>
+inoremap <c-x><c-n> <c-r>=misc#complete_expresson(0)<cr>
 
 nnoremap <f3>    :set hlsearch!<cr>
 " nnoremap <f4>    :ALEHover<cr>
@@ -395,8 +403,8 @@ imap <a-h> <Left>
 cnoremap <expr> %%  getcmdtype() == ":" ? expand("%:h")."/" : "%%"
 cnoremap <expr> %t  getcmdtype() == ":" ? expand("%:t") : "%t"
 
-nnoremap <leader>tt :call misc#term#toggleGterm()<cr>
-tnoremap <leader>tt <c-\><c-n>:call misc#term#toggleGterm()<cr>
+nnoremap <leader>tt :call misc#term#toggle_gterm()<cr>
+tnoremap <leader>tt <c-\><c-n>:call misc#term#toggle_gterm()<cr>
 nnoremap <leader>th :call misc#term#hideall()<cr>
 tnoremap <leader>th <c-\><c-n>:call misc#term#hideall()<cr>
 nnoremap <leader>yd :YcmShowDetailedDiagnostic<cr>

@@ -38,5 +38,49 @@ function! misc#mo#vertical_motion(motion)
   else
     echohl ErrorMsg | echo 'Not a valid motion: ' . a:motion | echohl None
   endif
-  call search(pattern, flag)
+endfunction
+
+" TODO add setting for different filetype?
+function! s:search_expression() abort
+  if col('.')+1 == col('$')
+    return
+  endif
+
+  let tail = getline('.')[col('.'):]
+  let [next_c, next_2c] = [tail[0], tail[0:1]]
+
+  " only alow space before <{({
+  if tail =~# '\v^\s*[([{<]'
+    norm! l%
+    call s:search_expression()
+
+  " this branch match 'abc()balabala', but that's illegal in most program
+  " language, so it shouldn't matter
+  elseif next_c =~# '\v\w'
+    norm! l
+    call search('\v%#\w*', 'e')
+    call s:search_expression()
+  elseif next_c ==# '.'
+    norm! 2l
+    call search('\v%#\*?\w*', 'ce')
+    call s:search_expression()
+  elseif next_2c =~# '->'
+    norm! 3l
+    call search('\v%#\*?\w*', 'ce')
+    call s:search_expression()
+  elseif next_2c =~# '::'
+    norm! 3l
+    call search('\v%#\*?\w*', 'ce')
+    call s:search_expression()
+  else
+    return
+  endif
+endfunction
+
+function! misc#mo#expr() abort
+  if misc#get_cc() !~? '[a-z]'
+    return
+  endif
+
+  call s:search_expression()
 endfunction
