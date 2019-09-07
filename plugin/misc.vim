@@ -22,7 +22,7 @@ com -nargs=* -complete=customlist,mycpp#make_complete -bar CppApitrace   call my
 com -nargs=* -complete=customlist,mycpp#make_complete CppOpenLastApitrace      call mycpp#exe(s:apitrace_opencmd, 1, <q-args>)
 com -nargs=* -complete=customlist,mycpp#make_complete CppNNL           call mycpp#exe('cd "%b" && nnl --activity="Frame Debugger" --exe="%e" --args="%a" ', 0, <q-args>)
 com -nargs=* -complete=customlist,mycpp#make_complete CppValgrind      call mycpp#exe('cd "%b" && valgrind %A ./%e ', 1, <q-args>)
-com -nargs=+ -complete=customlist,mycpp#makePPComplete CppMakePP  update | call mycpp#make_pp(<f-args>)
+com -nargs=+ -complete=customlist,mycpp#make_pp_complete CppMakePP  update | call mycpp#make_pp(<f-args>)
 com -nargs=0 CppJsonProj                                              call mycpp#open_project_file()
 com -nargs=0 CppSearchDerived                                         call mycpp#search_derived()
 com -nargs=0 CppCmake call mycpp#cmake()

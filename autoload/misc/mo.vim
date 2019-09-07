@@ -38,6 +38,7 @@ function! misc#mo#vertical_motion(motion)
   else
     echohl ErrorMsg | echo 'Not a valid motion: ' . a:motion | echohl None
   endif
+  call search(pattern, flag)
 endfunction
 
 " TODO add setting for different filetype?
@@ -78,7 +79,7 @@ function! s:search_expression() abort
 endfunction
 
 function! misc#mo#expr() abort
-  if misc#get_cc() !~? '[a-z]'
+  if misc#get_cc() !~? '\v\w'
     return
   endif
 

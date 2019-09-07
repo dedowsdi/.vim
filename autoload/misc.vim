@@ -343,7 +343,9 @@ function! misc#complete_expresson(backward)
   let base = l[2]
 
   let view = winsaveview()
-  norm! B
+  if a:backward
+    norm! B
+  endif
   let completions = []
   while search('\v<'.base, a:backward ? 'bW' : 'W')
     norm yie
