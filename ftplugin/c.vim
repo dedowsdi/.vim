@@ -17,8 +17,8 @@ setlocal commentstring=//\ %s
 setlocal formatoptions-=o
 
 " text object
-vnoremap <buffer> af :<C-U>silent! call cdef#selPf('a')<cr>
-vnoremap <buffer> if :<C-U>silent! call cdef#selPf('i')<cr>
+vnoremap <buffer> af :<C-U>silent! call cdef#sel_pf('a')<cr>
+vnoremap <buffer> if :<C-U>silent! call cdef#sel_pf('i')<cr>
 onoremap <buffer> af :normal vaf<cr>
 onoremap <buffer> if :normal vif<cr>
 
@@ -53,9 +53,12 @@ endif
 
 function s:fzf_cpp_btags()
 
-  let fzf_btags_cmd = 'ctags -D "META_Object(library,name)=" -f -
-            \ --excmd=number --sort=no --fields-c++=+{properties}{template}
-            \ --fields=KsSi --kinds-c++=+pUN --links=yes --language-force=c++'
+  let fzf_btags_cmd = 'ctags 
+        \ -D "META_Object(library,name)=" 
+        \ -D "META_ValueObject(value, valueObject)=" 
+        \ -f -
+        \ --excmd=number --sort=no --fields-c++=+{properties}{template}
+        \ --fields=KsSi --kinds-c++=+pUN --links=yes --language-force=c++'
   " display everything except filename and line number.
   " fuzzy search all fields.
   call fzf#vim#buffer_tags(

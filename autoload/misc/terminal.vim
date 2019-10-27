@@ -50,6 +50,8 @@ function! misc#terminal#setup()
       exec printf('set <a-%s>=%s', letter, letter)
     endfor
   endif
+  " set <a-]>=]
+  " set <a-[>=[
 
 endfunction
 

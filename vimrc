@@ -19,7 +19,7 @@ set laststatus=2 cmdheight=2 scrolloff=1
 set spell spelllang=en_us dictionary+=spell
 set nrformats=octal,hex,bin
 set path+=/usr/local/include
-set complete-=i
+set complete-=i pumheight=16
 set backspace=indent,eol,start
 let &backup = !has('vms')
 set wildmenu history=200
@@ -74,6 +74,7 @@ augroup zxd_misc
   autocmd FileType * try | call call('abbre#'.expand('<amatch>'), [])
               \ | catch /.*/ | endtry
               \ | setlocal formatoptions-=o formatoptions+=j
+  autocmd TerminalOpen * setl nonumber norelativenumber
 augroup end
 
 " ------------------------------------------------------------------------------
@@ -262,6 +263,16 @@ function! s:fzf_cpp_tags(...)
 endfunction
 
 command! -nargs=* Ctags :call <SID>fzf_cpp_tags(<q-args>)
+command! -nargs=+ -bang -complete=command FF call fzf#run({
+            \ 'source' : split(execute(<q-args>), "\n"),
+            \ 'sink': function('s:ff_sink'),
+            \ 'options' : <bang>0 ? '--tac' : ''})
+
+" copy into @@, ignore leading index
+function! s:ff_sink(item)
+  let text = substitute(a:item, '\v^\s*\d+\:?\s*', '', '')
+  let @@ = empty(text) ? a:item : text
+endfunction
 
 " change FZF_DEFAULT_COMMAND, execute cmd, restore FZF_DEFALUT_COMMAND
 function! s:fzf(fzf_default_cmd, cmd)
@@ -271,8 +282,36 @@ function! s:fzf(fzf_default_cmd, cmd)
   finally | let $FZF_DEFAULT_COMMAND = oldcmds | endtry
 endfunction
 
+let g:external_files = get(g:, 'external_files', [])
+
+function! s:fzf_external_files()
+  if empty(g:external_files)
+    return
+  endif
+ 
+  let source = 'find "' . join(g:external_files, '" "') . '" \( -name ".hg" -o -name ".git" -o
+            \ -name "build" -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
+  call fzf#run(fzf#wrap({'source' : source}))
+endfunction
+nnoremap <leader>p :call <sid>fzf_external_files()<cr>
+
 let g:fzf_file_project = 'find . \( -name ".hg" -o -name ".git" -o
             \ -name "build" -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
+
+function! s:comp_dir()
+  let location = matchstr( getline('.'), printf('\v\S+%%%dc', col('.')) )
+  if location == ''
+    let location = '.'
+  endif
+  return fzf#vim#complete#word(
+    \ {'source': printf('find "%s" -type d', location)} )
+endfunction
+
+imap <a-x><a-k> <plug>(fzf-complete-word)
+imap <a-x><a-f> <plug>(fzf-complete-path)
+imap <a-x><a-j> <plug>(fzf-complete-file-ag)
+imap <a-x><a-l> <plug>(fzf-complete-line)
+inoremap <expr> <a-x><a-d> <sid>comp_dir()
 
 " tex
 let g:tex_flavor = 'latex'
@@ -312,7 +351,7 @@ endfunction
 
 " text object
 vnoremap aa :<C-U>silent! call misc#to#sel_cur_arg({})<cr>
-vnoremap ia :<C-U>silent! call misc#to#sel_cur_arg({'excludeSpace':1})<cr>
+vnoremap ia :<C-U>silent! call misc#to#sel_cur_arg({'exclude_space':1})<cr>
 onoremap <expr> ia <sid>omap('ia')
 vnoremap ie :<C-U>call misc#to#sel_expr()<cr>
 onoremap <expr> ie <sid>omap('ie')
@@ -366,6 +405,10 @@ nmap     ,s} :let @/="\\v<".expand("<cword>").">"<cr>vi}:s/<c-r><c-/>/
 nmap     ,s{ ,s}
 call s:add_op(',G', 'misc#op#literal_grep')
 call s:add_op(',g', 'misc#op#search_in_browser')
+nnoremap co :call misc#op#omo('c')<cr>
+nnoremap do :call misc#op#omo('d')<cr>
+nnoremap guo :call misc#op#omo('gu')<cr>
+nnoremap gUo :call misc#op#omo('gU')<cr>
 
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap -- :edit $MYVIMRC<cr>
@@ -385,6 +428,7 @@ nnoremap <c-f7>  :ALELint<cr>
 
 nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
 nnoremap <c-j> :BTags<cr>
+nnoremap <a-j> :Ctags<cr>
 nnoremap <c-h> :History<cr>
 nnoremap <c-b> :Buffers<cr>
 nnoremap <c-p> :call <sid>fzf(g:fzf_file_project, ":Files")<cr>
@@ -444,10 +488,11 @@ Plug 'dedowsdi/cdef'
 " Plug 'plasticboy/vim-markdown'
 " Plug 'klen/python-mode'
 " Plug 'pangloss/vim-javascript'
-" Plug 'lervag/vimtex'                   " latex
+Plug 'lervag/vimtex'                   " latex
 " Plug 'Valloric/YouCompleteMe', { 'do': 'python3 ./install.py --clang-completer' }
 " Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 " Plug 'xavierd/clang_complete'
+" Plug 'rhysd/vim-grammarous'
 call plug#end()
 
 let g:gruvbox_number_column='bg1'
@@ -455,16 +500,12 @@ colorscheme gruvbox
 packadd termdebug
 
 function! s:less(cmd)
-  exec 'e ' . tempname()
-  setlocal buftype=nofile nobuflisted noswapfile
+  exec 'vsplit ' . tempname()
+  setlocal buftype=nofile nobuflisted noswapfile bufhidden=hide
   exec printf('put! =execute(''%s'')', substitute(a:cmd, "'", "''", 'g'))
 endfunction
 
 " some tiny util
-command! -nargs=+ LinkVimHelp let @+ = misc#create_vimhelp_link(<q-args>)
-command! -nargs=+ LinkNvimHelp let @+ = misc#create_nvimhelp_link(<q-args>)
-command! UpdateVimHelpLink call misc#update_link(0)
-command! UpdateNvimHelpLink call misc#update_link(1)
 command! -nargs=* EditTemp e `=tempname().'_'.<q-args>`
 command! Synstack echo misc#synstack()
 command! SynID echo synIDtrans(synID(line('.'), col('.'), 1))

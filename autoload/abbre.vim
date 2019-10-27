@@ -1742,330 +1742,547 @@ function! abbre#mygui()
 endfunction
 
 function! abbre#osg()
-  "macro
-  :iab <buffer> ola OSG_ALWAYS << 
-  :iab <buffer> olf OSG_FATAL << 
-  :iab <buffer> olw OSG_WARN << 
-  :iab <buffer> oln OSG_NOTICE << 
-  :iab <buffer> oli OSG_INFO << 
-  :iab <buffer> old OSG_DEBUG << 
-  :iab <buffer> oldf OSG_DEBUG_FP << 
-
-  "osg 
-  :iab <buffer> ospc osg::static_pointer_cast<>()<Left><Left><Left>
-  :iab <buffer> odpc osg::dynamic_pointer_cast<>()<Left><Left><Left>
-  :iab <buffer> ocpc osg::const_pointer_cast<>()<Left><Left><Left>
-  :iab <buffer> o osg::
-  :iab <buffer> od osgDB::
-  :iab <buffer> ou osgUtil::
-  :iab <buffer> or osg::ref_ptr<><Left>
-
+  :iab <buffer> oaf osg::AlphaFunc
+  :iab <buffer> oap osg::AnimationPath
+  :iab <buffer> oapc osg::AnimationPathCallback
+  :iab <buffer> oau osg::ApplicationUsage
+  :iab <buffer> oaup osg::ApplicationUsageProxy
+  :iab <buffer> oap osg::ArgumentParser
+  :iab <buffer> oa osg::Array
+  :iab <buffer> ota osg::TemplateArray
+  :iab <buffer> oia osg::IndexArray
+  :iab <buffer> otia osg::TemplateIndexArray
+  :iab <buffer> oav osg::ArrayVisitor
+  :iab <buffer> ocav osg::ConstArrayVisitor
+  :iab <buffer> ovv osg::ValueVisitor
+  :iab <buffer> ocvv osg::ConstValueVisitor
+  :iab <buffer> oad osg::AttributeDispatch
+  :iab <buffer> oad osg::AttributeDispatchers
+  :iab <buffer> oas osg::AudioSink
+  :iab <buffer> oas osg::AudioStream
+  :iab <buffer> oat osg::AutoTransform
+  :iab <buffer> ob osg::Billboard
+  :iab <buffer> obit osg::BindImageTexture
+  :iab <buffer> obc osg::BlendColor
+  :iab <buffer> obe osg::BlendEquation
+  :iab <buffer> obe osg::BlendEquationi
+  :iab <buffer> obf osg::BlendFunc
+  :iab <buffer> obf osg::BlendFunci
+  :iab <buffer> obbi osg::BoundingBoxImpl
+  :iab <buffer> obsi osg::BoundingSphereImpl
+  :iab <buffer> o_ osg::buffered_value
+  :iab <buffer> o_ osg::buffered_object
+  :iab <buffer> obib osg::BufferIndexBinding
+  :iab <buffer> oubb osg::UniformBufferBinding
+  :iab <buffer> otfbb osg::TransformFeedbackBufferBinding
+  :iab <buffer> oacbb osg::AtomicCounterBufferBinding
+  :iab <buffer> ossbb osg::ShaderStorageBufferBinding
+  :iab <buffer> obop osg::BufferObjectProfile
+  :iab <buffer> oglbo osg::GLBufferObject
+  :iab <buffer> oglbos osg::GLBufferObjectSet
+  :iab <buffer> oglbom osg::GLBufferObjectManager
+  :iab <buffer> obo osg::BufferObject
+  :iab <buffer> obd osg::BufferData
+  :iab <buffer> ovbo osg::VertexBufferObject
+  :iab <buffer> oebo osg::ElementBufferObject
+  :iab <buffer> odibo osg::DrawIndirectBufferObject
+  :iab <buffer> opbo osg::PixelBufferObject
+  :iab <buffer> opdbo osg::PixelDataBufferObject
+  :iab <buffer> oubo osg::UniformBufferObject
+  :iab <buffer> oacbo osg::AtomicCounterBufferObject
+  :iab <buffer> ossbo osg::ShaderStorageBufferObject
+  :iab <buffer> obt osg::BufferTemplate
+  :iab <buffer> obt osg::BufferTemplate
+  :iab <buffer> oc osg::Callback
+  :iab <buffer> oco osg::CallbackObject
+  :iab <buffer> onc osg::NodeCallback
+  :iab <buffer> osac osg::StateAttributeCallback
+  :iab <buffer> ouc osg::UniformCallback
+  :iab <buffer> oduc osg::DrawableUpdateCallback
+  :iab <buffer> odec osg::DrawableEventCallback
+  :iab <buffer> odcc osg::DrawableCullCallback
+  :iab <buffer> oc osg::Camera
+  :iab <buffer> ocroso osg::CameraRenderOrderSortOp
+  :iab <buffer> ocv osg::CameraView
+  :iab <buffer> oc osg::Capability
+  :iab <buffer> oc osg::Capabilityi
+  :iab <buffer> oe osg::Enablei
+  :iab <buffer> od osg::Disablei
+  :iab <buffer> occ osg::ClampColor
+  :iab <buffer> ocn osg::ClearNode
+  :iab <buffer> occ osg::ClipControl
+  :iab <buffer> ocn osg::ClipNode
+  :iab <buffer> ocp osg::ClipPlane
+  :iab <buffer> occc osg::ClusterCullingCallback
+  :iab <buffer> ocov osg::CollectOccludersVisitor
+  :iab <buffer> ocm osg::ColorMask
+  :iab <buffer> ocm osg::ColorMaski
+  :iab <buffer> ocm osg::ColorMatrix
+  :iab <buffer> ocbv osg::ComputeBoundsVisitor
+  :iab <buffer> ocd osg::ContextData
+  :iab <buffer> ocpo osg::ConvexPlanarOccluder
+  :iab <buffer> ocpp osg::ConvexPlanarPolygon
+  :iab <buffer> oem osg::EllipsoidModel
+  :iab <buffer> ocsn osg::CoordinateSystemNode
+  :iab <buffer> oco osg::CopyOp
+  :iab <buffer> ocf osg::CullFace
+  :iab <buffer> ocs osg::CullingSet
+  :iab <buffer> ocs osg::CullSettings
+  :iab <buffer> ocs osg::CullStack
+  :iab <buffer> odh osg::DeleteHandler
+  :iab <buffer> od osg::Depth
+  :iab <buffer> odri osg::DepthRangeIndexed
+  :iab <buffer> odc osg::DispatchCompute
+  :iab <buffer> ods osg::DisplaySettings
+  :iab <buffer> od osg::Drawable
+  :iab <buffer> oafav osg::AttributeFunctorArrayVisitor
+  :iab <buffer> ocafav osg::ConstAttributeFunctorArrayVisitor
+  :iab <buffer> odp osg::DrawPixels
+  :iab <buffer> o__ osg::fast_back_stack
+  :iab <buffer> of osg::Fog
+  :iab <buffer> ofp osg::FragmentProgram
+  :iab <buffer> orb osg::RenderBuffer
+  :iab <buffer> ofba osg::FrameBufferAttachment
+  :iab <buffer> ofbo osg::FrameBufferObject
+  :iab <buffer> oglrbm osg::GLRenderBufferManager
+  :iab <buffer> oglfbom osg::GLFrameBufferObjectManager
+  :iab <buffer> ofs osg::FrameStamp
+  :iab <buffer> off osg::FrontFace
+  :iab <buffer> og osg::Geode
+  :iab <buffer> og osg::Geometry
+  :iab <buffer> ocbov osg::ConfigureBufferObjectsVisitor
+  :iab <buffer> ovaa osg::VertexAttribAlias
+  :iab <buffer> ogle osg::GLExtensions
+  :iab <buffer> ogo osg::GraphicsObject
+  :iab <buffer> ogom osg::GraphicsObjectManager
+  :iab <buffer> oglom osg::GLObjectManager
+  :iab <buffer> opsm osg::PixelStorageModes
+  :iab <buffer> ogc osg::GraphicsContext
+  :iab <buffer> ossbc osg::SyncSwapBuffersCallback
+  :iab <buffer> owsip osg::WindowingSystemInterfaceProxy
+  :iab <buffer> oclcf1d osg::ClampedLinearCostFunction1D
+  :iab <buffer> ogce osg::GeometryCostEstimator
+  :iab <buffer> otce osg::TextureCostEstimator
+  :iab <buffer> opce osg::ProgramCostEstimator
+  :iab <buffer> ogce osg::GraphicsCostEstimator
+  :iab <buffer> ogt osg::GraphicsThread
+  :iab <buffer> ogo osg::GraphicsOperation
+  :iab <buffer> osbo osg::SwapBuffersOperation
+  :iab <buffer> obo osg::BarrierOperation
+  :iab <buffer> orc_b_mco osg::ReleaseContext_Block_MakeCurrentOperation
+  :iab <buffer> obafo osg::BlockAndFlushOperation
+  :iab <buffer> ofdgloo osg::FlushDeletedGLObjectsOperation
+  :iab <buffer> oro osg::RunOperations
+  :iab <buffer> oeoddb osg::EndOfDynamicDrawBlock
+  :iab <buffer> og osg::Group
+  :iab <buffer> oh osg::Hint
+  :iab <buffer> oi osg::Identifier
+  :iab <buffer> oi osg::Image
+  :iab <buffer> ois osg::ImageSequence
+  :iab <buffer> ois osg::ImageStream
+  :iab <buffer> ocastfo osg::CastAndScaleToFloatOperation
+  :iab <buffer> oms osg::MakeString
+  :iab <buffer> okt osg::KdTree
+  :iab <buffer> oktb osg::KdTreeBuilder
+  :iab <buffer> ol osg::Light
+  :iab <buffer> olm osg::LightModel
+  :iab <buffer> ols osg::LightSource
+  :iab <buffer> ols osg::LineSegment
+  :iab <buffer> ols osg::LineStipple
+  :iab <buffer> olw osg::LineWidth
+  :iab <buffer> olod osg::LOD
+  :iab <buffer> olo osg::LogicOp
+  :iab <buffer> om osg::Material
+  :iab <buffer> om osg::Matrixd
+  :iab <buffer> orm osg::RefMatrixd
+  :iab <buffer> om osg::Matrixf
+  :iab <buffer> orm osg::RefMatrixf
+  :iab <buffer> otm osg::TemplateMatrix
+  :iab <buffer> om2t osg::Matrix2Template
+  :iab <buffer> om23t osg::Matrix2x3Template
+  :iab <buffer> om24t osg::Matrix2x4Template
+  :iab <buffer> om32t osg::Matrix3x2Template
+  :iab <buffer> om3t osg::Matrix3Template
+  :iab <buffer> om34t osg::Matrix3x4Template
+  :iab <buffer> om42t osg::Matrix4x2Template
+  :iab <buffer> om43t osg::Matrix4x3Template
+  :iab <buffer> omt osg::MatrixTransform
+  :iab <buffer> omv osg::MixinVector
+  :iab <buffer> om osg::Multisample
+  :iab <buffer> on osg::Node
+  :iab <buffer> ontc osg::NodeTrackerCallback
+  :iab <buffer> onv osg::NodeVisitor
+  :iab <buffer> onao osg::NodeAcceptOp
+  :iab <buffer> oppo osg::PushPopObject
+  :iab <buffer> oppv osg::PushPopValue
+  :iab <buffer> onh osg::NotifyHandler
+  :iab <buffer> osnh osg::StandardNotifyHandler
+  :iab <buffer> owdnh osg::WinDebugNotifyHandler
+  :iab <buffer> oo osg::Object
+  :iab <buffer> odo osg::DummyObject
+  :iab <buffer> oo osg::Observer
+  :iab <buffer> oos osg::ObserverSet
+  :iab <buffer> oonp osg::ObserverNodePath
+  :iab <buffer> o_ osg::observer_ptr
+  :iab <buffer> oon osg::OccluderNode
+  :iab <buffer> otr osg::TestResult
+  :iab <buffer> oqg osg::QueryGeometry
+  :iab <buffer> ooqn osg::OcclusionQueryNode
+  :iab <buffer> orb osg::RefBlock
+  :iab <buffer> orbc osg::RefBlockCount
+  :iab <buffer> oo osg::Operation
+  :iab <buffer> ooq osg::OperationQueue
+  :iab <buffer> oot osg::OperationThread
+  :iab <buffer> oplod osg::PagedLOD
+  :iab <buffer> opp osg::PatchParameter
+  :iab <buffer> op osg::Plane
+  :iab <buffer> op osg::Point
+  :iab <buffer> ops osg::PointSprite
+  :iab <buffer> opm osg::PolygonMode
+  :iab <buffer> opo osg::PolygonOffset
+  :iab <buffer> ops osg::PolygonStipple
+  :iab <buffer> op osg::Polytope
+  :iab <buffer> opat osg::PositionAttitudeTransform
+  :iab <buffer> opri osg::PrimitiveRestartIndex
+  :iab <buffer> opf osg::PrimitiveFunctor
+  :iab <buffer> opif osg::PrimitiveIndexFunctor
+  :iab <buffer> ops osg::PrimitiveSet
+  :iab <buffer> oda osg::DrawArrays
+  :iab <buffer> odal osg::DrawArrayLengths
+  :iab <buffer> ode osg::DrawElements
+  :iab <buffer> odeub osg::DrawElementsUByte
+  :iab <buffer> odeus osg::DrawElementsUShort
+  :iab <buffer> odeui osg::DrawElementsUInt
+  :iab <buffer> omda osg::MultiDrawArrays
+  :iab <buffer> oicda osg::IndirectCommandDrawArrays
+  :iab <buffer> oicde osg::IndirectCommandDrawElements
+  :iab <buffer> odaic osg::DrawArraysIndirectCommand
+  :iab <buffer> odicda osg::DefaultIndirectCommandDrawArrays
+  :iab <buffer> odeic osg::DrawElementsIndirectCommand
+  :iab <buffer> odicde osg::DefaultIndirectCommandDrawElements
+  :iab <buffer> odei osg::DrawElementsIndirect
+  :iab <buffer> odeiub osg::DrawElementsIndirectUByte
+  :iab <buffer> odeius osg::DrawElementsIndirectUShort
+  :iab <buffer> odeiui osg::DrawElementsIndirectUInt
+  :iab <buffer> omdeius osg::MultiDrawElementsIndirectUShort
+  :iab <buffer> omdeiub osg::MultiDrawElementsIndirectUByte
+  :iab <buffer> omdeiui osg::MultiDrawElementsIndirectUInt
+  :iab <buffer> odai osg::DrawArraysIndirect
+  :iab <buffer> omdai osg::MultiDrawArraysIndirect
+  :iab <buffer> op osg::Program
+  :iab <buffer> op osg::Projection
+  :iab <buffer> opn osg::ProxyNode
+  :iab <buffer> oq osg::Quat
+  :iab <buffer> o_ osg::depends_on
+  :iab <buffer> or osg::Referenced
+  :iab <buffer> o_ osg::ref_ptr
+  :iab <buffer> ori osg::RenderInfo
+  :iab <buffer> osm osg::SampleMaski
+  :iab <buffer> os osg::Sampler
+  :iab <buffer> os osg::Scissor
+  :iab <buffer> osi osg::ScissorIndexed
+  :iab <buffer> os osg::Script
+  :iab <buffer> osnc osg::ScriptNodeCallback
+  :iab <buffer> ose osg::ScriptEngine
+  :iab <buffer> os osg::Sequence
+  :iab <buffer> osm osg::ShadeModel
+  :iab <buffer> osp osg::ShaderPragmas
+  :iab <buffer> osb osg::ShaderBinary
+  :iab <buffer> os osg::Shader
+  :iab <buffer> osc osg::ShaderComponent
+  :iab <buffer> osa osg::ShaderAttribute
+  :iab <buffer> osc osg::ShaderComposer
+  :iab <buffer> osvo osg::ShadowVolumeOccluder
+  :iab <buffer> os osg::Shape
+  :iab <buffer> osv osg::ShapeVisitor
+  :iab <buffer> ocsv osg::ConstShapeVisitor
+  :iab <buffer> os osg::Sphere
+  :iab <buffer> ob osg::Box
+  :iab <buffer> oc osg::Cone
+  :iab <buffer> oc osg::Cylinder
+  :iab <buffer> oc osg::Capsule
+  :iab <buffer> oip osg::InfinitePlane
+  :iab <buffer> otm osg::TriangleMesh
+  :iab <buffer> och osg::ConvexHull
+  :iab <buffer> ohf osg::HeightField
+  :iab <buffer> ocs osg::CompositeShape
+  :iab <buffer> oth osg::TessellationHints
+  :iab <buffer> obsgv osg::BuildShapeGeometryVisitor
+  :iab <buffer> osd osg::ShapeDrawable
+  :iab <buffer> os osg::State
+  :iab <buffer> osa osg::StateAttribute
+  :iab <buffer> oss osg::StateSet
+  :iab <buffer> os osg::Stats
+  :iab <buffer> os osg::Stencil
+  :iab <buffer> osts osg::StencilTwoSided
+  :iab <buffer> os osg::Switch
+  :iab <buffer> otpf osg::TemplatePrimitiveFunctor
+  :iab <buffer> otpif osg::TemplatePrimitiveIndexFunctor
+  :iab <buffer> ote osg::TexEnv
+  :iab <buffer> otec osg::TexEnvCombine
+  :iab <buffer> otef osg::TexEnvFilter
+  :iab <buffer> otg osg::TexGen
+  :iab <buffer> otgn osg::TexGenNode
+  :iab <buffer> otm osg::TexMat
+  :iab <buffer> ot osg::Texture
+  :iab <buffer> otos osg::TextureObjectSet
+  :iab <buffer> otom osg::TextureObjectManager
+  :iab <buffer> ot1d osg::Texture1D
+  :iab <buffer> ot2d osg::Texture2D
+  :iab <buffer> ot2da osg::Texture2DArray
+  :iab <buffer> ot2dm osg::Texture2DMultisample
+  :iab <buffer> ot3d osg::Texture3D
+  :iab <buffer> ota osg::TextureAttribute
+  :iab <buffer> otb osg::TextureBuffer
+  :iab <buffer> otcm osg::TextureCubeMap
+  :iab <buffer> otr osg::TextureRectangle
+  :iab <buffer> ot osg::Timer
+  :iab <buffer> oet osg::ElapsedTime
+  :iab <buffer> otf osg::TransferFunction
+  :iab <buffer> otf1d osg::TransferFunction1D
+  :iab <buffer> ot osg::Transform
+  :iab <buffer> otf osg::TriangleFunctor
+  :iab <buffer> otif osg::TriangleIndexFunctor
+  :iab <buffer> otlpif osg::TriangleLinePointIndexFunctor
+  :iab <buffer> oucnt osg::UniformClassNameTrait
+  :iab <buffer> otu osg::TemplateUniform
+  :iab <buffer> oaucnt osg::ArrayUniformClassNameTrait
+  :iab <buffer> otau osg::TemplateArrayUniform
+  :iab <buffer> ou osg::Uniform
+  :iab <buffer> oub osg::UniformBase
+  :iab <buffer> oudc osg::UserDataContainer
+  :iab <buffer> odudc osg::DefaultUserDataContainer
+  :iab <buffer> ovm osg::ValueMap
+  :iab <buffer> ovo osg::ValueObject
+  :iab <buffer> ogsv osg::GetScalarValue
+  :iab <buffer> ogsv osg::GetScalarValue
+  :iab <buffer> ossv osg::SetScalarValue
+  :iab <buffer> ovocnt osg::ValueObjectClassNameTrait
+  :iab <buffer> otvo osg::TemplateValueObject
+  :iab <buffer> ovs osg::ValueStack
+  :iab <buffer> ov2 osg::Vec2b
+  :iab <buffer> ov2 osg::Vec2d
+  :iab <buffer> ov2 osg::Vec2f
+  :iab <buffer> ov2 osg::Vec2i
+  :iab <buffer> ov2 osg::Vec2s
+  :iab <buffer> ov2 osg::Vec2ub
+  :iab <buffer> ov2 osg::Vec2ui
+  :iab <buffer> ov2 osg::Vec2us
+  :iab <buffer> ov3 osg::Vec3b
+  :iab <buffer> ov3 osg::Vec3d
+  :iab <buffer> ov3 osg::Vec3f
+  :iab <buffer> ov3 osg::Vec3i
+  :iab <buffer> ov3 osg::Vec3s
+  :iab <buffer> ov3 osg::Vec3ub
+  :iab <buffer> ov3 osg::Vec3ui
+  :iab <buffer> ov3 osg::Vec3us
+  :iab <buffer> ov4 osg::Vec4b
+  :iab <buffer> ov4 osg::Vec4d
+  :iab <buffer> ov4 osg::Vec4f
+  :iab <buffer> ov4 osg::Vec4i
+  :iab <buffer> ov4 osg::Vec4s
+  :iab <buffer> ov4 osg::Vec4ub
+  :iab <buffer> ov4 osg::Vec4ui
+  :iab <buffer> ov4 osg::Vec4us
+  :iab <buffer> ovas osg::VertexArrayState
+  :iab <buffer> ovasl osg::VertexArrayStateList
+  :iab <buffer> ovad osg::VertexAttribDivisor
+  :iab <buffer> ovp osg::VertexProgram
+  :iab <buffer> ov osg::View
+  :iab <buffer> ov osg::Viewport
+  :iab <buffer> ovi osg::ViewportIndexed
+  :iab <buffer> oaa osgAnimation::Action
   :iab <buffer> oaaa osgAnimation::ActionAnimation
   :iab <buffer> oaabi osgAnimation::ActionBlendIn
   :iab <buffer> oaabo osgAnimation::ActionBlendOut
-  :iab <buffer> oaamb osgAnimation::AnimationManagerBase
-  " :iab <buffer> oaa osgAnimation::Action
-  :iab <buffer> oaa osgAnimation::Animation
+  :iab <buffer> oara osgAnimation::RunAction
   :iab <buffer> oaasa osgAnimation::ActionStripAnimation
+  :iab <buffer> oaav osgAnimation::ActionVisitor
+  :iab <buffer> oauav osgAnimation::UpdateActionVisitor
+  :iab <buffer> oacav osgAnimation::ClearActionVisitor
+  :iab <buffer> oaa osgAnimation::Animation
+  :iab <buffer> oaamb osgAnimation::AnimationManagerBase
   :iab <buffer> oaaucb osgAnimation::AnimationUpdateCallbackBase
   :iab <buffer> oaauc osgAnimation::AnimationUpdateCallback
-  :iab <buffer> oaav osgAnimation::ActionVisitor
   :iab <buffer> oabam osgAnimation::BasicAnimationManager
-  :iab <buffer> oabmv osgAnimation::BoneMapVisitor
   :iab <buffer> oab osgAnimation::Bone
-  :iab <buffer> oacav osgAnimation::ClearActionVisitor
-  :iab <buffer> oacbb osg::AtomicCounterBufferBinding
-  :iab <buffer> oacbo osg::AtomicCounterBufferObject
-  :iab <buffer> oacm osgAnimation::CompositeMotion
+  :iab <buffer> oabmv osgAnimation::BoneMapVisitor
   :iab <buffer> oac osgAnimation::Channel
-  " :iab <buffer> oad osg::ArrayDispatchers
-  :iab <buffer> oad osg::AttributeDispatch
-  :iab <buffer> oafav osg::AttributeFunctorArrayVisitor
-  :iab <buffer> oaf osg::AlphaFunc
-  " :iab <buffer> oaibf osgAnimation::InBackFunction
+  :iab <buffer> oatc osgAnimation::TemplateChannel
+  :iab <buffer> oatcb osgAnimation::TemplateCubicBezier
+  :iab <buffer> oaobf osgAnimation::OutBounceFunction
   :iab <buffer> oaibf osgAnimation::InBounceFunction
-  " :iab <buffer> oaicf osgAnimation::InCircFunction
-  :iab <buffer> oaicf osgAnimation::InCubicFunction
-  " :iab <buffer> oaief osgAnimation::InElasticFunction
-  :iab <buffer> oaief osgAnimation::InExpoFunction
-  " :iab <buffer> oaiobf osgAnimation::InOutBackFunction
   :iab <buffer> oaiobf osgAnimation::InOutBounceFunction
-  " :iab <buffer> oaiocf osgAnimation::InOutCircFunction
-  :iab <buffer> oaiocf osgAnimation::InOutCubicFunction
-  " :iab <buffer> oaioef osgAnimation::InOutElasticFunction
-  :iab <buffer> oaioef osgAnimation::InOutExpoFunction
-  " :iab <buffer> oaioqf osgAnimation::InOutQuadFunction
-  :iab <buffer> oaioqf osgAnimation::InOutQuartFunction
-  :iab <buffer> oaiosf osgAnimation::InOutSineFunction
-  " :iab <buffer> oaiqf osgAnimation::InQuadFunction
-  :iab <buffer> oaiqf osgAnimation::InQuartFunction
-  :iab <buffer> oaisf osgAnimation::InSineFunction
-  :iab <buffer> oakc osgAnimation::KeyframeContainer
-  :iab <buffer> oak osgAnimation::Keyframe
   :iab <buffer> oalf osgAnimation::LinearFunction
+  :iab <buffer> oaoqf osgAnimation::OutQuadFunction
+  :iab <buffer> oaiqf osgAnimation::InQuadFunction
+  :iab <buffer> oaioqf osgAnimation::InOutQuadFunction
+  :iab <buffer> oaocf osgAnimation::OutCubicFunction
+  :iab <buffer> oaicf osgAnimation::InCubicFunction
+  :iab <buffer> oaiocf osgAnimation::InOutCubicFunction
+  :iab <buffer> oaiqf osgAnimation::InQuartFunction
+  :iab <buffer> oaoqf osgAnimation::OutQuartFunction
+  :iab <buffer> oaioqf osgAnimation::InOutQuartFunction
+  :iab <buffer> oaoef osgAnimation::OutElasticFunction
+  :iab <buffer> oaief osgAnimation::InElasticFunction
+  :iab <buffer> oaioef osgAnimation::InOutElasticFunction
+  :iab <buffer> oaosf osgAnimation::OutSineFunction
+  :iab <buffer> oaisf osgAnimation::InSineFunction
+  :iab <buffer> oaiosf osgAnimation::InOutSineFunction
+  :iab <buffer> oaobf osgAnimation::OutBackFunction
+  :iab <buffer> oaibf osgAnimation::InBackFunction
+  :iab <buffer> oaiobf osgAnimation::InOutBackFunction
+  :iab <buffer> oaocf osgAnimation::OutCircFunction
+  :iab <buffer> oaicf osgAnimation::InCircFunction
+  :iab <buffer> oaiocf osgAnimation::InOutCircFunction
+  :iab <buffer> oaoef osgAnimation::OutExpoFunction
+  :iab <buffer> oaief osgAnimation::InExpoFunction
+  :iab <buffer> oaioef osgAnimation::InOutExpoFunction
+  :iab <buffer> oam osgAnimation::Motion
+  :iab <buffer> oammt osgAnimation::MathMotionTemplate
+  :iab <buffer> oasmt osgAnimation::SamplerMotionTemplate
+  :iab <buffer> oacm osgAnimation::CompositeMotion
+  :iab <buffer> oatib osgAnimation::TemplateInterpolatorBase
+  :iab <buffer> oatsi osgAnimation::TemplateStepInterpolator
+  :iab <buffer> oatli osgAnimation::TemplateLinearInterpolator
+  :iab <buffer> oatsli osgAnimation::TemplateSphericalLinearInterpolator
+  :iab <buffer> oatlpi osgAnimation::TemplateLinearPackedInterpolator
+  :iab <buffer> oatcbi osgAnimation::TemplateCubicBezierInterpolator
+  :iab <buffer> oak osgAnimation::Keyframe
+  :iab <buffer> oatk osgAnimation::TemplateKeyframe
+  :iab <buffer> oakc osgAnimation::KeyframeContainer
+  :iab <buffer> oatkc osgAnimation::TemplateKeyframeContainer
+  :iab <buffer> oatkc osgAnimation::TemplateKeyframeContainer
   :iab <buffer> oalv osgAnimation::LinkVisitor
   :iab <buffer> oamg osgAnimation::MorphGeometry
-  :iab <buffer> oammt osgAnimation::MathMotionTemplate
-  :iab <buffer> oam osgAnimation::Motion
-  " :iab <buffer> oaobf osgAnimation::OutBackFunction
-  :iab <buffer> oaobf osgAnimation::OutBounceFunction
-  " :iab <buffer> oaocf osgAnimation::OutCircFunction
-  :iab <buffer> oaocf osgAnimation::OutCubicFunction
-  " :iab <buffer> oaoef osgAnimation::OutElasticFunction
-  :iab <buffer> oaoef osgAnimation::OutExpoFunction
-  " :iab <buffer> oaoqf osgAnimation::OutQuadFunction
-  :iab <buffer> oaoqf osgAnimation::OutQuartFunction
-  :iab <buffer> oaosf osgAnimation::OutSineFunction
-  :iab <buffer> oa osg::Array
-  :iab <buffer> oapc osg::AnimationPathCallback
-  " :iab <buffer> oap osg::AnimationPath
-  :iab <buffer> oap osg::ArgumentParser
-  :iab <buffer> oara osgAnimation::RunAction
+  :iab <buffer> oaum osgAnimation::UpdateMorph
+  :iab <buffer> oaumg osgAnimation::UpdateMorphGeometry
+  :iab <buffer> oamth osgAnimation::MorphTransformHardware
+  :iab <buffer> oamts osgAnimation::MorphTransformSoftware
   :iab <buffer> oarcbbc osgAnimation::RigComputeBoundingBoxCallback
   :iab <buffer> oarg osgAnimation::RigGeometry
-  :iab <buffer> oarth osgAnimation::RigTransformHardware
+  :iab <buffer> oaurg osgAnimation::UpdateRigGeometry
   :iab <buffer> oart osgAnimation::RigTransform
+  :iab <buffer> oamt osgAnimation::MorphTransform
+  :iab <buffer> oarth osgAnimation::RigTransformHardware
   :iab <buffer> oarts osgAnimation::RigTransformSoftware
-  :iab <buffer> oasav osgAnimation::StatsActionVisitor
-  :iab <buffer> oash osgAnimation::StatsHandler
+  :iab <buffer> oas osgAnimation::Sampler
+  :iab <buffer> oats osgAnimation::TemplateSampler
+  :iab <buffer> oatcs osgAnimation::TemplateCompositeSampler
+  :iab <buffer> oas osgAnimation::Skeleton
   :iab <buffer> oasme osgAnimation::StackedMatrixElement
-  :iab <buffer> oasmt osgAnimation::SamplerMotionTemplate
-  " :iab <buffer> oas osgAnimation::Sampler
-  " :iab <buffer> oas osgAnimation::Skeleton
-  " :iab <buffer> oas osg::AudioSink
-  :iab <buffer> oas osg::AudioStream
   :iab <buffer> oasqe osgAnimation::StackedQuaternionElement
   :iab <buffer> oasrae osgAnimation::StackedRotateAxisElement
   :iab <buffer> oasse osgAnimation::StackedScaleElement
-  " :iab <buffer> oaste osgAnimation::StackedTransformElement
-  :iab <buffer> oaste osgAnimation::StackedTranslateElement
   :iab <buffer> oast osgAnimation::StackedTransform
-  :iab <buffer> oatam osgAnimation::TimelineAnimationManager
-  :iab <buffer> oatcbi osgAnimation::TemplateCubicBezierInterpolator
-  :iab <buffer> oatcb osgAnimation::TemplateCubicBezier
-  :iab <buffer> oatc osgAnimation::TemplateChannel
-  :iab <buffer> oatcs osgAnimation::TemplateCompositeSampler
-  :iab <buffer> oatib osgAnimation::TemplateInterpolatorBase
-  :iab <buffer> oatkc osgAnimation::TemplateKeyframeContainer
-  :iab <buffer> oatk osgAnimation::TemplateKeyframe
-  :iab <buffer> oatli osgAnimation::TemplateLinearInterpolator
-  :iab <buffer> oatlpi osgAnimation::TemplateLinearPackedInterpolator
-  " :iab <buffer> oat osgAnimation::Target
-  " :iab <buffer> oat osgAnimation::Timeline
-  :iab <buffer> oat osg::AutoTransform
-  :iab <buffer> oatsi osgAnimation::TemplateStepInterpolator
-  :iab <buffer> oatsli osgAnimation::TemplateSphericalLinearInterpolator
-  :iab <buffer> oats osgAnimation::TemplateSampler
+  :iab <buffer> oaste osgAnimation::StackedTransformElement
+  :iab <buffer> oaste osgAnimation::StackedTranslateElement
+  :iab <buffer> oash osgAnimation::StatsHandler
+  :iab <buffer> oasav osgAnimation::StatsActionVisitor
+  :iab <buffer> oat osgAnimation::Target
   :iab <buffer> oatt osgAnimation::TemplateTarget
-  :iab <buffer> oauav osgAnimation::UpdateActionVisitor
+  :iab <buffer> oat osgAnimation::Timeline
+  :iab <buffer> oatam osgAnimation::TimelineAnimationManager
   :iab <buffer> oaub osgAnimation::UpdateBone
-  :iab <buffer> oaufu osgAnimation::UpdateFloatUniform
-  :iab <buffer> oaumg osgAnimation::UpdateMorphGeometry
-  " :iab <buffer> oaum osgAnimation::UpdateMaterial
-  :iab <buffer> oaum osgAnimation::UpdateMorph
+  :iab <buffer> oaum osgAnimation::UpdateMaterial
   :iab <buffer> oaumt osgAnimation::UpdateMatrixTransform
-  :iab <buffer> oaumu osgAnimation::UpdateMatrixfUniform
-  :iab <buffer> oau osg::ApplicationUsage
-  :iab <buffer> oaup osg::ApplicationUsageProxy
-  :iab <buffer> oaurg osgAnimation::UpdateRigGeometry
   :iab <buffer> oauu osgAnimation::UpdateUniform
+  :iab <buffer> oaufu osgAnimation::UpdateFloatUniform
+  :iab <buffer> oauv2u osgAnimation::UpdateVec2fUniform
   :iab <buffer> oauv3u osgAnimation::UpdateVec3fUniform
-  :iab <buffer> oav3ap osgAnimation::Vec3ArrayPacked
+  :iab <buffer> oauv4u osgAnimation::UpdateVec4fUniform
+  :iab <buffer> oaumu osgAnimation::UpdateMatrixfUniform
   :iab <buffer> oav3p osgAnimation::Vec3Packed
-  :iab <buffer> oavim osgAnimation::VertexInfluenceMap
+  :iab <buffer> oav3ap osgAnimation::Vec3ArrayPacked
   :iab <buffer> oavi osgAnimation::VertexInfluence
-  :iab <buffer> oavis osgAnimation::VertexInfluenceSet
-  :iab <buffer> oav osg::ArrayVisitor
-  :iab <buffer> obafo osg::BlockAndFlushOperation
-  :iab <buffer> obbi osg::BoundingBoxImpl
-  :iab <buffer> obc osg::BlendColor
-  :iab <buffer> obd osg::BufferData
-  " :iab <buffer> obe osg::BlendEquation
-  :iab <buffer> obe osg::BlendEquationi
-  " :iab <buffer> obf osg::BlendFunc
-  :iab <buffer> obf osg::BlendFunci
-  :iab <buffer> obib osg::BufferIndexBinding
-  " :iab <buffer> obo osg::BarrierOperation
-  :iab <buffer> obo osg::BufferObject
-  :iab <buffer> obop osg::BufferObjectProfile
-  " :iab <buffer> ob osg::Billboard
-  :iab <buffer> ob osg::Box
-  :iab <buffer> obsi osg::BoundingSphereImpl
-  :iab <buffer> obt osg::BufferTemplate
-  :iab <buffer> ocafav osg::ConstAttributeFunctorArrayVisitor
-  :iab <buffer> ocastfo osg::CastAndScaleToFloatOperation
-  :iab <buffer> ocav osg::ConstArrayVisitor
-  :iab <buffer> ocbv osg::ComputeBoundsVisitor
-  :iab <buffer> occc osg::ClusterCullingCallback
-  " :iab <buffer> occ osg::ClampColor
-  :iab <buffer> occ osg::ClipControl
-  :iab <buffer> ocf osg::CullFace
-  :iab <buffer> och osg::ConvexHull
-  :iab <buffer> oclcf1d osg::ClampedLinearCostFunction1D
-  " :iab <buffer> ocm osg::ColorMask
-  " :iab <buffer> ocm osg::ColorMaski
-  :iab <buffer> ocm osg::ColorMatrix
-  " :iab <buffer> ocn osg::ClearNode
-  :iab <buffer> ocn osg::ClipNode
-  " :iab <buffer> oco osg::CallbackObject
-  :iab <buffer> oco osg::CopyOp
-  " :iab <buffer> oc osg::Callback
-   :iab <buffer> oc osg::Camera
-  " :iab <buffer> oc osg::Capability
-  " :iab <buffer> oc osg::Capabilityi
-  " :iab <buffer> oc osg::Capsule
-  " :iab <buffer> oc osg::Cone
-  ":iab <buffer> oc osg::Cylinder
-  :iab <buffer> ocov osg::CollectOccludersVisitor
-  :iab <buffer> ocpo osg::ConvexPlanarOccluder
-  :iab <buffer> ocp osg::ClipPlane
-  :iab <buffer> ocpp osg::ConvexPlanarPolygon
-  :iab <buffer> ocroso osg::CameraRenderOrderSortOp
-  :iab <buffer> ocsn osg::CoordinateSystemNode
-  " :iab <buffer> ocs osg::CompositeShape
-  " :iab <buffer> ocs osg::CullingSet
-  :iab <buffer> ocs osg::CullSettings
-  ":iab <buffer> ocs osg::CullStack
-  :iab <buffer> ocsv osg::ConstShapeVisitor
-  :iab <buffer> ocv osg::CameraView
-  :iab <buffer> ocvv osg::ConstValueVisitor
-  :iab <buffer> odal osg::DrawArrayLengths
-  :iab <buffer> oda osg::DrawArrays
-  :iab <buffer> odb__7121100308 osgDB::__anon7121d10f0308
-  :iab <buffer> odb__7121100408 osgDB::__anon7121d10f0408
+  :iab <buffer> oavim osgAnimation::VertexInfluenceMap
+  :iab <buffer> odba osgDB::Archive
   :iab <buffer> odbad osgDB::AuthenticationDetails
   :iab <buffer> odbam osgDB::AuthenticationMap
-  :iab <buffer> odba osgDB::Archive
-  " :iab <buffer> odbb64 osgDB::Base64decoder
-  :iab <buffer> odbb64 osgDB::Base64encoder
-  :iab <buffer> odbbc osgDB::BaseCompressor
-  :iab <buffer> odbbfs osgDB::BitFlagsSerializer
-  :iab <buffer> odbbs osgDB::BaseSerializer
-  :iab <buffer> odbci osgDB::ClassInterface
-  :iab <buffer> odbddowm osgDB::DeprecatedDotOsgWrapperManager
-  :iab <buffer> odbdl osgDB::DynamicLibrary
-  :iab <buffer> odbdow osgDB::DotOsgWrapper
-  :iab <buffer> odbdp osgDB::DatabasePager
-  " :iab <buffer> odbdr osgDB::DatabaseRevision
-  :iab <buffer> odbdr osgDB::DatabaseRevisions
-  :iab <buffer> odbefw osgDB::ExternalFileWriter
-  :iab <buffer> odbes osgDB::EnumSerializer
-  :iab <buffer> odbfc osgDB::FileCache
   :iab <buffer> odbffc osgDB::FindFileCallback
-  :iab <buffer> odbflc osgDB::FileLocationCallback
-  :iab <buffer> odbfl osgDB::FileList
-  :iab <buffer> odbfnc osgDB::FileNameComparator
-  :iab <buffer> odbforc osgDB::FinishedObjectReadCallback
-  :iab <buffer> odbf osgDB::Field
-  :iab <buffer> odbfri osgDB::FieldReaderIterator
-  :iab <buffer> odbfr osgDB::FieldReader
-  :iab <buffer> odbgls osgDB::GLenumSerializer
-  :iab <buffer> odbiavs osgDB::IsAVectorSerializer
-  :iab <buffer> odbie osgDB::InputException
-  :iab <buffer> odbii osgDB::InputIterator
-  :iab <buffer> odbil osgDB::IntLookup
-  :iab <buffer> odbio osgDB::ImageOptions
-  :iab <buffer> odbi osgDB::Input
-  " :iab <buffer> odbip osgDB::ImagePager
-  :iab <buffer> odbip osgDB::ImageProcessor
-  " :iab <buffer> odbis osgDB::ImageSerializer
-  :iab <buffer> odbis osgDB::InputStream
-  :iab <buffer> odbls osgDB::ListSerializer
-  :iab <buffer> odbmbs osgDB::MapBaseSerializer
-  :iab <buffer> odbmio osgDB::MapIteratorObject
-  :iab <buffer> odbmo osgDB::MethodObject
-  " :iab <buffer> odbms osgDB::MapSerializer
-  :iab <buffer> odbms osgDB::MatrixSerializer
-  :iab <buffer> odboc osgDB::ObjectCache
-  :iab <buffer> odboe osgDB::OutputException
-  :iab <buffer> odbogl osgDB::ObjectGLenum
-  :iab <buffer> odboi osgDB::OutputIterator
-  :iab <buffer> odbom osgDB::ObjectMark
-  " :iab <buffer> odbo osgDB::Options
-  :iab <buffer> odbo osgDB::Output
-  :iab <buffer> odbop osgDB::ObjectProperty
-  :iab <buffer> odb__ osgDB::basic_type_wrapper
-  " :iab <buffer> odb osgDB::ifstream
-  :iab <buffer> odb osgDB::ofstream
-  :iab <buffer> odb_ osgDB::type_wrapper
-  " :iab <buffer> odbos osgDB::ObjectSerializer
-  :iab <buffer> odbos osgDB::OutputStream
-  :iab <buffer> odbowm osgDB::ObjectWrapperManager
-  :iab <buffer> odbow osgDB::ObjectWrapper
-  :iab <buffer> odbpbrs osgDB::PropByRefSerializer
-  :iab <buffer> odbpbvs osgDB::PropByValSerializer
-  :iab <buffer> odbpfp osgDB::PluginFunctionProxy
-  :iab <buffer> odbpo osgDB::ParameterOutput
-  :iab <buffer> odbrcp osgDB::RegisterCompressorProxy
-  :iab <buffer> odbrcwp osgDB::RegisterCustomWrapperProxy
-  :iab <buffer> odbrdowp osgDB::RegisterDotOsgWrapperProxy
   :iab <buffer> odbrfc osgDB::ReadFileCallback
-  :iab <buffer> odbripp osgDB::RegisterImageProcessorProxy
-  :iab <buffer> odbr osgDB::Registry
-  :iab <buffer> odbrrwp osgDB::RegisterReaderWriterProxy
+  :iab <buffer> odbwfc osgDB::WriteFileCallback
+  :iab <buffer> odbflc osgDB::FileLocationCallback
+  :iab <buffer> odbci osgDB::ClassInterface
+  :iab <buffer> odb__30110308 osgDB::__anon30a1bda10308
+  :iab <buffer> odb__30110408 osgDB::__anon30a1bda10408
+  :iab <buffer> odbb64 osgDB::Base64encoder
+  :iab <buffer> odbb64 osgDB::Base64decoder
+  :iab <buffer> odbdp osgDB::DatabasePager
+  :iab <buffer> odbfl osgDB::FileList
+  :iab <buffer> odbdr osgDB::DatabaseRevision
+  :iab <buffer> odbdr osgDB::DatabaseRevisions
+  :iab <buffer> odbogl osgDB::ObjectGLenum
+  :iab <buffer> odbop osgDB::ObjectProperty
+  :iab <buffer> odbom osgDB::ObjectMark
+  :iab <buffer> odbdow osgDB::DotOsgWrapper
+  :iab <buffer> odbddowm osgDB::DeprecatedDotOsgWrapperManager
+  :iab <buffer> odbrdowp osgDB::RegisterDotOsgWrapperProxy
+  :iab <buffer> odbtrdowp osgDB::TemplateRegisterDotOsgWrapperProxy
+  :iab <buffer> odbdl osgDB::DynamicLibrary
+  :iab <buffer> odbefw osgDB::ExternalFileWriter
+  :iab <buffer> odbfc osgDB::FileCache
+  :iab <buffer> odbfnc osgDB::FileNameComparator
+  :iab <buffer> odb osgDB::ifstream
+  :iab <buffer> odb osgDB::ofstream
+  :iab <buffer> odbio osgDB::ImageOptions
+  :iab <buffer> odbip osgDB::ImagePager
+  :iab <buffer> odbip osgDB::ImageProcessor
+  :iab <buffer> odb__ osgDB::basic_type_wrapper
+  :iab <buffer> odb_ osgDB::type_wrapper
+  :iab <buffer> odbf osgDB::Field
+  :iab <buffer> odbfr osgDB::FieldReader
+  :iab <buffer> odbfri osgDB::FieldReaderIterator
+  :iab <buffer> odbi osgDB::Input
+  :iab <buffer> odbie osgDB::InputException
+  :iab <buffer> odbis osgDB::InputStream
+  :iab <buffer> odboc osgDB::ObjectCache
+  :iab <buffer> odbmo osgDB::MethodObject
+  :iab <buffer> odbbc osgDB::BaseCompressor
+  :iab <buffer> odbforc osgDB::FinishedObjectReadCallback
+  :iab <buffer> odbowa osgDB::ObjectWrapperAssociate
+  :iab <buffer> odbow osgDB::ObjectWrapper
+  :iab <buffer> odbuwvp osgDB::UpdateWrapperVersionProxy
+  :iab <buffer> odbowm osgDB::ObjectWrapperManager
+  :iab <buffer> odbrwp osgDB::RegisterWrapperProxy
+  :iab <buffer> odbrcwp osgDB::RegisterCustomWrapperProxy
+  :iab <buffer> odbrcp osgDB::RegisterCompressorProxy
+  :iab <buffer> odbo osgDB::Options
+  :iab <buffer> odbo osgDB::Output
+  :iab <buffer> odboe osgDB::OutputException
+  :iab <buffer> odbos osgDB::OutputStream
+  :iab <buffer> odbpo osgDB::ParameterOutput
   :iab <buffer> odbrwi osgDB::ReaderWriterInfo
   :iab <buffer> odbrw osgDB::ReaderWriter
-  :iab <buffer> odbrwp osgDB::RegisterWrapperProxy
-  :iab <buffer> odbssm osgDB::SharedStateManager
-  :iab <buffer> odbss osgDB::StringSerializer
-  :iab <buffer> odbtrdowp osgDB::TemplateRegisterDotOsgWrapperProxy
-  :iab <buffer> odbts osgDB::TemplateSerializer
+  :iab <buffer> odbr osgDB::Registry
+  :iab <buffer> odbrrwp osgDB::RegisterReaderWriterProxy
+  :iab <buffer> odbripp osgDB::RegisterImageProcessorProxy
+  :iab <buffer> odbpfp osgDB::PluginFunctionProxy
+  :iab <buffer> odbil osgDB::IntLookup
   :iab <buffer> odbultp osgDB::UserLookupTableProxy
+  :iab <buffer> odbbs osgDB::BaseSerializer
   :iab <buffer> odbus osgDB::UserSerializer
-  :iab <buffer> odbuwvp osgDB::UpdateWrapperVersionProxy
+  :iab <buffer> odbts osgDB::TemplateSerializer
+  :iab <buffer> odbpbvs osgDB::PropByValSerializer
+  :iab <buffer> odbpbrs osgDB::PropByRefSerializer
+  :iab <buffer> odbms osgDB::MatrixSerializer
+  :iab <buffer> odbgls osgDB::GLenumSerializer
+  :iab <buffer> odbss osgDB::StringSerializer
+  :iab <buffer> odbos osgDB::ObjectSerializer
+  :iab <buffer> odbis osgDB::ImageSerializer
+  :iab <buffer> odbes osgDB::EnumSerializer
+  :iab <buffer> odbls osgDB::ListSerializer
   :iab <buffer> odbvbs osgDB::VectorBaseSerializer
   :iab <buffer> odbvs osgDB::VectorSerializer
-  :iab <buffer> odbwfc osgDB::WriteFileCallback
+  :iab <buffer> odbiavs osgDB::IsAVectorSerializer
+  :iab <buffer> odbmio osgDB::MapIteratorObject
+  :iab <buffer> odbmbs osgDB::MapBaseSerializer
+  :iab <buffer> odbms osgDB::MapSerializer
+  :iab <buffer> odbbfs osgDB::BitFlagsSerializer
+  :iab <buffer> odbssm osgDB::SharedStateManager
+  :iab <buffer> odboi osgDB::OutputIterator
+  :iab <buffer> odbii osgDB::InputIterator
   :iab <buffer> odbxn osgDB::XmlNode
-  :iab <buffer> ode osg::DrawElements
-  :iab <buffer> odeub osg::DrawElementsUByte
-  :iab <buffer> odeui osg::DrawElementsUInt
-  :iab <buffer> odeus osg::DrawElementsUShort
-  :iab <buffer> odh osg::DeleteHandler
-  :iab <buffer> odo osg::DummyObject
-  " :iab <buffer> od osg::Depth
-  " :iab <buffer> od osg::Disablei
-  :iab <buffer> od osg::Drawable
-  :iab <buffer> odp osg::DrawPixels
-  :iab <buffer> ods osg::DisplaySettings
-  :iab <buffer> odudc osg::DefaultUserDataContainer
-  :iab <buffer> oeamc osgPresentation::AnimationMaterialCallback
-  :iab <buffer> oeam osgPresentation::AnimationMaterial
-  :iab <buffer> oeao osgPresentation::ActiveOperators
-  :iab <buffer> oebo osg::ElementBufferObject
-  :iab <buffer> oec osgPresentation::Cursor
-  :iab <buffer> oecsc osgPresentation::CompileSlideCallback
-  :iab <buffer> oefpd osgPresentation::FilePathData
-  :iab <buffer> oehp osgPresentation::HomePosition
-  :iab <buffer> oehuds osgPresentation::HUDSettings
-  :iab <buffer> oehudt osgPresentation::HUDTransform
-  :iab <buffer> oeisuc osgPresentation::ImageSequenceUpdateCallback
-  :iab <buffer> oejd osgPresentation::JumpData
-  :iab <buffer> oekeh osgPresentation::KeyEventHandler
-  :iab <buffer> oekp osgPresentation::KeyPosition
-  :iab <buffer> oela osgPresentation::LayerAttributes
-  :iab <buffer> oelc osgPresentation::LayerCallback
-  :iab <buffer> oem osg::EllipsoidModel
-  :iab <buffer> oeoddb osg::EndOfDynamicDrawBlock
-  :iab <buffer> oeoo osgPresentation::ObjectOperator
-  :iab <buffer> oe osg::Enablei
-  :iab <buffer> oe_ osgPresentation::dereference_less
-  :iab <buffer> oepa osgPresentation::PropertyAnimation
-  :iab <buffer> oepec osgPresentation::PropertyEventCallback
-  :iab <buffer> oepeh osgPresentation::PickEventHandler
-  :iab <buffer> oepm osgPresentation::PropertyManager
-  :iab <buffer> oepr osgPresentation::PropertyReader
-  :iab <buffer> oeseh osgPresentation::SlideEventHandler
-  :iab <buffer> oessc osgPresentation::SlideShowConstructor
-  " :iab <buffer> oet osg::ElapsedTime
-  :iab <buffer> oet osgPresentation::Timeout
-  :iab <buffer> ofba osg::FrameBufferAttachment
-  :iab <buffer> ofbo osg::FrameBufferObject
-  :iab <buffer> ofdgloo osg::FlushDeletedGLObjectsOperation
-  :iab <buffer> off osg::FrontFace
-  :iab <buffer> of osg::Fog
-  :iab <buffer> ofp osg::FragmentProgram
-  :iab <buffer> ofs osg::FrameStamp
   :iab <buffer> ofxal osgFX::AnisotropicLighting
   :iab <buffer> ofxbm osgFX::BumpMapping
   :iab <buffer> ofxc osgFX::Cartoon
@@ -2073,604 +2290,574 @@ function! abbre#osg()
   :iab <buffer> ofxmtc osgFX::MultiTextureControl
   :iab <buffer> ofxo osgFX::Outline
   :iab <buffer> ofxr osgFX::Registry
-  :iab <buffer> ofxsh osgFX::SpecularHighlights
   :iab <buffer> ofxs osgFX::Scribe
+  :iab <buffer> ofxsh osgFX::SpecularHighlights
   :iab <buffer> ofxt osgFX::Technique
   :iab <buffer> ofxv osgFX::Validator
-  :iab <buffer> ogapm osgGA::AnimationPathManipulator
-  :iab <buffer> ogcm osgGA::CameraManipulator
-  :iab <buffer> ogcvsm osgGA::CameraViewSwitchManipulator
-  :iab <buffer> ogdm osgGA::DriveManipulator
-  :iab <buffer> ogd osgGA::Device
-  :iab <buffer> ogeh osgGA::EventHandler
-  :iab <buffer> oge osgGA::Event
-  :iab <buffer> ogeq osgGA::EventQueue
-  :iab <buffer> ogev osgGA::EventVisitor
-  :iab <buffer> ogfm osgGA::FlightManipulator
-  :iab <buffer> ogfpm osgGA::FirstPersonManipulator
-  :iab <buffer> oggaa osgGA::GUIActionAdapter
-  :iab <buffer> oggea osgGA::GUIEventAdapter
-  :iab <buffer> oggeh osgGA::GUIEventHandler
-  :iab <buffer> ogksmm osgGA::KeySwitchMatrixManipulator
-  :iab <buffer> ogmttm osgGA::MultiTouchTrackballManipulator
-  :iab <buffer> ogntm osgGA::NodeTrackerManipulator
-  :iab <buffer> ogom osgGA::OrbitManipulator
-  :iab <buffer> ogpd osgGA::PointerData
-  " :iab <buffer> ogsm osgGA::SphericalManipulator
-  :iab <buffer> ogsm osgGA::StandardManipulator
-  :iab <buffer> ogssm osgGA::StateSetManipulator
-  " :iab <buffer> ogtm osgGA::TerrainManipulator
-  :iab <buffer> ogtm osgGA::TrackballManipulator
-  :iab <buffer> ogufom osgGA::UFOManipulator
-  :iab <buffer> ogw osgGA::Widget
-  " :iab <buffer> ogce osg::GeometryCostEstimator
-  :iab <buffer> ogce osg::GraphicsCostEstimator
-  :iab <buffer> ogc osg::GraphicsContext
-  :iab <buffer> o_g deprecated_osg::Geometry
-  :iab <buffer> oglbea osg::GLBeginEndAdapter
-  :iab <buffer> oglbom osg::GLBufferObjectManager
-  :iab <buffer> oglbo osg::GLBufferObject
-  :iab <buffer> oglbos osg::GLBufferObjectSet
-  :iab <buffer> ogle osg::GLExtensions
-  :iab <buffer> ogo osg::GraphicsOperation
-   :iab <buffer> oge osg::Geode
-   :iab <buffer> ogm osg::Geometry
-  :iab <buffer> og osg::Group
-  :iab <buffer> ogt osg::GraphicsThread
-  :iab <buffer> ohf osg::HeightField
-  :iab <buffer> oh osg::Hint
-  :iab <buffer> oiaes osgSim::AzimElevationSector
-  :iab <buffer> oia osg::IndexArray
-  :iab <buffer> oiar osgSim::AzimRange
-  :iab <buffer> oias osgSim::AzimSector
-  :iab <buffer> oibs osgSim::BlinkSequence
-  :iab <buffer> oicr osgSim::ColorRange
-  :iab <buffer> oics osgSim::ConeSector
-  :iab <buffer> oidcrc osgSim::DatabaseCacheReadCallback
-  :iab <buffer> oidoft osgSim::DOFTransform
-  :iab <buffer> oids osgSim::DirectionalSector
-  :iab <buffer> oier osgSim::ElevationRange
-  " :iab <buffer> oies osgSim::ElevationSector
-  :iab <buffer> oies osgSim::ElevationSlice
-  :iab <buffer> oigl osgSim::GeographicLocation
-  :iab <buffer> oihat osgSim::HeightAboveTerrain
-  :iab <buffer> oiiiv osgSim::InsertImpostorsVisitor
-  :iab <buffer> oii osgSim::Impostor
-  :iab <buffer> oiism osgSim::ImpostorSpriteManager
-  :iab <buffer> oiis osgSim::ImpostorSprite
-  :iab <buffer> oilos osgSim::LineOfSight
-  :iab <buffer> oilpn osgSim::LightPointNode
-  :iab <buffer> oilp osgSim::LightPoint
-  :iab <buffer> oilps osgSim::LightPointSystem
-  :iab <buffer> oims osgSim::MultiSwitch
-  :iab <buffer> oion osgSim::OverlayNode
-  :iab <buffer> oiord osgSim::ObjectRecordData
-  :iab <buffer> oi osg::Image
-  :iab <buffer> oip osg::InfinitePlane
-  :iab <buffer> oisal osgSim::ShapeAttributeList
-  :iab <buffer> oisa osgSim::ShapeAttribute
-  :iab <buffer> oisb osgSim::ScalarBar
-  :iab <buffer> oisg osgSim::SequenceGroup
-  " :iab <buffer> ois osg::ImageSequence
-  " :iab <buffer> ois osg::ImageStream
-  :iab <buffer> ois osgSim::Sector
-  :iab <buffer> oiss osgSim::SphereSegment
-  :iab <buffer> oistc osgSim::ScalarsToColors
-  :iab <buffer> oivg osgSim::VisibilityGroup
-  :iab <buffer> oktb osg::KdTreeBuilder
-  :iab <buffer> okt osg::KdTree
-  :iab <buffer> olm osg::LightModel
-  :iab <buffer> olod osg::LOD
-  :iab <buffer> olo osg::LogicOp
-  :iab <buffer> ol osg::Light
-  " :iab <buffer> ols osg::LightSource
-  ":iab <buffer> ols osg::LineSegment
-  ":iab <buffer> ols osg::LineStipple
-  :iab <buffer> olw osg::LineWidth
-  :iab <buffer> om23t osg::Matrix2x3Template
-  :iab <buffer> om24t osg::Matrix2x4Template
-  :iab <buffer> om2t osg::Matrix2Template
-  :iab <buffer> om32t osg::Matrix3x2Template
-  :iab <buffer> om34t osg::Matrix3x4Template
-  :iab <buffer> om3t osg::Matrix3Template
-  :iab <buffer> om42t osg::Matrix4x2Template
-  :iab <buffer> om43t osg::Matrix4x3Template
+  :iab <buffer> ogaapm osgGA::AnimationPathManipulator
+  :iab <buffer> ogacm osgGA::CameraManipulator
+  :iab <buffer> ogacvsm osgGA::CameraViewSwitchManipulator
+  :iab <buffer> ogad osgGA::Device
+  :iab <buffer> ogadm osgGA::DriveManipulator
+  :iab <buffer> ogae osgGA::Event
+  :iab <buffer> ogaeh osgGA::EventHandler
+  :iab <buffer> ogaeq osgGA::EventQueue
+  :iab <buffer> ogaev osgGA::EventVisitor
+  :iab <buffer> ogafpm osgGA::FirstPersonManipulator
+  :iab <buffer> ogafm osgGA::FlightManipulator
+  :iab <buffer> ogaguiaa osgGA::GUIActionAdapter
+  :iab <buffer> ogapd osgGA::PointerData
+  :iab <buffer> ogaguiea osgGA::GUIEventAdapter
+  :iab <buffer> ogaguieh osgGA::GUIEventHandler
+  :iab <buffer> ogaksmm osgGA::KeySwitchMatrixManipulator
+  :iab <buffer> ogamttm osgGA::MultiTouchTrackballManipulator
+  :iab <buffer> ogantm osgGA::NodeTrackerManipulator
+  :iab <buffer> ogaom osgGA::OrbitManipulator
+  :iab <buffer> ogasm osgGA::SphericalManipulator
+  :iab <buffer> ogasm osgGA::StandardManipulator
+  :iab <buffer> ogassm osgGA::StateSetManipulator
+  :iab <buffer> ogatm osgGA::TerrainManipulator
+  :iab <buffer> ogatm osgGA::TrackballManipulator
+  :iab <buffer> ogaufom osgGA::UFOManipulator
+  :iab <buffer> ogaw osgGA::Widget
   :iab <buffer> omas osgManipulator::AntiSquish
-  :iab <buffer> omcd osgManipulator::CompositeDragger
-  :iab <buffer> omcm osgManipulator::CommandManager
-  :iab <buffer> omc osgManipulator::Constraint
-  :iab <buffer> omcp osgManipulator::CylinderProjector
-  :iab <buffer> omcpp osgManipulator::CylinderPlaneProjector
-  :iab <buffer> omdc osgManipulator::DraggerCallback
-  :iab <buffer> omd osgManipulator::Dragger
-  :iab <buffer> omdtc osgManipulator::DraggerTransformCallback
-  :iab <buffer> omgc osgManipulator::GridConstraint
-  :iab <buffer> omlp osgManipulator::LineProjector
   :iab <buffer> ommc osgManipulator::MotionCommand
-  " :iab <buffer> om osg::Material
-  " :iab <buffer> om osg::Matrixd
-  " :iab <buffer> om osg::Matrixf
-  " :iab <buffer> om osg::Multisample
-  :iab <buffer> om osg::Matrix
-  :iab <buffer> ompi osgManipulator::PointerInfo
-  :iab <buffer> omp osgManipulator::Projector
-  :iab <buffer> ompp osgManipulator::PlaneProjector
-  :iab <buffer> omr3dc osgManipulator::Rotate3DCommand
-  :iab <buffer> omrcd osgManipulator::RotateCylinderDragger
-  :iab <buffer> omrsd osgManipulator::RotateSphereDragger
+  :iab <buffer> omtilc osgManipulator::TranslateInLineCommand
+  :iab <buffer> omtipc osgManipulator::TranslateInPlaneCommand
   :iab <buffer> oms1dc osgManipulator::Scale1DCommand
-  :iab <buffer> oms1dd osgManipulator::Scale1DDragger
   :iab <buffer> oms2dc osgManipulator::Scale2DCommand
-  :iab <buffer> oms2dd osgManipulator::Scale2DDragger
-  :iab <buffer> omsad osgManipulator::ScaleAxisDragger
+  :iab <buffer> omsuc osgManipulator::ScaleUniformCommand
+  :iab <buffer> omr3dc osgManipulator::Rotate3DCommand
+  :iab <buffer> omcm osgManipulator::CommandManager
+  :iab <buffer> omdc osgManipulator::DraggerCallback
+  :iab <buffer> omc osgManipulator::Constraint
+  :iab <buffer> omgc osgManipulator::GridConstraint
+  :iab <buffer> omdtc osgManipulator::DraggerTransformCallback
+  :iab <buffer> ompi osgManipulator::PointerInfo
+  :iab <buffer> omd osgManipulator::Dragger
+  :iab <buffer> omcd osgManipulator::CompositeDragger
+  :iab <buffer> omp osgManipulator::Projector
+  :iab <buffer> omlp osgManipulator::LineProjector
+  :iab <buffer> ompp osgManipulator::PlaneProjector
   :iab <buffer> omsp osgManipulator::SphereProjector
   :iab <buffer> omspp osgManipulator::SpherePlaneProjector
-  :iab <buffer> omsuc osgManipulator::ScaleUniformCommand
+  :iab <buffer> omcp osgManipulator::CylinderProjector
+  :iab <buffer> omcpp osgManipulator::CylinderPlaneProjector
+  :iab <buffer> omrcd osgManipulator::RotateCylinderDragger
+  :iab <buffer> omrsd osgManipulator::RotateSphereDragger
+  :iab <buffer> oms1dd osgManipulator::Scale1DDragger
+  :iab <buffer> oms2dd osgManipulator::Scale2DDragger
+  :iab <buffer> omsad osgManipulator::ScaleAxisDragger
+  :iab <buffer> omtbd osgManipulator::TabBoxDragger
+  :iab <buffer> omtbtd osgManipulator::TabBoxTrackballDragger
+  :iab <buffer> omtpd osgManipulator::TabPlaneDragger
+  :iab <buffer> omtptd osgManipulator::TabPlaneTrackballDragger
+  :iab <buffer> omtd osgManipulator::TrackballDragger
   :iab <buffer> omt1dd osgManipulator::Translate1DDragger
   :iab <buffer> omt2dd osgManipulator::Translate2DDragger
   :iab <buffer> omtad osgManipulator::TranslateAxisDragger
-  :iab <buffer> omtbd osgManipulator::TabBoxDragger
-  :iab <buffer> omtbtd osgManipulator::TabBoxTrackballDragger
-  :iab <buffer> omtd osgManipulator::TrackballDragger
-  :iab <buffer> omtilc osgManipulator::TranslateInLineCommand
-  :iab <buffer> omtipc osgManipulator::TranslateInPlaneCommand
-  " :iab <buffer> omt osg::MatrixTemplate
-  :iab <buffer> omt osg::MatrixTransform
-  " :iab <buffer> omtpd osgManipulator::TabPlaneDragger
   :iab <buffer> omtpd osgManipulator::TranslatePlaneDragger
-  :iab <buffer> omtptd osgManipulator::TabPlaneTrackballDragger
-  :iab <buffer> omv osg::MixinVector
-  :iab <buffer> onao osg::NodeAcceptOp
-  :iab <buffer> onc osg::NodeCallback
-  :iab <buffer> onh osg::NotifyHandler
-  :iab <buffer> on osg::Node
-  :iab <buffer> ontc osg::NodeTrackerCallback
-  :iab <buffer> onv osg::NodeVisitor
-  :iab <buffer> ooafp osgVolume::AlphaFuncProperty
-  :iab <buffer> oocl osgVolume::CompositeLayer
-  :iab <buffer> oocp osgVolume::CompositeProperty
-  :iab <buffer> oocpv osgVolume::CollectPropertiesVisitor
-  :iab <buffer> ooetfp osgVolume::ExteriorTransparencyFactorProperty
-  :iab <buffer> oofft osgVolume::FixedFunctionTechnique
-  :iab <buffer> ooid osgVolume::ImageDetails
-  :iab <buffer> ooil osgVolume::ImageLayer
-  :iab <buffer> ooisp osgVolume::IsoSurfaceProperty
-  " :iab <buffer> ool osgVolume::Layer
-  " :iab <buffer> ool osgVolume::Locator
-  :iab <buffer> oolp osgVolume::LightingProperty
-  :iab <buffer> oomipp osgVolume::MaximumIntensityProjectionProperty
-  :iab <buffer> oomt osgVolume::MultipassTechnique
-  :iab <buffer> oon osg::OccluderNode
-  :iab <buffer> oonp osg::ObserverNodePath
-  " :iab <buffer> oo osg::Object
-  " :iab <buffer> oo osg::Observer
-  :iab <buffer> oo osg::Operation
-  :iab <buffer> oopac osgVolume::PropertyAdjustmentCallback
-  :iab <buffer> oop osgVolume::Property
-  :iab <buffer> oopv osgVolume::PropertyVisitor
-  :iab <buffer> ooqn osg::OcclusionQueryNode
-  :iab <buffer> ooq osg::OperationQueue
-  :iab <buffer> oortt osgVolume::RayTracedTechnique
-  :iab <buffer> oosdp osgVolume::SampleDensityProperty
-  :iab <buffer> oosdwmp osgVolume::SampleDensityWhenMovingProperty
-  " :iab <buffer> o_ osg::buffered_object
-  " :iab <buffer> o_ osg::buffered_value
-  :iab <buffer> o_ osg::depends_on
-  :iab <buffer> o__ osg::fast_back_stack
-  " :iab <buffer> o_ osg::observer_ptr
-  :iab <buffer> o_ osg::ref_ptr
-  :iab <buffer> oos osg::ObserverSet
-  " :iab <buffer> oosp osgVolume::ScalarProperty
-  :iab <buffer> oosp osgVolume::SwitchProperty
-  :iab <buffer> oosrp osgVolume::SampleRatioProperty
-  :iab <buffer> oosrwmp osgVolume::SampleRatioWhenMovingProperty
-  :iab <buffer> ootd osgVolume::TileData
-  :iab <buffer> ootfp osgVolume::TransferFunctionProperty
-  :iab <buffer> ootglc osgVolume::TexGenLocatorCallback
-  :iab <buffer> ootid osgVolume::TileID
-  :iab <buffer> ootlc osgVolume::TransformLocatorCallback
-  :iab <buffer> oot osg::OperationThread
-  :iab <buffer> ootp osgVolume::TransparencyProperty
-  :iab <buffer> oov osgVolume::Volume
-  " :iab <buffer> oovs osgVolume::VolumeScene
-  :iab <buffer> oovs osgVolume::VolumeSettings
-  " :iab <buffer> oovt osgVolume::VolumeTechnique
-  :iab <buffer> oovt osgVolume::VolumeTile
+  :iab <buffer> opao osgParticle::AccelOperator
   :iab <buffer> opaao osgParticle::AngularAccelOperator
   :iab <buffer> opado osgParticle::AngularDampingOperator
-  :iab <buffer> opao osgParticle::AccelOperator
-  :iab <buffer> opat osg::PositionAttitudeTransform
-  " :iab <buffer> opbo osgParticle::BounceOperator
-  :iab <buffer> opbo osg::PixelBufferObject
+  :iab <buffer> opbo osgParticle::BounceOperator
   :iab <buffer> opbp osgParticle::BoxPlacer
-  :iab <buffer> opce osg::ProgramCostEstimator
-  :iab <buffer> opc osgParticle::Counter
-  " :iab <buffer> opcp osgParticle::CenteredPlacer
+  :iab <buffer> opcp osgParticle::CenteredPlacer
   :iab <buffer> opcp osgParticle::CompositePlacer
   :iab <buffer> opcps osgParticle::ConnectedParticleSystem
   :iab <buffer> opcrc osgParticle::ConstantRateCounter
-  :iab <buffer> opdbo osg::PixelDataBufferObject
-  " :iab <buffer> opdo osgParticle::DampingOperator
+  :iab <buffer> opc osgParticle::Counter
+  :iab <buffer> opdo osgParticle::DampingOperator
   :iab <buffer> opdo osgParticle::DomainOperator
+  :iab <buffer> ope osgParticle::Emitter
   :iab <buffer> opede osgParticle::ExplosionDebrisEffect
   :iab <buffer> opee osgParticle::ExplosionEffect
   :iab <buffer> opeo osgParticle::ExplosionOperator
-  :iab <buffer> ope osgParticle::Emitter
   :iab <buffer> opfe osgParticle::FireEffect
   :iab <buffer> opffo osgParticle::FluidFrictionOperator
-  :iab <buffer> opfo osgParticle::ForceOperator
-  :iab <buffer> opf osg::PrimitiveFunctor
   :iab <buffer> opfp osgParticle::FluidProgram
-  :iab <buffer> opif osg::PrimitiveIndexFunctor
+  :iab <buffer> opfo osgParticle::ForceOperator
   :iab <buffer> opi osgParticle::Interpolator
   :iab <buffer> opli osgParticle::LinearInterpolator
-  :iab <buffer> oplod osg::PagedLOD
   :iab <buffer> opme osgParticle::ModularEmitter
-  :iab <buffer> opm osg::PolygonMode
   :iab <buffer> opmp osgParticle::ModularProgram
   :iab <buffer> opmsp osgParticle::MultiSegmentPlacer
-  :iab <buffer> opn osg::ProxyNode
+  :iab <buffer> opo osgParticle::Operator
   :iab <buffer> opoo osgParticle::OrbitOperator
-  " :iab <buffer> opo osgParticle::Operator
-  :iab <buffer> opo osg::PolygonOffset
-  " :iab <buffer> op osgParticle::range
-  " :iab <buffer> op osg::Plane
-  " :iab <buffer> op osg::Point
-  " :iab <buffer> op osg::Polytope
-  " :iab <buffer> op osg::Program
-  ":iab <buffer> op osg::Projection
-  " :iab <buffer> oppe osgParticle::ParticleEffect
-  :iab <buffer> oppe osgParticle::PrecipitationEffect
-  " :iab <buffer> opp osgParticle::Particle
-  " :iab <buffer> opp osgParticle::Placer
-  " :iab <buffer> opp osgParticle::Program
-  :iab <buffer> opp osg::PatchParameter
-  " :iab <buffer> oppp osgParticle::ParticleProcessor
-  :iab <buffer> oppp osgParticle::PointPlacer
+  :iab <buffer> opp osgParticle::Particle
+  :iab <buffer> oppe osgParticle::ParticleEffect
+  :iab <buffer> oppp osgParticle::ParticleProcessor
   :iab <buffer> opps osgParticle::ParticleSystem
   :iab <buffer> oppsu osgParticle::ParticleSystemUpdater
-  :iab <buffer> opri osg::PrimitiveRestartIndex
-  :iab <buffer> oprrc osgParticle::RandomRateCounter
+  :iab <buffer> opp osgParticle::Placer
+  :iab <buffer> oppp osgParticle::PointPlacer
+  :iab <buffer> oppe osgParticle::PrecipitationEffect
+  :iab <buffer> opp osgParticle::Program
   :iab <buffer> oprs osgParticle::RadialShooter
-  :iab <buffer> opse osgParticle::SmokeEffect
-  :iab <buffer> opsm osg::PixelStorageModes
-  :iab <buffer> opso osgParticle::SinkOperator
-  " :iab <buffer> ops osgParticle::Shooter
-  " :iab <buffer> ops osg::PointSprite
-  " :iab <buffer> ops osg::PolygonStipple
-  :iab <buffer> opst osg::PrimitiveSet
-  " :iab <buffer> opsp osgParticle::SectorPlacer
+  :iab <buffer> oprrc osgParticle::RandomRateCounter
+  :iab <buffer> op osgParticle::range
+  :iab <buffer> opsp osgParticle::SectorPlacer
   :iab <buffer> opsp osgParticle::SegmentPlacer
+  :iab <buffer> ops osgParticle::Shooter
+  :iab <buffer> opso osgParticle::SinkOperator
+  :iab <buffer> opse osgParticle::SmokeEffect
   :iab <buffer> opste osgParticle::SmokeTrailEffect
   :iab <buffer> opvrc osgParticle::VariableRateCounter
-  :iab <buffer> oqglw osgQt::GLWidget
-  :iab <buffer> oqg osg::QueryGeometry
-  :iab <buffer> oqgwq osgQt::GraphicsWindowQt
-  :iab <buffer> oq osg::Quat
-  :iab <buffer> oqqfi osgQt::QFontImplementation
-  :iab <buffer> oqqgva osgQt::QGraphicsViewAdapter
-  :iab <buffer> oqqwi osgQt::QWidgetImage
-  :iab <buffer> oqqwvi osgQt::QWebViewImage
-  :iab <buffer> orbc osg::RefBlockCount
-  " :iab <buffer> orb osg::RefBlock
-  :iab <buffer> orb osg::RenderBuffer
-  :iab <buffer> orc_b_mco osg::ReleaseContext_Block_MakeCurrentOperation
-  " :iab <buffer> orcl osgTerrain::CompositeLayer
-  :iab <buffer> orcl osgTerrain::ContourLayer
-  :iab <buffer> ordmt osgTerrain::DisplacementMappingTechnique
-  :iab <buffer> orgp osgTerrain::GeometryPool
-  :iab <buffer> orgt osgTerrain::GeometryTechnique
-  :iab <buffer> orhfd osgTerrain::HeightFieldDrawable
-  :iab <buffer> orhfl osgTerrain::HeightFieldLayer
-  :iab <buffer> oril osgTerrain::ImageLayer
-  :iab <buffer> ori osg::RenderInfo
-  " :iab <buffer> orl osgTerrain::Layer
-  :iab <buffer> orl osgTerrain::Locator
-  " :iab <buffer> orm osg::RefMatrixd
-  :iab <buffer> orm osg::RefMatrixf
-  :iab <buffer> orndv osgTerrain::NoDataValue
-  :iab <buffer> oro osg::RunOperations
-  ":iab <buffer> or osg::Referenced
-  :iab <buffer> orpl osgTerrain::ProxyLayer
-  :iab <buffer> orsg osgTerrain::SharedGeometry
-  :iab <buffer> orsl osgTerrain::SwitchLayer
-  :iab <buffer> ortid osgTerrain::TileID
-  :iab <buffer> ortn osgTerrain::TerrainNeighbours
-  :iab <buffer> ort osgTerrain::Terrain
-  " :iab <buffer> ortt osgTerrain::TerrainTechnique
-  :iab <buffer> ortt osgTerrain::TerrainTile
-  :iab <buffer> orvdo osgTerrain::ValidDataOperator
-  :iab <buffer> orvr osgTerrain::ValidRange
-  :iab <buffer> orwltlc osgTerrain::WhiteListTileLoadedCallback
-  :iab <buffer> osac osg::StateAttributeCallback
-  " :iab <buffer> osa osg::ShaderAttribute
-  :iab <buffer> osa osg::StateAttribute
-  :iab <buffer> osbo osg::SwapBuffersOperation
-  :iab <buffer> osb osg::ShaderBinary
-  " :iab <buffer> osc osg::ShaderComponent
-  :iab <buffer> osc osg::ShaderComposer
+  :iab <buffer> opram osgPresentation::AnimationMaterial
+  :iab <buffer> opramc osgPresentation::AnimationMaterialCallback
+  :iab <buffer> oprcsc osgPresentation::CompileSlideCallback
+  :iab <buffer> oprc osgPresentation::Cursor
+  :iab <buffer> oprkeh osgPresentation::KeyEventHandler
+  :iab <buffer> oprpeh osgPresentation::PickEventHandler
+  :iab <buffer> oprpm osgPresentation::PropertyManager
+  :iab <buffer> oprpr osgPresentation::PropertyReader
+  :iab <buffer> oprpa osgPresentation::PropertyAnimation
+  :iab <buffer> oprisuc osgPresentation::ImageSequenceUpdateCallback
+  :iab <buffer> oprpec osgPresentation::PropertyEventCallback
+  :iab <buffer> oprjd osgPresentation::JumpData
+  :iab <buffer> oprhp osgPresentation::HomePosition
+  :iab <buffer> oprkp osgPresentation::KeyPosition
+  :iab <buffer> oprlc osgPresentation::LayerCallback
+  :iab <buffer> oprla osgPresentation::LayerAttributes
+  :iab <buffer> oprfpd osgPresentation::FilePathData
+  :iab <buffer> opr_ osgPresentation::dereference_less
+  :iab <buffer> oproo osgPresentation::ObjectOperator
+  :iab <buffer> oprao osgPresentation::ActiveOperators
+  :iab <buffer> oprseh osgPresentation::SlideEventHandler
+  :iab <buffer> oprhudt osgPresentation::HUDTransform
+  :iab <buffer> oprssc osgPresentation::SlideShowConstructor
+  :iab <buffer> oprhuds osgPresentation::HUDSettings
+  :iab <buffer> oprt osgPresentation::Timeout
   :iab <buffer> oscp osgShadow::ConvexPolyhedron
-  :iab <buffer> osd osg::ShapeDrawable
   :iab <buffer> osdsm osgShadow::DebugShadowMap
-  :iab <buffer> ose osg::ScriptEngine
   :iab <buffer> oslspsma osgShadow::LightSpacePerspectiveShadowMapAlgorithm
-  :iab <buffer> oslspsmcb osgShadow::LightSpacePerspectiveShadowMapCB
   :iab <buffer> oslspsmdb osgShadow::LightSpacePerspectiveShadowMapDB
+  :iab <buffer> oslspsmcb osgShadow::LightSpacePerspectiveShadowMapCB
   :iab <buffer> oslspsmvb osgShadow::LightSpacePerspectiveShadowMapVB
   :iab <buffer> osmcbsm osgShadow::MinimalCullBoundsShadowMap
   :iab <buffer> osmdbsm osgShadow::MinimalDrawBoundsShadowMap
-  " :iab <buffer> osm osg::SampleMaski
-  :iab <buffer> osm osg::ShadeModel
   :iab <buffer> osmsm osgShadow::MinimalShadowMap
-  :iab <buffer> osnc osg::ScriptNodeCallback
-  :iab <buffer> osnh osg::StandardNotifyHandler
-  :iab <buffer> osog osgShadow::OccluderGeometry
-  " :iab <buffer> os osg::Scissor
-  " :iab <buffer> os osg::Script
-  " :iab <buffer> os osg::Sequence
-  " :iab <buffer> os osg::Shader
-  " :iab <buffer> os osg::Shape
-  " :iab <buffer> os osg::Sphere
-  " :iab <buffer> os osg::State
-  " :iab <buffer> os osg::Stats
-  " :iab <buffer> os osg::Stencil
-  " :iab <buffer> os osg::Switch
-  :iab <buffer> ospsm osgShadow::ProjectionShadowMap
   :iab <buffer> ospssm osgShadow::ParallelSplitShadowMap
-  :iab <buffer> ossbb osg::ShaderStorageBufferBinding
-  :iab <buffer> ossbc osg::SyncSwapBuffersCallback
-  :iab <buffer> ossbo osg::ShaderStorageBufferObject
+  :iab <buffer> ospsm osgShadow::ProjectionShadowMap
+  :iab <buffer> osss osgShadow::ShadowedScene
   :iab <buffer> ossm osgShadow::ShadowMap
-  :iab <buffer> oss osg::StateSet
-  " :iab <buffer> osssm osgShadow::SoftShadowMap
-  :iab <buffer> osssm osgShadow::StandardShadowMap
-  " :iab <buffer> osss osgShadow::ShadowedScene
   :iab <buffer> osss osgShadow::ShadowSettings
-  " :iab <buffer> osst osgShadow::ShadowTechnique
+  :iab <buffer> osst osgShadow::ShadowTechnique
   :iab <buffer> osst osgShadow::ShadowTexture
-  :iab <buffer> ossvg osgShadow::ShadowVolumeGeometry
-  :iab <buffer> ossv osgShadow::ShadowVolume
-  :iab <buffer> osts osg::StencilTwoSided
+  :iab <buffer> osssm osgShadow::SoftShadowMap
+  :iab <buffer> osssm osgShadow::StandardShadowMap
   :iab <buffer> osvdsm osgShadow::ViewDependentShadowMap
   :iab <buffer> osvdst osgShadow::ViewDependentShadowTechnique
-  :iab <buffer> osvo osg::ShadowVolumeOccluder
-  :iab <buffer> osv osg::ShapeVisitor
-  :iab <buffer> ot1d osg::Texture1D
-  :iab <buffer> ot2da osg::Texture2DArray
-  :iab <buffer> ot2dm osg::Texture2DMultisample
-  :iab <buffer> ot2d osg::Texture2D
-  :iab <buffer> ot3d osg::Texture3D
-  :iab <buffer> ota osg::TemplateArray
-  " :iab <buffer> otb osgText::Bevel
-  :iab <buffer> otb osg::TextureBuffer
-  :iab <buffer> otce osg::TextureCostEstimator
-  :iab <buffer> otcm osg::TextureCubeMap
-  :iab <buffer> otec osg::TexEnvCombine
-  :iab <buffer> otef osg::TexEnvFilter
-  :iab <buffer> ote osg::TexEnv
-  :iab <buffer> otf1d osg::TransferFunction1D
-  :iab <buffer> otfbb osg::TransformFeedbackBufferBinding
-  " :iab <buffer> otf osgText::Font
-  " :iab <buffer> otf osg::TransferFunction
-  :iab <buffer> otf osg::TriangleFunctor
+  :iab <buffer> osisg osgSim::SequenceGroup
+  :iab <buffer> osibs osgSim::BlinkSequence
+  :iab <buffer> osicr osgSim::ColorRange
+  :iab <buffer> osidoft osgSim::DOFTransform
+  :iab <buffer> osies osgSim::ElevationSlice
+  :iab <buffer> osigl osgSim::GeographicLocation
+  :iab <buffer> osihat osgSim::HeightAboveTerrain
+  :iab <buffer> osii osgSim::Impostor
+  :iab <buffer> osiis osgSim::ImpostorSprite
+  :iab <buffer> osiism osgSim::ImpostorSpriteManager
+  :iab <buffer> osiiiv osgSim::InsertImpostorsVisitor
+  :iab <buffer> osilp osgSim::LightPoint
+  :iab <buffer> osilpn osgSim::LightPointNode
+  :iab <buffer> osilps osgSim::LightPointSystem
+  :iab <buffer> osidcrc osgSim::DatabaseCacheReadCallback
+  :iab <buffer> osilos osgSim::LineOfSight
+  :iab <buffer> osims osgSim::MultiSwitch
+  :iab <buffer> osiord osgSim::ObjectRecordData
+  :iab <buffer> osion osgSim::OverlayNode
+  :iab <buffer> osisb osgSim::ScalarBar
+  :iab <buffer> osistc osgSim::ScalarsToColors
+  :iab <buffer> osis osgSim::Sector
+  :iab <buffer> osiar osgSim::AzimRange
+  :iab <buffer> osier osgSim::ElevationRange
+  :iab <buffer> osias osgSim::AzimSector
+  :iab <buffer> osies osgSim::ElevationSector
+  :iab <buffer> osiaes osgSim::AzimElevationSector
+  :iab <buffer> osics osgSim::ConeSector
+  :iab <buffer> osids osgSim::DirectionalSector
+  :iab <buffer> osisa osgSim::ShapeAttribute
+  :iab <buffer> osisal osgSim::ShapeAttributeList
+  :iab <buffer> osiss osgSim::SphereSegment
+  :iab <buffer> osivg osgSim::VisibilityGroup
+  :iab <buffer> otedmt osgTerrain::DisplacementMappingTechnique
+  :iab <buffer> otesg osgTerrain::SharedGeometry
+  :iab <buffer> otegp osgTerrain::GeometryPool
+  :iab <buffer> otehfd osgTerrain::HeightFieldDrawable
+  :iab <buffer> otegt osgTerrain::GeometryTechnique
+  :iab <buffer> otel osgTerrain::Layer
+  :iab <buffer> oteil osgTerrain::ImageLayer
+  :iab <buffer> otecl osgTerrain::ContourLayer
+  :iab <buffer> otehfl osgTerrain::HeightFieldLayer
+  :iab <buffer> otepl osgTerrain::ProxyLayer
+  :iab <buffer> otecl osgTerrain::CompositeLayer
+  :iab <buffer> otesl osgTerrain::SwitchLayer
+  :iab <buffer> otel osgTerrain::Locator
+  :iab <buffer> otet osgTerrain::Terrain
+  :iab <buffer> otetn osgTerrain::TerrainNeighbours
+  :iab <buffer> otett osgTerrain::TerrainTechnique
+  :iab <buffer> otetid osgTerrain::TileID
+  :iab <buffer> otett osgTerrain::TerrainTile
+  :iab <buffer> otewltlc osgTerrain::WhiteListTileLoadedCallback
+  :iab <buffer> otevdo osgTerrain::ValidDataOperator
+  :iab <buffer> otevr osgTerrain::ValidRange
+  :iab <buffer> otendv osgTerrain::NoDataValue
   :iab <buffer> otft osgText::FadeText
-  :iab <buffer> otg3d osgText::Glyph3D
-  :iab <buffer> otgg osgText::GlyphGeometry
-  :iab <buffer> otgn osg::TexGenNode
-  " :iab <buffer> otg osg::TexGen
+  :iab <buffer> otf osgText::Font
   :iab <buffer> otg osgText::Glyph
+  :iab <buffer> otgg osgText::GlyphGeometry
+  :iab <buffer> otg3d osgText::Glyph3D
   :iab <buffer> otgt osgText::GlyphTexture
-  :iab <buffer> oth osg::TessellationHints
-  :iab <buffer> otia osg::TemplateIndexArray
-  :iab <buffer> otif osg::TriangleIndexFunctor
-  " :iab <buffer> otm osg::TexMat
-  :iab <buffer> otm osg::TriangleMesh
-  " :iab <buffer> ot osg::Texture
-  " :iab <buffer> ot osg::Timer
-  :iab <buffer> ot osg::Transform
-  :iab <buffer> otpf osg::TemplatePrimitiveFunctor
-  " :iab <buffer> otr osg::TestResult
-  :iab <buffer> otr osg::TextureRectangle
-  " :iab <buffer> ots osgText::String
+  :iab <buffer> otvui osgText::VectorUInt
+  :iab <buffer> ots osgText::String
+  :iab <buffer> otb osgText::Bevel
   :iab <buffer> ots osgText::Style
+  :iab <buffer> ott osgText::Text
   :iab <buffer> ott3d osgText::Text3D
   :iab <buffer> ottb osgText::TextBase
-  :iab <buffer> ott osgText::Text
-  :iab <buffer> otvo osg::TemplateValueObject
-  :iab <buffer> otvui osgText::VectorUInt
-  :iab <buffer> ouaro osgUtil::AddRangeOperator
-  :iab <buffer> oubb osg::UniformBufferBinding
-  :iab <buffer> oubo osg::UniformBufferObject
-  :iab <buffer> oubov osgUtil::BaseOptimizerVisitor
-  :iab <buffer> oucmg osgUtil::CubeMapGenerator
-  :iab <buffer> ouc osg::UniformCallback
-  " :iab <buffer> oucv osgUtil::ConvertVec
-  :iab <buffer> oucv osgUtil::CullVisitor
-  " :iab <buffer> oudc osg::UserDataContainer
-  :iab <buffer> oudc osgUtil::DelaunayConstraint
-  :iab <buffer> oudets osgUtil::DrawElementTypeSimplifier
-  :iab <buffer> oudetsv osgUtil::DrawElementTypeSimplifierVisitor
-  :iab <buffer> oudrv osgUtil::DisplayRequirementsVisitor
-  :iab <buffer> oudt osgUtil::DelaunayTriangulator
-  :iab <buffer> ouec osgUtil::EdgeCollector
-  :iab <buffer> ougc osgUtil::GeometryCollector
-  :iab <buffer> ougloo osgUtil::GLObjectsOperation
-  :iab <buffer> ouglov osgUtil::GLObjectsVisitor
-  :iab <buffer> ouhmg osgUtil::HighlightMapGenerator
-  :iab <buffer> ouh osgUtil::Hit
-  :iab <buffer> ouhwmg osgUtil::HalfWayMapGenerator
   :iab <buffer> ouias osgUI::AlignmentSettings
-  :iab <buffer> ouicb osgUI::ComboBox
   :iab <buffer> ouicc osgUI::CloseCallback
-  :iab <buffer> ouico osgUtil::IncrementalCompileOperation
-  :iab <buffer> ouicp osgUI::ColorPalette
-  :iab <buffer> ouidc osgUI::DragCallback
-  :iab <buffer> ouid osgUI::Dialog
-  :iab <buffer> ouidv osgUI::DoubleValidator
-  :iab <buffer> ouifs osgUI::FrameSettings
-  :iab <buffer> ouig osgUtil::IntersectorGroup
   :iab <buffer> ouihc osgUI::HandleCallback
+  :iab <buffer> ouidc osgUI::DragCallback
+  :iab <buffer> ouicp osgUI::ColorPalette
   :iab <buffer> ouii osgUI::Item
-  :iab <buffer> ouiiv osgUI::IntValidator
-  :iab <buffer> ouile osgUI::LineEdit
+  :iab <buffer> ouicb osgUI::ComboBox
+  :iab <buffer> ouid osgUI::Dialog
+  :iab <buffer> ouifs osgUI::FrameSettings
   :iab <buffer> ouil osgUI::Label
-  :iab <buffer> ouimv osgUtil::IndexMeshVisitor
-  :iab <buffer> oui osgUtil::Intersector
-  :iab <buffer> ouipb osgUI::PushButton
+  :iab <buffer> ouile osgUI::LineEdit
   :iab <buffer> ouip osgUI::Popup
+  :iab <buffer> ouipb osgUI::PushButton
   :iab <buffer> ouis osgUI::Style
   :iab <buffer> ouit osgUI::Tab
-  :iab <buffer> ouits osgUI::TextSettings
   :iab <buffer> ouitw osgUI::TabWidget
-  " :iab <buffer> ouiv osgUI::Validator
-  " :iab <buffer> ouiv osgUtil::IntersectionVisitor
-  :iab <buffer> ouiv osgUtil::IntersectVisitor
+  :iab <buffer> ouits osgUI::TextSettings
+  :iab <buffer> ouiv osgUI::Validator
+  :iab <buffer> ouiiv osgUI::IntValidator
+  :iab <buffer> ouidv osgUI::DoubleValidator
   :iab <buffer> ouiw osgUI::Widget
-  :iab <buffer> ouldsf osgUtil::LessDepthSortFunctor
-  :iab <buffer> oulsi osgUtil::LineSegmentIntersector
-  :iab <buffer> oumro osgUtil::MultiplyRangeOperator
-  :iab <buffer> ouoaf osgUtil::OperationArrayFunctor
-  :iab <buffer> ouo osgUtil::Optimizer
-  :iab <buffer> ou osg::Uniform
-  " :iab <buffer> ou_ osgUtil::dereference_clear
+  :iab <buffer> oucv osgUtil::ConvertVec
+  :iab <buffer> oucv osgUtil::ConvertVec
+  :iab <buffer> oucv osgUtil::ConvertVec
+  :iab <buffer> oucv osgUtil::ConvertVec
+  :iab <buffer> oucv osgUtil::ConvertVec
+  :iab <buffer> oucv osgUtil::ConvertVec
+  :iab <buffer> oucv osgUtil::ConvertVec
+  :iab <buffer> oucv osgUtil::ConvertVec
+  :iab <buffer> oucv osgUtil::ConvertVec
+  :iab <buffer> oucv osgUtil::ConvertVec
+  :iab <buffer> oucmg osgUtil::CubeMapGenerator
+  :iab <buffer> oucv osgUtil::CullVisitor
+  :iab <buffer> oudc osgUtil::DelaunayConstraint
+  :iab <buffer> oudt osgUtil::DelaunayTriangulator
+  :iab <buffer> oudrv osgUtil::DisplayRequirementsVisitor
+  :iab <buffer> oudets osgUtil::DrawElementTypeSimplifier
+  :iab <buffer> oudetsv osgUtil::DrawElementTypeSimplifierVisitor
   :iab <buffer> ou_ osgUtil::dereference_less
-  " :iab <buffer> oupi osgUtil::PlaneIntersector
-  :iab <buffer> oupi osgUtil::PolytopeIntersector
-  :iab <buffer> oupn osgUtil::PerlinNoise
-  :iab <buffer> oupsc osgUtil::PositionalStateContainer
-  " :iab <buffer> oupv osgUtil::PickVisitor
-  :iab <buffer> oupv osgUtil::PrintVisitor
-  :iab <buffer> ourb osgUtil::RenderBin
-  :iab <buffer> ouri osgUtil::RayIntersector
-  :iab <buffer> ourl osgUtil::RenderLeaf
-  :iab <buffer> ourmg osgUtil::ReflectionMapGenerator
-  :iab <buffer> ourpf osgUtil::ReversePrimitiveFunctor
-  :iab <buffer> ours osgUtil::RenderStage
-  :iab <buffer> ousao osgUtil::SharedArrayOptimizer
-  :iab <buffer> ousgb osgUtil::SceneGraphBuilder
-  :iab <buffer> ousgc osgUtil::ShaderGenCache
-  :iab <buffer> ousg osgUtil::StateGraph
-  :iab <buffer> ousgv osgUtil::ShaderGenVisitor
-  " :iab <buffer> ous osgUtil::Simplifier
-  :iab <buffer> ous osgUtil::Statistics
+  :iab <buffer> ou_ osgUtil::dereference_clear
+  :iab <buffer> ouec osgUtil::EdgeCollector
+  :iab <buffer> ouglov osgUtil::GLObjectsVisitor
+  :iab <buffer> ougloo osgUtil::GLObjectsOperation
+  :iab <buffer> ouhwmg osgUtil::HalfWayMapGenerator
+  :iab <buffer> ouhmg osgUtil::HighlightMapGenerator
   :iab <buffer> oustc osgUtil::StateToCompile
-  " :iab <buffer> ousv osgUtil::SceneView
-  " :iab <buffer> ousv osgUtil::SmoothingVisitor
+  :iab <buffer> ouico osgUtil::IncrementalCompileOperation
+  :iab <buffer> oui osgUtil::Intersector
+  :iab <buffer> ouig osgUtil::IntersectorGroup
+  :iab <buffer> ouiv osgUtil::IntersectionVisitor
+  :iab <buffer> oulsi osgUtil::LineSegmentIntersector
+  :iab <buffer> ougc osgUtil::GeometryCollector
+  :iab <buffer> ouimv osgUtil::IndexMeshVisitor
+  :iab <buffer> ouvcv osgUtil::VertexCacheVisitor
+  :iab <buffer> ouvcmv osgUtil::VertexCacheMissVisitor
+  :iab <buffer> ouvaov osgUtil::VertexAccessOrderVisitor
+  :iab <buffer> ousao osgUtil::SharedArrayOptimizer
+  :iab <buffer> ouoaf osgUtil::OperationArrayFunctor
+  :iab <buffer> ouaro osgUtil::AddRangeOperator
+  :iab <buffer> oumro osgUtil::MultiplyRangeOperator
+  :iab <buffer> oubov osgUtil::BaseOptimizerVisitor
+  :iab <buffer> ouo osgUtil::Optimizer
+  :iab <buffer> oupn osgUtil::PerlinNoise
+  :iab <buffer> oupi osgUtil::PlaneIntersector
+  :iab <buffer> oupi osgUtil::PolytopeIntersector
+  :iab <buffer> oupsc osgUtil::PositionalStateContainer
+  :iab <buffer> oupv osgUtil::PrintVisitor
+  :iab <buffer> ouri osgUtil::RayIntersector
+  :iab <buffer> ourmg osgUtil::ReflectionMapGenerator
+  :iab <buffer> ourb osgUtil::RenderBin
+  :iab <buffer> ourl osgUtil::RenderLeaf
+  :iab <buffer> ours osgUtil::RenderStage
+  :iab <buffer> ourpf osgUtil::ReversePrimitiveFunctor
+  :iab <buffer> ousgb osgUtil::SceneGraphBuilder
+  :iab <buffer> ousv osgUtil::SceneView
+  :iab <buffer> ousgv osgUtil::ShaderGenVisitor
+  :iab <buffer> ous osgUtil::Simplifier
+  :iab <buffer> ousv osgUtil::SmoothingVisitor
+  :iab <buffer> ouldsf osgUtil::LessDepthSortFunctor
+  :iab <buffer> ousg osgUtil::StateGraph
+  :iab <buffer> ous osgUtil::Statistics
   :iab <buffer> ousv osgUtil::StatsVisitor
+  :iab <buffer> outsg osgUtil::TangentSpaceGenerator
+  :iab <buffer> out osgUtil::Tessellator
   :iab <buffer> outaf osgUtil::TransformAttributeFunctor
   :iab <buffer> outc osgUtil::TransformCallback
-  :iab <buffer> out osgUtil::Tessellator
-  :iab <buffer> outsg osgUtil::TangentSpaceGenerator
-  :iab <buffer> outsv osgUtil::TriStripVisitor
   :iab <buffer> ouuv osgUtil::UpdateVisitor
-  :iab <buffer> ouvaov osgUtil::VertexAccessOrderVisitor
-  :iab <buffer> ouvcmv osgUtil::VertexCacheMissVisitor
-  :iab <buffer> ouvcv osgUtil::VertexCacheVisitor
-  :iab <buffer> ov2 osg::Vec2
-  :iab <buffer> ov3 osg::Vec3
-  :iab <buffer> ov4 osg::Vec4
-  " :iab <buffer> ov2 osg::Vec2b
-  " :iab <buffer> ov2 osg::Vec2d
-  " :iab <buffer> ov2 osg::Vec2f
-  " :iab <buffer> ov2 osg::Vec2i
-  " :iab <buffer> ov2 osg::Vec2s
-  " :iab <buffer> ov2 osg::Vec2ub
-  " :iab <buffer> ov2 osg::Vec2ui
-  ":iab <buffer> ov2 osg::Vec2us
-  " :iab <buffer> ov3 osg::Vec3b
-  " :iab <buffer> ov3 osg::Vec3d
-  " :iab <buffer> ov3 osg::Vec3f
-  " :iab <buffer> ov3 osg::Vec3i
-  " :iab <buffer> ov3 osg::Vec3s
-  " :iab <buffer> ov3 osg::Vec3ub
-  " :iab <buffer> ov3 osg::Vec3ui
-  ":iab <buffer> ov3 osg::Vec3us
-  " :iab <buffer> ov4 osg::Vec4b
-  " :iab <buffer> ov4 osg::Vec4d
-  " :iab <buffer> ov4 osg::Vec4f
-  " :iab <buffer> ov4 osg::Vec4i
-  " :iab <buffer> ov4 osg::Vec4s
-  " :iab <buffer> ov4 osg::Vec4ub
-  " :iab <buffer> ov4 osg::Vec4ui
-  ":iab <buffer> ov4 osg::Vec4us
-  :iab <buffer> ovaa osg::VertexAttribAlias
-  :iab <buffer> ovad osg::VertexAttribDivisor
-  :iab <buffer> ovbo osg::VertexBufferObject
+  :iab <buffer> ovghx11 osgViewer::GraphicsHandleX11
+  :iab <buffer> ovgwx11 osgViewer::GraphicsWindowX11
+  :iab <buffer> ovpbx11 osgViewer::PixelBufferX11
+  :iab <buffer> ovgwios osgViewer::GraphicsWindowIOS
+  :iab <buffer> ovgwc osgViewer::GraphicsWindowCarbon
+  :iab <buffer> ovghc osgViewer::GraphicsHandleCarbon
+  :iab <buffer> ovpbc osgViewer::PixelBufferCarbon
+  :iab <buffer> ovpbw32 osgViewer::PixelBufferWin32
+  :iab <buffer> ovghw32 osgViewer::GraphicsHandleWin32
+  :iab <buffer> ovgww32 osgViewer::GraphicsWindowWin32
+  :iab <buffer> ovghc osgViewer::GraphicsHandleCocoa
+  :iab <buffer> ovgwc osgViewer::GraphicsWindowCocoa
+  :iab <buffer> ovpbc osgViewer::PixelBufferCocoa
   :iab <buffer> ovcv osgViewer::CompositeViewer
-  :iab <buffer> ovdps osgViewer::DepthPartitionSettings
+  :iab <buffer> ovsw osgViewer::SingleWindow
+  :iab <buffer> ovsd osgViewer::SphericalDisplay
+  :iab <buffer> ovpsd osgViewer::PanoramicSphericalDisplay
+  :iab <buffer> ovaas osgViewer::AcrossAllScreens
+  :iab <buffer> ovwwvd osgViewer::WoWVxDisplay
+  :iab <buffer> ovss osgViewer::SingleScreen
+  :iab <buffer> ovgw osgViewer::GraphicsWindow
   :iab <buffer> ovgwe osgViewer::GraphicsWindowEmbedded
   :iab <buffer> ovgwfp osgViewer::GraphicsWindowFunctionProxy
-  :iab <buffer> ovgw osgViewer::GraphicsWindow
-  :iab <buffer> ovhh osgViewer::HelpHandler
-  :iab <buffer> oviih osgViewer::InteractiveImageHandler
-  :iab <buffer> ovkh osgViewer::KeystoneHandler
   :iab <buffer> ovk osgViewer::Keystone
-  :iab <buffer> ovlodsh osgViewer::LODScaleHandler
-  :iab <buffer> ovocnt osg::ValueObjectClassNameTrait
+  :iab <buffer> ovkh osgViewer::KeystoneHandler
   :iab <buffer> ovoglqs osgViewer::OpenGLQuerySupport
-  :iab <buffer> ovo osg::ValueObject
-  " :iab <buffer> ov osg::View
-  :iab <buffer> ov osg::Viewport
-  :iab <buffer> ovp osg::VertexProgram
-  :iab <buffer> ovrcph osgViewer::RecordCameraPathHandler
   :iab <buffer> ovr osgViewer::Renderer
-  :iab <buffer> ovsch osgViewer::ScreenCaptureHandler
-  :iab <buffer> ovsh osgViewer::StatsHandler
   :iab <buffer> ovs osgViewer::Scene
-  :iab <buffer> ovth osgViewer::ThreadingHandler
-  :iab <buffer> ovtstvbh osgViewer::ToggleSyncToVBlankHandler
-  :iab <buffer> ovvb osgViewer::ViewerBase
   :iab <buffer> ovvc osgViewer::ViewConfig
-  " :iab <buffer> ovv osg::ValueVisitor
-  " :iab <buffer> ovv osgViewer::View
+  :iab <buffer> ovdps osgViewer::DepthPartitionSettings
+  :iab <buffer> ovv osgViewer::View
   :iab <buffer> ovv osgViewer::Viewer
+  :iab <buffer> ovvb osgViewer::ViewerBase
+  :iab <buffer> ovhh osgViewer::HelpHandler
+  :iab <buffer> ovsh osgViewer::StatsHandler
   :iab <buffer> ovwsh osgViewer::WindowSizeHandler
-  :iab <buffer> owbi osgWidget::BrowserImage
+  :iab <buffer> ovth osgViewer::ThreadingHandler
+  :iab <buffer> ovrcph osgViewer::RecordCameraPathHandler
+  :iab <buffer> ovlodsh osgViewer::LODScaleHandler
+  :iab <buffer> ovtstvbh osgViewer::ToggleSyncToVBlankHandler
+  :iab <buffer> ovsch osgViewer::ScreenCaptureHandler
+  :iab <buffer> oviih osgViewer::InteractiveImageHandler
+  :iab <buffer> ovofft osgVolume::FixedFunctionTechnique
+  :iab <buffer> ovoid osgVolume::ImageDetails
+  :iab <buffer> ovol osgVolume::Layer
+  :iab <buffer> ovoil osgVolume::ImageLayer
+  :iab <buffer> ovocl osgVolume::CompositeLayer
+  :iab <buffer> ovol osgVolume::Locator
+  :iab <buffer> ovotlc osgVolume::TransformLocatorCallback
+  :iab <buffer> ovotglc osgVolume::TexGenLocatorCallback
+  :iab <buffer> ovomt osgVolume::MultipassTechnique
+  :iab <buffer> ovopv osgVolume::PropertyVisitor
+  :iab <buffer> ovop osgVolume::Property
+  :iab <buffer> ovocp osgVolume::CompositeProperty
+  :iab <buffer> ovosp osgVolume::SwitchProperty
+  :iab <buffer> ovotfp osgVolume::TransferFunctionProperty
+  :iab <buffer> ovosp osgVolume::ScalarProperty
+  :iab <buffer> ovoisp osgVolume::IsoSurfaceProperty
+  :iab <buffer> ovoafp osgVolume::AlphaFuncProperty
+  :iab <buffer> ovomipp osgVolume::MaximumIntensityProjectionProperty
+  :iab <buffer> ovolp osgVolume::LightingProperty
+  :iab <buffer> ovosdp osgVolume::SampleDensityProperty
+  :iab <buffer> ovosdwmp osgVolume::SampleDensityWhenMovingProperty
+  :iab <buffer> ovosrp osgVolume::SampleRatioProperty
+  :iab <buffer> ovosrwmp osgVolume::SampleRatioWhenMovingProperty
+  :iab <buffer> ovotp osgVolume::TransparencyProperty
+  :iab <buffer> ovoetfp osgVolume::ExteriorTransparencyFactorProperty
+  :iab <buffer> ovocpv osgVolume::CollectPropertiesVisitor
+  :iab <buffer> ovopac osgVolume::PropertyAdjustmentCallback
+  :iab <buffer> ovortt osgVolume::RayTracedTechnique
+  :iab <buffer> ovov osgVolume::Volume
+  :iab <buffer> ovovs osgVolume::VolumeScene
+  :iab <buffer> ovovs osgVolume::VolumeSettings
+  :iab <buffer> ovotd osgVolume::TileData
+  :iab <buffer> ovovt osgVolume::VolumeTechnique
+  :iab <buffer> ovotid osgVolume::TileID
+  :iab <buffer> ovovt osgVolume::VolumeTile
+  :iab <buffer> owb osgWidget::Box
   :iab <buffer> owbm osgWidget::BrowserManager
-  " :iab <buffer> owb osgWidget::Box
+  :iab <buffer> owbi osgWidget::BrowserImage
   :iab <buffer> owb osgWidget::Browser
-  :iab <buffer> owci osgWidget::CallbackInterface
-  " :iab <buffer> owc osgWidget::Callback
   :iab <buffer> owc osgWidget::Canvas
-  :iab <buffer> owcsh osgWidget::CameraSwitchHandler
-  :iab <buffer> owdnh osg::WinDebugNotifyHandler
-  :iab <buffer> owei osgWidget::EventInterface
   :iab <buffer> owe osgWidget::Event
-  :iab <buffer> owfc osgWidget::FunctionCallback
-  :iab <buffer> owf osgWidget::Frame
-  :iab <buffer> owgh osgWidget::GeometryHints
-  :iab <buffer> owi osgWidget::Input
-  :iab <buffer> owkh osgWidget::KeyboardHandler
-  :iab <buffer> owle osgWidget::LuaEngine
-  :iab <buffer> owl osgWidget::Label
-  :iab <buffer> owmh osgWidget::MouseHandler
-  " :iab <buffer> ownw osgWidget::NotifyWidget
-  :iab <buffer> ownw osgWidget::NullWidget
+  :iab <buffer> owci osgWidget::CallbackInterface
   :iab <buffer> owoc osgWidget::ObjectCallback
-  :iab <buffer> owpe osgWidget::PythonEngine
+  :iab <buffer> owfc osgWidget::FunctionCallback
+  :iab <buffer> owc osgWidget::Callback
+  :iab <buffer> owei osgWidget::EventInterface
+  :iab <buffer> owf osgWidget::Frame
+  :iab <buffer> owi osgWidget::Input
+  :iab <buffer> owl osgWidget::Label
+  :iab <buffer> owle osgWidget::LuaEngine
+  :iab <buffer> owgh osgWidget::GeometryHints
   :iab <buffer> owpi osgWidget::PdfImage
   :iab <buffer> owpr osgWidget::PdfReader
-  :iab <buffer> owrh osgWidget::ResizeHandler
+  :iab <buffer> owpe osgWidget::PythonEngine
   :iab <buffer> owse osgWidget::ScriptEngine
   :iab <buffer> owsi osgWidget::StyleInterface
-  :iab <buffer> owsm osgWidget::StyleManager
   :iab <buffer> ows osgWidget::Style
+  :iab <buffer> owsm osgWidget::StyleManager
   :iab <buffer> owt osgWidget::Table
   :iab <buffer> owuiop osgWidget::UIObjectParent
-  :iab <buffer> owvc osgWidget::VncClient
+  :iab <buffer> owmh osgWidget::MouseHandler
+  :iab <buffer> owkh osgWidget::KeyboardHandler
+  :iab <buffer> owrh osgWidget::ResizeHandler
+  :iab <buffer> owcsh osgWidget::CameraSwitchHandler
   :iab <buffer> owvi osgWidget::VncImage
-  :iab <buffer> owwm osgWidget::WindowManager
-  " :iab <buffer> oww osgWidget::Widget
+  :iab <buffer> owvc osgWidget::VncClient
+  :iab <buffer> oww osgWidget::Widget
+  :iab <buffer> ownw osgWidget::NotifyWidget
+  :iab <buffer> ownw osgWidget::NullWidget
   :iab <buffer> oww osgWidget::Window
+  :iab <buffer> owwm osgWidget::WindowManager
 
   " manual
+  :iab <buffer> oaa osgAnimation::Animation
+  :iab <buffer> oadcbc osgAnimation::DoubleCubicBezierChannel
+  :iab <buffer> oadlc osgAnimation::DoubleLinearChannel
+  :iab <buffer> oadsc osgAnimation::DoubleStepChannel
+  :iab <buffer> oafcbc osgAnimation::FloatCubicBezierChannel
+  :iab <buffer> oaflc osgAnimation::FloatLinearChannel
+  :iab <buffer> oafsc osgAnimation::FloatStepChannel
+  :iab <buffer> oaibf osgAnimation::InBounceFunction
+  :iab <buffer> oaibm osgAnimation::InBackMotion
+  :iab <buffer> oaibm osgAnimation::InBounceMotion
+  :iab <buffer> oaicm osgAnimation::InCircMotion
+  :iab <buffer> oaicm osgAnimation::InCubicMotion
+  :iab <buffer> oaief osgAnimation::InExpoFunction
+  :iab <buffer> oaiem osgAnimation::InElasticMotion
+  :iab <buffer> oaiem osgAnimation::InExpoMotion
+  :iab <buffer> oaiobf osgAnimation::InOutBounceFunction
+  :iab <buffer> oaiobm osgAnimation::InOutBackMotion
+  :iab <buffer> oaiobm osgAnimation::InOutBounceMotion
+  :iab <buffer> oaiocf osgAnimation::InOutCubicFunction
+  :iab <buffer> oaiocm osgAnimation::InOutCircMotion
+  :iab <buffer> oaiocm osgAnimation::InOutCubicMotion
+  :iab <buffer> oaioef osgAnimation::InOutExpoFunction
+  :iab <buffer> oaioem osgAnimation::InOutElasticMotion
+  :iab <buffer> oaioem osgAnimation::InOutExpoMotion
+  :iab <buffer> oaioqf osgAnimation::InOutQuartFunction
+  :iab <buffer> oaioqm osgAnimation::InOutQuadMotion
+  :iab <buffer> oaioqm osgAnimation::InOutQuartMotion
+  :iab <buffer> oaiosm osgAnimation::InOutSineMotion
+  :iab <buffer> oaiqm osgAnimation::InQuadMotion
+  :iab <buffer> oaiqm osgAnimation::InQuartMotion
+  :iab <buffer> oaism osgAnimation::InSineMotion
+  :iab <buffer> oamlc osgAnimation::MatrixLinearChannel
+  :iab <buffer> oaobm osgAnimation::OutBackMotion
+  :iab <buffer> oaobm osgAnimation::OutBounceMotion
+  :iab <buffer> oaocm osgAnimation::OutCircMotion
+  :iab <buffer> oaocm osgAnimation::OutCubicMotion
+  :iab <buffer> oaoef osgAnimation::OutExpoFunction
+  :iab <buffer> oaoem osgAnimation::OutElasticMotion
+  :iab <buffer> oaoem osgAnimation::OutExpoMotion
+  :iab <buffer> oaoqf osgAnimation::OutQuartFunction
+  :iab <buffer> oaoqm osgAnimation::OutQuadMotion
+  :iab <buffer> oaoqm osgAnimation::OutQuartMotion
+  :iab <buffer> oaosm osgAnimation::OutSineMotion
+  :iab <buffer> oap osg::AnimationPath
+  :iab <buffer> oap osg::ArgumentParser
+  :iab <buffer> oaqsc osgAnimation::QuatStepChannel
+  :iab <buffer> oaqslc osgAnimation::QuatSphericalLinearChannel
+  :iab <buffer> oas osg::AudioStream
+  :iab <buffer> oaste osgAnimation::StackedTranslateElement
+  :iab <buffer> oat osg::AutoTransform
+  :iab <buffer> oav2cbc osgAnimation::Vec2CubicBezierChannel
+  :iab <buffer> oav2lc osgAnimation::Vec2LinearChannel
+  :iab <buffer> oav2sc osgAnimation::Vec2StepChannel
+  :iab <buffer> oav3cbc osgAnimation::Vec3CubicBezierChannel
+  :iab <buffer> oav3lc osgAnimation::Vec3LinearChannel
+  :iab <buffer> oav3sc osgAnimation::Vec3StepChannel
+  :iab <buffer> oav4cbc osgAnimation::Vec4CubicBezierChannel
+  :iab <buffer> oav4lc osgAnimation::Vec4LinearChannel
+  :iab <buffer> oav4sc osgAnimation::Vec4StepChannel
+  :iab <buffer> obb osg::BoundingBox
+  :iab <buffer> obe osg::BlendEquationi
+  :iab <buffer> obf osg::BlendFunci
+  :iab <buffer> obo osg::BufferObject
+  :iab <buffer> obd osg::Billboard
+  :iab <buffer> ob osg::Box
+  :iab <buffer> obs osg::BoundingSphere
+  :iab <buffer> occ osg::ClipControl
+  :iab <buffer> ocm osg::ColorMatrix
+  :iab <buffer> ocn osg::ClipNode
+  :iab <buffer> oco osg::CopyOp
   :iab <buffer> oc osg::Camera
+  :iab <buffer> ocs osg::CullSettings
+  :iab <buffer> odbb64 osgDB::Base64encoder
+  :iab <buffer> odbdr osgDB::DatabaseRevisions
+  :iab <buffer> odbip osgDB::ImageProcessor
+  :iab <buffer> odbis osgDB::InputStream
+  :iab <buffer> odbms osgDB::MatrixSerializer
+  :iab <buffer> odbo osgDB::Output
+  :iab <buffer> odb osgDB::
+  :iab <buffer> odbos osgDB::OutputStream
+  :iab <buffer> od osg::Drawable
+  :iab <buffer> oet osgPresentation::Timeout
+  :iab <buffer> ogce osg::GraphicsCostEstimator
+  :iab <buffer> ogsm osgGA::StandardManipulator
+  :iab <buffer> ogtm osgGA::TrackballManipulator
+  :iab <buffer> oies osgSim::ElevationSlice
+  :iab <buffer> ois osgSim::Sector
+  :iab <buffer> ols osg::LineSegment
+  :iab <buffer> om osg::Matrix
+  :iab <buffer> omt osg::MatrixTransform
+  :iab <buffer> omtpd osgManipulator::TranslatePlaneDragger
+  :iab <buffer> ool osgVolume::Layer
+  :iab <buffer> oo osg::Object
+  :iab <buffer> o_ osg::ref_ptr
+  :iab <buffer> oovs osgVolume::VolumeSettings
+  :iab <buffer> oovt osgVolume::VolumeTile
+  :iab <buffer> opbo osg::PixelBufferObject
+  :iab <buffer> opcp osgParticle::CompositePlacer
+  :iab <buffer> opdo osgParticle::DomainOperator
+  :iab <buffer> opo osg::PolygonOffset
+  :iab <buffer> op osg::Program
+  :iab <buffer> oppe osgParticle::PrecipitationEffect
+  :iab <buffer> oppp osgParticle::PointPlacer
+  :iab <buffer> ops osg::PointSprite
+  :iab <buffer> orb osg::RenderBuffer
+  :iab <buffer> orcl osgTerrain::ContourLayer
+  :iab <buffer> orl osgTerrain::Locator
+  :iab <buffer> orm osg::RefMatrixf
+  :iab <buffer> ortt osgTerrain::TerrainTile
+  :iab <buffer> osa osg::StateAttribute
+  :iab <buffer> osc osg::ShaderComposer
+  :iab <buffer> osm osg::ShadeModel
+  :iab <buffer> os osg::Shader
+  :iab <buffer> osssm osgShadow::StandardShadowMap
+  :iab <buffer> osss osgShadow::ShadowSettings
+  :iab <buffer> osst osgShadow::ShadowTexture
+  :iab <buffer> otb osg::TextureBuffer
+  :iab <buffer> otf osg::TriangleFunctor
+  :iab <buffer> otg osg::TexGen
+  :iab <buffer> otm osg::TexMat
+  :iab <buffer> ot osg::Texture
+  :iab <buffer> otr osg::TextureRectangle
+  :iab <buffer> oucv osgUtil::CullVisitor
+  :iab <buffer> oudc osgUtil::DelaunayConstraint
+  :iab <buffer> ouiv osgUtil::IntersectVisitor
+  :iab <buffer> oupi osgUtil::PolytopeIntersector
+  :iab <buffer> oupv osgUtil::PrintVisitor
+  :iab <buffer> ous osgUtil::Statistics
+  :iab <buffer> ous osgUtil::Statistics
+  :iab <buffer> ousv osgUtil::StatsVisitor
   :iab <buffer> ov2a osg::Vec2Array
+  :iab <buffer> ov2 osg::Vec2
   :iab <buffer> ov3a osg::Vec3Array
   :iab <buffer> ov4a osg::Vec4Array
-  :iab <buffer> oap osg::AnimationPath
-  :iab <buffer> ob osg::Billboard
-
+  :iab <buffer> ov osg::Viewport
+  :iab <buffer> ovv osgViewer::Viewer
+  :iab <buffer> owb osgWidget::Browser
+  :iab <buffer> owc osgWidget::Canvas
+  :iab <buffer> ownw osgWidget::NullWidget
+  :iab <buffer> oww osgWidget::Window
 endfunction
 
 function! abbre#ogre()

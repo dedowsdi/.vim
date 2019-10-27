@@ -18,7 +18,7 @@ com -nargs=* -complete=customlist,mycpp#make_complete CppMakeDebug     update | 
 com -nargs=* -complete=customlist,mycpp#make_complete CppRenderdoc     call mycpp#exe('cd "%b" && renderdoccmd capture %A "./%e" %a', 1, <q-args>)
 
 let s:apitrace_opencmd = 'cd "%b" && qapitrace $(grep -oP "(?<=tracing to ).*$" trace.log)'
-com -nargs=* -complete=customlist,mycpp#make_complete -bar CppApitrace   call mycpp#exe('cd "%b" && apitrace trace "./%e" |& tee trace.log && ' . s:apitrace_opencmd, 1, <q-args>)
+com -nargs=* -complete=customlist,mycpp#make_complete -bar CppApitrace   call mycpp#exe('cd "%b" && apitrace trace "./%e" %a |& tee trace.log && ' . s:apitrace_opencmd, 1, <q-args>)
 com -nargs=* -complete=customlist,mycpp#make_complete CppOpenLastApitrace      call mycpp#exe(s:apitrace_opencmd, 1, <q-args>)
 com -nargs=* -complete=customlist,mycpp#make_complete CppNNL           call mycpp#exe('cd "%b" && nnl --activity="Frame Debugger" --exe="%e" --args="%a" ', 0, <q-args>)
 com -nargs=* -complete=customlist,mycpp#make_complete CppValgrind      call mycpp#exe('cd "%b" && valgrind %A ./%e ', 1, <q-args>)
@@ -47,6 +47,11 @@ com! -nargs=0 VimlBreakNumberedFunction :call misc#viml#break_numbered_function(
 com! -nargs=? VimlGotoFunction :call misc#viml#goto_function(<f-args>)
 com! -nargs=0 VimlJoin :call misc#viml#join()
 com! -nargs=? List call misc#viml#list(expand('<sfile>'), expand('<slnum>'), <f-args>)
+com! -nargs=+ -complete=command AbortDo call misc#abort_do(<f-args>)
+com! -nargs=+ LinkVimHelp let @+ = misc#create_vimhelp_link(<q-args>)
+com! -nargs=+ LinkNvimHelp let @+ = misc#create_nvimhelp_link(<q-args>)
+com! UpdateVimHelpLink call misc#update_link(0)
+com! UpdateNvimHelpLink call misc#update_link(1)
 
 com! RecordYank :call misc#dc#start_copy(1)
 com! RecordYankAppend :call misc#dc#start_copy(0)
@@ -56,6 +61,7 @@ com! -bar CamelToUnderscore exe printf('%%s/\v\C<%s>/%s/g', expand('<cword>'),
       \ misc#camel_to_underscore(expand('<cword>')))
 com! CamelToUnderscoreAndSearchNext CamelToUnderscore | exec "norm! \<c-o>" | SearchNextCamel
 com! SearchNextCamel call search('\v\C\w*[A-Z]\w*', 'W')
+com! -nargs=1 SetNotifySeverity call misc#log#set_notify_severity(<f-args>)
 
 com! -nargs=+ -complete=customlist,s:tt_complete TT call system('tmux_tt ' . <q-args>)
 
@@ -63,4 +69,3 @@ function! s:tt_complete(ArgLead, CmdLine, CursorPos)
   return sort(filter(systemlist('cd ~/.tt_template && printf "%s\n" *'),
         \ 'stridx(v:val, a:ArgLead)==0'))
 endfunction
-

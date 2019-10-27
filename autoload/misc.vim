@@ -101,6 +101,8 @@ function! misc#search_over_pairs(expr, jump_pairs, flags) abort
 endfunction
 
 function! misc#visual_select(range, mode) abort
+  " note that '< and '> are not changed during the entire script lifetime. I
+  " guess 'normal ' .. is pending ?
   call setpos('.', a:range[0]) | exec 'normal! ' . a:mode | call setpos('.', a:range[1])
 endfunction
 
@@ -356,4 +358,100 @@ function! misc#complete_expresson(backward)
   call winrestview(view)
   call complete(start_col, completions)
   return ''
+endfunction
+
+" get change from `[ to `], note that if backspace pass `[, you won't get that
+" part of change.
+function! misc#get_last_change() abort
+  try
+    let [reg_type, reg_content, old_ve] = [@@, getregtype('"'), &virtualedit]
+    " mark motion is exclusive, but it can't past end of line if 've' is empty
+    set ve=onemore
+    let end_with_blank_line = getpos("']")[2] == 1
+    norm! `[y`]
+    let change = @@
+    return end_with_blank_line ? change . "\<cr>" : change
+  finally
+    call setreg('"', reg_content, reg_type)
+    let &ve = old_ve
+  endtry
+endfunction
+
+function! s:default_string_mark()
+  return repeat("\x80", 8)
+endfunction
+
+" add string mark at cursor
+function! misc#insert_string_mark(...) abort
+  let smark = get(a:000, 0, s:default_string_mark())
+  let l = getline('.')
+  let c = col('.')
+  call setline('.', strpart(l, 0, c - 1) . smark . strpart(l, c - 1) )
+endfunction
+
+" append string mark after cursor
+function! misc#append_string_mark(...) abort
+  let smark = get(a:000, 0, s:default_string_mark())
+  let l = getline('.')
+  let c = col('.')
+  call setline('.', strpart(l, 0, c) . smark . strpart(l, c) )
+endfunction
+
+function! misc#search_string_mark(...) abort
+  let smark = get(a:000, 0, s:default_string_mark())
+  let flags = get(a:000, 1, '')
+  if !search(smark, flags)
+    throw 'string mark not found'
+  endif
+endfunction
+
+" always assume cursor on 1st character of string mark
+function! misc#remove_string_mark(...) abort
+  let smark = get(a:000, 0, s:default_string_mark())
+  let l = getline('.')
+  let c = col('.')
+  call setline('.', strpart(l, 0, c - 1) . strpart(l, c - 1 + len(smark)) )
+endfunction
+
+function! misc#abort_do(out_cmd, inner_cmd, ...) abort
+  try
+    let inner_cmd = a:inner_cmd . join(a:000, ' ')
+
+    let cmd_dict = {
+                \ 'cdo'   : ['cfirst',   'cnext'   ],
+                \ 'ldo'   : ['lfirst',   'lnext'   ],
+                \ 'argdo' : ['first',    'next'    ],
+                \ 'bufdo' : ['bfirst',   'bnext'   ],
+                \ 'windo' : ['wincmd t', 'wincmd w'],
+                \ 'tabdo' : ['tabfirst', 'tabnext' ],
+                \ 'cfdo'  : ['cfirst',   'cnfile'  ],
+                \ 'cldo'  : ['lfirst',   'lnfile'  ],
+                \ }
+
+    set eventignore+=Syntax
+
+    if !has_key(cmd_dict, a:out_cmd)
+      throw a:out_cmd . ' not found'
+    endif
+
+    let l:count = 2147483648
+    if a:out_cmd == 'bufdo'
+      let l:count = len(split(execute('buffers'), "\n"))
+    endif
+
+    let [first_cmd, next_cmd] = cmd_dict[a:out_cmd]
+    exe first_cmd
+    while l:count > 0
+        exe inner_cmd
+        exe next_cmd
+        let l:count -= 1
+    endwhile
+  " catch /^Vim\%((\a\+)\)\=:E42:/  " cfirst, lfirst
+  " catch /^Vim\%((\a\+)\)\=:E553:/ " cnext
+  " catch /^Vim\%((\a\+)\)\=:E163:/ " next
+  " catch /^Vim\%((\a\+)\)\=:E87:/  " bnext
+
+  finally
+    set eventignore-=Syntax
+  endtry
 endfunction

@@ -38,7 +38,7 @@ endfunction
 
 function! syntax#osg()
   syn keyword osgNamespaces osg osgAnimation osgDB osgFX osgGA osgManipulator osgParticle osgPresentation osgQt osgShadow osgSim osgTerrain osgText osgUI osgUtil osgViewer osgVolume osgWidget
-  syn match osgSmartPointer /\v\C<ref_ptr>/
+  syn match osgSmartPointer /\v\C<(ref|observer)_ptr>/
 
   highlight link osgNamespaces Constant
   highlight link osgSmartPointer Type

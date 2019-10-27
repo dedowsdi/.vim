@@ -222,7 +222,7 @@ function! misc#to#sel_lines(pattern0, pattern1, ai, style)
 endfunction
 
 function! misc#to#sel_expr() abort
-  if misc#get_cc() !~? '[a-z]'
+  if misc#get_cc() !~? '\w'
     return
   endif
   norm! viw

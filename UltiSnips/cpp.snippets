@@ -165,7 +165,7 @@ case ${1:/* variable case */}:
 endsnippet
 
 snippet for "for (auto i = 0u ; .....)" m
-for (auto ${2:i} = 0u; $2 < ${1:count}; ${3:++$2})
+for (auto ${2:i} = 0; $2 < ${1:count}; ${3:++$2})
 {
 	${VISUAL}$0
 }
@@ -186,7 +186,7 @@ for (${4:unsigned} ${2:i} = 0; $2 < ${1:count}; ${3:++$2})
 endsnippet
 
 snippet fora "for (auto i = 0u ; .....)" m
-for (auto ${2:i} = 0u; $2 < ${1:count}; ${3:++$2})
+for (auto ${2:i} = 0; $2 < ${1:count}; ${3:++$2})
 {
 	${VISUAL}$0
 }
@@ -228,7 +228,7 @@ try
 {
 	${VISUAL}$0
 }
-catch(${1:std::exception& e})
+catch(${1:const std::exception& e})
 {
 	std::cerr << e.what() << std::endl;
 }
@@ -373,7 +373,7 @@ reinterpret_cast<${1:type}>(${VISUAL}$0)
 endsnippet
 
 snippet move "move" w
-std::move($0)
+std::move($0${VISUAL})
 endsnippet
 
 snippet fd "forward" w
@@ -399,12 +399,24 @@ snippet dt "declare type" w
 decltype($0)
 endsnippet
 
+snippet mp "make pair" w
+std::make_pair($0)
+endsnippet
+
+snippet mt "make tuple" w
+std::make_tuple($0)
+endsnippet
+
+snippet tget "get tuple" w
+std::get<${1:0}>(${2:t})
+endsnippet
+
 snippet sp "shared pointer" w
 std::shared_ptr<${1:${VISUAL}}>
 endsnippet
 
 snippet ms "make shared" w
-std::make_shared<$1>($0)
+std::make_shared<$1${VISUAL}>($0)
 endsnippet
 
 snippet up "unique pointer" w
@@ -412,7 +424,7 @@ std::unique_ptr<${1:type}>
 endsnippet
 
 snippet mu "make unique" w
-std::make_unique<$1>($0)
+std::make_unique<$1${VISUAL}>($0)
 endsnippet
 
 snippet wp "weak pointer" w
@@ -442,19 +454,23 @@ endsnippet
 
 snippet r5 "rule of 5" bm
 
-~${1:name}();
+~${1:name}()${2: = default;}
 
-$1(const $1& v);
+$1(const $1& v)$2
 
-$1& operator=(const $1& v);
+$1& operator=(const $1& v)$2
 
-$1($1&& v);
+$1($1&& v)$2
 
-$1& operator=($1&& v);
+$1& operator=($1&& v)$2
 
 endsnippet
 
 ## osg
+snippet oms
+osg::make_shared<${1:${VISUAL}}>()
+endsnippet
+
 snippet onew
 osg::ref_ptr<${1}> ${2} = new $1(${3});
 endsnippet
@@ -481,7 +497,8 @@ int main(int argc, char* argv[])
 	root->accept(*pv);
 	
 	return viewer.run();
-} endsnippet
+}
+endsnippet
 
 snippet osgNodeCallback
 class ${1:MyUpdateCallback} : public osg::NodeCallback
@@ -504,6 +521,16 @@ class ${1:MyDrawableDrawCallback} : public osg::Drawable::DrawCallback
 
 		//post draw Implementation
 
+	}
+};
+endsnippet
+
+snippet osgNodeVisitor "osg node visitor" bm
+class ${1:Name} : public osg::NodeVisitor
+{
+	void apply(osg::Node& node) override
+	{
+		
 	}
 };
 endsnippet

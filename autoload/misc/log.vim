@@ -17,6 +17,22 @@ function! s:notify(msg, ...) abort
   endif
 endfunction
 
+function! misc#log#set_notify_severity(v)
+  let severity = min([a:v, g:NOTIFY_TRIVIAL])
+  let severity = max([a:v, 0])
+  let g:notify_severity = severity
+  let names = [
+        \ 'NOTIFY_ALWAYS',
+        \ 'NOTIFY_FATEL',
+        \ 'NOTIFY_WARN',
+        \ 'NOTIFY_NOTICE',
+        \ 'NOTIFY_INFO',
+        \ 'NOTIFY_DEBUG',
+        \ 'NOTIFY_TRIVIAL',
+        \ ]
+  call misc#log#notice('set g:notify_severity to ' . names[g:notify_severity] )
+endfunction
+
 function! misc#log#always(msg) abort
   call s:notify(a:msg, g:NOTIFY_ALWAYS)
 endfunction

@@ -1,5 +1,5 @@
 let s:pjcfg = fnamemodify('./.vim/project.json', '%:p')
-let s:last_target = ''
+let s:last_target = 'all'
 let s:debug_term = {}
 
 function! mycpp#get_build_dir() abort
@@ -133,7 +133,8 @@ function! mycpp#get_target_path(target) abort
   let link_path = systemlist(cmd)
 
   if link_path == []
-    echoe 'failed to get link.txt path for target ' . a:target
+    " echoe 'failed to get link.txt path for target ' . a:target
+    return blank_res
   elseif len(link_path) > 1
     " if you change directory, but ditn't clean cmake cache, you will get multiple
     " link result from above command.
@@ -193,7 +194,7 @@ function! mycpp#parse_command(cmd, exe_arg_idx) abort
     let cmd_args = ''
   else
     let [cmd, target, args; rest] = matchlist(a:cmd, '\v\s*(\S*)\s*(.*)$')
-    let l = split(args, '--')
+    let l = split(args, ' -- ')
     while len(l) < 2
       call add(l, '')
     endwhile
@@ -273,6 +274,27 @@ function mycpp#debugToggleBreak()
   else
     Clear
   endif
+endfunction
+
+function! mycpp#include_osg() abort
+  let class_name = matchstr(getline('.'),
+        \ printf('\v%%<%dc<osg\w*::\w+>%%>%dc', col('.') + 1, col('.')) )
+
+  if empty(class_name)
+    return
+  endif
+
+  let head = printf('#include <%s>', substitute(class_name, '::', '/', 'g'))
+  if searchpos('\V\^\s\*' . head, 'bnW')[0] != 0
+    call misc#log#notice(head . ' already exists, skipped')
+    return
+  endif
+
+  let lnum = searchpos('\v^\#include\s*\<osg', 'bnW')[0]
+  call append(lnum, head)
+  " avoid :h :echo-redraw
+  redraw
+  call misc#log#notice(head)
 endfunction
 
 function mycpp#debug_step()

@@ -16,44 +16,14 @@ snippet box1
 " ------------------------------------------------------------------------------
 endsnippet
 
-snippet tf
+snippet try
 try
 ${0}
-finally | endtry
-endsnippet
+catch /^Vim\%((\a\+)\)\=:E123:/ " catch error E123
 
-snippet tcf
-try
-${0}
-catch
-
-finally 
+finally
 
 endtry
-endsnippet
-
-snippet tft
-let [rbak] = @t  | try
-${0}
-finally | let @t = rbak | endtry
-endsnippet
-
-snippet tflc
-let [startLine, startCol]= [line('.'), col('.')] | try
-${0}
-finally | call cursor(startLine, startCol) | endtry
-endsnippet
-
-snippet tflct
-let [startLine, startCol, rbak]= [line('.'), col('.'), @t] | try
-${0}
-finally | let @t = rbak |call cursor(startLine, startCol) | endtry
-endsnippet
-
-snippet tflcf
-let [startLine, startCol, curFile]= [line('.'), col('.'), expand('%:p')] | try
-${0}
-finally |silent exec 'edit'.curFile | call cursor(startLine, startCol) | endtry
 endsnippet
 
 snippet whilei
