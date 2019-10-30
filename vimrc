@@ -264,14 +264,16 @@ function! s:fzf_cpp_tags(...)
 endfunction
 
 command! -nargs=* Ctags :call <SID>fzf_cpp_tags(<q-args>)
+" there are garbage new line in mes, don't know how to reproduce it. Filter
+" blank lines as temporary solution.
 command! -nargs=+ -bang -complete=command FF call fzf#run({
-            \ 'source' : split(execute(<q-args>), "\n"),
+            \ 'source' : filter(split(execute(<q-args>), "\n"), {i,v->!empty(v)}),
             \ 'sink': function('s:ff_sink'),
             \ 'options' : <bang>0 ? '--tac' : ''})
 
 " copy into @@, ignore leading index
 function! s:ff_sink(item)
-  let text = substitute(a:item, '\v^\s*\d+\:?\s*', '', '')
+  let text = substitute(a:item, '\v^\>?\s*\d+\:?\s*', '', '')
   let @@ = empty(text) ? a:item : text
 endfunction
 
