@@ -22,7 +22,7 @@ set path+=/usr/local/include
 set complete-=i pumheight=16
 set backspace=indent,eol,start
 let &backup = !has('vms')
-set wildmenu history=200
+set wildmenu history=1000
 set shellslash
 set backupdir=$HOME/.vimbak directory=$HOME/.vimswap//
 set sessionoptions+=unix,slash                     " use unix /
