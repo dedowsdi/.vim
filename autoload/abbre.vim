@@ -2779,7 +2779,7 @@ function! abbre#osg()
   :iab <buffer> oav4sc osgAnimation::Vec4StepChannel
   :iab <buffer> obb osg::BoundingBox
   :iab <buffer> obe osg::BlendEquationi
-  :iab <buffer> obf osg::BlendFunci
+  :iab <buffer> obf osg::BlendFunc
   :iab <buffer> obo osg::BufferObject
   :iab <buffer> obd osg::Billboard
   :iab <buffer> ob osg::Box
@@ -2858,6 +2858,10 @@ function! abbre#osg()
   :iab <buffer> owc osgWidget::Canvas
   :iab <buffer> ownw osgWidget::NullWidget
   :iab <buffer> oww osgWidget::Window
+  :iab <buffer> oge osg::Geode
+  :iab <buffer> ov2 osg::Vec2
+  :iab <buffer> ov3 osg::Vec3
+  :iab <buffer> ov4 osg::Vec4
 endfunction
 
 function! abbre#ogre()

@@ -12,9 +12,10 @@ setlocal cinoptions+=N-s " no namespace indent
 " you need to manually indent for continuous line.
 setlocal cinoptions+=+0
 
-setlocal shiftwidth=2 tabstop=2 textwidth=80
+setlocal shiftwidth=4 tabstop=4 softtabstop=4 textwidth=80
 setlocal commentstring=//\ %s
 setlocal formatoptions-=o
+setlocal foldmethod=indent
 
 " text object
 vnoremap <buffer> af :<C-U>silent! call cdef#sel_pf('a')<cr>
