@@ -226,7 +226,8 @@ let g:lightline = {
       \ }
 augroup au_coc_status
   au!
-  autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
+  " it's annoying, it pollutes message and input prompt
+  " autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 augroup end
 
 if &t_Co == 256
