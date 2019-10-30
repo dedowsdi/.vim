@@ -378,6 +378,12 @@ function! s:add_op(key, func)
 endfunction
 
 " motion and operator
+function! s:add_mo(keys, func)
+    exec printf('nnoremap %s :call %s<cr>', a:keys, a:func)
+    exec printf('vnoremap %s :<c-u>exec "norm! gv" <bar> call %s<cr>', a:keys, a:func)
+    exec printf('onoremap <expr> %s printf(":normal %%s%s<cr>",
+                \ mode(1) ==# "no" ? "v" : mode(1)[2])', a:keys, a:keys)
+endfunction
 nmap     ,a  <Plug>(EasyAlign)
 vmap     ,a  <Plug>(EasyAlign)
 map      ,c  <Plug>Commentary
@@ -385,18 +391,10 @@ nmap     ,cc <Plug>CommentaryLine
 nmap     ,cu <Plug>Commentary<Plug>Commentary
 nmap     ,cs <plug>NERDCommenterSexy
 vmap     ,cs <Plug>NERDCommenterSexy
-nnoremap ,e  :call misc#mo#vertical_motion('E')<cr>
-nnoremap ,w  :call misc#mo#vertical_motion('W')<cr>
-nnoremap ,b  :call misc#mo#vertical_motion('B')<cr>
-vnoremap ,e  :<c-u>exec 'norm! gv' <bar> call misc#mo#vertical_motion('E')<cr>
-vnoremap ,w  :<c-u>exec 'norm! gv' <bar> call misc#mo#vertical_motion('W')<cr>
-vnoremap ,b  :<c-u>exec 'norm! gv' <bar> call misc#mo#vertical_motion('B')<cr>
-onoremap ,e  :normal v,e<cr>
-onoremap ,w  :normal v,w<cr>
-onoremap ,b  :normal v,b<cr>
-nnoremap ,E  :call misc#mo#expr()<cr>
-vnoremap ,E  :<c-u>exec 'norm! gv' <bar> call misc#mo#expr()<cr>
-onoremap ,E  :normal v,E<cr>
+call s:add_mo(',e', 'misc#mo#vertical_motion("E")')
+call s:add_mo(',w', 'misc#mo#vertical_motion("W")')
+call s:add_mo(',b', 'misc#mo#vertical_motion("B")')
+call s:add_mo(',E', 'misc#mo#expr()')
 nnoremap ,,  ,
 
 call s:add_op(',l', 'misc#op#search_literal')
@@ -408,10 +406,11 @@ nmap     ,s} :let @/="\\v<".expand("<cword>").">"<cr>vi}:s/<c-r><c-/>/
 nmap     ,s{ ,s}
 call s:add_op(',G', 'misc#op#literal_grep')
 call s:add_op(',g', 'misc#op#search_in_browser')
-nnoremap co :call misc#op#omo('c')<cr>
-nnoremap do :call misc#op#omo('d')<cr>
-nnoremap guo :call misc#op#omo('gu')<cr>
-nnoremap gUo :call misc#op#omo('gU')<cr>
+nnoremap co :call misc#op#omo('co')<cr>
+nnoremap do :call misc#op#omo('do')<cr>
+nnoremap guo :call misc#op#omo('guo')<cr>
+nnoremap gUo :call misc#op#omo('gUo')<cr>
+nnoremap g~o :call misc#op#omo('gso')<cr>
 
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap -- :edit $MYVIMRC<cr>
