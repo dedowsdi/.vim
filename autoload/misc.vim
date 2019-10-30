@@ -360,21 +360,29 @@ function! misc#complete_expresson(backward)
   return ''
 endfunction
 
-" get change from `[ to `], note that if backspace pass `[, you won't get that
-" part of change.
+" get change from `[ to `](exclusive), note that if backspace past `[, you won't
+" get that part of change.
 function! misc#get_last_change() abort
-  try
-    let [reg_type, reg_content, old_ve] = [@@, getregtype('"'), &virtualedit]
-    " mark motion is exclusive, but it can't past end of line if 've' is empty
-    set ve=onemore
-    let end_with_blank_line = getpos("']")[2] == 1
-    norm! `[y`]
-    let change = @@
-    return end_with_blank_line ? change . "\<cr>" : change
-  finally
-    call setreg('"', reg_content, reg_type)
-    let &ve = old_ve
-  endtry
+  " try
+  "   let [reg_type, reg_content, old_ve] = [@@, getregtype('"'), &virtualedit]
+  "   " mark motion is exclusive, but it can't past end of line if 've' is empty
+  "   set ve=onemore
+  "   let end_with_blank_line = getpos("']")[2] == 1
+  "   norm! `[y`]
+  "   let change = @@
+  "   return end_with_blank_line ? change . "\<cr>" : change
+  " finally
+  "   call setreg('"', reg_content, reg_type)
+  "   let &ve = old_ve
+  " endtry
+
+  let pos0 = getpos("'[")
+  let pos1 = getpos("']")
+
+  " mark motion is exclusive. It's possible that pos1[2]-1 = 0, it's a blank
+  " line in this case.
+  let pos1[2] -= 1
+  return misc#get_pos_string(pos0, pos1, 'v')
 endfunction
 
 function! s:default_string_mark()
