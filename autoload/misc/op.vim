@@ -23,7 +23,7 @@ function! misc#op#execute(op, type, visual) abort
   if exists('*'.a:op)
     call call (a:op, [a:type] + a:000)
   else
-    exec 'norm!' a:op
+    exec 'norm' a:op
   endif
 endfunction
 
