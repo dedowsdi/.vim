@@ -169,7 +169,7 @@ function! misc#op#omo(operator) abort
   " there is no way to get current word in opfunc, must mark it here
   norm! "_yiw
   norm! ma
-  exe 'set opfunc=misc#op#omo_' . a:operator . 'o'
+  exe 'set opfunc=misc#op#omo_' . a:operator
   call feedkeys('g@')
 endfunction
 
@@ -208,6 +208,13 @@ function! misc#op#omo_gUo(type, ...) abort
   call feedkeys(printf("%s\<esc>", str))
 endfunction
 
+function! misc#op#omo_gso(type, ...) abort
+  let chars = split(expand('<cword>'), '\zs')
+  let str = join(map(chars, {i,v -> v=~# '[a-z]' ? toupper(v) : tolower(v)}), '')
+  call misc#op#execute('misc#op#omo_co', a:type, a:0 > 0)
+  call feedkeys(printf("%s\<esc>", str))
+endfunction
+
 function! s:co_insert_leave() abort
 
   let cword = @"
@@ -234,9 +241,9 @@ function! s:co_insert_leave() abort
     let cword_len = len(cword)
     if is_word
       if cword_len == 1
-        let @/ = printf('\v%%V<%s>', cword)
+        let @/ = printf('\v\C%%V<%s>', cword)
       else
-        let @/ = printf('\v%%V<%s%%V%s>', cword[0:-2], cword[-1:-1])
+        let @/ = printf('\v\C%%V<%s%%V%s>', cword[0:-2], cword[-1:-1])
       endif
     else
       let w = escape(cword, '\')
