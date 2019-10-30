@@ -504,7 +504,7 @@ packadd termdebug
 function! s:less(cmd)
   exec 'vsplit ' . tempname()
   setlocal buftype=nofile nobuflisted noswapfile bufhidden=hide
-  exec printf('put! =execute(''%s'')', substitute(a:cmd, "'", "''", 'g'))
+  exec printf("put! =execute('%s')", a:cmd)
 endfunction
 
 " some tiny util
