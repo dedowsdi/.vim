@@ -176,6 +176,7 @@ function! mycpp#run(args) abort
 endfunction
 
 function! mycpp#debug(args) abort
+  set nofoldenable
   let [target, exe_args, cmd_args] = mycpp#parse_command(a:args, 0)
   let path = mycpp#get_target_path(target)
   exec 'Termdebug ' . path.exe_path . ' ' . exe_args
