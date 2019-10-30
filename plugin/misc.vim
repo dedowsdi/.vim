@@ -65,6 +65,16 @@ com! -nargs=1 SetNotifySeverity call misc#log#set_notify_severity(<f-args>)
 
 com! -nargs=+ -complete=customlist,s:tt_complete TT call system('tmux_tt ' . <q-args>)
 
+cnoremap <a-h> <c-\>emisc#hist#expand(0)<cr>
+cnoremap <c-a> <c-b>
+cnoremap <a-a> <c-a>
+cnoremap <a-k> <c-\>e(getcmdpos() == 1 ? '' : getcmdline()[0:getcmdpos()-2])<cr>
+cnoremap <a-u> <c-\>emisc#cmdline#word_case(1)<cr>
+cnoremap <a-l> <c-\>emisc#cmdline#word_case(0)<cr>
+cnoremap <a-d> <c-\>emisc#cmdline#forward_delete()<cr>
+cnoremap <a-b> <c-left>
+cnoremap <a-f> <c-right>
+
 function! s:tt_complete(ArgLead, CmdLine, CursorPos)
   return sort(filter(systemlist('cd ~/.tt_template && printf "%s\n" *'),
         \ 'stridx(v:val, a:ArgLead)==0'))
