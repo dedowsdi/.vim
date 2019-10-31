@@ -22,6 +22,10 @@ function! misc#dc#paste()
   call s:paste()
 endfunction
 
+function! misc#dc#get_texts()
+  return map(deepcopy(s:data), {i,v -> v.text})
+endfunction
+
 function! s:copy()
   let entry = {'text':@", 'mode':getregtype('"')}
   " if s:data[-1] != entry
@@ -107,14 +111,6 @@ finish
 " ------------------------------------------------------------------------------
 " test
 " ------------------------------------------------------------------------------
-command! RecordYank :call misc#dc#start_copy(1)
-command! RecordYankAppend :call misc#dc#start_copy(0)
-command! RecordPaste :call misc#dc#paste()
-command! RecordStop :call misc#dc#stop_copy()
-
-nnoremap <leader>ry :call misc#dc#start_copy(1)<cr>
-nnoremap <leader>rY :call misc#dc#start_copy(0)<cr>
-nnoremap <leader>rp :call misc#dc#paste()<cr>
 
 let v:errors = []
 let s:data = [{'mode':'v', 'text':'a'}, {'mode':'v', 'text':'b'}, {'mode':'v', 'text':'c'}]

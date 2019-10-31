@@ -53,8 +53,8 @@ com! -nargs=+ LinkNvimHelp let @+ = misc#create_nvimhelp_link(<q-args>)
 com! UpdateVimHelpLink call misc#update_link(0)
 com! UpdateNvimHelpLink call misc#update_link(1)
 
-com! RecordYank :call misc#dc#start_copy(1)
-com! RecordYankAppend :call misc#dc#start_copy(0)
+com! RecordStart :call misc#dc#start_copy(1)
+com! RecordStartAppend :call misc#dc#start_copy(0)
 com! RecordPaste :call misc#dc#paste()
 com! RecordStop :call misc#dc#stop_copy()
 com! -bar CamelToUnderscore exe printf('%%s/\v\C<%s>/%s/g', expand('<cword>'),
@@ -74,6 +74,18 @@ cnoremap <a-l> <c-\>emisc#cmdline#word_case(0)<cr>
 cnoremap <a-d> <c-\>emisc#cmdline#forward_delete()<cr>
 cnoremap <a-b> <c-left>
 cnoremap <a-f> <c-right>
+
+function! s:record_sink(item) abort
+  let @@ = a:item
+  norm! p
+endfunction
+
+if executable('fzf')
+  nnoremap <a-r> :call fzf#run(fzf#wrap({
+        \ 'source' : misc#dc#get_texts(),
+        \ 'sink': function('<sid>record_sink'),
+        \ }))<cr>
+endif
 
 function! s:tt_complete(ArgLead, CmdLine, CursorPos)
   return sort(filter(systemlist('cd ~/.tt_template && printf "%s\n" *'),

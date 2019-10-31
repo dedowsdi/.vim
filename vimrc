@@ -266,10 +266,12 @@ endfunction
 command! -nargs=* Ctags :call <SID>fzf_cpp_tags(<q-args>)
 " there are garbage new line in mes, don't know how to reproduce it. Filter
 " blank lines as temporary solution.
-command! -nargs=+ -bang -complete=command FF call fzf#run({
+command! -nargs=+ -bang -complete=command FF call fzf#run(fzf#wrap({
             \ 'source' : filter(split(execute(<q-args>), "\n"), {i,v->!empty(v)}),
             \ 'sink': function('s:ff_sink'),
-            \ 'options' : <bang>0 ? '--tac' : ''})
+            \ 'options' : <bang>0 ? '--tac' : '',
+            \ 'up':'~40%'
+            \ }))
 
 " copy into @@, ignore leading index
 function! s:ff_sink(item)
