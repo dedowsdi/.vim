@@ -71,7 +71,7 @@ function! s:split_designator(designator)
 
   let l = split(a:designator, ':')
 
-  if len(l) > 3 || l[0] !~# '\v!.+'
+  if len(l) > 3 || l[0] !~# '\v!.*'
     return ['', '', '']
   endif
 
@@ -85,7 +85,8 @@ function! s:split_designator(designator)
     let word = l[0][-1:-1]
     let modifier = len(l) == 2 ? l[1] : ''
   elseif len(l) == 2
-    if l[1] =~# '\v[0-9^$*%\-]'
+    let event = l[0]
+    if l[1] =~# '\v[0-9^$*%\-]+$'
       let word = l[1]
       let modifier = ''
     else
@@ -93,6 +94,7 @@ function! s:split_designator(designator)
       let modifier = l[1]
     endif
   else
+    let l += ['', '']
     let [event, word, modifier] = l[0:2]
   endif
 
@@ -124,11 +126,11 @@ function! s:expand_event(event, cmdtype)
 
   let n = a:event[1:]
   if n =~# '\v^\d+$' " !n
-    return histget(':', n)
+    return histget(a:cmdtype, n)
   elseif n =~# '\v^\-\d+$' " !-n
-    return histget(':', n)
+    return histget(a:cmdtype, n)
   elseif n ==# '!' " !!
-    return histget(':', -1)
+    return histget(a:cmdtype, -1)
   elseif n ==# '#' " !#
     return substitute(getcmdline(), '\V!#', '', 'g')
   elseif n =~# '\v^[^?].*' "!string
@@ -137,7 +139,7 @@ function! s:expand_event(event, cmdtype)
     return index == -1 ? a:event : hist[index]
   elseif n =~# '\v^\?.+' "!?string[?]
     let s = matchstr(n, '\v\?\zs.{-}\ze\??$')
-    let hist = s:get_reverse_hist()
+    let hist = s:get_reverse_hist(a:cmdtype)
     let index = match(hist, printf('\V%s', escape(s, '\')))
     return index == -1 ? a:event : hist[index]
   endif
@@ -145,7 +147,7 @@ function! s:expand_event(event, cmdtype)
   return ''
 endfunction
 
-function! s:get_words(words, start)
+function! s:get_words(words, start, ...)
   let end = get(a:000, 0, a:start)
   let num_words = len(a:words)
   return a:start > end || end >= num_words ? '' : join(a:words[a:start : end], ' ')
@@ -166,13 +168,13 @@ function! s:expand_word(word, cmd, cmdtype) abort
   if a:word =~# '\v^\d+$' " 0, n
     return s:get_words(cmd_words, a:word)
   elseif a:word ==# '^' " ^
-    return s:get_words(cmd_words, 0)
+    return s:get_words(cmd_words, 1)
   elseif a:word ==# '$' " $
     return s:get_words(cmd_words, num_words - 1)
   elseif a:word ==# '%' " %
     return s:get_string_search(a:cmdtype)
   elseif a:word =~# '\v^\d+\-\d+$' " x-y
-    let [start, end] = split(a:word)
+    let [start, end] = split(a:word, '\v\-')
     return s:get_words(cmd_words, start, end)
   elseif a:word ==# '*' " *
     return s:get_words(cmd_words, 1, num_words - 1)

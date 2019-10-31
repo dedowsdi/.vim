@@ -28,9 +28,9 @@ function! misc#viml#get_sid(file_name) abort
   redir => str | silent execute 'scriptnames' | redir END
   let [abs_name, base_name] = [fnamemodify(a:file_name, ':p'), fnamemodify(a:file_name, ':t')]
   " item format in scriptnames: 18: script name
-  let script_list = filter(split(str, "\n"), printf('v:val =~"%s"', base_name))
+  let script_list = filter(split(str, "\n"), {i,v -> v =~# base_name})
   let script_list = filter(script_list,
-        \ printf('fnamemodify(matchstr(v:val, "\\v^\\s*\\d+:\\s*\\zs.+"), ":p") ==# "%s" ', abs_name))
+        \ {i,v -> fnamemodify(matchstr(v, '\v\s*\d+:\s*\zs.+'), ':p') ==# abs_name})
   if empty(script_list)
     throw a:file_name . ' not loaded'
   elseif len(script_list) > 1
