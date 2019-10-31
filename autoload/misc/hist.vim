@@ -6,7 +6,7 @@ function! misc#hist#expand(expand_wild) abort
   call misc#log#debug(printf('split cmdline into : %s', join(parts, '|')))
   let type = parts[0]
 
-  if type == ''
+  if type ==# ''
     if a:expand_wild
       call s:expand_wildmenu()
     endif
@@ -67,8 +67,62 @@ function! s:get_reverse_hist(cmdtype) abort
   return map(hist, {i,v->substitute(v, '\v^\>?\s*\d+\s*', '', '')})
 endfunction
 
-function! s:expand(designator, cmdtype) abort
-  let n = a:designator[1:]
+function! s:split_designator(designator)
+
+  let l = split(a:designator, ':')
+
+  if len(l) > 3 || l[0] !~# '\v!.+'
+    return ['', '', '']
+  endif
+
+  " special case where : can be omitted for word
+  if l[0] =~# '\v\![^:]*[\^$*\-%]$'
+    if len(l) > 2
+      return ['', '', '']
+    endif
+
+    let event = l[0][0:-2]
+    let word = l[0][-1:-1]
+    let modifier = len(l) == 2 ? l[1] : ''
+  elseif len(l) == 2
+    if l[1] =~# '\v[0-9^$*%\-]'
+      let word = l[1]
+      let modifier = ''
+    else
+      let word = ''
+      let modifier = l[1]
+    endif
+  else
+    let [event, word, modifier] = l[0:2]
+  endif
+
+  " normalize event, no single !
+  if event ==# '!'
+    let event = '!!'
+  endif
+
+  return [event, word, modifier]
+
+endfunction
+
+" record most recent !?
+function! s:update_string_search(s, cmdtype)
+  let s:d = get(s:, 'd', {})
+  let s:d[a:cmdtype] = a:s
+endfunction
+
+" get most recent !?
+function! s:get_string_search(cmdtype)
+  let s:d = get(s:, 'd', {})
+  return get(s:d, a:cmdtype, '')
+endfunction
+
+function! s:expand_event(event, cmdtype)
+  if a:event !~# '\v^\!.+'
+    throw 'illegal event : ' . a:event
+  endif
+
+  let n = a:event[1:]
   if n =~# '\v^\d+$' " !n
     return histget(':', n)
   elseif n =~# '\v^\-\d+$' " !-n
@@ -80,13 +134,86 @@ function! s:expand(designator, cmdtype) abort
   elseif n =~# '\v^[^?].*' "!string
     let hist = s:get_reverse_hist(a:cmdtype)
     let index = match(hist, printf('\V\^%s', escape(n, '\')))
-    return index == -1 ? a:designator : hist[index]
+    return index == -1 ? a:event : hist[index]
   elseif n =~# '\v^\?.+' "!?string[?]
     let s = matchstr(n, '\v\?\zs.{-}\ze\??$')
     let hist = s:get_reverse_hist()
     let index = match(hist, printf('\V%s', escape(s, '\')))
-    return index == -1 ? a:designator : hist[index]
+    return index == -1 ? a:event : hist[index]
   endif
 
+  return ''
+endfunction
+
+function! s:get_words(words, start)
+  let end = get(a:000, 0, a:start)
+  let num_words = len(a:words)
+  return a:start > end || end >= num_words ? '' : join(a:words[a:start : end], ' ')
+endfunction
+
+function! s:expand_word(word, cmd, cmdtype) abort
+  if empty(a:cmd)
+    throw 'empty command'
+  endif
+
+  if empty(a:word)
+    throw 'empty word'
+  endif
+
+  let cmd_words = split(a:cmd, '\v\s+')
+  let num_words = len(cmd_words)
+
+  if a:word =~# '\v^\d+$' " 0, n
+    return s:get_words(cmd_words, a:word)
+  elseif a:word ==# '^' " ^
+    return s:get_words(cmd_words, 0)
+  elseif a:word ==# '$' " $
+    return s:get_words(cmd_words, num_words - 1)
+  elseif a:word ==# '%' " %
+    return s:get_string_search(a:cmdtype)
+  elseif a:word =~# '\v^\d+\-\d+$' " x-y
+    let [start, end] = split(a:word)
+    return s:get_words(cmd_words, start, end)
+  elseif a:word ==# '*' " *
+    return s:get_words(cmd_words, 1, num_words - 1)
+  elseif a:word =~# '\v^\d+\*$' " x*
+    return s:get_words(cmd_words, a:word, num_words - 1)
+  elseif a:word =~# '\v^\d+\-$' " x-
+    return s:get_words(cmd_words, a:word, num_words - 2)
+  endif
+
+  return ''
+
+endfunction
+
+function! s:expand_modifier(modifier, cmd) abort
   return a:cmd
+endfunction
+
+" return designator if designator is invalid
+function! s:expand(designator, cmdtype) abort
+
+  let [event, word, modifier] = s:split_designator(a:designator)
+  call misc#log#debug(printf(
+        \ 'split designator "%s" into event : %s, word : %s, modifier : %s',
+        \ a:designator, event, word, modifier) )
+
+  if empty(event)
+    return a:designator
+  endif
+
+  let s = s:expand_event(event, a:cmdtype)
+  call misc#log#debug(printf('expand event to %s', s))
+
+  if !empty(s) && !empty(word)
+    let s = s:expand_word(word, s, a:cmdtype)
+    call misc#log#debug(printf('expand word to %s', s))
+  endif
+
+  if !empty(s) && !empty(modifier)
+    let s = s:expand_modifier(modifier, s)
+    call misc#log#debug(printf('expand modifier to %s', s))
+  endif
+
+  return s
 endfunction
