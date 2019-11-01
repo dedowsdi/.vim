@@ -13,6 +13,7 @@ function! misc#op#visual_select_operand(type, visual, mark_only) abort
     exec 'norm gv'
   else
     let vmode = a:type ==# 'line' ? 'V' : a:type ==# 'char' ? 'v' : "\<c-v>"
+    " `] inside an opfunc is inclusive, it's different from last change.
     exe printf("norm! `[%s`]\<esc>%s", vmode, a:mark_only ? "\<esc>" : "")
   endif
 endfunction
