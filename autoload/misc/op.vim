@@ -14,7 +14,7 @@ function! misc#op#visual_select_operand(type, visual, mark_only) abort
   else
     let vmode = a:type ==# 'line' ? 'V' : a:type ==# 'char' ? 'v' : "\<c-v>"
     " `] inside an opfunc is inclusive, it's different from last change.
-    exe printf("norm! `[%s`]\<esc>%s", vmode, a:mark_only ? "\<esc>" : "")
+    exe printf("norm! `[%s`]\<esc>%s", vmode, a:mark_only ? "\<esc>" : '')
   endif
 endfunction
 
@@ -144,7 +144,7 @@ endfunction
 function! misc#op#co_old(type, ...) abort
 
   if a:0
-    throw "dont call ChangeWords in visual mode"
+    throw 'dont call ChangeWords in visual mode'
   end
 
   let visual = a:0 > 0
@@ -158,7 +158,7 @@ function! misc#op#co_old(type, ...) abort
     let @/ = printf('\v%%V<%s%%V%s>', cword[0:-2], cword[-1:-1])
   endif
 
-  call misc#op#visual_select_operand(type, visual, 0)
+  call misc#op#visual_select_operand(a:type, visual, 0)
 
   call feedkeys(":s///g\<left>\<left>", 'n')
 endfunction
@@ -227,7 +227,7 @@ function! s:co_insert_leave() abort
     norm! u
 
     " mark visual end with special string mark
-    norm `>
+    norm! `>
     let visual_end_mark = repeat("\x82", 8)
     " use append instead of insert to take care of line end visual end.
     call misc#append_string_mark(visual_end_mark)
