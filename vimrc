@@ -527,3 +527,5 @@ command! ToggleAutoPairs :call AutoPairsToggle()
 command! Terminal exe 'terminal' |
             \ call term_sendkeys("", printf("cd %s \<cr>",
             \ fnamemodify(bufname(winbufnr(winnr('#'))), ':h') ) )
+command! -bang CfilterCoreHelp Cfilter<bang> '\v/vim/vim\d+/doc/[^/]+\.txt'
+
