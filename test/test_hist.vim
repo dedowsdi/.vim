@@ -48,6 +48,8 @@ endfunction
 function! s:test_split_designator()
   echom 'test split designator'
   let data = [
+        \ ['--------------------event only--------------------'],
+        \
         \ [ '!!', ['!!', '', ''] ],
         \
         \ [ '!10', ['!10', '', ''] ],
@@ -57,6 +59,8 @@ function! s:test_split_designator()
         \ [ '!abc', ['!abc', '', ''] ],
         \
         \ [ '!?abc', ['!?abc', '', ''] ],
+        \
+        \ ['--------------------event:word--------------------'],
         \
         \ [ '!:0', ['!!', '0', ''] ],
         \
@@ -68,15 +72,33 @@ function! s:test_split_designator()
         \
         \ [ '!:1-5', ['!!', '1-5', ''] ],
         \
+        \ [ '!:-5', ['!!', '-5', ''] ],
+        \
         \ [ '!*', ['!!', '*', ''] ],
         \
         \ [ '!-', ['!!', '-', ''] ],
         \
+        \ ['--------------------event:modifier--------------------'],
+        \
+        \ [ '!!:h:h', ['!!', '', 'h:h'] ],
+        \
+        \ [ '!abc:*:h:h', ['!abc', '*', 'h:h'] ],
+        \
+        \ ['--------------------event:word:modifier--------------------'],
+        \
+        \ [ '!$:h', ['!!', '$', 'h'] ],
         \
         \ ]
 
   let index = 0
-  for [designator, expect] in data
+  for item in data
+
+    " skip comment
+    if len(item) ==# 1
+      continue
+    endif
+
+    let [designator, expect] = item
     let result = s:split_designator(designator)
     if assert_equal(expect, result, '') == 1
        echom '--------'
@@ -92,31 +114,39 @@ endfunction
 
 function! s:test_expand_history() abort
   echom 'test expand'
-  let cmd0 = 'test_hist 1 2 3 4 5 6 7 8 9'
-  call histadd(':', cmd0)
+  let cmd1 = 'test_hist 1 2 3 4 5 6 7 8 9'
+  let cmd2 = 'echo /a/bb/bb/c/c/d.ext'
+  call histadd(':', cmd2)
+  call histadd(':', cmd1)
   let num_cmds = histnr(':')
 
   let data = [
         \
-        \ [ '!' . num_cmds, -1, cmd0 ],
+        \ ['--------------------event only--------------------'],
         \
-        \ [ '!-1',          -1, cmd0 ],
+        \ [ '!' . num_cmds, -1, cmd1 ],
         \
-        \ [ '!!',           -1, cmd0 ],
+        \ [ '!-1',          -1, cmd1 ],
         \
-        \ [ '!test',        -1, cmd0 ],
+        \ [ '!-2',          -1, cmd2 ],
         \
-        \ [ '!?hist',       -1, cmd0 ],
+        \ [ '!!',           -1, cmd1 ],
         \
+        \ [ '!test',        -1, cmd1 ],
+        \
+        \ [ '!?hist',       -1, cmd1 ],
+        \
+        \ ['--------------------event:word--------------------'],
+        \ 
         \ [ '!!:0',         -1, 'test_hist' ],
-        \
-        \
         \
         \ [ '!!:5',         -1, '5' ],
         \
         \ [ '!^',           -1, '1' ],
         \
         \ [ '!$',           -1, '9' ],
+        \
+        \ [ '!-1$',         -1, '9' ],
         \
         \ [ '!:1-9',        -1, '1 2 3 4 5 6 7 8 9' ],
         \
@@ -126,10 +156,38 @@ function! s:test_expand_history() abort
         \
         \ [ '!:5-',         -1, '5 6 7 8' ],
         \
+        \ ['--------------------event:modifier--------------------'],
+        \
+        \ [ '!-2:h',       -1, fnamemodify(cmd2, ':h')],
+        \
+        \ [ '!-2:t',       -1, fnamemodify(cmd2, ':t')],
+        \
+        \ [ '!-2:r',       -1, fnamemodify(cmd2, ':r')],
+        \
+        \ [ '!-2:e',       -1, fnamemodify(cmd2, ':e')],
+        \
+        \ [ '!-2:h:t',     -1, fnamemodify(cmd2, ':h:t')],
+        \
+        \ ['--------------------event:word:modifier--------------------'],
+        \
+        \ [ '!-2:s/a/x/',  -1, substitute(cmd2, 'a', 'x', '')],
+        \
+        \ [ '!-2:gs/b/x/',  -1, substitute(cmd2, 'b', 'x', 'g')],
+        \
+        \ [ '!-2:s/b/x/:g&',  -1, substitute(cmd2, 'b', 'x', 'g')],
+        \
+        \ [ '!!:G:s/\d/x/', -1, substitute(cmd1, '\d', 'x', 'g')],
+        \
         \ ]
 
   let index = 0
-  for [text, pos, expect] in data
+  for item  in data
+
+    if len(item) ==# 1
+      continue
+    endif
+
+    let [text, pos, expect] = item
     if pos == -1
       let pos = len(text) + 1
     endif
@@ -137,7 +195,7 @@ function! s:test_expand_history() abort
     if assert_equal(expect, result, '') == 1
        echom '--------'
        echom 'expand failed at' index
-       echom 'cmd : ' text
+       echom 'pattern : ' text
        echom 'expected : ' expect
        echom 'result   : ' result
     endif

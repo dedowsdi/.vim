@@ -1,4 +1,4 @@
-" expand history or wildmenu
+" expand history or wild menu
 function! misc#hist#expand(expand_wild) abort
 
   let cs = s:parse_cmdline(getcmdline(), getcmdtype(), getcmdpos())
@@ -99,32 +99,28 @@ function! s:split_designator(designator) abort
 
   let l = split(a:designator, ':')
 
-  if len(l) > 3 || l[0] !~# '\v!.*'
+  if l[0] !~# '\v!.*'
     return ['', '', '']
   endif
 
+  let modifier_start = 2
   " special case where : can be omitted for word
   if l[0] =~# '\v\![^:]*[\^$*\-%]$'
-    if len(l) > 2
-      return ['', '', '']
-    endif
-
     let event = l[0][0:-2]
     let word = l[0][-1:-1]
-    let modifier = len(l) == 2 ? l[1] : ''
-  elseif len(l) == 2
+    let modifier_start = 1
+  else
     let event = l[0]
-    if l[1] =~# '\v[0-9^$*%\-]+$'
+
+    " word can be one of ^$*-%, or x, x*, x-, or x-y or -y
+    if len(l) > 1 && l[1] =~# '\v[\^$*\-%]|\d+[*\-]?|\d*\-\d+$'
       let word = l[1]
-      let modifier = ''
     else
       let word = ''
-      let modifier = l[1]
+      let modifier_start = 1
     endif
-  else
-    let l += ['', '']
-    let [event, word, modifier] = l[0:2]
   endif
+  let modifier = join(l[modifier_start : ], ':')
 
   " normalize event, no single !
   if event ==# '!'
@@ -175,10 +171,28 @@ function! s:expand_event(cs) abort
   return ''
 endfunction
 
-function! s:get_words(words, start, ...) abort
-  let end = get(a:000, 0, a:start)
-  let num_words = len(a:words)
-  return a:start > end || end >= num_words ? '' : join(a:words[a:start : end], ' ')
+function! s:get_word_start_end(pattern, num_cmdwords) abort
+  if a:pattern =~# '\v^\d+$' " 0, n
+    return [a:pattern, a:pattern]
+  elseif a:pattern ==# '^' " ^
+    return [1, 1]
+  elseif a:pattern ==# '$' " $
+    return [a:num_cmdwords - 1, a:num_cmdwords - 1]
+  elseif a:pattern =~# '\v^\d*\-\d+$' " x-y
+    let [start, end] = split(a:pattern, '\v\-')
+    if empty(start)
+      let start = 0
+    endif
+    return [start, end]
+  elseif a:pattern ==# '*' " *
+    return [1, a:num_cmdwords - 1]
+  elseif a:pattern =~# '\v^\d+\*$' " x*
+    return [a:pattern, a:num_cmdwords - 1]
+  elseif a:pattern =~# '\v^\d+\-$' " x-
+    return [a:pattern, a:num_cmdwords - 2]
+  else
+    throw 'unknown word pattern : ' . a:pattern
+  endif
 endfunction
 
 function! s:expand_word(cs, s) abort
@@ -191,39 +205,72 @@ function! s:expand_word(cs, s) abort
     throw 'empty word'
   endif
 
-  let cmd_words = split(a:s, '\v\s+')
-  let num_words = len(cmd_words)
-
-  if word =~# '\v^\d+$' " 0, n
-    return s:get_words(cmd_words, word)
-  elseif word ==# '^' " ^
-    return s:get_words(cmd_words, 1)
-  elseif word ==# '$' " $
-    return s:get_words(cmd_words, num_words - 1)
-  elseif word ==# '%' " %
+  if word ==# '%' " %
     return s:get_string_search(a:cs.type)
-  elseif word =~# '\v^\d+\-\d+$' " x-y
-    let [start, end] = split(word, '\v\-')
-    return s:get_words(cmd_words, start, end)
-  elseif word ==# '*' " *
-    return s:get_words(cmd_words, 1, num_words - 1)
-  elseif word =~# '\v^\d+\*$' " x*
-    return s:get_words(cmd_words, word, num_words - 1)
-  elseif word =~# '\v^\d+\-$' " x-
-    return s:get_words(cmd_words, word, num_words - 2)
   endif
 
-  return ''
+  let cmd_words = split(a:s, '\v\s+')
+  let num_cmdwords = len(cmd_words)
 
+  let [start, end] = s:get_word_start_end(word, num_cmdwords)
+  return start > end || end >= num_cmdwords ? '' : join(cmd_words[start : end], ' ')
+
+endfunction
+
+function! s:substitute(s, old, new, flag, per_word)
+  if a:per_word
+    let words = split(a:s, '\v\s+')
+    call map(words, {i,v -> substitute(v, a:old, a:new, a:flag)})
+    return join(words, ' ')
+  else
+    return substitute(a:s, a:old, a:new, a:flag)
+  endif
 endfunction
 
 function! s:expand_modifier(cs, s) abort
-  return a:cs
+
+  let last_old = ''
+  let last_new = ''
+  let found_G = 0
+
+  let s_pattern = '\v\C^([g]?)s(.)(.+)\2(.*)\2$'
+
+  let s = a:s
+  for m in split(a:cs.modifier, ':')
+    if m =~# '\v\C[htre]'
+      let s = fnamemodify(s, ':' . m)
+    elseif m ==# 'p'
+
+    elseif m ==# 'q'
+      " bash : Quote the substituted words, escaping further substitutions.
+      " do nothing here?
+      return s
+    elseif m ==# 'x'
+      " bash : Quote the substituted words as with 'q', but break into words at spaces, tabs, and newlines.
+      " do nothing here?
+    elseif m =~# s_pattern
+      let l = matchlist(m, s_pattern)
+      let flag = l[1]
+      let last_old = l[3]
+      let last_new = l[4]
+      let s = s:substitute(s, last_old, last_new, flag, found_G)
+    elseif m =~# '\v\C[g]?\&'
+      let flag = len(m) > 1 ? m[0] : ''
+      let s = s:substitute(s, last_old, last_new, flag, found_G)
+    elseif m ==# 'G'
+      let found_G = 1
+    else
+      return ''
+    endif
+  endfor
+
+  return s
 endfunction
 
 function! s:rebuild_command(cs, expansion)
+  let s = a:expansion ==# '' ? a:cs.cur : a:expansion
   if a:cs.pos <= len(a:cs.text)
-    call setcmdpos(len(a:cs.pre) + len(a:expansion) + 1)
+    call setcmdpos(len(a:cs.pre) + len(s) + 1)
   endif
   return a:cs.pre . a:expansion . a:cs.post
 endfunction
@@ -250,7 +297,13 @@ function! s:expand_exclamation(cs) abort
 endfunction
 
 function! s:expand_hat(cs) abort
-  let estring = substitute(a:cs.text,
-        \ printf('\V%s', escape(a:cs.string1, '\')), a:cs.string1, 'g')
-  return s:rebuild_command(a:cs, estring)
+  let s = substitute(a:cs.text,
+        \ printf('\V%s', escape(a:cs.string1, '\')), a:cs.string1, '')
+
+  if !empty(s) && !empty(a:cs.modifier)
+    let s = s:expand_modifier(a:cs, s)
+    call misc#log#debug(printf('expand modifier to %s', s))
+  endif
+
+  return s:rebuild_command(a:cs, s)
 endfunction
