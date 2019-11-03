@@ -1,6 +1,5 @@
 " expand history or wild menu
 function! misc#hist#expand(expand_wild) abort
-
   let cs = s:parse_cmdline(getcmdline(), getcmdtype(), getcmdpos())
   call misc#log#debug(printf('parse cmdline into : %s', string(cs)))
 
@@ -44,7 +43,6 @@ endfunction
 " setup event, word, modifier for !
 " setup string1, string2, modifier for ^
 function! s:parse_designator(cs) abort
-
   let l = matchlist(a:cs.cur, printf('\v^\^(.*)\^(.*)\^(\:\w+)?$'))
   if len(l) >= 4
     " ^string1^string2^:modifier
@@ -57,7 +55,6 @@ function! s:parse_designator(cs) abort
   else
     let a:cs.expansion_type = ''
   endif
-
 endfunction
 
 function! s:expand_wildmenu() abort
@@ -77,7 +74,6 @@ endfunction
 "
 " text = pre....cur|post, cur has no blank
 function! s:split_command(text, type, pos) abort
-
   let cs = {'text':a:text, 'type':a:type, 'pos':a:pos, 'pre':'', 'cur':'', 'post':''}
 
   let [cs.pre, cs.post] = [a:text[0:a:pos-2], a:text[a:pos-1:]]
@@ -100,7 +96,6 @@ function! s:get_reverse_hist(cmdtype) abort
 endfunction
 
 function! s:split_designator(designator) abort
-
   let l = split(a:designator, ':')
 
   if l[0] !~# '\v!.*'
@@ -132,7 +127,6 @@ function! s:split_designator(designator) abort
   endif
 
   return [event, word, modifier]
-
 endfunction
 
 " record most recent !?
@@ -232,7 +226,6 @@ function! s:substitute(s, old, new, flag, per_word)
 endfunction
 
 function! s:expand_modifier(cs, s) abort
-
   let last_old = ''
   let last_new = ''
   let found_G = 0

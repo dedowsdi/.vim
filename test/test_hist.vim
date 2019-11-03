@@ -207,7 +207,6 @@ endfunction
 try
   mes clear
   let v:errors = []
-  let s:cur_file = expand('%')
 
   " create function alias
   let s:script = fnamemodify(expand('<sfile>'), ':h:h') . '/autoload/misc/hist.vim'
