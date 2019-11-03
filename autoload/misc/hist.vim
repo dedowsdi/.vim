@@ -91,8 +91,12 @@ endfunction
 function! s:get_reverse_hist(cmdtype) abort
   " there has not built in method to get history list, don't like explicit loop
   let hist = reverse(split(execute('hist ' . a:cmdtype), "\n"))
+  if empty(hist)
+    return hist
+  endif
   " remove leading > and index.
-  return map(hist, {i,v->substitute(v, '\v^\>?\s*\d+\s*', '', '')})
+  let start_index = len(matchstr(hist[0], '\v^\>?\s*\d+\s*'))
+  return map(hist, {i,v-> v[start_index:]})
 endfunction
 
 function! s:split_designator(designator) abort
