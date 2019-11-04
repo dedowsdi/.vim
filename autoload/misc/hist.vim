@@ -130,15 +130,15 @@ function! s:split_designator(designator) abort
 endfunction
 
 " record most recent !?
-function! s:update_string_search(s, cmdtype) abort
+function! s:set_last_string_search(s, cmdtype) abort
   let s:d = get(s:, 'd', {})
   let s:d[a:cmdtype] = a:s
 endfunction
 
 " get most recent !?
-function! s:get_string_search(cmdtype) abort
-  let s:d = get(s:, 'd', {})
-  return get(s:d, a:cmdtype, '')
+function! s:get_last_string_search(cmdtype) abort
+  let s:last_search = get(s:, 'last_search', {})
+  return get(s:last_search, a:cmdtype, '')
 endfunction
 
 function! s:expand_event(cs) abort
@@ -204,7 +204,7 @@ function! s:expand_word(cs, s) abort
   endif
 
   if word ==# '%' " %
-    return s:get_string_search(a:cs.type)
+    return s:get_last_string_search(a:cs.type)
   endif
 
   let cmd_words = split(a:s, '\v\s+')
@@ -225,9 +225,18 @@ function! s:substitute(s, old, new, flag, per_word)
   endif
 endfunction
 
+function! s:set_last_substitute(old, new, cmdtype) abort
+  let s:last_sub = get(s:, 'last_sub', {})
+  let s:last_sub[a:cmdtype] = [a:old, a:new]
+endfunction
+
+function! s:get_last_substitute(cmdtype) abort
+  let s:last_sub = get(s:, 'last_sub', {})
+  return get(s:last_sub, a:cmdtype, ['', ''])
+endfunction
+
 function! s:expand_modifier(cs, s) abort
-  let last_old = ''
-  let last_new = ''
+  let [old, new] = s:get_last_substitute(a:cs.type)
   let found_G = 0
 
   let s_pattern = '\v\C^([g]?)s(.)(.+)\2(.*)\2$'
@@ -248,12 +257,13 @@ function! s:expand_modifier(cs, s) abort
     elseif m =~# s_pattern
       let l = matchlist(m, s_pattern)
       let flag = l[1]
-      let last_old = l[3]
-      let last_new = l[4]
-      let s = s:substitute(s, last_old, last_new, flag, found_G)
+      let old = l[3]
+      let new = l[4]
+      call s:set_last_substitute(old, new, a:cs.type)
+      let s = s:substitute(s, old, new, flag, found_G)
     elseif m =~# '\v\C[g]?\&'
       let flag = len(m) > 1 ? m[0] : ''
-      let s = s:substitute(s, last_old, last_new, flag, found_G)
+      let s = s:substitute(s, old, new, flag, found_G)
     elseif m ==# 'G'
       let found_G = 1
     else

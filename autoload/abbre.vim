@@ -2862,6 +2862,8 @@ function! abbre#osg()
   :iab <buffer> ov2 osg::Vec2
   :iab <buffer> ov3 osg::Vec3
   :iab <buffer> ov4 osg::Vec4
+  :iab <buffer> ogm osg::Geometry
+  :iab <buffer> oma osg::Material
 endfunction
 
 function! abbre#ogre()
