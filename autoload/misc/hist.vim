@@ -157,12 +157,12 @@ function! s:expand_event(cs) abort
     return a:cs.pre
   elseif n =~# '\v^[^?].*' "!string
     let hist = s:get_reverse_hist(a:cs.type)
-    let index = match(hist, printf('\V\^%s', escape(n, '\')))
+    let index = match(hist, printf('\V\C\^%s', escape(n, '\')))
     return index == -1 ? a:cs.event : hist[index]
   elseif n =~# '\v^\?.+' "!?string[?]
     let s = matchstr(n, '\v\?\zs.{-}\ze\??$')
     let hist = s:get_reverse_hist(a:cs.type)
-    let index = match(hist, printf('\V%s', escape(s, '\')))
+    let index = match(hist, printf('\V\C%s', escape(s, '\')))
     return index == -1 ? a:cs.event : hist[index]
   endif
 
