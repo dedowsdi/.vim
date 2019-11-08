@@ -345,18 +345,35 @@ function! misc#complete_expresson(backward)
   let base = l[2]
 
   let view = winsaveview()
-  if a:backward
-    norm! B
-  endif
-  let completions = []
-  while search('\v<'.base, a:backward ? 'bW' : 'W')
+
+  " place cursor at start of current WORD
+  norm! B
+  let cpos = getcurpos()
+  let pattern = '\v<'.base
+
+  " collection completion before cursor
+  let part0 = []
+  while search(pattern, 'bW')
     norm yie
-    let completions += [ @" ]
-    call misc#log#debug('add completion : ' . completions[-1])
+    let part0 = [ @" ] + part0
+  endwhile
+
+  " collection completion after cursor
+  call setpos('.', cpos)
+  let part1 = []
+  while search(pattern, 'W')
+    norm yie
+    let part1 = part1 + [ @" ]
   endwhile
 
   call winrestview(view)
-  call complete(start_col, completions)
+
+  " join completions, follow in the same convention as ctrl-p and ctrl-n
+  call complete(start_col, part1 + part0)
+  if a:backward
+    " are there other ways to do this ?
+    call feedkeys(repeat("\<c-p>", 2))
+  endif
   return ''
 endfunction
 
