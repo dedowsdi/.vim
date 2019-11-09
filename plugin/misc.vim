@@ -26,6 +26,7 @@ com -nargs=+ -complete=customlist,mycpp#make_pp_complete CppMakePP  update | cal
 com -nargs=0 CppJsonProj                                              call mycpp#open_project_file()
 com -nargs=0 CppSearchDerived                                         call mycpp#search_derived()
 com -nargs=0 CppCmake call mycpp#cmake()
+com -range -nargs=+ T call misc#mult_t(<line1>, <line2>, <f-args>)
 
 com -nargs=* -complete=customlist,mycpp#make_complete CppDebug         call mycpp#debug(<q-args>)
 com CppDebugToggleBreak call ycpp#debug_toggle_break()
@@ -64,8 +65,11 @@ com! SearchNextCamel call search('\v\C\w*[A-Z]\w*', 'W')
 com! -nargs=1 SetNotifySeverity call misc#log#set_notify_severity(<f-args>)
 
 com! -nargs=+ -complete=customlist,s:tt_complete TT call system('tmux_tt ' . <q-args>)
+com! -nargs=0 ToggleCommandHighlight call misc#hlcmd#toggle()
+silent ToggleCommandHighlight
 
-cnoremap <a-h> <c-\>emisc#hist#expand(0)<cr>
+set wildchar=<c-z>
+cnoremap <tab> <c-\>emisc#hist#expand(1)<cr>
 cnoremap <c-a> <c-b>
 cnoremap <a-a> <c-a>
 cnoremap <a-k> <c-\>e(getcmdpos() == 1 ? '' : getcmdline()[0:getcmdpos()-2])<cr>
