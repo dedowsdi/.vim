@@ -40,8 +40,8 @@ function misc#cmdline#build_range_pattern()
         \ "'[a-zA-Z0-9]",
         \ '\/.{-}\/',
         \ '\?.{-}\?',
+        \ '\\\/',
         \ '\\\?',
-        \ '\\\&',
         \ '\\\&',
         \ ]
   let address_basic = printf('%%(%s)', join(address_atoms, '|'))
