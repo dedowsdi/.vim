@@ -35,7 +35,7 @@ function misc#cmdline#build_range_pattern()
   let address_atoms = [
         \ '\d+',
         \ '[.$%]',
-        \ "'[0-9A-Z]",
+        \ "'[a-zA-Z0-9]",
         \ '\/.{-}\/',
         \ '\?.{-}\?',
         \ '\\\?',
@@ -55,7 +55,7 @@ function misc#cmdline#get_range_text(cmdline) abort
   return matchstr(a:cmdline, s:cmdrange_pat)
 endfunction
 
-" return [line1, line2]
+" return [line1, line2] or []
 function misc#cmdline#range2lnum(range_text) abort
   try
     let cpos = getcurpos()
@@ -63,6 +63,9 @@ function misc#cmdline#range2lnum(range_text) abort
     " silent is used to reverse reversed command range
     exec printf('silent %s call Tech_get_range()', a:range_text)
     return [s:tech_cmdrange_line1, s:tech_cmdrange_line2]
+  catch /^Vim\%((\a\+)\)\=:E20:/ " mark not set
+    " "A,"B is a common source of this kind of error.
+    return []
   finally
     call setpos('.', cpos)
   endtry

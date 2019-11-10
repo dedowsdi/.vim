@@ -46,25 +46,45 @@ function s:delay_finished() abort
   return 1000 * reltimefloat(reltime(s:start_time, reltime())) > s:delay
 endfunction
 
+function s:clear_and_redraw()
+  if s:clear_cmdrange_highlight()
+    redraw
+  endif
+  return
+endfunction
+
+" return [line1, line2] or []
+function s:get_cmdrange(cmdline)
+
+  " skip certain range patterns and common non-range patterns
+  if s:skip(a:cmdline)
+    return []
+  endif
+
+  let range_text = misc#cmdline#get_range_text(a:cmdline)
+
+  " blank range is current line, but i don't want to highlight current line
+  if empty(range_text)
+    return []
+  endif
+
+  return misc#cmdline#range2lnum(range_text)
+endfunction
+
 function s:update_cmdrange_highlight() abort
 
   if !s:delay_finished()
     return
   endif
 
-  let cmdline = getcmdline()
+  let cmdrange = s:get_cmdrange(getcmdline())
 
-  " skip certain range patterns and common non-range patterns
-  if s:skip(cmdline)
-    if s:clear_cmdrange_highlight()
-      redraw
-    endif
+  if cmdrange == []
+    call s:clear_and_redraw()
     return
   endif
 
-  let range_text = misc#cmdline#get_range_text(cmdline)
   " do nothing if cmd range doesn't change
-  let cmdrange = misc#cmdline#range2lnum(range_text)
   if cmdrange == s:cmdrange
     return
   endif
