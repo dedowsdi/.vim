@@ -62,7 +62,6 @@ function s:clear_and_redraw()
   if s:clear_cmdrange_highlight()
     redraw
   endif
-  return
 endfunction
 
 " return [line1, line2] or []
