@@ -16,7 +16,10 @@ function s:test_get_range_text()
         \ ["'a,'bp", "'a,'b"],
         \
         \ ['/abc/', '/abc/'],
+        \ ['/abc//def/', '/abc//def/'],
         \ ['/abc/,/def/p', '/abc/,/def/'],
+        \ ['/aaa//aaa/,/bbb//bbb/', '/aaa//aaa/,/bbb//bbb/'],
+        \ ['?aaa??aaa?,?bbb??bbb?', '?aaa??aaa?,?bbb??bbb?'],
         \
         \ ['\/', '\/'],
         \
