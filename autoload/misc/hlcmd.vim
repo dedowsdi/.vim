@@ -38,8 +38,20 @@ function s:skip(range_text)
   return a:range_text =~# '\v\C^%(\s*[a-zA-Z]|''\<\,\s*''\>|\s*\%|\s*$)'
 endfunction
 
-function s:enter_cmdline() abort
+function s:reset_timer()
   let s:start_time = reltime()
+endfunction
+
+function s:enter_cmdline() abort
+  call s:reset_timer()
+  " +1 is required to makesure delay_finished() return true.,
+  call timer_start(s:delay + 1, function('s:update_delayed_highlight'))
+endfunction
+
+function s:update_delayed_highlight(id)
+  " vim might be in normal mode when this callback get executed, in that case
+  " getcmdline() is always empty, which is ignored by update_cmdrange_highlight.
+  call s:update_cmdrange_highlight()
 endfunction
 
 function s:delay_finished() abort
@@ -97,7 +109,7 @@ function s:update_cmdrange_highlight() abort
   let s:cmdrange_hid = matchadd('VISUAL',
         \ printf('\v%%>%dl.*%%<%dl', s:cmdrange[0]-1, s:cmdrange[1]+1))
   redraw
-  let s:start_time = reltime()
+  call s:reset_timer()
 
 endfunction
 
