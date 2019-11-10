@@ -31,6 +31,8 @@ endfunction
 " possible that this pattern matches pure blank, be careful about this.
 "
 " white spaces around ranges are also included
+"
+" Open closed /pat/ and ?pat? are supported
 function misc#cmdline#build_range_pattern()
   let address_atoms = [
         \ '\d+',
@@ -64,6 +66,7 @@ function misc#cmdline#range2lnum(range_text) abort
     exec printf('silent %s call Tech_get_range()', a:range_text)
     return [s:tech_cmdrange_line1, s:tech_cmdrange_line2]
   catch /^Vim\%((\a\+)\)\=:E20:/ " mark not set
+  catch /^Vim\%((\a\+)\)\=:E486:/ " pattern not found
     " "A,"B is a common source of this kind of error.
     return []
   finally
