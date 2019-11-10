@@ -34,8 +34,8 @@ function s:disable() abort
 endfunction
 
 function s:skip(range_text)
-  " skip v_: , % , total blank
-  return a:range_text =~# '\v^\s*\w|^''\<\,\s*''\>|^\s*\%|^\s*$'
+  " skip common non-range pattern(start with [a-z]), v_: , % , total blank
+  return a:range_text =~# '\v\C^%(\s*[a-zA-Z]|''\<\,\s*''\>|\s*\%|\s*$)'
 endfunction
 
 function s:enter_cmdline() abort
