@@ -2,6 +2,11 @@ let s:cmdrange = []
 let s:cmdrange_hid = -1
 let s:enabled = 0
 
+" delay make sure cmap or feedkeys go through without triggering highlight, it's
+" in miliseconds
+let s:delay = 5
+let s:start_time = reltime()
+
 function misc#hlcmd#toggle() abort
   if s:enabled
     call s:disable()
@@ -15,7 +20,7 @@ function s:enable() abort
   augroup hlcmd_group
     au!
     autocmd CmdlineChanged : call s:update_cmdrange_highlight()
-    autocmd CmdlineEnter : call s:update_cmdrange_highlight()
+    autocmd CmdlineEnter : call s:enter_cmdline()
     autocmd CmdlineLeave : call s:clear_cmdrange_highlight()
   augroup end
   let s:enabled = 1
@@ -28,81 +33,61 @@ function s:disable() abort
   let s:enabled = 0
 endfunction
 
-function s:build_cmdrange_pattern()
-  " a range is various pattern (optional) followed by multiple optional [+-][number]
-  let range_atoms = [
-        \ '\d+',
-        \ '[.$%]',
-        \ "'[0-9A-Z]",
-        \ '\/.{-}\/',
-        \ '\?.{-}\?',
-        \ '\\\?',
-        \ '\\\&',
-        \ '\\\&',
-        \ ]
-  let range_basic = printf('%%(%s)', join(range_atoms, '|'))
-  let range_optional = '%(\s*%([+-]\d*)*)'
-  let range_pat = printf('\v%%(%s?\s*%s*)', range_basic, range_optional)
-
-  " a cmdrange is one range or two ranges joined by, or ;
-  let cmdrange_pat = printf('\v\C^%s([,;]%s)?', range_pat, range_pat)
-  return cmdrange_pat
+function s:skip(range_text)
+  " skip v_: , % , total blank
+  return a:range_text =~# '\v^\s*\w|^''\<\,\s*''\>|^\s*\%|^\s*$'
 endfunction
-let s:cmdrange_pat = s:build_cmdrange_pattern()
+
+function s:enter_cmdline() abort
+  let s:start_time = reltime()
+endfunction
+
+function s:delay_finished() abort
+  return 1000 * reltimefloat(reltime(s:start_time, reltime())) > s:delay
+endfunction
 
 function s:update_cmdrange_highlight() abort
 
-  let cmdline = getcmdline()
-
-  " skip :h v_:
-  if cmdline =~# '\V\^''<,''>'
+  if !s:delay_finished()
     return
   endif
 
-  " skip if range not changed
-  let cmdrange = s:get_cmdrange(cmdline)
-  if s:cmdrange == cmdrange
+  let cmdline = getcmdline()
+
+  " skip certain range patterns and common non-range patterns
+  if s:skip(cmdline)
+    if s:clear_cmdrange_highlight()
+      redraw
+    endif
+    return
+  endif
+
+  let range_text = misc#cmdline#get_range_text(cmdline)
+  " do nothing if cmd range doesn't change
+  let cmdrange = misc#cmdline#range2lnum(range_text)
+  if cmdrange == s:cmdrange
     return
   endif
 
   " update highlight area
   call s:clear_cmdrange_highlight()
+  let s:cmdrange = cmdrange
 
   " I start with '%1l^\_.*%100l', but it failed to highlight '%' if 1st line is not visible.
   let s:cmdrange_hid = matchadd('VISUAL',
-        \ printf('\v%%>%dl.*%%<%dl', cmdrange[0]-1, cmdrange[1]+1))
-  let s:cmdrange = cmdrange
+        \ printf('\v%%>%dl.*%%<%dl', s:cmdrange[0]-1, s:cmdrange[1]+1))
   redraw
+  let s:start_time = reltime()
 
 endfunction
 
 function s:clear_cmdrange_highlight() abort
+  let cleared = 0
   if s:cmdrange_hid != -1
     call matchdelete(s:cmdrange_hid)
+    let cleared = 1
   endif
   let s:cmdrange = []
   let s:cmdrange_hid = -1
-endfunction
-
-function s:get_cmdrange(cmdline) abort
-
-  let range_text = matchstr(a:cmdline, s:cmdrange_pat)
-  if range_text !~# '\S'
-    return []
-  endif
-
-  try
-    let cpos = getcurpos()
-
-    " silent is used to reverse reversed command range
-    exec printf('silent %s call Tech_get_cmdrange()', range_text)
-    return [s:tech_cmdrange_line1, s:tech_cmdrange_line2]
-  finally
-    call setpos('.', cpos)
-  endtry
-endfunction
-
-function Tech_get_cmdrange() range
-  let s:tech_cmdrange_line1 = a:firstline
-  let s:tech_cmdrange_line2 = a:lastline
+  return cleared
 endfunction

@@ -480,3 +480,17 @@ function! misc#abort_do(out_cmd, inner_cmd, ...) abort
     set eventignore-=Syntax
   endtry
 endfunction
+
+function misc#mult_t(line1, line2, ...) abort
+  let text = getline(a:line1, a:line2)
+
+  " convert addresses to real line numbers
+  let addresses = deepcopy(a:000)
+  call map(addresses, {i,v -> misc#cmdline#address2lnum(v)})
+
+  " apply in reverse order
+  for address in reverse( sort(addresses, 'n') )
+    call append(address, text)
+  endfor
+endfunction
+
