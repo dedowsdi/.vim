@@ -55,7 +55,7 @@ function misc#cmdline#get_range_text(cmdline) abort
   return matchstr(a:cmdline, s:cmdrange_pat)
 endfunction
 
-" return [line1, line2] or []
+" return [line1, line2] or [] if mark error occurs
 function misc#cmdline#range2lnum(range_text) abort
   try
     let cpos = getcurpos()
@@ -88,6 +88,9 @@ function misc#cmdline#is_pure_address(pattern)
   return misc#cmdline#get_range_text(a:pattern) ==# a:pattern
 endfunction
 
+" throw if address is not pure valid address
+" throw if address line number > line('$')
+" throw if address mark doesn't exist
 function misc#cmdline#address2lnum(address) abort
 
   if !misc#cmdline#is_pure_address(a:address)
