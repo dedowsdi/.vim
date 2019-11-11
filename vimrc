@@ -342,8 +342,9 @@ let g:AutoPairsShortcutBackInsert = ''
 " gutentags
 let g:gutentags_project_root = ['.vim']
 let g:gutentags_exclude_project_root = [$HOME]
-let g:gutentags_exclude_filetypes = ['cmake', 'sh', 'json', 'md']
+let g:gutentags_exclude_filetypes = ['cmake', 'sh', 'json', 'md', 'text']
 let g:gutentags_define_advanced_commands = 1
+let g:gutentags_ctags_options_file = '.vim/.gutctags'
 
 " mine
 let g:clang_format_py_path = '/usr/local/source/llvm8.0.0/share/clang/clang-format.py'
@@ -399,6 +400,11 @@ call s:add_mo(',b', 'misc#mo#vertical_motion("B")')
 call s:add_mo(',E', 'misc#mo#expr()')
 nnoremap ,,  ,
 
+call s:add_op(',h', 'misc#ahl#op')
+com -nargs=0 AhlRemoveWindowHighlights call misc#ahl#remove_wnd_highlights()
+com -nargs=0 AhlRemoveCursorHighlights call misc#ahl#remove_cursor_highlights()
+nnoremap ,hh :AhlRemoveCursorHighlights<cr>
+
 call s:add_op(',l', 'misc#op#search_literal')
 call s:add_op(',s', 'misc#op#substitude')
 call s:add_op(',S', 'misc#op#system')
@@ -448,8 +454,8 @@ inoremap <expr> <End> repeat('<c-g>U<Right>', col('$') - col('.'))
 imap <a-l> <Right>
 imap <a-h> <Left>
 
-cnoremap <expr> %%  getcmdtype() == ":" ? expand("%:h")."/" : "%%"
-cnoremap <expr> %t  getcmdtype() == ":" ? expand("%:t") : "%t"
+" cnoremap <expr> %%  getcmdtype() == ":" ? expand("%:h")."/" : "%%"
+" cnoremap <expr> %t  getcmdtype() == ":" ? expand("%:t") : "%t"
 
 nnoremap <leader>tt :call misc#term#toggle_gterm()<cr>
 tnoremap <leader>tt <c-\><c-n>:call misc#term#toggle_gterm()<cr>
@@ -460,6 +466,7 @@ nnoremap <leader>yd :YcmShowDetailedDiagnostic<cr>
 set rtp+=~/.fzf,.vim,.vim/after
 call plug#begin('~/.config/nvim/plugged')
 "Plug 'scrooloose/syntastic'
+Plug 'mbbill/undotree'
 Plug 'w0rp/ale'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim' | Plug 'junegunn/vim-easy-align'
@@ -507,6 +514,17 @@ function! s:less(cmd)
   exec 'vsplit ' . tempname()
   setlocal buftype=nofile nobuflisted noswapfile bufhidden=hide
   exec printf("put! =execute('%s')", a:cmd)
+endfunction
+
+" arglist : [ cwd ]
+" change window local working directory
+function! Tapi_lcd(bufnum, arglist)
+  let winid = bufwinid(a:bufnum)
+  let cwd = get(a:arglist, 0, '')
+  if winid == -1 || empty(cwd)
+    return
+  endif
+  call win_execute(winid, 'lcd ' . cwd)
 endfunction
 
 " some tiny util
