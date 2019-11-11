@@ -22,6 +22,10 @@ vnoremap <buffer> af :<C-U>silent! call cdef#sel_pf('a')<cr>
 vnoremap <buffer> if :<C-U>silent! call cdef#sel_pf('i')<cr>
 onoremap <buffer> af :normal vaf<cr>
 onoremap <buffer> if :normal vif<cr>
+vnoremap <buffer> aC :<C-U>silent! call cdef#sel_class('a')<cr>
+vnoremap <buffer> iC :<C-U>silent! call cdef#sel_class('i')<cr>
+onoremap <buffer> aC :normal vaC<cr>
+onoremap <buffer> iC :normal viC<cr>
 
 " operator
 nnoremap ,f :set opfunc=misc#op#clang_format<cr>g@
