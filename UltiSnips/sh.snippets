@@ -1,10 +1,11 @@
-snippet modeline "modeline"
-vim:set filetype=sh et sw=4 ts=8 sts=4 $0:
+snippet readfile "read file in old style (while)"
+while IFS='' read -r line || [[ -n "$line" ]] ; do
+	echo "$line"
+done
 endsnippet
 
-snippet loopfile "loop file in old style (while)"
-find . -type f $0 -print0 |
-while IFS='' read -r -d $'\0' item ; do
-    echo $item
-done
+snippet readnest "read from stdin inside while loop"
+while IFS='' read -r line -u 10 || [[ -n "$line" ]] ; do
+	echo "$line"
+done 10<data
 endsnippet
