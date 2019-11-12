@@ -7,7 +7,7 @@ let s:hblocks = {}
 
 function misc#ahl#op(type, ...) abort
   let visual = get(a:000, 0, 0)
-  let hblock = s:creaet_hblock(a:type, visual)
+  let hblock = s:create_block(a:type, visual)
   call s:highlight(hblock)
 endfunction
 
@@ -32,7 +32,7 @@ function misc#ahl#remove_wnd_highlights() abort
   call remove(wnd_hblocks, 0, len(wnd_hblocks) - 1)
 endfunction
 
-function s:creaet_hblock(type, visual) abort
+function s:create_block(type, visual) abort
   if a:visual
     let wise = visualmode()
     let start = getpos("'<")
