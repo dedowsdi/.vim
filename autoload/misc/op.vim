@@ -1,41 +1,62 @@
-" return [text, wise]
-function! misc#op#get_oeprand(type, visual) abort
-  if a:visual
-    return [misc#get_visual_string(), visualmode()]
+let s:op = {}
+
+function s:op.select()
+  if self.visual
+    exec 'norm! gv'
   else
-    let vmode = a:type ==# 'line' ? 'V' : a:type ==# 'char' ? 'v' : "\<ctrl-v>"
-    return [misc#get_mark_string("'[", "']", vmode), vmode]
+    " `] inside an opfunc is inclusive, it's different from last change.
+    exe printf('norm! `[%s`]', self.wise)
   endif
 endfunction
 
-function! misc#op#visual_select_operand(type, visual, mark_only) abort
-  if a:visual
-    exec 'norm gv'
-  else
-    let vmode = a:type ==# 'line' ? 'V' : a:type ==# 'char' ? 'v' : "\<c-v>"
-    " `] inside an opfunc is inclusive, it's different from last change.
-    exe printf("norm! `[%s`]\<esc>%s", vmode, a:mark_only ? "\<esc>" : '')
+" return {wise: , visual: ,start:, end:, text: , optype: }
+" optype is original type, you need it to call other operations
+function! misc#op#new(type, op_args, ...) abort
+  let visual = get(a:op_args, 0, 0)
+  if visual
+    let wise = visualmode()
+    let start = getpos("'<")
+    let end = getpos("'>")
+  els
+    let wise = a:type ==# 'line' ? 'V' : a:type ==# 'char' ? 'v' : "\<ctrl-v>"
+    let start = getpos("'[")
+    let end = getpos("']")
   endif
+
+  let notext = get(a:000, 0, 0)
+  let text = notext ? '' : misc#get_pos_string(start, end, wise)
+
+  let op = deepcopy(s:op)
+  let op.wise = wise
+  let op.visual = visual
+  let op.start = start
+  let op.end = end
+  let op.text = text
+  let op.optype = a:type
+
+  return op
+
 endfunction
+
 
 " op can be opfunc or mapping
-function! misc#op#execute(op, type, visual) abort
-  call misc#op#visual_select_operand(a:type, a:visual, 0)
-  if exists('*'.a:op)
-    call call (a:op, [a:type] + a:000)
+function! misc#op#execute(operation, op) abort
+  if exists('*'.a:operation)
+    call call (a:operation, [a:op.optype, a:op.visual])
   else
-    exec 'norm' a:op
+    call a:op.select()
+    exec 'norm' a:operation
   endif
 endfunction
 
 function! misc#op#search_literal(type, ...) abort
-  let @/ = misc#op#get_oeprand(a:type, a:0 > 0)[0]
-  let @/ = misc#literalize_vim(@/)
+  let op = misc#op#new(a:type, a:000)
+  let @/ = misc#literalize_vim(op.text)
 endfunction
 
 function! misc#op#literal_grep(type, ...) abort
-  let operand = misc#op#get_oeprand(a:type, a:0>0)
-  call setreg('"', misc#literalize_grep(operand[0]))
+  let op = misc#op#new(a:type, a:000)
+  call setreg('"', misc#literalize_grep(op.text))
   call feedkeys(":grep -F \<c-r>=@\"\<cr> ")
 endfunction
 
@@ -46,31 +67,18 @@ function! misc#op#substitude(type, ...) abort
 endfunction
 
 function! misc#op#search_in_browser(type, ...)
-  let operand = misc#op#get_oeprand(a:type, a:0>0)
-  silent! exec 'silent! !google-chrome "http://google.com/search?q=' . operand[0] . '" &>/dev/null &'
+  let op = misc#op#new(a:type, a:000)
+  silent! exec 'silent! !google-chrome "http://google.com/search?q=' . op.text . '" &>/dev/null &'
   redraw!
 endfunction
 
-" opfunc must be a real function, function reference won't work?
-"
-" (type, visual, cmd, wise)
 function! misc#op#system(type, ...) abort
   let visual = get(a:000, 0, 0)
-  let operand = misc#op#get_oeprand(a:type, visual)
-
-  let cmd = get(a:000, 1, '')
-  if empty(cmd)
-    let cmd = input('shell command : ')
-    if empty(cmd) | return | endif
-  endif
-
-  let wise = get(a:000, 2, '')
-  if empty(wise)
-    let wise = input('wise : ')
-    if empty(wise) | return | endif
-  endif
-
-  call setreg(v:register, system(cmd, operand[0]), wise)
+  let op = misc#op#new(a:type, a:000)
+  let cmd = input('shell command : ')
+  call setreg('"', system(cmd, op.text), 'v')
+  call op.select()
+  norm! p
 endfunction
 
 " a-b        : range(a, b)
@@ -110,14 +118,17 @@ function! misc#op#column(type, ...) abort
   let cmd = printf("awk '{%s}' ", cmd)
 
   call misc#log#debug('column commmand : ' . cmd)
+  let op = misc#op#new(a:type, a:000)
 
-  call call ('misc#op#system', [a:type] + [get(a:000, 0, 0), cmd, 'b'])
+  call setreg(v:register, system(cmd, op.text), "\<c-v>")
 endfunction
 
 function! misc#op#clang_format(type, ...) abort
 
+  let op = misc#op#new(a:type, a:000)
+
   " clang-format.py will check l:lines to determine range
-  let l:lines = printf('%d:%d', getpos("'[")[1], getpos("']")[1])
+  let l:lines = printf('%d:%d', op.start[1], op.end[1])
   let cmd = printf('py3file %s', g:clang_format_py_path)
   call misc#log#debug('ClangFormat command : ' . cmd)
   exec cmd
@@ -144,17 +155,22 @@ endfunction
 " omo short for Occurence Modifier Operator
 function! misc#op#omo(operator) abort
   let s:omo_old_mark_a = getpos("'a")
-  " there is no way to get current word in opfunc, must mark it here
+  " there is no way to get current word position in opfunc, must mark it here
+  let cpos = getcurpos()
   norm! "_yiw
   norm! ma
+  call setpos('.', cpos)
   exe 'set opfunc=misc#op#omo_' . a:operator
   call feedkeys('g@')
 endfunction
 
 function! misc#op#omo_co(type, ...) abort
 
-  let visual = a:0 > 0
-  call misc#op#visual_select_operand(a:type, visual, 1)
+  let op = misc#op#new(a:type, a:000)
+
+  " select text, release, gv will be used in co_insert_leave
+  call op.select()
+  exe "norm \<esc>"
 
   " hook callback
   augroup mo_co_insert
@@ -170,26 +186,30 @@ function! misc#op#omo_co(type, ...) abort
 endfunction
 
 function! misc#op#omo_do(type, ...) abort
-  call misc#op#execute('misc#op#omo_co', a:type, a:0 > 0)
+  let op = misc#op#new(a:type, a:000)
+  call misc#op#execute('misc#op#omo_co', op)
   call feedkeys("\<esc>")
 endfunction
 
 function! misc#op#omo_guo(type, ...) abort
   let str = tolower(expand('<cword>'))
-  call misc#op#execute('misc#op#omo_co', a:type, a:0 > 0)
+  let op = misc#op#new(a:type, a:000)
+  call misc#op#execute('misc#op#omo_co', op)
   call feedkeys(printf("%s\<esc>", str))
 endfunction
 
 function! misc#op#omo_gUo(type, ...) abort
   let str = toupper(expand('<cword>'))
-  call misc#op#execute('misc#op#omo_co', a:type, a:0 > 0)
+  let op = misc#op#new(a:type, a:000)
+  call misc#op#execute('misc#op#omo_co', op)
   call feedkeys(printf("%s\<esc>", str))
 endfunction
 
 function! misc#op#omo_gso(type, ...) abort
   let chars = split(expand('<cword>'), '\zs')
   let str = join(map(chars, {i,v -> v=~# '[a-z]' ? toupper(v) : tolower(v)}), '')
-  call misc#op#execute('misc#op#omo_co', a:type, a:0 > 0)
+  let op = misc#op#new(a:type, a:000)
+  call misc#op#execute('misc#op#omo_co', op)
   call feedkeys(printf("%s\<esc>", str))
 endfunction
 
