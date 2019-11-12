@@ -68,6 +68,9 @@ com! -nargs=+ -complete=customlist,s:tt_complete TT call system('tmux_tt ' . <q-
 com! -nargs=0 ToggleCommandHighlight call misc#hlcmd#toggle()
 silent ToggleCommandHighlight
 
+com -nargs=+ -bang UndotreeTag call misc#undotag#add(<bang>0, <f-args>)
+com -nargs=1 -complete=customlist,misc#undotag#complete UndotreeCheckout call misc#undotag#checkout(<f-args>)
+
 set wildchar=<c-z>
 cnoremap <tab> <c-\>emisc#hist#expand(1)<cr>
 cnoremap <c-a> <c-b>
