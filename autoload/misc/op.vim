@@ -141,29 +141,6 @@ function! s:store_cursor() abort
 endfunction
 
 " mimic https://github.com/t9md/atom-vim-mode-plus/wiki/OccurrenceModifier
-function! misc#op#co_old(type, ...) abort
-
-  if a:0
-    throw 'dont call ChangeWords in visual mode'
-  end
-
-  let visual = a:0 > 0
-
-  " setup search pattern, restrict it in operator text
-  let cword = @@
-  let cword_len = len(cword)
-  if cword_len == 1
-    let @/ = printf('\v%%V<%s>', cword)
-  else
-    let @/ = printf('\v%%V<%s%%V%s>', cword[0:-2], cword[-1:-1])
-  endif
-
-  call misc#op#visual_select_operand(a:type, visual, 0)
-
-  call feedkeys(":s///g\<left>\<left>", 'n')
-endfunction
-
-" mimic https://github.com/t9md/atom-vim-mode-plus/wiki/OccurrenceModifier
 " omo short for Occurence Modifier Operator
 function! misc#op#omo(operator) abort
   let s:omo_old_mark_a = getpos("'a")
