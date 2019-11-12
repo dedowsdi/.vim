@@ -70,6 +70,7 @@ silent ToggleCommandHighlight
 
 com -nargs=+ -bang UndotreeTag call misc#undotag#add(<bang>0, <f-args>)
 com -nargs=1 -complete=customlist,misc#undotag#complete UndotreeCheckout call misc#undotag#checkout(<f-args>)
+com -nargs=0 UndotreePrevBranchPoint call misc#undo_prev_branch_point()
 
 set wildchar=<c-z>
 cnoremap <tab> <c-\>emisc#hist#expand(1)<cr>
