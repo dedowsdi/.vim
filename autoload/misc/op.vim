@@ -76,7 +76,7 @@ function! misc#op#system(type, ...) abort
   let visual = get(a:000, 0, 0)
   let op = misc#op#new(a:type, a:000)
   let cmd = input('shell command : ')
-  call setreg('"', system(cmd, op.text), 'v')
+  call setreg('"', trim(system(cmd, op.text)), 'v')
   call op.select()
   norm! p
 endfunction
