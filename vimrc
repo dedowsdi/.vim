@@ -420,7 +420,7 @@ if empty(glob('~/.vim/autoload/plug.vim'))
 endif
 
 set rtp+=~/.fzf
-call plug#begin('~/.config/nvim/plugged')
+call plug#begin('~/.vim/plugged')
 "Plug 'scrooloose/syntastic'
 Plug 'mbbill/undotree'
 Plug 'w0rp/ale'
