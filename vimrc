@@ -112,30 +112,6 @@ set showmode showcmd novisualbell
 set noshowmatch matchtime=3
 set matchpairs+=<:>
 
-" misc (Man, shell, pack, filetype, syntax, autocmds,...) {{{1
-runtime! ftplugin/man.vim
-set keywordprg=:Man
-
-call misc#terminal#setup()
-
-filetype plugin indent on
-syntax enable
-packadd cfilter
-packadd termdebug
-
-augroup zxd_misc
-  au!
-  autocmd DirChanged * if filereadable('.vim/init.vim') | source .vim/init.vim | endif
-  autocmd BufWritePost *.l if &filetype ==# 'lpfg' | call myl#runLpfg() | endif
-  autocmd InsertEnter,InsertLeave * set cursorline!
-  autocmd FileType * try | call call('abbre#'.expand('<amatch>'), [])
-              \ | catch /.*/ | endtry
-              \ | setlocal formatoptions-=o formatoptions+=j
-  if !has('nvim')
-      autocmd TerminalOpen * setl nonumber norelativenumber
-  endif
-augroup end
-
                                 " plugin {{{1
 
 " ale {{{2
@@ -462,9 +438,33 @@ Plug 'lervag/vimtex'                   " latex
 " Plug 'rhysd/vim-grammarous'
 call plug#end()
 
-" colorscheme {{{2
+" misc (Man, shell, pack, filetype, syntax, autocmds, colorscheme,...) {{{1
+runtime! ftplugin/man.vim
+set keywordprg=:Man
+
+call misc#terminal#setup()
+
+filetype plugin indent on
+syntax enable
+packadd cfilter
+packadd termdebug
+
 let g:gruvbox_number_column='bg1'
 colorscheme gruvbox
+
+augroup zxd_misc
+  au!
+  autocmd DirChanged * if filereadable('.vim/init.vim') | source .vim/init.vim | endif
+  autocmd BufWritePost *.l if &filetype ==# 'lpfg' | call myl#runLpfg() | endif
+  autocmd InsertEnter,InsertLeave * set cursorline!
+  autocmd FileType * try | call call('abbre#'.expand('<amatch>'), [])
+              \ | catch /.*/ | endtry
+              \ | setlocal formatoptions-=o formatoptions+=j
+  if !has('nvim')
+      autocmd TerminalOpen * setl nonumber norelativenumber
+  endif
+augroup end
+
 
                               " all kinds of maps {{{1
 
