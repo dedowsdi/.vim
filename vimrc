@@ -1,5 +1,15 @@
 " vim:set foldmethod=marker :
 
+" Always remember that your goal is to build your own Editor.
+"
+" about map and command position in this file :
+"     put it in map fold if:
+"        1. it doesn't rely on plugin at all
+"        2. it relies on plugin, but it's a common operation. e.g. <c-f7> is
+"        bound to lint current file, both coc and ale implement this function.
+"
+"     Otherwise put it the plugin fold that it relies on.
+
 " clear autocmd, needed if you want to source vimrc multiple times
 autocmd!
 
@@ -223,11 +233,8 @@ let g:clang_complete_macros=1
 
 " coc.nvim {{{2
 inoremap <silent><expr> <c-space> coc#refresh()
-nmap <f12> <Plug>(coc-definition)
 nmap <c-f12> <Plug>(coc-type-definition)
 nmap <s-f12> <Plug>(coc-implementation)
-nmap <s-f10> <Plug>(coc-references)
-nmap <f2> <Plug>(coc-rename)
 nnoremap <c-s> :call CocActionAsync('showSignatureHelp')<cr>
 inoremap <c-s> <c-r>=CocActionAsync('showSignatureHelp')<cr>
 nnoremap <expr> <c-d> coc#util#has_float() ? coc#util#float_scroll(1) : "\<c-d>"
@@ -274,6 +281,7 @@ function! s:build_quickfix_list(lines)
   call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
   copen | cc
 endfunction
+
 let g:fzf_action = {
       \ 'ctrl-t': 'tab split',
       \ 'ctrl-x': 'split',
@@ -284,33 +292,6 @@ let g:fzf_action = {
       \ }
 let g:fzf_layout = {'up':'~40%'}
 
-function! s:fzf_cpp_tags(...)
-  let query = get(a:000, 0, '')
-  " there exists an extra field which i don't know how to control in
-  " fzf#vim#tags, that's why it use 1,4..-2
-  let tags_options = { 'options' : '--no-reverse -m -d "\t" --tiebreak=begin
-              \ --with-nth 1,4..-2 -n .. --prompt "Ctags> "'}
-  call fzf#vim#tags(
-        \ query,
-        \ extend(copy(g:fzf_layout), tags_options))
-endfunction
-
-command! -nargs=* Ctags :call <SID>fzf_cpp_tags(<q-args>)
-" there are garbage new line in mes, don't know how to reproduce it. Filter
-" blank lines as temporary solution.
-command! -nargs=+ -bang -complete=command FF call fzf#run(fzf#wrap({
-            \ 'source' : filter(split(execute(<q-args>), "\n"), {i,v->!empty(v)}),
-            \ 'sink': function('s:ff_sink'),
-            \ 'options' : <bang>0 ? '--tac' : '',
-            \ 'up':'~40%'
-            \ }))
-
-" copy into @@, ignore leading index
-function! s:ff_sink(item)
-  let text = substitute(a:item, '\v^\>?\s*\d+\:?\s*', '', '')
-  let @@ = empty(text) ? a:item : text
-endfunction
-
 " change FZF_DEFAULT_COMMAND, execute cmd, restore FZF_DEFALUT_COMMAND
 function! s:fzf(fzf_default_cmd, cmd)
   let oldcmds = $FZF_DEFAULT_COMMAND | try
@@ -318,22 +299,6 @@ function! s:fzf(fzf_default_cmd, cmd)
     execute a:cmd
   finally | let $FZF_DEFAULT_COMMAND = oldcmds | endtry
 endfunction
-
-let g:external_files = get(g:, 'external_files', [])
-
-function! s:fzf_external_files()
-  if empty(g:external_files)
-    return
-  endif
- 
-  let source = 'find "' . join(g:external_files, '" "') . '" \( -name ".hg" -o -name ".git" -o
-            \ -name "build" -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
-  call fzf#run(fzf#wrap({'source' : source}))
-endfunction
-nnoremap <leader>p :call <sid>fzf_external_files()<cr>
-
-let g:fzf_file_project = 'find . \( -name ".hg" -o -name ".git" -o
-            \ -name "build" -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
 
 function! s:comp_dir()
   let location = matchstr( getline('.'), printf('\v\S+%%%dc', col('.')) )
@@ -378,14 +343,9 @@ let g:gutentags_exclude_filetypes = ['cmake', 'sh', 'json', 'md', 'text']
 let g:gutentags_define_advanced_commands = 1
 let g:gutentags_ctags_options_file = '.vim/.gutctags'
 
-" mine {{{2
+" .vim {{{2
 let g:clang_format_py_path = '/usr/local/source/llvm8.0.0/share/clang/clang-format.py'
 let g:clang_format_fallback_style = 'LLVM'
-
-" maps {{{2
-function! s:omap(to)
-  return printf(":normal v%s\"%s\<cr>", a:to, v:register)
-endfunction
 
 " install plugins {{{2
 if empty(glob('~/.vim/autoload/plug.vim'))
@@ -437,7 +397,8 @@ Plug 'lervag/vimtex'                   " latex
 " Plug 'rhysd/vim-grammarous'
 call plug#end()
 
-" misc (Man, shell, pack, filetype, syntax, autocmds, colorscheme,...) {{{1
+                                  " misc {{{1
+
 runtime! ftplugin/man.vim
 set keywordprg=:Man
 
@@ -468,6 +429,10 @@ augroup end
                               " all kinds of maps {{{1
 
 " text object {{{2
+function! s:omap(to)
+  return printf(":normal v%s\"%s\<cr>", a:to, v:register)
+endfunction
+
 vnoremap aa :<C-U>silent! call misc#to#sel_cur_arg({})<cr>
 vnoremap ia :<C-U>silent! call misc#to#sel_cur_arg({'exclude_space':1})<cr>
 onoremap <expr> ia <sid>omap('ia')
@@ -534,7 +499,7 @@ nnoremap guo :call misc#op#omo('guo')<cr>
 nnoremap gUo :call misc#op#omo('gUo')<cr>
 nnoremap g~o :call misc#op#omo('gso')<cr>
 
-" maps {{{2
+" common maps {{{2
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap -- :edit $MYVIMRC<cr>
 nnoremap Y  y$
@@ -544,18 +509,20 @@ nnoremap gc :SelectLastPaste<cr>
 inoremap <c-x><c-p> <c-r>=misc#complete_expresson(1)<cr>
 inoremap <c-x><c-n> <c-r>=misc#complete_expresson(0)<cr>
 
+nmap <f2> <Plug>(coc-rename)
 nnoremap <f3>    :set hlsearch!<cr>
-" nnoremap <f4>    :ALEHover<cr>
 nnoremap <f4>    :CocHover<cr>
 nnoremap <c-f7>  :ALELint<cr>
-" nnoremap <f12>   :YcmCompleter GoToDefinition<cr>
-" nnoremap <c-f12> :YcmCompleter GoToDeclaration<cr>
+nmap <s-f10> <Plug>(coc-references)
+nmap <f12> <Plug>(coc-definition)
 
 nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
 nnoremap <c-j> :BTags<cr>
 nnoremap <a-j> :Ctags<cr>
 nnoremap <c-h> :History<cr>
 nnoremap <c-b> :Buffers<cr>
+let g:fzf_file_project = 'find . \( -name ".hg" -o -name ".git" -o
+            \ -name "build" -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
 nnoremap <c-p> :call <sid>fzf(g:fzf_file_project, ":Files")<cr>
 nnoremap <a-p> :FZF<cr>
 
@@ -580,12 +547,36 @@ nnoremap <leader>yd :YcmShowDetailedDiagnostic<cr>
 
                                   " command {{{1
 
+command! -nargs=* EditTemp e `=tempname().'_'.<q-args>`
+command! Synstack echo misc#synstack()
+command! SynID echo synIDtrans(synID(line('.'), col('.'), 1))
+command! -nargs=+ SynIDattr echo synIDattr(
+            \ synIDtrans(synID(line('.'), col('.'), 1)), <f-args>)
+command! HiTest source $VIMRUNTIME/syntax/hitest.vim
+command! TrimTrailingWhitespace :keepp %s/\v\s+$//g
+command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
+  \ | diffthis | wincmd p | diffthis
+command! SelectLastPaste exec 'normal! `[' . getregtype() . '`]'
+command! ReverseQuickFixList call setqflist(reverse(getqflist()))
+command! SuperWrite :w !sudo tee % > /dev/null
+command! ToggleAutoPairs :call AutoPairsToggle()
+command! Terminal exe 'terminal' |
+            \ call term_sendkeys("", printf("cd %s \<cr>",
+            \ fnamemodify(bufname(winbufnr(winnr('#'))), ':h') ) )
+command! -bang CfilterCoreHelp Cfilter<bang> '\v/vim/vim\d+/doc/[^/]+\.txt'
+command -nargs=1 DoRevert <args> e!
+command -nargs=1 DoSave <args> up
+
+" Less {{{2
 function! s:less(cmd)
   exec 'vsplit ' . tempname()
   setlocal buftype=nofile nobuflisted noswapfile bufhidden=hide
   exec printf("put! =execute('%s')", a:cmd)
 endfunction
 
+command! -nargs=+ -complete=command Less call <sid>less(<q-args>)
+
+" Less {{{Tapi_cd
 " arglist : [ cwd ]
 " change window local working directory
 function! Tapi_lcd(bufnum, arglist)
@@ -597,6 +588,7 @@ function! Tapi_lcd(bufnum, arglist)
   call win_execute(winid, 'lcd ' . cwd)
 endfunction
 
+" folds {{{2
 function s:folds() abort
   let lines = map(getline(1, '$'), {i,v -> (i+1) . ' : ' . v})
   call filter(lines, {i,v -> v =~# '\v.*\{\{\{\d*$'})
@@ -611,24 +603,46 @@ endfunction
 
 com Folds call s:folds()
 
-command! -nargs=* EditTemp e `=tempname().'_'.<q-args>`
-command! Synstack echo misc#synstack()
-command! SynID echo synIDtrans(synID(line('.'), col('.'), 1))
-command! -nargs=+ SynIDattr echo synIDattr(
-            \ synIDtrans(synID(line('.'), col('.'), 1)), <f-args>)
-command! HiTest source $VIMRUNTIME/syntax/hitest.vim
-command! TrimTrailingWhitespace :keepp %s/\v\s+$//g
-command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
-  \ | diffthis | wincmd p | diffthis
-command! SelectLastPaste exec 'normal! `[' . getregtype() . '`]'
-command! -nargs=+ -complete=command Less call <sid>less(<q-args>)
-command! ReverseQuickFixList call setqflist(reverse(getqflist()))
-command! SuperWrite :w !sudo tee % > /dev/null
-command! ToggleAutoPairs :call AutoPairsToggle()
-command! Terminal exe 'terminal' |
-            \ call term_sendkeys("", printf("cd %s \<cr>",
-            \ fnamemodify(bufname(winbufnr(winnr('#'))), ':h') ) )
-command! -bang CfilterCoreHelp Cfilter<bang> '\v/vim/vim\d+/doc/[^/]+\.txt'
-command -nargs=1 DoRevert <args> e!
-command -nargs=1 DoSave <args> up
+" Ctags {{{2
+function! s:fzf_cpp_tags(...)
+  let query = get(a:000, 0, '')
+  " there exists an extra field which i don't know how to control in
+  " fzf#vim#tags, that's why it use 1,4..-2
+  let tags_options = { 'options' : '--no-reverse -m -d "\t" --tiebreak=begin
+              \ --with-nth 1,4..-2 -n .. --prompt "Ctags> "'}
+  call fzf#vim#tags(
+        \ query,
+        \ extend(copy(g:fzf_layout), tags_options))
+endfunction
 
+command! -nargs=* Ctags :call <SID>fzf_cpp_tags(<q-args>)
+
+" FF {{{2
+" copy into @@, ignore leading index
+function! s:ff_sink(item)
+  let text = substitute(a:item, '\v^\>?\s*\d+\:?\s*', '', '')
+  let @@ = empty(text) ? a:item : text
+endfunction
+
+" there are garbage new line in mes, don't know how to reproduce it. Filter
+" blank lines as temporary solution.
+command! -nargs=+ -bang -complete=command FF call fzf#run(fzf#wrap({
+            \ 'source' : filter(split(execute(<q-args>), "\n"), {i,v->!empty(v)}),
+            \ 'sink': function('s:ff_sink'),
+            \ 'options' : <bang>0 ? '--tac' : '',
+            \ 'up':'~40%'
+            \ }))
+
+" ExternalFiles {{{2
+let g:external_files = get(g:, 'external_files', [])
+
+function! s:fzf_external_files()
+  if empty(g:external_files)
+    return
+  endif
+
+  let source = 'find "' . join(g:external_files, '" "') . '" \( -name ".hg" -o -name ".git" -o
+            \ -name "build" -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
+  call fzf#run(fzf#wrap({'source' : source}))
+endfunction
+com EF :call <sid>fzf_external_files()<cr>
