@@ -137,7 +137,6 @@ let g:ale_linters = {
 let g:ale_glsl_glslang_executable = '/usr/local/bin/glslangValidator'
 
 " ultisnips {{{2
-let g:UltiSnipsSnippetsDir=$HOME.'/.config/nvim/plugged/misc/UltiSnips'
 let g:UltiSnipsExpandTrigger='<tab>'
 let g:UltiSnipsJumpForwardTrigger='<c-j>'
 let g:UltiSnipsJumpBackwardTrigger='<c-k>'
@@ -597,6 +596,20 @@ function! Tapi_lcd(bufnum, arglist)
   endif
   call win_execute(winid, 'lcd ' . cwd)
 endfunction
+
+function s:folds() abort
+  let lines = map(getline(1, '$'), {i,v -> (i+1) . ' : ' . v})
+  call filter(lines, {i,v -> v =~# '\v.*\{\{\{\d*$'})
+  call fzf#run({'source' : lines, 'sink' : function('s:fold_sink')})
+endfunction
+
+function s:fold_sink(item) abort
+  let lnum = matchstr(a:item, '\v^\s*\d+')
+  exe lnum
+  norm! zOzz
+endfunction
+
+com Folds call s:folds()
 
 command! -nargs=* EditTemp e `=tempname().'_'.<q-args>`
 command! Synstack echo misc#synstack()
