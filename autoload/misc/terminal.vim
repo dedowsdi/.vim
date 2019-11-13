@@ -45,7 +45,17 @@ function! misc#terminal#setup()
     call s:setup_screen()
   endif
 
-  if !has('nvim')
+  if has('nvim')
+    set rtp^=$HOME/.vim,$HOME/.vim/after
+    let g:python3_host_prog = '/usr/bin/python3'
+    let &shada="'200,<50,s10,h"
+    tnoremap <expr> <m-r> '<C-\><C-N>"'.nr2char(getchar()).'pi'
+    " map to <c-f#> and <s-f#>
+    for i in range(1,12)
+      exec printf('map <f%d> <s-f%d>', i+12, i)
+      exec printf('map <f%d> <c-f%d>', i+24, i)
+    endfor
+  else
     for letter in map(range(26), {i,v->nr2char(char2nr('a')+v)})
       exec printf('set <a-%s>=%s', letter, letter)
     endfor

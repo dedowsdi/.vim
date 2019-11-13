@@ -1,71 +1,128 @@
+" vim:set foldmethod=marker :
+
+" clear autocmd, needed if you want to source vimrc multiple times
 autocmd!
 
-" ------------------------------------------------------------------------------
-" basic setting
-" ------------------------------------------------------------------------------
+                                   " options {{{1
+
+" show tab and trailing space
 scriptencoding utf-8
 set list listchars=trail:┄,tab:†·,extends:>,precedes:<,nbsp:+
 scriptencoding
-" set signcolumn=yes
-set updatetime=300
+
+" add all child dir to path
+set path+=/usr/local/include,**
+
+" reduce esc delay to a acceptable number
 set ttimeout ttimeoutlen=5 timeoutlen=1000
-set number ruler novisualbell showmode showcmd hidden mouse=a background=dark
-set incsearch ignorecase smartcase
-set concealcursor=vn conceallevel=0
-set autoindent smartindent expandtab smarttab
-set shiftwidth=4 tabstop=8 softtabstop=4
-set noshowmatch matchtime=3
-set laststatus=2 cmdheight=2 scrolloff=1
-set spell spelllang=en_us dictionary+=spell
-set nrformats=octal,hex,bin
-set path+=/usr/local/include
-set complete-=i pumheight=16
+
+" copy indent of current line to newline
+set autoindent
+
+" smart indent for {, }, 'cinwords', #
+set smartindent
+
+" no tab, use shiftwidth in front of a line. use 4 for <tab> or <bs>
+set expandtab smarttab shiftwidth=4 tabstop=8 softtabstop=4
+
+" traditional backspace
 set backspace=indent,eol,start
+
+" turn on \C if uppercase letter appears in the pattern for /,?,:g,:s,n,N., not
+" for *,# (unless you use / after them)
+set ignorecase smartcase
+
+" trigger CursorHold more frequently, required by coc
+set updatetime=300
+
+" make <c-a>, <c-x> work on decimal, hex, binary
+set nrformats=octal,hex,bin
+
+" mv swp and bak out of file directory, use %usr%home%.vimswap%... style name
 let &backup = !has('vms')
-set wildmenu history=1000
+set backupdir=$HOME/.vimbak//
+set directory=$HOME/.vimswap//
+
+" hide buffer when it's abandoned
+set hidden
+
+" bash style wild menu
+set wildmenu
+set wildmode=longest,list
+
+" use unix / and 0a as new line in session file
+set sessionoptions+=unix,slash
+
+" use unix / in expand()
 set shellslash
-set backupdir=$HOME/.vimbak directory=$HOME/.vimswap//
-set sessionoptions+=unix,slash                     " use unix /
+
+" scan current and included files(might cause problem if lots file are
+" included), restrict pop up menu height,
+set complete-=i pumheight=16
+
+" enable mouse for all modes. Sometimes you need it to copy something.
+set mouse=a
+
+" conceal only in visual and normal mode
+set concealcursor=vn conceallevel=0
+
+" add fzf, project .vim, .vim/after to rtp, add ~/.vim to rtp from nvim
+set rtp+=.vim,.vim/after
+if has('nvim')
+  set rtp+=~/.vim
+endif
+
 " search tag in dir of current file upward until root, use current dir tags if
 " nothing found
 " set tags=./tags;,tags
-set wildmode=longest,list " set wildmode to unix glob
+
 set wildignore=*.o,*.a,*.so,tags,TAGS,*/.git/*,*/build/*,*/.clangd/*
-set matchpairs+=<:>                                " add match pair for < and >
-set fileencodings=ucs-bom,utf-8,default,gb18030,utf-16,latin1
-let &grepprg = 'grep -n $* /dev/null --exclude-dir={.git,.hg} -I'
+
+" add -I to ignore binary file, exclude some dirs
+let &grepprg = 'grep -n $* /dev/null --exclude-dir={.git,.hg,.clangd} -I'
 " set grepprg=ag\ --vimgrep\ $* grepformat=%f:%l:%c:%m
+
 if executable('zsh')
   let &shell = '/bin/zsh -o extendedglob'
 endif
 
-filetype plugin indent on
-syntax enable
-packadd cfilter
+" some common fileencoding, the less general encoding must appear before the
+" more general one
+set fileencodings=ucs-bom,utf-8,default,gb18030,utf-16,latin1
+
+" add spell to i_ctrl-x_ctrl-k
+set spell spelllang=en_us dictionary+=spell
+
+" save mark for 500files, limit saved register to 50 lines, exclude register
+" greater than 10kbytes, no hlsearch during loading of viminfo.
+set viminfo='500,<50,s10,h
+
+" viminfo= doesn't expand environment variable, check n of viminfo for detail.
+" don't save anything for help files.
+let &viminfo .= ',r'.$VIMRUNTIME.'/doc'
+
+" trivial options
+set incsearch
+set background=dark
+set history=1000
+set number ruler
+set laststatus=2 cmdheight=2
+set scrolloff=1
+set showmode showcmd novisualbell
+set noshowmatch matchtime=3
+set matchpairs+=<:>
+
+" misc (Man, shell, pack, filetype, syntax, autocmds,...) {{{1
 runtime! ftplugin/man.vim
 set keywordprg=:Man
 
-if has('nvim')
-  set rtp^=$HOME/.vim,$HOME/.vim/after
-  let g:python3_host_prog = '/usr/bin/python3'
-  let &shada="'200,<50,s10,h"
-  tnoremap <expr> <m-r> '<C-\><C-N>"'.nr2char(getchar()).'pi'
-  " map to <c-f#> and <s-f#>
-  for i in range(1,12)
-    exec printf('map <f%d> <s-f%d>', i+12, i)
-    exec printf('map <f%d> <c-f%d>', i+24, i)
-  endfor
-else
-  set viminfo='500,<50,s10,h
-  " viminfo= doesn't expand environment variable, check n of viminfo for detail
-  let &viminfo .= ',r'.$VIMRUNTIME.'/doc'
-endif
-
 call misc#terminal#setup()
 
-" ------------------------------------------------------------------------------
-" auto commands
-" ------------------------------------------------------------------------------
+filetype plugin indent on
+syntax enable
+packadd cfilter
+packadd termdebug
+
 augroup zxd_misc
   au!
   autocmd DirChanged * if filereadable('.vim/init.vim') | source .vim/init.vim | endif
@@ -74,14 +131,14 @@ augroup zxd_misc
   autocmd FileType * try | call call('abbre#'.expand('<amatch>'), [])
               \ | catch /.*/ | endtry
               \ | setlocal formatoptions-=o formatoptions+=j
-  autocmd TerminalOpen * setl nonumber norelativenumber
+  if !has('nvim')
+      autocmd TerminalOpen * setl nonumber norelativenumber
+  endif
 augroup end
 
-" ------------------------------------------------------------------------------
-" plugin
-" ------------------------------------------------------------------------------
+                                " plugin {{{1
 
-" ale
+" ale {{{2
 let g:ale_vim_vint_show_style_issues = 0
 let g:ale_linters_explicit = 1
 
@@ -103,7 +160,7 @@ let g:ale_linters = {
 
 let g:ale_glsl_glslang_executable = '/usr/local/bin/glslangValidator'
 
-" ultisnips
+" ultisnips {{{2
 let g:UltiSnipsSnippetsDir=$HOME.'/.config/nvim/plugged/misc/UltiSnips'
 let g:UltiSnipsExpandTrigger='<tab>'
 let g:UltiSnipsJumpForwardTrigger='<c-j>'
@@ -112,7 +169,7 @@ let g:UltiSnipsJumpBackwardTrigger='<c-k>'
 " If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit='vertical'
 
-" ycm
+" ycm {{{2
 " let g:ycm_log_level = 'debug'
 " let g:ycm_use_clangd = 0
 
@@ -185,11 +242,11 @@ function! s:ycm_next_callback(timer)
 
 endfunction
 
-" clang_complete
+" clang_complete {{{2
 let g:clang_library_path='/home/pntandcnt/plugged/YouCompleteMe/third_party/ycmd/third_party/clang/lib/libclang.so.8'
 let g:clang_complete_macros=1
 
-" coc.nvim
+" coc.nvim {{{2
 inoremap <silent><expr> <c-space> coc#refresh()
 nmap <f12> <Plug>(coc-definition)
 nmap <c-f12> <Plug>(coc-type-definition)
@@ -205,11 +262,11 @@ command CocReference exec "norm \<plug>(coc-references)"
 command CocHover call CocActionAsync('doHover')
 command CocCodeAction call CocActionAsync('codeAction')
 
-" fugitive
+" fugitive {{{2
 command! -nargs=* Glg Git! lg --color=never <args>
 command! -nargs=* Glg Git! log --graph --pretty=format:'%h - <%an> (%ad)%d %s' --abbrev-commit --date=local <args>
 
-" lightline
+" lightline {{{2
 let g:lightline = {
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
@@ -234,10 +291,10 @@ if &t_Co == 256
   let g:lightline.colorscheme = 'gruvbox'
 endif
 
-" pymode
+" pymode {{{2
 let g:pymode_rope_completion = 0
 
-" fzf
+" fzf {{{2
 function! s:build_quickfix_list(lines)
   call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
   copen | cc
@@ -305,7 +362,7 @@ let g:fzf_file_project = 'find . \( -name ".hg" -o -name ".git" -o
 
 function! s:comp_dir()
   let location = matchstr( getline('.'), printf('\v\S+%%%dc', col('.')) )
-  if location == ''
+  if location ==# ''
     let location = '.'
   endif
   return fzf#vim#complete#word(
@@ -318,44 +375,100 @@ imap <a-x><a-j> <plug>(fzf-complete-file-ag)
 imap <a-x><a-l> <plug>(fzf-complete-line)
 inoremap <expr> <a-x><a-d> <sid>comp_dir()
 
-" tex
+" tex {{{2
 let g:tex_flavor = 'latex'
 :command! -complete=file -nargs=1 Rpdf :r !pdftotext -nopgbrk -layout <q-args> -
 :command! -complete=file -nargs=1 Rpdffmt :r !pdftotext
             \ -nopgbrk -layout <q-args> - |fmt -csw78
 
-" vim-json
+" vim-json {{{2
 let g:vim_json_syntax_conceal = 0
 
-" markdown
+" markdown {{{2
 let g:vim_markdown_conceal = 0
 
-" indentLine
+" indentLine {{{2
 let g:indentLine_setConceal = 0
 
-" auto-pairs
+" auto-pairs {{{2
 let g:AutoPairsShortcutToggle = '<a-a>'
 let g:AutoPairsShortcutFastWrap = ''
 let g:AutoPairsShortcutJump = ''
 let g:AutoPairsShortcutBackInsert = ''
 
-" gutentags
+" gutentags {{{2
 let g:gutentags_project_root = ['.vim']
 let g:gutentags_exclude_project_root = [$HOME]
 let g:gutentags_exclude_filetypes = ['cmake', 'sh', 'json', 'md', 'text']
 let g:gutentags_define_advanced_commands = 1
 let g:gutentags_ctags_options_file = '.vim/.gutctags'
 
-" mine
+" mine {{{2
 let g:clang_format_py_path = '/usr/local/source/llvm8.0.0/share/clang/clang-format.py'
 let g:clang_format_fallback_style = 'LLVM'
 
-" maps
+" maps {{{2
 function! s:omap(to)
   return printf(":normal v%s\"%s\<cr>", a:to, v:register)
 endfunction
 
-" text object
+" install plugins {{{2
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd! vim_plug_init VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+set rtp+=~/.fzf
+call plug#begin('~/.config/nvim/plugged')
+"Plug 'scrooloose/syntastic'
+Plug 'mbbill/undotree'
+Plug 'w0rp/ale'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim' | Plug 'junegunn/vim-easy-align'
+" Plug 'Yggdroot/indentLine'
+" Plug 'altercation/vim-colors-solarized'
+Plug 'morhetz/gruvbox'
+" Plug 'jiangmiao/auto-pairs'
+Plug 'ludovicchabant/vim-gutentags'
+"Plug 'chriskempson/base16-vim'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-rhubarb'
+" Plug 'tpope/vim-scriptease'
+" Plug 'alx741/vinfo'
+Plug 'tommcdo/vim-exchange'
+Plug 'scrooloose/nerdcommenter'
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'             " snippets used in ultisnips
+Plug 'itchyny/lightline.vim'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'octol/vim-cpp-enhanced-highlight'
+" Plug 'rhysd/vim-clang-format'         "clang c/c++ format
+Plug 'othree/html5.vim'
+Plug 'elzr/vim-json'
+Plug 'tikhomirov/vim-glsl'
+Plug 'dedowsdi/cdef'
+" Plug 'plasticboy/vim-markdown'
+" Plug 'klen/python-mode'
+" Plug 'pangloss/vim-javascript'
+Plug 'lervag/vimtex'                   " latex
+" Plug 'Valloric/YouCompleteMe', { 'do': 'python3 ./install.py --clang-completer' }
+" Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
+" Plug 'xavierd/clang_complete'
+" Plug 'rhysd/vim-grammarous'
+call plug#end()
+
+" colorscheme {{{2
+let g:gruvbox_number_column='bg1'
+colorscheme gruvbox
+
+                              " all kinds of maps {{{1
+
+" text object {{{2
 vnoremap aa :<C-U>silent! call misc#to#sel_cur_arg({})<cr>
 vnoremap ia :<C-U>silent! call misc#to#sel_cur_arg({'exclude_space':1})<cr>
 onoremap <expr> ia <sid>omap('ia')
@@ -368,6 +481,8 @@ vnoremap il :<C-U>silent! call misc#to#sel_letter()<cr>
 onoremap <expr> il <sid>omap('il')
 vnoremap ic :<c-u>call misc#to#column()<cr>
 onoremap <expr> ic <sid>omap('ic')
+
+" motion and operator {{{2
 
 " circumvent count, register changes
 function! s:setup_opfunc(func)
@@ -420,6 +535,7 @@ nnoremap guo :call misc#op#omo('guo')<cr>
 nnoremap gUo :call misc#op#omo('gUo')<cr>
 nnoremap g~o :call misc#op#omo('gso')<cr>
 
+" maps {{{2
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap -- :edit $MYVIMRC<cr>
 nnoremap Y  y$
@@ -463,52 +579,7 @@ nnoremap <leader>th :call misc#term#hideall()<cr>
 tnoremap <leader>th <c-\><c-n>:call misc#term#hideall()<cr>
 nnoremap <leader>yd :YcmShowDetailedDiagnostic<cr>
 
-set rtp+=~/.fzf,.vim,.vim/after
-call plug#begin('~/.config/nvim/plugged')
-"Plug 'scrooloose/syntastic'
-Plug 'mbbill/undotree'
-Plug 'w0rp/ale'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim' | Plug 'junegunn/vim-easy-align'
-" Plug 'Yggdroot/indentLine'
-" Plug 'altercation/vim-colors-solarized'
-Plug 'morhetz/gruvbox'
-" Plug 'jiangmiao/auto-pairs'
-Plug 'ludovicchabant/vim-gutentags'
-"Plug 'chriskempson/base16-vim'
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-unimpaired'
-Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-rhubarb'
-" Plug 'tpope/vim-scriptease'
-" Plug 'alx741/vinfo'
-Plug 'tommcdo/vim-exchange'
-Plug 'scrooloose/nerdcommenter'
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'             " snippets used in ultisnips
-Plug 'itchyny/lightline.vim'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'octol/vim-cpp-enhanced-highlight'
-" Plug 'rhysd/vim-clang-format'         "clang c/c++ format
-Plug 'othree/html5.vim'
-Plug 'elzr/vim-json'
-Plug 'tikhomirov/vim-glsl'
-Plug 'dedowsdi/cdef'
-" Plug 'plasticboy/vim-markdown'
-" Plug 'klen/python-mode'
-" Plug 'pangloss/vim-javascript'
-Plug 'lervag/vimtex'                   " latex
-" Plug 'Valloric/YouCompleteMe', { 'do': 'python3 ./install.py --clang-completer' }
-" Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
-" Plug 'xavierd/clang_complete'
-" Plug 'rhysd/vim-grammarous'
-call plug#end()
-
-let g:gruvbox_number_column='bg1'
-colorscheme gruvbox
-packadd termdebug
+                                  " command {{{1
 
 function! s:less(cmd)
   exec 'vsplit ' . tempname()
@@ -527,7 +598,6 @@ function! Tapi_lcd(bufnum, arglist)
   call win_execute(winid, 'lcd ' . cwd)
 endfunction
 
-" some tiny util
 command! -nargs=* EditTemp e `=tempname().'_'.<q-args>`
 command! Synstack echo misc#synstack()
 command! SynID echo synIDtrans(synID(line('.'), col('.'), 1))
@@ -546,4 +616,6 @@ command! Terminal exe 'terminal' |
             \ call term_sendkeys("", printf("cd %s \<cr>",
             \ fnamemodify(bufname(winbufnr(winnr('#'))), ':h') ) )
 command! -bang CfilterCoreHelp Cfilter<bang> '\v/vim/vim\d+/doc/[^/]+\.txt'
+command -nargs=1 DoRevert <args> e!
+command -nargs=1 DoSave <args> up
 

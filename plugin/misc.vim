@@ -48,7 +48,7 @@ com! -nargs=0 VimlBreakNumberedFunction :call misc#viml#break_numbered_function(
 com! -nargs=? VimlGotoFunction :call misc#viml#goto_function(<f-args>)
 com! -nargs=0 VimlJoin :call misc#viml#join()
 com! -nargs=? List call misc#viml#list(expand('<sfile>'), expand('<slnum>'), <f-args>)
-com! -nargs=+ -complete=command AbortDo call misc#abort_do(<f-args>)
+com! -nargs=+ -complete=command DoAbort call misc#abort_do(<f-args>)
 com! -nargs=+ LinkVimHelp let @+ = misc#create_vimhelp_link(<q-args>)
 com! -nargs=+ LinkNvimHelp let @+ = misc#create_nvimhelp_link(<q-args>)
 com! UpdateVimHelpLink call misc#update_link(0)
