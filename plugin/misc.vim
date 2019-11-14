@@ -110,3 +110,7 @@ function! s:tt_complete(ArgLead, CmdLine, CursorPos)
 endfunction
 
 com! -nargs=+ -complete=customlist,s:tt_complete TT call system('tmux_tt ' . <q-args>)
+command! Synstack echo misc#synstack()
+command! SynID echo synIDtrans(synID(line('.'), col('.'), 1))
+command! -nargs=+ SynIDattr echo synIDattr(
+            \ synIDtrans(synID(line('.'), col('.'), 1)), <f-args>)

@@ -472,10 +472,6 @@ imap <a-h> <Left>
                                   " command {{{1
 
 command! -nargs=* EditTemp e `=tempname().'_'.<q-args>`
-command! Synstack echo misc#synstack()
-command! SynID echo synIDtrans(synID(line('.'), col('.'), 1))
-command! -nargs=+ SynIDattr echo synIDattr(
-            \ synIDtrans(synID(line('.'), col('.'), 1)), <f-args>)
 command! HiTest source $VIMRUNTIME/syntax/hitest.vim
 command! TrimTrailingWhitespace :keepp %s/\v\s+$//g
 command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
@@ -483,7 +479,6 @@ command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
 command! SelectLastPaste exec 'normal! `[' . getregtype() . '`]'
 command! ReverseQuickFixList call setqflist(reverse(getqflist()))
 command! SuperWrite :w !sudo tee % > /dev/null
-command! ToggleAutoPairs :call AutoPairsToggle()
 command! Terminal exe 'terminal' |
             \ call term_sendkeys("", printf("cd %s \<cr>",
             \ fnamemodify(bufname(winbufnr(winnr('#'))), ':h') ) )
@@ -569,4 +564,4 @@ function! s:fzf_external_files()
             \ -name "build" -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
   call fzf#run(fzf#wrap({'source' : source}))
 endfunction
-com EF :call <sid>fzf_external_files()<cr>
+com P call <sid>fzf_external_files()
