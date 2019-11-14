@@ -1,3 +1,7 @@
+" known issue:
+" - `if exists('a:') | echo a: | echo l: | endif` is ugly, don't know how to avoid that.
+" - It's triggered too oftern, even a `echo` would trigger it.
+" - At the end of the debug session, you will step into `s:print_frame()`
 
 " [ {expression:, enabled:},...  ]
 let s:display_objects = []
@@ -48,13 +52,13 @@ function s:print_frame() abort
     return
   endif
 
-  let cmd = 'echo a: '
+  let cmd = 'echo a: | echo l: '
   for dobj in s:display_objects
     if dobj.enabled
       let cmd .= printf("| echo '%s : ' . %s", dobj.expression, dobj.expression)
     endif
   endfor
 
+  " add 32 spaces to make it easy to look
   call feedkeys( printf("                                if exists('a:') | %s | endif \<cr>", cmd) )
 endfunction
-
