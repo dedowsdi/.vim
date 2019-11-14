@@ -48,13 +48,13 @@ function s:print_frame() abort
     return
   endif
 
-  let cmd = 'echo a: '
+  let cmd = 'echo a: | echo l: '
   for dobj in s:display_objects
     if dobj.enabled
       let cmd .= printf("| echo '%s : ' . %s", dobj.expression, dobj.expression)
     endif
   endfor
 
+  " add 32 spaces to make it easy to look
   call feedkeys( printf("                                if exists('a:') | %s | endif \<cr>", cmd) )
 endfunction
-
