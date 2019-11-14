@@ -154,83 +154,6 @@ let g:UltiSnipsJumpBackwardTrigger='<c-k>'
 " If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit='vertical'
 
-" ycm {{{2
-" let g:ycm_log_level = 'debug'
-" let g:ycm_use_clangd = 0
-
-let g:ycm_confirm_extra_conf = 0
-
-" set this option will change completer to clangd ? Must be a bug.
-" let g:ycm_clangd_binary_path='/usr/local/source/llvm8.0.0/bin/clangd'
-" let g:ycm_clangd_args = '-background-index'
-
-" following semantic triggers will break ultisnips suggestion
-" let g:ycm_semantic_triggers = {'c':['re!\w{4}'], 'cpp':['re!\w{4}']}
-let g:ycm_server_python_interpreter = '/usr/bin/python3'
-
-" global conf is only used when no compilation database and local ( until root)
-" .ycm_extra_conf.py exists
-let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
-let g:ycm_seed_identifiers_with_syntax = 1
-let g:ycm_collect_identifiers_from_tags_files = 1
-
-" remove tab from select_completion, it's used in ultisnips
-let g:ycm_key_list_select_completion = ['<Down>']
-
-let g:ycm_auto_trigger = 0
-nnoremap <a-n> :let g:ycm_auto_trigger = !g:ycm_auto_trigger<cr>
-inoremap <a-n> <c-r>=<sid>ycm_trigger_identifier()<cr>
-
-" let g:ycm_key_invoke_completion = '<Plug>YcmInvoke'
-" imap <c-space> <Plug>YcmInvoke<c-r>=<sid>ycm_next()<cr>
-
-function! s:ycm_trigger_identifier()
-  let g:ycm_auto_trigger = 1
-  augroup ycm_trigger_identifier
-    au!
-    autocmd InsertLeave <buffer> ++once let g:ycm_auto_trigger = 0
-  augroup end
-
-  doautocmd ycmcompletemecursormove TextChangedI
-  call s:ycm_next()
-  return ''
-endfunction
-
-function! s:ycm_next()
-
-  " ycm use timer_start to check completion result in s:PollCompletion, i have
-  " to do the same to apply <c-n>
-  call timer_start(5, function('s:ycm_next_callback'), {'repeat' : 100})
-  let s:ycm_id_trigger_pos = [bufnr(''), getcurpos()]
-  return ''
-endfunction
-
-function! s:ycm_next_callback(timer)
-
-  " stop listening if cursor position changed
-  if [bufnr(''), getcurpos()] != s:ycm_id_trigger_pos
-    call timer_stop(a:timer)
-    return
-  endif
-
-  if pumvisible()
-    call feedkeys("\<c-n>", 'n')
-    call timer_stop(a:timer)
-
-    " close pum cause blink, that's not good
-    " if len(complete_info(['items']).items) == 1
-    "   ycm remap <c-y> to stop completion
-    "   call feedkeys("\<c-y>", '')
-    " endif
-    return
-  endif
-
-endfunction
-
-" clang_complete {{{2
-let g:clang_library_path='/home/pntandcnt/plugged/YouCompleteMe/third_party/ycmd/third_party/clang/lib/libclang.so.8'
-let g:clang_complete_macros=1
-
 " coc.nvim {{{2
 inoremap <silent><expr> <c-space> coc#refresh()
 nmap <c-f12> <Plug>(coc-type-definition)
@@ -273,9 +196,6 @@ if &t_Co == 256
   let g:lightline.colorscheme = 'gruvbox'
 endif
 
-" pymode {{{2
-let g:pymode_rope_completion = 0
-
 " fzf {{{2
 function! s:build_quickfix_list(lines)
   call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
@@ -315,7 +235,7 @@ imap <a-x><a-j> <plug>(fzf-complete-file-ag)
 imap <a-x><a-l> <plug>(fzf-complete-line)
 inoremap <expr> <a-x><a-d> <sid>comp_dir()
 
-" tex {{{2
+" vimtex {{{2
 let g:tex_flavor = 'latex'
 :command! -complete=file -nargs=1 Rpdf :r !pdftotext -nopgbrk -layout <q-args> -
 :command! -complete=file -nargs=1 Rpdffmt :r !pdftotext
@@ -323,18 +243,6 @@ let g:tex_flavor = 'latex'
 
 " vim-json {{{2
 let g:vim_json_syntax_conceal = 0
-
-" markdown {{{2
-let g:vim_markdown_conceal = 0
-
-" indentLine {{{2
-let g:indentLine_setConceal = 0
-
-" auto-pairs {{{2
-let g:AutoPairsShortcutToggle = '<a-a>'
-let g:AutoPairsShortcutFastWrap = ''
-let g:AutoPairsShortcutJump = ''
-let g:AutoPairsShortcutBackInsert = ''
 
 " gutentags {{{2
 let g:gutentags_project_root = ['.vim']
@@ -369,45 +277,51 @@ endif
 
 set rtp+=~/.fzf
 call plug#begin('~/.vim/plugged')
-"Plug 'scrooloose/syntastic'
+
+" common
 Plug 'mbbill/undotree'
-Plug 'w0rp/ale'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim' | Plug 'junegunn/vim-easy-align'
-" Plug 'Yggdroot/indentLine'
-" Plug 'altercation/vim-colors-solarized'
-Plug 'morhetz/gruvbox'
-" Plug 'jiangmiao/auto-pairs'
-Plug 'ludovicchabant/vim-gutentags'
-"Plug 'chriskempson/base16-vim'
+Plug 'junegunn/vim-easy-align'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-unimpaired'
-Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-rhubarb'
-" Plug 'tpope/vim-scriptease'
-" Plug 'alx741/vinfo'
 Plug 'tommcdo/vim-exchange'
-Plug 'scrooloose/nerdcommenter'
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'             " snippets used in ultisnips
+
+" colorscheme
+Plug 'morhetz/gruvbox'
+
+" status line
 Plug 'itchyny/lightline.vim'
+
+" fuzzy
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+
+" lint
+Plug 'w0rp/ale'
+
+" snippets
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+
+" git
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-rhubarb'
+
+" tags
+Plug 'ludovicchabant/vim-gutentags'
+
+" auto complete
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+" ftplugin
 Plug 'octol/vim-cpp-enhanced-highlight'
-" Plug 'rhysd/vim-clang-format'         "clang c/c++ format
 Plug 'othree/html5.vim'
 Plug 'elzr/vim-json'
 Plug 'tikhomirov/vim-glsl'
+Plug 'lervag/vimtex'
 Plug 'dedowsdi/cdef'
-" Plug 'plasticboy/vim-markdown'
-" Plug 'klen/python-mode'
-" Plug 'pangloss/vim-javascript'
-Plug 'lervag/vimtex'                   " latex
-" Plug 'Valloric/YouCompleteMe', { 'do': 'python3 ./install.py --clang-completer' }
-" Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
-" Plug 'xavierd/clang_complete'
-" Plug 'rhysd/vim-grammarous'
+
 call plug#end()
 
                                   " misc {{{1
