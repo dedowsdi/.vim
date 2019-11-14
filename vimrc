@@ -347,6 +347,19 @@ let g:gutentags_ctags_options_file = '.vim/.gutctags'
 let g:clang_format_py_path = '/usr/local/source/llvm8.0.0/share/clang/clang-format.py'
 let g:clang_format_fallback_style = 'LLVM'
 
+set wildchar=<c-z>
+cmap <tab> <Plug>dedowsdi_hist_expand_hist_wild
+cmap <c-a> <Plug>dedowsdi_readline_beginning_of_line
+cmap <a-a> <c-a>
+cmap <a-f> <Plug>dedowsdi_readline_forward_word
+cmap <a-b> <Plug>dedowsdi_readline_backward_word
+" cmap <c-f> <Plug>dedowsdi_readline_forward_char
+" cmap <c-b> <Plug>dedowsdi_readline_backward_char
+cmap <a-u> <Plug>dedowsdi_readline_uppercase_word
+cmap <a-l> <Plug>dedowsdi_readline_lowercase_word
+cmap <a-d> <Plug>dedowsdi_readline_forward_delete
+cmap <a-k> <Plug>dedowsdi_readline_kill
+
 " install plugins {{{2
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
