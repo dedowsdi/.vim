@@ -95,6 +95,14 @@ cnoremap <Plug>dedowsdi_readline_uppercase_word <c-\>emisc#readline#word_case(1)
 cnoremap <Plug>dedowsdi_readline_lowercase_word <c-\>emisc#readline#word_case(0)<cr>
 cnoremap <Plug>dedowsdi_readline_forward_delete <c-\>emisc#readline#forward_delete()<cr>
 
+" debugvim {{{1
+com -nargs=1 DebugvimDisplay call misc#debugvim#display(<f-args>)
+com -nargs=? DebugvimDisableDisplay call misc#debugvim#disable_display(<f-args>)
+com -nargs=? DebugvimDeleteDisplay call misc#debugvim#disable_display(<f-args>)
+com -nargs=0 DebugvimInfoDisplay call misc#debugvim#info_display()
+com -nargs=0 DebugvimEnable call misc#debugvim#enable()
+com -nargs=0 DebugvimDisable call misc#debugvim#disable()
+
 " misc {{{1
 com -range -nargs=+ T call misc#mult_t(<line1>, <line2>, <f-args>)
 com! -bar CamelToUnderscore exe printf('%%s/\v\C<%s>/%s/g', expand('<cword>'),
