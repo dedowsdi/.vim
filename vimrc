@@ -268,6 +268,9 @@ cmap <a-l> <Plug>dedowsdi_readline_lowercase_word
 cmap <a-d> <Plug>dedowsdi_readline_forward_delete
 cmap <a-k> <Plug>dedowsdi_readline_kill
 
+nmap <leader>tt <plug>dedowsdi_term_toggle_gterm
+tmap <leader>tt <plug>dedowsdi_term_toggle_gterm
+
 " install plugins {{{2
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
@@ -465,12 +468,6 @@ imap <a-h> <Left>
 
 " cnoremap <expr> %%  getcmdtype() == ":" ? expand("%:h")."/" : "%%"
 " cnoremap <expr> %t  getcmdtype() == ":" ? expand("%:t") : "%t"
-
-nnoremap <leader>tt :call misc#term#toggle_gterm()<cr>
-tnoremap <leader>tt <c-\><c-n>:call misc#term#toggle_gterm()<cr>
-nnoremap <leader>th :call misc#term#hideall()<cr>
-tnoremap <leader>th <c-\><c-n>:call misc#term#hideall()<cr>
-nnoremap <leader>yd :YcmShowDetailedDiagnostic<cr>
 
                                   " command {{{1
 

@@ -50,6 +50,10 @@ com! -nargs=+ LinkNvimHelp let @+ = misc#create_nvimhelp_link(<q-args>)
 com! UpdateVimHelpLink call misc#update_link(0)
 com! UpdateNvimHelpLink call misc#update_link(1)
 
+" term {{{1
+nnoremap <plug>dedowsdi_term_toggle_gterm :call misc#term#toggle_gterm()<cr>
+tnoremap <plug>dedowsdi_term_toggle_gterm <c-w>:call misc#term#toggle_gterm()<cr>
+
 " record {{{1
 com! RecordStart :call misc#dc#start_copy(1)
 com! RecordStartAppend :call misc#dc#start_copy(0)
