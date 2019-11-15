@@ -86,10 +86,11 @@ cnoremap <Plug>dedowsdi_hist_expand_hist_wild <c-\>emisc#hist#expand(1)<cr>
 cnoremap <Plug>dedowsdi_hist_expand_hist <c-\>emisc#hist#expand(0)<cr>
 
 " readline {{{1
-cnoremap <Plug>dedowsdi_readline_beginning_of_line <c-a>
+cnoremap <Plug>dedowsdi_readline_beginning_of_line <c-b>
 cnoremap <Plug>dedowsdi_readline_kill <c-\>emisc#readline#kill()<cr>
 cnoremap <Plug>dedowsdi_readline_forward_char <right>
 cnoremap <Plug>dedowsdi_readline_backward_char <left>
+cnoremap <Plug>dedowsdi_readline_forward_word <c-right>
 cnoremap <Plug>dedowsdi_readline_backward_word <c-left>
 cnoremap <Plug>dedowsdi_readline_uppercase_word <c-\>emisc#readline#word_case(1)<cr>
 cnoremap <Plug>dedowsdi_readline_lowercase_word <c-\>emisc#readline#word_case(0)<cr>
