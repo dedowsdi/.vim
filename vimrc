@@ -486,6 +486,31 @@ command! -bang CfilterCoreHelp Cfilter<bang> '\v/vim/vim\d+/doc/[^/]+\.txt'
 command -nargs=1 DoRevert <args> e!
 command -nargs=1 DoSave <args> up
 
+" Expand {{{2
+function s:expand_filepath(...)
+  if a:0 == 0
+    let reg = '+'
+    let expr = '%:p'
+  elseif a:0 == 1
+    if a:1 =~# '\v^[a-zA-Z"*+]$'
+      let reg = a:1
+      let expr = '%:p'
+    else
+      let reg = '+'
+      let expr = a:1
+    endif
+  else
+    let reg = a:1
+    let expr = a:2
+  endif
+
+  call setreg(reg, expand(expr))
+  call setreg('"', expand(expr))
+endfunction
+
+" Expand [x=+] [mods=%:p], " is always set
+command -nargs=* Expand call s:expand_filepath(<f-args>)
+
 " Less {{{2
 function! s:less(cmd)
   exec 'vsplit ' . tempname()
