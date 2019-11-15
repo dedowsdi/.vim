@@ -289,6 +289,7 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-commentary'
 Plug 'tommcdo/vim-exchange'
+Plug 'majutsushi/tagbar'
 
 " colorscheme
 Plug 'morhetz/gruvbox'
