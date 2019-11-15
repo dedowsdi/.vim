@@ -511,6 +511,13 @@ endfunction
 " Expand [x=+] [mods=%:p], " is always set
 command -nargs=* Expand call s:expand_filepath(<f-args>)
 
+" Browse {{{2
+function s:browse(...)
+  let path = expand(get(a:000, 0, '%:p'))
+  call system(printf('google-chrome %s&', path))
+endfunction
+command -nargs=? Browse call s:browse(<f-args>)
+
 " Less {{{2
 function! s:less(cmd)
   exec 'vsplit ' . tempname()
