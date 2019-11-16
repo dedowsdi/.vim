@@ -1,4 +1,4 @@
-function misc#popup#find_cursor_popup()
+function misc#popup#find_cursor_popup(...)
   let radius = get(a:000, 0, 2)
   let srow = screenrow()
   let scol = screencol()
@@ -16,25 +16,23 @@ function misc#popup#find_cursor_popup()
   return 0
 endfunction
 
-function misc#popup#scroll_cursor_popup(down, mode, fallback)
+function misc#popup#scroll_cursor_popup(down)
   let winid = misc#popup#find_cursor_popup()
   if winid == 0
-    return a:fallback
+    return 0
   endif
 
-  " update firstline
   let pp = popup_getpos(winid)
   call popup_setoptions( winid,
         \ {'firstline' : pp.firstline + ( a:down ? 1 : -1 ) } )
 
-  " you must give vim something in normal mode?
-  return a:mode ==# 'n' ? "\<esc>" : ''
+  return 1
 endfunction
 
-function misc#popup#rotate_cursor_popup(ccw, mode, fallback)
+function misc#popup#rotate_cursor_popup(ccw)
   let winid = misc#popup#find_cursor_popup()
   if winid == 0
-    return a:fallback
+    return 0
   endif
 
   let pos_list = ['topleft', 'topright', 'botright', 'botleft']
@@ -45,6 +43,5 @@ function misc#popup#rotate_cursor_popup(ccw, mode, fallback)
   call popup_move( winid, {'pos' : pos_list[ next_index % 4 ],
         \ 'col' : screencol(), 'line' : screenrow() } )
 
-  " you must give vim something in normal mode to trigger popup redraw?
-  return a:mode ==# 'n' ? "\<esc>" : ''
+  return 1
 endfunction

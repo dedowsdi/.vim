@@ -447,12 +447,11 @@ nnoremap <c-f7>  :ALELint<cr>
 nmap <s-f10> <Plug>(coc-references)
 nmap <f12> <Plug>(coc-definition)
 
-nnoremap <expr> <c-d> misc#popup#scroll_cursor_popup(1, mode(), '<c-d>')
-nnoremap <expr> <c-u> misc#popup#scroll_cursor_popup(0, mode(), '<c-u>')
-inoremap <expr> <c-d> misc#popup#scroll_cursor_popup(1, mode(), '<c-d>')
-inoremap <expr> <c-u> misc#popup#scroll_cursor_popup(0, mode(), '<c-u>')
-nnoremap <expr> <c-f> misc#popup#rotate_cursor_popup(0, mode(), '<c-f>')
-nnoremap <expr> <c-f> misc#popup#rotate_cursor_popup(0, mode(), '<c-f>')
+if !has('nvim')
+  nnoremap <expr> <c-d> misc#popup#scroll_cursor_popup(1) ? '<esc>' : '<c-d>'
+  nnoremap <expr> <c-u> misc#popup#scroll_cursor_popup(0) ? '<esc>' : '<c-u>'
+  nnoremap <expr> <c-f> misc#popup#rotate_cursor_popup(0) ? '<esc>' : '<c-f>'
+endif
 
 nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
 nnoremap <c-j> :BTags<cr>
