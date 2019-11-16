@@ -43,13 +43,15 @@ function misc#cmdline#range2lnum(range_text) abort
     " silent is used to reverse reversed command range
     exec printf('silent %s call Tech_get_range()', a:range_text)
     return [s:tech_cmdrange_line1, s:tech_cmdrange_line2]
+  catch /^Vim\%((\a\+)\)\=:E16:/ " invalid range
   catch /^Vim\%((\a\+)\)\=:E20:/ " mark not set
   catch /^Vim\%((\a\+)\)\=:E486:/ " pattern not found
     " "A,"B is a common source of this kind of error.
-    return []
   finally
     call setpos('.', cpos)
   endtry
+
+  return []
 endfunction
 
 function misc#cmdline#get_range(cmdline) abort
