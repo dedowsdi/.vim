@@ -121,6 +121,7 @@ set scrolloff=1
 set showmode showcmd novisualbell
 set noshowmatch matchtime=3
 set matchpairs+=<:>
+set belloff=esc
 
                                 " plugin {{{1
 
@@ -160,8 +161,7 @@ nmap <c-f12> <Plug>(coc-type-definition)
 nmap <s-f12> <Plug>(coc-implementation)
 nnoremap <c-s> :call CocActionAsync('showSignatureHelp')<cr>
 inoremap <c-s> <c-r>=CocActionAsync('showSignatureHelp')<cr>
-nnoremap <expr> <c-d> coc#util#has_float() ? coc#util#float_scroll(1) : "\<c-d>"
-nnoremap <expr> <c-u> coc#util#has_float() ? coc#util#float_scroll(0) : "\<c-u>"
+
 command CocDiagnosticInfo exec "norm \<plug>(coc-diagnostic-info)"
 command CocReference exec "norm \<plug>(coc-references)"
 command CocHover call CocActionAsync('doHover')
@@ -446,6 +446,13 @@ nnoremap <f4>    :CocHover<cr>
 nnoremap <c-f7>  :ALELint<cr>
 nmap <s-f10> <Plug>(coc-references)
 nmap <f12> <Plug>(coc-definition)
+
+nnoremap <expr> <c-d> misc#popup#scroll_cursor_popup(1, mode(), '<c-d>')
+nnoremap <expr> <c-u> misc#popup#scroll_cursor_popup(0, mode(), '<c-u>')
+inoremap <expr> <c-d> misc#popup#scroll_cursor_popup(1, mode(), '<c-d>')
+inoremap <expr> <c-u> misc#popup#scroll_cursor_popup(0, mode(), '<c-u>')
+nnoremap <expr> <c-f> misc#popup#rotate_cursor_popup(0, mode(), '<c-f>')
+nnoremap <expr> <c-f> misc#popup#rotate_cursor_popup(0, mode(), '<c-f>')
 
 nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
 nnoremap <c-j> :BTags<cr>
