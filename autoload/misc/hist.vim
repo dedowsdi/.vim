@@ -96,28 +96,34 @@ function! s:get_reverse_hist(cmdtype) abort
 endfunction
 
 function s:get_event(designator)
+  let atoms = [
+     "\ !n, !-n
+      \ '\-?\d+',
+      \
+     "\ !!, !#
+      \ '[!#]',
+      \
+     "\ single !
+      \ '',
+      \
+     "\ !?string[?], with the trailing \ze(\:|$), it would match the ? before : or end of line
+      \ '\?.{-}(\?|$)',
+      \
+     "\ !string
+      \ '[^?:^$*\-%]+',
+      \
+      \ ]
 
-  " special case for !^, !$, !*, !-, !%, !:
-  if a:designator =~# '\v^\![\^$*\-%](\:|$)' || a:designator =~# '\v^\!\:'
-    let event = '!'
-    let rest = a:designator[1:]
-  else
+  let patterns = map( atoms, { i,v -> printf('\v^!%s\ze([:^$*\-%%]|$)', v) } )
 
-    let atoms = [
-        \ '\!\-?\d+',
-        \
-        \ '\![!#]',
-        \
-        \ '\!\?.{-}(\?|$)',
-        \
-        \ '\![^?:^$*\-%][^:]*',
-        \ ]
-
-    " mutual exclusive patterns
-    let pattern = printf('\v^%s\ze(\:|$)', join(atoms, '|'))
+  for pattern in  patterns
     let event = matchstr(a:designator, pattern)
-    let rest = a:designator[len(event) : ]
-  endif
+    if !empty(event)
+      break
+    endif
+  endfor
+
+  let rest = a:designator[ len(event) : ]
 
   " normalize event, no single !
   if event ==# '!'
@@ -130,17 +136,26 @@ endfunction
 function s:get_word(designator)
   let atoms = [
       \
+     "\ n, n*
       \ '\:\d+\*?',
       \
+     "\ ^$*-%
       \ '\:?[\^$*\-%]',
       \
+     "\ x-y
       \ '\:%(\d+)?\-%(\d+)?',
       \ ]
 
-  " mutual exclusive patterns
-  let pattern = printf('\v^(%s)\ze(\:|$)', join(atoms, '|'))
-  let word = matchstr(a:designator, pattern)
-  let rest = a:designator[len(word) : ]
+  let patterns = map( atoms, { i,v -> printf('\v^%s\ze(\:|$)', v) } )
+
+  for pattern in patterns
+    let word = matchstr(a:designator, pattern)
+    if !empty(word)
+      break
+    endif
+  endfor
+
+  let rest = a:designator[ len(word) : ]
 
   if !empty(word) && word[0] ==# ':'
     let word = word[1:]
@@ -188,9 +203,6 @@ function s:create_search_pattern(s) abort
 endfunction
 
 function! s:expand_event(cs) abort
-  if a:cs.event !~# '\v^\!.+'
-    throw 'illegal event : ' . a:cs.event
-  endif
 
   let n = a:cs.event[1:]
   if n =~# '\v^\d+$' " !n

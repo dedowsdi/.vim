@@ -48,7 +48,7 @@ endfunction
 function! s:test_split_designator()
   echom 'test split designator'
   let data = [
-        \ ['--------------------event only--------------------'],
+        "\ event only
         \
         \ [ '!!', ['!!', '', ''] ],
         \
@@ -60,7 +60,7 @@ function! s:test_split_designator()
         \
         \ [ '!?abc', ['!?abc', '', ''] ],
         \
-        \ ['--------------------event:word--------------------'],
+        "\ event:word
         \
         \ [ '!:0', ['!!', '0', ''] ],
         \
@@ -78,13 +78,13 @@ function! s:test_split_designator()
         \
         \ [ '!-', ['!!', '-', ''] ],
         \
-        \ ['--------------------event:modifier--------------------'],
+        "\ event:modifier
         \
         \ [ '!!:h:h', ['!!', '', 'h:h'] ],
         \
         \ [ '!abc:*:h:h', ['!abc', '*', 'h:h'] ],
         \
-        \ ['--------------------event:word:modifier--------------------'],
+        "\ event:word:modifier
         \
         \ [ '!$:h', ['!!', '$', 'h'] ],
         \
@@ -92,12 +92,6 @@ function! s:test_split_designator()
 
   let index = 0
   for item in data
-
-    " skip comment
-    if len(item) ==# 1
-      continue
-    endif
-
     let [designator, expect] = item
     let result = s:split_designator(designator)
     if assert_equal(expect, result, '') == 1
@@ -122,7 +116,7 @@ function! s:test_expand_history() abort
 
   let data = [
         \
-        \ ['--------------------event only--------------------'],
+       "\ event only
         \
         \ [ '!' . num_cmds, -1, cmd1 ],
         \
@@ -136,8 +130,8 @@ function! s:test_expand_history() abort
         \
         \ [ '!?hist',       -1, cmd1 ],
         \
-        \ ['--------------------event:word--------------------'],
-        \ 
+       "\ event:word
+        \
         \ [ '!!:0',         -1, 'test_hist' ],
         \
         \ [ '!!:5',         -1, '5' ],
@@ -156,7 +150,7 @@ function! s:test_expand_history() abort
         \
         \ [ '!:5-',         -1, '5 6 7 8' ],
         \
-        \ ['--------------------event:modifier--------------------'],
+       "\ event:modifier
         \
         \ [ '!-2:h',       -1, fnamemodify(cmd2, ':h')],
         \
@@ -170,7 +164,7 @@ function! s:test_expand_history() abort
         \
         \ [ '!?abc?:%',     -1, 'abc'],
         \
-        \ ['--------------------event:word:modifier--------------------'],
+       "\ event:word:modifier
         \
         \ [ '!-2:s/a/x/',  -1, substitute(cmd2, 'a', 'x', '')],
         \
@@ -184,11 +178,6 @@ function! s:test_expand_history() abort
 
   let index = 0
   for item  in data
-
-    if len(item) ==# 1
-      continue
-    endif
-
     let [text, pos, expect] = item
     if pos == -1
       let pos = len(text) + 1
