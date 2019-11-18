@@ -605,3 +605,9 @@ function! s:fzf_external_files()
   call fzf#run(fzf#wrap({'source' : source}))
 endfunction
 com P call <sid>fzf_external_files()
+
+" Doc {{{2
+function s:doc_complete(ArgLead, CmdLine, CursorPos)
+  return readdir($HOME . '/.doc', { n -> stridx(n, a:ArgLead) == 0 } )
+endfunction
+command -nargs=1 -complete=customlist,s:doc_complete Doc split ~/.doc/<args>
