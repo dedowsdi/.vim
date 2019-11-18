@@ -168,6 +168,8 @@ function! s:test_expand_history() abort
         \
         \ [ '!-2:h:t',     -1, fnamemodify(cmd2, ':h:t')],
         \
+        \ [ '!?abc?:%',     -1, 'abc'],
+        \
         \ ['--------------------event:word:modifier--------------------'],
         \
         \ [ '!-2:s/a/x/',  -1, substitute(cmd2, 'a', 'x', '')],

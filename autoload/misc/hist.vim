@@ -95,43 +95,77 @@ function! s:get_reverse_hist(cmdtype) abort
   return map(hist, {i,v-> v[start_index:]})
 endfunction
 
-function! s:split_designator(designator) abort
-  let l = split(a:designator, ':')
+function s:get_event(designator)
 
-  if l[0] !~# '\v!.*'
-    return ['', '', '']
-  endif
-
-  let modifier_start = 2
-  " special case where : can be omitted for word
-  if l[0] =~# '\v\![^:]*[\^$*\-%]$'
-    let event = l[0][0:-2]
-    let word = l[0][-1:-1]
-    let modifier_start = 1
+  " special case for !^, !$, !*, !-, !%, !:
+  if a:designator =~# '\v^\![\^$*\-%](\:|$)' || a:designator =~# '\v^\!\:'
+    let event = '!'
+    let rest = a:designator[1:]
   else
-    let event = l[0]
 
-    " word can be one of ^$*-%, or x, x*, x-, or x-y or -y
-    if len(l) > 1 && l[1] =~# '\v[\^$*\-%]|\d+[*\-]?|\d*\-\d+$'
-      let word = l[1]
-    else
-      let word = ''
-      let modifier_start = 1
-    endif
+    let atoms = [
+        \ '\!\-?\d+',
+        \
+        \ '\![!#]',
+        \
+        \ '\!\?.{-}(\?|$)',
+        \
+        \ '\![^?:^$*\-%][^:]*',
+        \ ]
+
+    " mutual exclusive patterns
+    let pattern = printf('\v^%s\ze(\:|$)', join(atoms, '|'))
+    let event = matchstr(a:designator, pattern)
+    let rest = a:designator[len(event) : ]
   endif
-  let modifier = join(l[modifier_start : ], ':')
 
   " normalize event, no single !
   if event ==# '!'
     let event = '!!'
   endif
 
+  return [event, rest]
+endfunction
+
+function s:get_word(designator)
+  let atoms = [
+      \
+      \ '\:\d+\*?',
+      \
+      \ '\:?[\^$*\-%]',
+      \
+      \ '\:%(\d+)?\-%(\d+)?',
+      \ ]
+
+  " mutual exclusive patterns
+  let pattern = printf('\v^(%s)\ze(\:|$)', join(atoms, '|'))
+  let word = matchstr(a:designator, pattern)
+  let rest = a:designator[len(word) : ]
+
+  if !empty(word) && word[0] ==# ':'
+    let word = word[1:]
+  endif
+  return [ word, rest ]
+endfunction
+
+function! s:split_designator(designator) abort
+  if a:designator !~# '\v^\!.*'
+    return ['', '', '']
+  endif
+
+  let [event, rest] = s:get_event(a:designator)
+  if empty(event)
+    return ['', '', '']
+  endif
+
+  let [word, rest] = s:get_word(rest)
+  let modifier = rest[1:]
   return [event, word, modifier]
 endfunction
 
 " record most recent !?
 function! s:set_last_string_search(s, cmdtype) abort
-  let s:d = get(s:, 'd', {})
+  let s:d = get(s:, 'last_search', {})
   let s:d[a:cmdtype] = a:s
 endfunction
 
@@ -139,6 +173,18 @@ endfunction
 function! s:get_last_string_search(cmdtype) abort
   let s:last_search = get(s:, 'last_search', {})
   return get(s:last_search, a:cmdtype, '')
+endfunction
+
+function s:use_vim_regex_search() abort
+  return get(g:, 'hist_use_vim_regex_search', 0)
+endfunction
+
+function s:create_search_pattern(s) abort
+  if s:use_vim_regex_search()
+    return a:s
+  else
+    return printf( '\V%s', escape(a:s, '\') )
+  endif
 endfunction
 
 function! s:expand_event(cs) abort
@@ -157,12 +203,17 @@ function! s:expand_event(cs) abort
     return a:cs.pre
   elseif n =~# '\v^[^?].*' "!string
     let hist = s:get_reverse_hist(a:cs.type)
-    let index = match(hist, printf('\V\C\^%s', escape(n, '\')))
+    let index = match( hist, printf('\V\C\^%s', escape(n, '\')) )
     return index == -1 ? a:cs.event : hist[index]
   elseif n =~# '\v^\?.+' "!?string[?]
-    let s = matchstr(n, '\v\?\zs.{-}\ze\??$')
+    let s = n[1:]
+    if s[-1:-1] ==# '?'
+      let s = s[0:-2]
+    endif
+    call s:set_last_string_search(s, a:cs.type)
+    let pattern = s:create_search_pattern(s)
     let hist = s:get_reverse_hist(a:cs.type)
-    let index = match(hist, printf('\V\C%s', escape(s, '\')))
+    let index = match(hist, pattern)
     return index == -1 ? a:cs.event : hist[index]
   endif
 
@@ -216,12 +267,13 @@ function! s:expand_word(cs, s) abort
 endfunction
 
 function! s:substitute(s, old, new, flag, per_word)
+  let pattern = s:create_search_pattern(a:old)
   if a:per_word
     let words = split(a:s, '\v\s+')
-    call map(words, {i,v -> substitute(v, a:old, a:new, a:flag)})
+    call map(words, {i,v -> substitute(v, pattern, a:new, a:flag)})
     return join(words, ' ')
   else
-    return substitute(a:s, a:old, a:new, a:flag)
+    return substitute(a:s, pattern, a:new, a:flag)
   endif
 endfunction
 

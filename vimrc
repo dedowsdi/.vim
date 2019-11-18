@@ -254,6 +254,7 @@ let g:gutentags_ctags_options_file = '.vim/.gutctags'
 " .vim {{{2
 let g:clang_format_py_path = '/usr/local/source/llvm8.0.0/share/clang/clang-format.py'
 let g:clang_format_fallback_style = 'LLVM'
+let g:hist_use_vim_regex_search = 1
 
 set wildchar=<c-z>
 cmap <tab> <Plug>dedowsdi_hist_expand_hist_wild
