@@ -528,7 +528,7 @@ command -nargs=? Browse call s:browse(<f-args>)
 
 " Less {{{2
 function! s:less(cmd)
-  exec 'vsplit ' . tempname()
+  exec 'split ' . tempname()
   setlocal buftype=nofile nobuflisted noswapfile bufhidden=hide
   exec printf("put! =execute('%s')", a:cmd)
 endfunction
