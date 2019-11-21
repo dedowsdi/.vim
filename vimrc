@@ -288,12 +288,13 @@ Plug 'junegunn/vim-easy-align'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-unimpaired'
-Plug 'tpope/vim-commentary'
 Plug 'tommcdo/vim-exchange'
-Plug 'majutsushi/tagbar'
 
 " colorscheme
 Plug 'morhetz/gruvbox'
+
+" comment
+Plug 'tpope/vim-commentary'
 
 " status line
 Plug 'itchyny/lightline.vim'
@@ -315,6 +316,7 @@ Plug 'tpope/vim-rhubarb'
 
 " tags
 Plug 'ludovicchabant/vim-gutentags'
+Plug 'majutsushi/tagbar'
 
 " auto complete
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
