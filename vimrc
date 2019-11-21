@@ -449,8 +449,8 @@ nmap <s-f10> <Plug>(coc-references)
 nmap <f12> <Plug>(coc-definition)
 
 if !has('nvim')
-  nnoremap <expr> <c-d> misc#popup#scroll_cursor_popup(1) ? '<esc>' : '<c-d>'
-  nnoremap <expr> <c-u> misc#popup#scroll_cursor_popup(0) ? '<esc>' : '<c-u>'
+  nnoremap <expr> <c-y> misc#popup#scroll_cursor_popup(1) ? '<esc>' : '<c-y>'
+  nnoremap <expr> <c-e> misc#popup#scroll_cursor_popup(0) ? '<esc>' : '<c-e>'
   nnoremap <expr> <c-f> misc#popup#rotate_cursor_popup(0) ? '<esc>' : '<c-f>'
 endif
 
