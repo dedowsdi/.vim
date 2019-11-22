@@ -97,7 +97,18 @@ function! s:term.job_start(opts) abort
     endif
   endfunction
 
-  let self.job = term_start(a:opts.cmd, {'curwin':1, 'exit_cb':self.exit_cb, 'close_cb':self.close_cb})
+  let opts = {'curwin':1, 'exit_cb':self.exit_cb, 'close_cb':self.close_cb}
+  if has_key(a:opts, 'out_cb')
+    let opts.out_cb = a:opts.out_cb
+  endif
+  if has_key(a:opts, 'callback')
+    let opts.callback = a:opts.callback
+  endif
+  if has_key(a:opts, 'err_cb')
+    let opts.err_cb = a:opts.err_cb
+  endif
+
+  let self.job = term_start(a:opts.cmd, opts)
 endfunction
 
 " start terminal, no job
