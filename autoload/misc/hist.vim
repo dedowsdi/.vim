@@ -1,13 +1,22 @@
 " expand history or wild menu
 function! misc#hist#expand(expand_wild) abort
-  let cs = s:parse_cmdline(getcmdline(), getcmdtype(), getcmdpos())
+
+  let cmdline = getcmdline()
+
+  " you can't get argument when you change stack frame during debug?
+  if !has_key(a:, 'expand_wild')
+    call s:expand_wildmenu()
+    return getcmdline()
+  endif
+
+  let cs = s:parse_cmdline(cmdline, getcmdtype(), getcmdpos())
   call misc#log#debug(printf('parse cmdline into : %s', string(cs)))
 
   if cs.expansion_type ==# ''
     if a:expand_wild
       call s:expand_wildmenu()
     endif
-    return cs.text
+    return cmdline
   endif
 
   return s:expand_history(cs)

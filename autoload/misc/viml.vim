@@ -127,6 +127,13 @@ endfunction
 
 " [+-][size]
 function! misc#viml#list(sfile, slnum, ...) abort
+
+  " you can't get argument when you change stack frame?
+  if !has_key(a:, 'sfile')
+    echom 'List skipped, only allowed in stack top'
+    return
+  endif
+
   let symbol = a:0 > 0 ? matchstr(a:1, '\v^[+\-]') : ''
   let size = a:0 > 0 ? matchstr(a:1, '\v\d+') : 10
   if empty(size) | let size = 10 | endif
