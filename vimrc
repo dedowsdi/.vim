@@ -10,8 +10,6 @@
 "
 "     Otherwise put it the plugin fold that it relies on.
 
-" clear autocmd, needed if you want to source vimrc multiple times
-autocmd!
 
                                    " options {{{1
 
