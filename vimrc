@@ -117,8 +117,7 @@ set number ruler
 set laststatus=2 cmdheight=2
 set scrolloff=1
 set showmode showcmd novisualbell
-set noshowmatch matchtime=3
-set matchpairs+=<:>
+set noshowmatch matchtime=3 matchpairs+=<:>
 set belloff=esc
 
                                 " plugin {{{1
@@ -336,8 +335,9 @@ set keywordprg=:Man
 
 call misc#terminal#setup()
 
-filetype plugin indent on
-syntax enable
+" plug#end() already call above commented commands
+" filetype plugin indent on
+" syntax enable
 packadd cfilter
 packadd termdebug
 
