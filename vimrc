@@ -335,7 +335,7 @@ set keywordprg=:Man
 
 call misc#terminal#setup()
 
-" plug#end() already call above commented commands
+" plug#end() already call these commented commands
 " filetype plugin indent on
 " syntax enable
 packadd cfilter
@@ -366,11 +366,11 @@ function! s:omap(to)
 endfunction
 
 vnoremap aa :<C-U>silent! call misc#to#sel_cur_arg({})<cr>
+onoremap <expr> aa <sid>omap('aa')
 vnoremap ia :<C-U>silent! call misc#to#sel_cur_arg({'exclude_space':1})<cr>
 onoremap <expr> ia <sid>omap('ia')
 vnoremap ie :<C-U>call misc#to#sel_expr()<cr>
 onoremap <expr> ie <sid>omap('ie')
-onoremap <expr> aa <sid>omap('aa')
 vnoremap al :<C-U>silent! call misc#to#sel_letter()<cr>
 onoremap <expr> al <sid>omap('al')
 vnoremap il :<C-U>silent! call misc#to#sel_letter()<cr>
