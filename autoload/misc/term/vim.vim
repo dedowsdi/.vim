@@ -17,7 +17,11 @@ function! s:term.is_active() abort
 endfunction
 
 function! s:term.goto_win() abort
-  call win_gotoid(bufwinid(self.bufnr))
+  call win_gotoid(self.winid())
+endfunction
+
+function s:term.winid() abort
+  return bufwinid(self.bufnr)
 endfunction
 
 " open buf or jump to buf wnd, do nothing if term buf doesn't exists
@@ -38,16 +42,7 @@ endfunction
 
 function! s:term.hide() abort
   if !self.is_open() | return | endif
-
-  let oldwinid = win_getid('')
-  call self.goto_win()
-  call self.do_hide()
-  call win_gotoid(oldwinid)
-endfunction
-
-function! s:term.do_hide() abort
-  " :hide will cause the buffer in normal mode
-  call feedkeys("\<c-w>q")
+  call win_execute(self.winid(), 'wincmd q')
 endfunction
 
 function! s:term.close() abort

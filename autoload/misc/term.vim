@@ -8,6 +8,7 @@ call extend(s:jterm_layout, {'position':'bot' , 'psize':0.4}, 'keep')
 let s:gterm_layout = get(g:, 'misc_gterm_layout', {})
 call extend(s:gterm_layout, {'position':'bot', 'psize':0.5}, 'keep')
 
+" base class of all kinds of term
 let s:term = {'job_finished':0}
 
 " a jterm represents a job term
@@ -82,10 +83,6 @@ function! s:spawn(opts) abort
 endfunction
 
 function! misc#term#toggle_gterm() abort
-  if type(s:gterm) != v:t_dict
-    let s:gterm = {}
-  endif
-
   if s:gterm == {} || !s:gterm.exists()
     let s:gterm = s:spawn({})
   else
