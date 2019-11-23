@@ -495,8 +495,8 @@ command! Terminal exe 'terminal' |
 command! -bang CfilterCoreHelp Cfilter<bang> '\v/vim/vim\d+/doc/[^/]+\.txt'
 command -nargs=1 DoRevert <args> e!
 command -nargs=1 DoSave <args> up
-command WriteUndo set undofile | w | set noundofile
-command ReadUndo set undofile | e | set noundofile
+command WriteUndo setlocal undofile | w | setlocal noundofile
+command ReadUndo setlocal undofile | e | setlocal noundofile
 
 " Expand {{{2
 function s:expand_filepath(...)
