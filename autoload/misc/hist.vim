@@ -125,7 +125,7 @@ function s:get_event(designator)
 
   let patterns = map( atoms, { i,v -> printf('\v^!%s\ze([:^$*\-%%]|$)', v) } )
 
-  for pattern in  patterns
+  for pattern in patterns
     let event = matchstr(a:designator, pattern)
     if !empty(event)
       break
@@ -284,7 +284,6 @@ function! s:expand_word(cs, s) abort
 
   let [start, end] = s:get_word_start_end(word, num_cmdwords)
   return start > end || end >= num_cmdwords ? '' : join(cmd_words[start : end], ' ')
-
 endfunction
 
 function! s:substitute(s, old, new, flag, per_word)
@@ -348,8 +347,8 @@ function! s:expand_modifier(cs, s) abort
 endfunction
 
 function! s:rebuild_command(cs, expansion)
-  let s = a:expansion ==# '' ? a:cs.cur : a:expansion
   if a:cs.pos <= len(a:cs.text)
+    let s = a:expansion ==# '' ? a:cs.cur : a:expansion
     call setcmdpos(len(a:cs.pre) + len(s) + 1)
   endif
   return a:cs.pre . a:expansion . a:cs.post
