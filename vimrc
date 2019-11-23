@@ -46,10 +46,11 @@ set updatetime=300
 " make <c-a>, <c-x> work on decimal, hex, binary
 set nrformats=octal,hex,bin
 
-" mv swp and bak out of file directory, use %usr%home%.vimswap%... style name
+" mv swp, bak, undo out of file directory, use %usr%home%.vimswap%... style name
 let &backup = !has('vms')
 set backupdir=$HOME/.vimbak//
 set directory=$HOME/.vimswap//
+set undodir=$HOME/.vimundo//
 
 " hide buffer when it's abandoned
 set hidden
@@ -113,6 +114,7 @@ let &viminfo .= ',r'.$VIMRUNTIME.'/doc'
 set incsearch
 set background=dark
 set history=1000
+set undolevels=5000
 set number ruler
 set laststatus=2 cmdheight=2
 set scrolloff=1
@@ -493,6 +495,8 @@ command! Terminal exe 'terminal' |
 command! -bang CfilterCoreHelp Cfilter<bang> '\v/vim/vim\d+/doc/[^/]+\.txt'
 command -nargs=1 DoRevert <args> e!
 command -nargs=1 DoSave <args> up
+command WriteUndo set undofile | w | set noundofile
+command ReadUndo set undofile | e | set noundofile
 
 " Expand {{{2
 function s:expand_filepath(...)
