@@ -29,16 +29,16 @@ endsnippet
 snippet whilei
 let ${1:index} = 0
 while $1 != ${2:size}
-  ${0}
-  let $1 += 1
+	${0}
+	let $1 += 1
 endwhile
 endsnippet
 
 snippet whileiz
 let [${1:index}, size] = [0, len(${2:something})]
 while $1 != size
-  ${0}
-  let $1 += 1
+	${0}
+	let $1 += 1
 endwhile
 endsnippet
 
@@ -56,7 +56,7 @@ endsnippet
 
 snippet guard
 if exists('b:${1:loaded}')
-    finish
+	finish
 endif
 let b:$1 = 1
 

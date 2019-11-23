@@ -9,3 +9,38 @@ while IFS='' read -r line -u 10 || [[ -n "$line" ]] ; do
 	echo "$line"
 done 10<data
 endsnippet
+
+snippet main
+#!/usr/bin/env bash
+
+set -o errexit
+set -o nounset
+
+PROG_NAME=$0
+
+show_usage() {
+	echo "Usage:"
+	echo ""
+	echo "    $PROG_NAME ${1:args}"
+	echo ""
+	echo ""
+	echo "    -h show this help"
+}
+
+while getopts "hmM" opt; do
+	case $opt in
+		h)
+			show_suage
+			exit 0
+			;;
+
+		* )
+			echo -e "\n  Option does not exist : $OPTARG\n"
+			usage; exit 1
+			;;
+	esac
+done
+shift $((OPTIND-1))
+
+exit 0
+endsnippet
