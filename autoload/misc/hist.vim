@@ -52,7 +52,7 @@ endfunction
 " setup event, word, modifier for !
 " setup string1, string2, modifier for ^
 function! s:parse_designator(cs) abort
-  let l = matchlist(a:cs.cur, printf('\v^\^(.*)\^(.*)\^(\:\w+)?$'))
+  let l = matchlist(a:cs.cur, '\v^\^(.*)\^(.*)\^(\:\w+)?$')
   if len(l) >= 4
     " ^string1^string2^:modifier
     let a:cs.expansion_type = '^'

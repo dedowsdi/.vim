@@ -2,6 +2,8 @@
 
 " Always remember that your goal is to build your own Editor.
 "
+" This vimrc should also work for 8.0(default version on ubuntu18.04).
+"
 " about map and command position in this file :
 "     put it in map fold if:
 "        1. it doesn't rely on plugin at all
@@ -255,8 +257,10 @@ let g:clang_format_py_path = '/usr/local/source/llvm8.0.0/share/clang/clang-form
 let g:clang_format_fallback_style = 'LLVM'
 let g:hist_use_vim_regex_search = 1
 
-set wildchar=<c-z>
-cmap <tab> <Plug>dedowsdi_hist_expand_hist_wild
+if v:version > 800
+  cmap <tab> <Plug>dedowsdi_hist_expand_hist_wild
+  set wildchar=<c-z>
+endif
 cmap <c-a> <Plug>dedowsdi_readline_beginning_of_line
 cmap <a-a> <c-a>
 cmap <a-f> <Plug>dedowsdi_readline_forward_word
@@ -314,7 +318,9 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 
 " tags
-Plug 'ludovicchabant/vim-gutentags'
+if executable('ctags')
+  Plug 'ludovicchabant/vim-gutentags'
+endif
 Plug 'majutsushi/tagbar'
 
 " auto complete
@@ -326,7 +332,9 @@ Plug 'othree/html5.vim'
 Plug 'elzr/vim-json'
 Plug 'tikhomirov/vim-glsl'
 Plug 'lervag/vimtex'
-Plug 'dedowsdi/cdef'
+if executable('ctags')
+  Plug 'dedowsdi/cdef'
+endif
 
 call plug#end()
 
@@ -340,23 +348,29 @@ call misc#terminal#setup()
 " plug#end() already call these commented commands
 " filetype plugin indent on
 " syntax enable
-packadd cfilter
-packadd termdebug
+
+if v:version > 800
+  packadd cfilter
+  packadd termdebug
+endif
 
 let g:gruvbox_number_column='bg1'
 colorscheme gruvbox
 
 augroup zxd_misc
   au!
-  autocmd DirChanged * if filereadable('.vim/init.vim') | source .vim/init.vim | endif
+  if v:version > 800
+    autocmd DirChanged * if filereadable('.vim/init.vim') | source .vim/init.vim | endif
+    if !has('nvim')
+        autocmd TerminalOpen * setl nonumber norelativenumber
+    endif
+  endif
+
   autocmd BufWritePost *.l if &filetype ==# 'lpfg' | call myl#runLpfg() | endif
   autocmd InsertEnter,InsertLeave * set cursorline!
   autocmd FileType * try | call call('abbre#'.expand('<amatch>'), [])
               \ | catch /.*/ | endtry
               \ | setlocal formatoptions-=o formatoptions+=j
-  if !has('nvim')
-      autocmd TerminalOpen * setl nonumber norelativenumber
-  endif
 augroup end
 
 
@@ -615,3 +629,5 @@ function s:doc_complete(ArgLead, CmdLine, CursorPos)
   return readdir($HOME . '/.doc', { n -> stridx(n, a:ArgLead) == 0 } )
 endfunction
 command -nargs=1 -complete=customlist,s:doc_complete Doc split ~/.doc/<args>
+
+" 
