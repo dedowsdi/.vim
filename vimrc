@@ -454,6 +454,9 @@ nnoremap Y  y$
 nnoremap K  :exec 'norm! K' <bar> wincmd p<cr>
 nnoremap gc :SelectLastPaste<cr>
 
+nnoremap <c-w><space> :tab split<cr>
+tnoremap <c-w><space> <c-w>:tab split<cr>
+
 inoremap <c-x><c-p> <c-r>=misc#complete_expresson(1)<cr>
 inoremap <c-x><c-n> <c-r>=misc#complete_expresson(0)<cr>
 
