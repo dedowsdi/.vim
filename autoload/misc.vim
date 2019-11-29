@@ -212,11 +212,6 @@ function! misc#create_jumps(lnum,cnum) abort
   endtry
 endfunction
 
-function! misc#synstack()
-  if !exists('*synstack') | return | endif
-  return map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-endfunc
-
 " copy last visual without side effect. Won't work for <c-v>$
 function! misc#get_visual_string() abort
   return misc#get_mark_string("'<", "'>", visualmode())
