@@ -495,7 +495,7 @@ imap <a-h> <Left>
 
                                   " command {{{1
 
-command! -nargs=* EditTemp e `=tempname().'_'.<q-args>`
+com Scratch new | setlocal buftype=nofile bufhidden=hide noswapfile
 command! HiTest source $VIMRUNTIME/syntax/hitest.vim
 command! TrimTrailingWhitespace :keepp %s/\v\s+$//g
 command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
@@ -635,4 +635,19 @@ function s:doc_complete(ArgLead, CmdLine, CursorPos)
 endfunction
 command -nargs=1 -complete=customlist,s:doc_complete Doc split ~/.doc/<args>
 
-" 
+" Mkt {{{2
+function! s:mkt_complete(ArgLead, CmdLine, CursorPos)
+  return sort(filter(systemlist('cd ~/.mkt_template && printf "%s\n" *'),
+        \ 'stridx(v:val, a:ArgLead)==0'))
+endfunction
+
+com! -nargs=+ -complete=customlist,s:mkt_complete Mkt call system('tmuxmkt ' . <q-args>)
+
+" CloseFinishedTerminal{{{2
+function s:close_finished_terminal() abort
+  let bufs = map(split( execute('ls F'), "\n" ), {i,v -> matchstr(v, '\v^\s*\zs\d+')})
+  for buf in bufs
+    call win_execute(bufwinid(str2nr( buf )), 'close')
+  endfor
+endfunction
+com -nargs=0 CloseFinishedTerminal call s:close_finished_terminal()
