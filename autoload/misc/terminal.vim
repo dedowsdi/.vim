@@ -66,6 +66,7 @@ function! misc#terminal#setup()
 endfunction
 
 function! s:setup_rxvt()
+
   call s:create_keymap('<c-f1>',  '<f25>', '[11^')
   call s:create_keymap('<c-f2>',  '<f26>', '[12^')
   call s:create_keymap('<c-f3>',  '<f27>', '[13^')
@@ -79,21 +80,26 @@ function! s:setup_rxvt()
   call s:create_keymap('<c-f11>', '<f35>', '[23^')
   call s:create_keymap('<c-f12>', '<f36>', '[24^')
 
+  " rxvt s-f1=f11, s-f2=f12, s-f4 and s-f4 don't work for unknown reason,
+  " replace them with xterm code
   set <s-f1>=[1;2P
   set <s-f2>=[1;2Q
-  set <s-f3>=[1;2R
+  set <s-f3>=[25~
   set <s-f4>=[1;2S
   set <s-f5>=[15;2~
-  set <s-f6>=[17;2~
-  set <s-f7>=[18;2~
-  set <s-f8>=[19;2~
-  set <s-f9>=[20;2~
-  set <s-f10>=[21;2~
-  set <s-f11>=[23;2~
-  set <s-f12>=[24;2~
+  set <s-f6>=[29~
+  set <s-f7>=[31~
+  set <s-f8>=[32~
+  set <s-f9>=[33~
+  set <s-f10>=[34~
+  set <s-f11>=[23$
+  set <s-f12>=[24$
 
-  set <c-left>=[1;5D
-  set <c-right>=[1;5C
+  set <c-left>=Od
+  set <c-right>=Oc
+
+  call s:create_keymap('<c-pageup>', '<f13>', '[5^')
+  call s:create_keymap('<c-pagedown>', '<f14>', '[6^')
 
 endfunction
 
@@ -128,6 +134,9 @@ function! s:setup_screen()
   set <c-left>=[1;5D
   set <c-right>=[1;5C
 
+  call s:create_keymap('<c-pageup>', '<f13>', '[5;5~')
+  call s:create_keymap('<c-pagedown>', '<f14>', '[6;5~')
+
 endfunction
 
 function! s:setup_xterm()
@@ -148,3 +157,16 @@ function! s:create_keymap(keycode, vehicle, seq)
   exec printf('set %s=%s', a:vehicle, a:seq)
   exec printf('map %s %s', a:vehicle, a:keycode)
 endfunction
+
+function! misc#terminal#test()
+  for i in range(1, 12)
+    exec printf('map <buffer> <f%d> :echo "f%d"<cr>', i, i)
+    exec printf('map <buffer> <c-f%d> :echo "c-f%d"<cr>', i, i)
+    exec printf('map <buffer> <s-f%d> :echo "s-f%d"<cr>', i, i)
+  endfor
+  nnoremap <buffer> <c-left> :echo 'c-left'<cr>
+  nnoremap <buffer> <c-right> :echo 'c-right'<cr>
+  nnoremap <buffer> <c-pageup> :echo 'c-pageup'<cr>
+  nnoremap <buffer> <c-pagedown> :echo 'c-pagedown'<cr>
+endfunction
+

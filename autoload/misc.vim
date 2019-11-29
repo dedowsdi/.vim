@@ -322,15 +322,6 @@ function! misc#update_link(type) abort
   endtry
 endfunction
 
-function! misc#create_test_map()
-  for i in range(1, 12)
-    exec printf('map <buffer> <f%d> :echo "f%d"<cr>', i, i)
-    exec printf('map <buffer> <c-f%d> :echo "c-f%d"<cr>', i, i)
-    exec printf('map <buffer> <s-f%d> :echo "s-f%d"<cr>', i, i)
-  endfor nnoremap <buffer> <c-left> :echo 'c-left'<cr>
-  nnoremap <buffer> <c-right> :echo 'c-right'<cr>
-endfunction
-
 function! misc#camel_to_underscore(name)
   let s = substitute(a:name, '\v\C^[A-Z]', '\l\0', '')
   return substitute(s, '\v\C[A-Z]', '_\l\0', 'g')
