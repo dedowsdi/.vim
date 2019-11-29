@@ -349,13 +349,14 @@ call misc#terminal#setup()
 " filetype plugin indent on
 " syntax enable
 
+let g:gruvbox_number_column='bg1'
+colorscheme gruvbox
+
+" must be applied after colorscheme, avoid highlight overwrite.
 if v:version > 800
   packadd cfilter
   packadd termdebug
 endif
-
-let g:gruvbox_number_column='bg1'
-colorscheme gruvbox
 
 augroup zxd_misc
   au!
