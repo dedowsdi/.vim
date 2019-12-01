@@ -633,20 +633,6 @@ function! s:fzf_external_files()
 endfunction
 com P call <sid>fzf_external_files()
 
-" Doc {{{2
-function s:doc_complete(ArgLead, CmdLine, CursorPos)
-  return readdir($HOME . '/.doc', { n -> stridx(n, a:ArgLead) == 0 } )
-endfunction
-command -nargs=1 -complete=customlist,s:doc_complete Doc split ~/.doc/<args>
-
-" Mkt {{{2
-function! s:mkt_complete(ArgLead, CmdLine, CursorPos)
-  return sort(filter(systemlist('cd ~/.mkt_template && printf "%s\n" *'),
-        \ 'stridx(v:val, a:ArgLead)==0'))
-endfunction
-
-com! -nargs=+ -complete=customlist,s:mkt_complete Mkt call system('tmuxmkt ' . <q-args>)
-
 " CloseFinishedTerminal{{{2
 function s:close_finished_terminal() abort
   let bufs = map(split( execute('ls F'), "\n" ), {i,v -> matchstr(v, '\v^\s*\zs\d+')})
