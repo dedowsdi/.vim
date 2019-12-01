@@ -562,7 +562,7 @@ endfunction
 
 command! -nargs=+ -complete=command Less call <sid>less(<q-args>)
 
-" Less {{{Tapi_cd
+" Tapi_cd {{{2
 " arglist : [ cwd ]
 " change window local working directory
 function! Tapi_lcd(bufnum, arglist)
