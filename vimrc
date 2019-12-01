@@ -77,7 +77,7 @@ set mouse=a
 " conceal only in visual and normal mode
 set concealcursor=vn conceallevel=0
 
-" add fzf, project .vim, .vim/after to rtp, add ~/.vim to rtp from nvim
+" add project .vim, .vim/after to rtp, add ~/.vim to rtp from nvim
 set rtp+=.vim,.vim/after
 if has('nvim')
   set rtp+=~/.vim
@@ -198,6 +198,7 @@ if &t_Co == 256
 endif
 
 " fzf {{{2
+set rtp+=~/.fzf
 function! s:build_quickfix_list(lines)
   call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
   copen | cc
@@ -282,7 +283,6 @@ if empty(glob('~/.vim/autoload/plug.vim'))
   autocmd! vim_plug_init VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-set rtp+=~/.fzf
 call plug#begin('~/.vim/plugged')
 
 " common
