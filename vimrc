@@ -655,3 +655,24 @@ function s:close_finished_terminal() abort
   endfor
 endfunction
 com -nargs=0 CloseFinishedTerminal call s:close_finished_terminal()
+
+" Job{{{2
+function s:job(cmd) abort
+  call job_start( a:cmd, { "exit_cb":function('s:job_exit_cb'),
+              \ "err_cb": function('s:job_err_cb') } )
+endfunction
+
+function s:job_exit_cb(job, exit_status)
+  if a:exit_status != 0
+    echohl WarningMsg
+    echomsg printf('%s exit with %d', a:job, a:exit_status)
+    echohl None
+  endif
+endfunction
+
+function s:job_err_cb(ch, msg)
+  echohl WarningMsg
+  echomsg printf('%s : %s', a:ch, a:msg)
+  echohl None
+endfunction
+com -nargs=+ -complete=shellcmd Job call s:job(<q-args>)
