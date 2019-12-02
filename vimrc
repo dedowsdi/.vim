@@ -450,7 +450,6 @@ nnoremap g~o :call misc#op#omo('gso')<cr>
 
 " common maps {{{2
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
-nnoremap -- :edit $MYVIMRC<cr>
 nnoremap Y  y$
 nnoremap K  :exec 'norm! K' <bar> wincmd p<cr>
 nnoremap gc :SelectLastPaste<cr>
@@ -517,6 +516,7 @@ command! Synstack echo map( synstack(line('.'), col('.')), 'synIDattr(v:val, "na
 command! SynID echo synIDtrans(synID(line('.'), col('.'), 1))
 command! -nargs=+ SynIDattr echo synIDattr(
             \ synIDtrans(synID(line('.'), col('.'), 1)), <f-args>)
+com EditVimrc e `echo $MYVIMRC`
 
 " Expand {{{2
 function s:expand_filepath(...)
