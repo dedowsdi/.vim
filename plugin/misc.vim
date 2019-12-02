@@ -125,6 +125,10 @@ com CamelToUnderscoreAndSearchNext CamelToUnderscore | exec "norm! \<c-o>" | Sea
 com SearchNextCamel call search('\v\C\w*[A-Z]\w*', 'W')
 com -nargs=1 SetNotifySeverity call misc#log#set_notify_severity(<f-args>)
 
-nnoremap <Plug>dedowsdi_misc_pair_add_space :call misc#expand_pair(1)<cr>:silent! call repeat#set("\<Plug>dedowsdi_misc_pair_add_space")<cr>
+function s:repeat_plug_map(lhs, rhs)
+  exec printf('nnoremap <silent> %s %s:silent! call repeat#set("\<lt>%s")<cr>',
+        \ a:lhs, a:rhs, a:lhs[1:])
+endfunction
 
-nnoremap <Plug>dedowsdi_misc_pair_minus_space :call misc#expand_pair(0)<cr>:silent! call repeat#set("\<Plug>dedowsdi_misc_pair_minus_space")<cr>
+call s:repeat_plug_map('<Plug>dedowsdi_misc_pair_add_space', ':call misc#expand_pair(1)<cr>')
+call s:repeat_plug_map('<Plug>dedowsdi_misc_pair_minus_space', ':call misc#expand_pair(0)<cr>')
