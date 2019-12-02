@@ -124,3 +124,7 @@ com -bar CamelToUnderscore exe printf('%%s/\v\C<%s>/%s/g', expand('<cword>'),
 com CamelToUnderscoreAndSearchNext CamelToUnderscore | exec "norm! \<c-o>" | SearchNextCamel
 com SearchNextCamel call search('\v\C\w*[A-Z]\w*', 'W')
 com -nargs=1 SetNotifySeverity call misc#log#set_notify_severity(<f-args>)
+
+nnoremap <Plug>dedowsdi_misc_pair_add_space :call misc#expand_pair(1)<cr>:silent! call repeat#set("\<Plug>dedowsdi_misc_pair_add_space")<cr>
+
+nnoremap <Plug>dedowsdi_misc_pair_minus_space :call misc#expand_pair(0)<cr>:silent! call repeat#set("\<Plug>dedowsdi_misc_pair_minus_space")<cr>

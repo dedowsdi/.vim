@@ -148,6 +148,10 @@ let g:ale_linters = {
 
 let g:ale_glsl_glslang_executable = '/usr/local/bin/glslangValidator'
 
+" ale {{{2
+let g:ale_vim_vint_show_style_issues = 0
+let g:ale_linters_explicit = 1
+
 " ultisnips {{{2
 let g:UltiSnipsExpandTrigger='<tab>'
 let g:UltiSnipsJumpForwardTrigger='<c-j>'
@@ -457,6 +461,9 @@ nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap Y  y$
 nnoremap K  :exec 'norm! K' <bar> wincmd p<cr>
 nnoremap gc :SelectLastPaste<cr>
+
+nmap ys<space> <plug>dedowsdi_misc_pair_add_space
+nmap ds<space> <plug>dedowsdi_misc_pair_minus_space
 
 nnoremap <c-w><space> :tab split<cr>
 tnoremap <c-w><space> <c-w>:tab split<cr>
