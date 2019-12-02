@@ -19,19 +19,19 @@ endfor
 nnoremap <buffer> \1 :Section<cr>
 nnoremap <buffer> \2 :SubSection<cr>
 
-command -bar -buffer NextSection /\v\C^[A-Z][^a-z]+$
-command -bar -buffer PrevSection ?\v\C^[A-Z][^a-z]+$
-command -bar -buffer NextSubSection /\v\C^   [A-Z].*$
-command -bar -buffer PrevSubSection ?\v\C^   [A-Z].*$
+com -bar -buffer NextSection /\v\C^[A-Z][^a-z]+$
+com -bar -buffer PrevSection ?\v\C^[A-Z][^a-z]+$
+com -bar -buffer NextSubSection /\v\C^   [A-Z].*$
+com -bar -buffer PrevSubSection ?\v\C^   [A-Z].*$
 " command! -buffer Section vim /\v\C^[A-Z][^a-z]+$/ % | cwindow
 " command! -buffer SubSection vim /\v\C^   [A-Z].*$/ % | cwindow
 
 " although you can not search ilist result, it's aligned
-command! -buffer Section call s:select_ilist(execute('silent! ilist /\v\C^[A-Z][^a-z]+$/'))
-command! -buffer Optionx call s:select_ilist(execute('silent! ilist /\v\C^       \-\-?\w/'))
-command! -buffer SubSection call s:select_sub_section()
+com -buffer Section call s:select_ilist(execute('silent! ilist /\v\C^[A-Z][^a-z]+$/'))
+com -buffer Optionx call s:select_ilist(execute('silent! ilist /\v\C^       \-\-?\w/'))
+com -buffer SubSection call s:select_sub_section()
 
-function! s:select_ilist(ilist_result)
+function s:select_ilist(ilist_result)
   if empty(a:ilist_result) || a:ilist_result =~# '^\_s*Error'
     return
   endif
@@ -46,7 +46,7 @@ function! s:select_ilist(ilist_result)
   exec matchstr(lines[select-1], '^\v\s*\d+\:\s+\zs\d+')
 endfunction
 
-function! s:select_sub_section()
+function s:select_sub_section()
   let cpos = getcurpos()
   let oldwrap = &wrap
 

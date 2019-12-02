@@ -1,7 +1,7 @@
 " viml stuff
 "
 " [lnum]
-function! misc#viml#goto_function(...) abort
+function misc#viml#goto_function(...) abort
   let lnum = get(a:000, 0, 0)
   let range = misc#viml#get_function_range()
   if range == [] | return 0 | endif
@@ -10,7 +10,7 @@ function! misc#viml#goto_function(...) abort
   execute 'normal! '. lnum .'j' | return 1
 endfunction
 
-function! misc#viml#get_function_range() abort
+function misc#viml#get_function_range() abort
   let cpos = getcurpos()
   exec 'norm! v' | call misc#viml#sel_function('i') | exec "norm! \<esc>"
   call setpos('.', cpos)
@@ -18,13 +18,13 @@ function! misc#viml#get_function_range() abort
   return pos0 == pos1 ? [] : [pos0, pos1]
 endfunction
 
-function! misc#viml#sel_function(ai)
+function misc#viml#sel_function(ai)
   call misc#to#sel_lines('\v^\s*fu%[nction]?\!?\s+\S+\(',
         \ '\v^\s*endf%[unction]?\s*$', a:ai, 1)
 endfunction
 
 " support both relative and absolute filename
-function! misc#viml#get_sid(file_name) abort
+function misc#viml#get_sid(file_name) abort
   redir => str | silent execute 'scriptnames' | redir END
   let [abs_name, base_name] = [fnamemodify(a:file_name, ':p'), fnamemodify(a:file_name, ':t')]
   " item format in scriptnames: 18: script name
@@ -41,7 +41,7 @@ endfunction
 
 " break at current line in current function, doesn't work if it's a dict
 " [func_name [,line, [,plugFileName]]]
-function! misc#viml#break_here() abort
+function misc#viml#break_here() abort
   let cpos = getcurpos() | try
     if misc#viml#goto_function()
 
@@ -60,7 +60,7 @@ function! misc#viml#break_here() abort
   finally | call setpos('.', cpos) | endtry
 endfunction
 
-function! misc#viml#break_numbered_function() abort
+function misc#viml#break_numbered_function() abort
   let range = misc#viml#get_function_range()
   if range != []
     let candidates = misc#viml#search_numbered_functions(
@@ -83,7 +83,7 @@ function! misc#viml#break_numbered_function() abort
 endfunction
 
 " return {fnum : def}
-function! misc#viml#search_numbered_functions(func_def, max_number)
+function misc#viml#search_numbered_functions(func_def, max_number)
   let lines0 = map(split(a:func_def, "\n"), 'trim(v:val)')
   let prototype = matchstr(lines0[0], '\v(\(.*\))')
   let candidates = {}
@@ -107,16 +107,16 @@ function! misc#viml#search_numbered_functions(func_def, max_number)
   return candidates
 endfunction
 
-function! misc#viml#is_comment(line_string) abort
+function misc#viml#is_comment(line_string) abort
   return matchstr(a:line_string, '\v^\s*\zs\S') ==# '"'
 endfunction
 
-function! misc#viml#is_scope_script() abort
+function misc#viml#is_scope_script() abort
   return stridx(getline('.'), 's:') >= 0
 endfunction
 
 
-function! misc#viml#join() abort
+function misc#viml#join() abort
   exec "normal! A |\<esc>gJ"
   if misc#get_c_c() =~# '\v\s'
     exec 'normal! cw '
@@ -126,7 +126,7 @@ function! misc#viml#join() abort
 endfunction
 
 " [+-][size]
-function! misc#viml#list(sfile, slnum, ...) abort
+function misc#viml#list(sfile, slnum, ...) abort
 
   " you can't get argument when you change stack frame?
   if !has_key(a:, 'sfile')
@@ -193,7 +193,7 @@ if exists('*misc#viml#reload_loaded_script')
   finish
 endif
 
-function! misc#viml#reload_loaded_script() abort
+function misc#viml#reload_loaded_script() abort
   try
     let oldpos = getcurpos()
     let re_script_guard = '\v^\s*let\s+\zs[gb]:loaded\w+\ze'

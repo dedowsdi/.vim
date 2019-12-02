@@ -38,29 +38,29 @@ com CppDebugFrameUp     call mycpp#debug_frame_up()
 com CppDebugFrameDown   call mycpp#debug_frame_down()
 
 " vim {{{1
-com! -nargs=0 VimlReloadScript :call  misc#viml#reload_loaded_script()
-com! -nargs=0 VimlBreakHere :call misc#viml#break_here()
-com! -nargs=0 VimlBreakNumberedFunction :call misc#viml#break_numbered_function()
-com! -nargs=? VimlGotoFunction :call misc#viml#goto_function(<f-args>)
-com! -nargs=0 VimlJoin :call misc#viml#join()
-com! -nargs=? List call misc#viml#list(expand('<sfile>'), expand('<slnum>'), <f-args>)
-com! -nargs=+ -complete=command DoAbort call misc#abort_do(<f-args>)
-com! -nargs=+ LinkVimHelp let @+ = misc#create_vimhelp_link(<q-args>)
-com! -nargs=+ LinkNvimHelp let @+ = misc#create_nvimhelp_link(<q-args>)
-com! UpdateVimHelpLink call misc#update_link(0)
-com! UpdateNvimHelpLink call misc#update_link(1)
+com -nargs=0 VimlReloadScript :call  misc#viml#reload_loaded_script()
+com -nargs=0 VimlBreakHere :call misc#viml#break_here()
+com -nargs=0 VimlBreakNumberedFunction :call misc#viml#break_numbered_function()
+com -nargs=? VimlGotoFunction :call misc#viml#goto_function(<f-args>)
+com -nargs=0 VimlJoin :call misc#viml#join()
+com -nargs=? List call misc#viml#list(expand('<sfile>'), expand('<slnum>'), <f-args>)
+com -nargs=+ -complete=command DoAbort call misc#abort_do(<f-args>)
+com -nargs=+ LinkVimHelp let @+ = misc#create_vimhelp_link(<q-args>)
+com -nargs=+ LinkNvimHelp let @+ = misc#create_nvimhelp_link(<q-args>)
+com UpdateVimHelpLink call misc#update_link(0)
+com UpdateNvimHelpLink call misc#update_link(1)
 
 " term {{{1
 nnoremap <plug>dedowsdi_term_toggle_gterm :call misc#term#toggle_gterm()<cr>
 tnoremap <plug>dedowsdi_term_toggle_gterm <c-w>:call misc#term#toggle_gterm()<cr>
 
 " record {{{1
-com! RecordStart :call misc#dc#start_copy(1)
-com! RecordStartAppend :call misc#dc#start_copy(0)
-com! RecordPaste :call misc#dc#paste()
-com! RecordStop :call misc#dc#stop_copy()
+com RecordStart :call misc#dc#start_copy(1)
+com RecordStartAppend :call misc#dc#start_copy(0)
+com RecordPaste :call misc#dc#paste()
+com RecordStop :call misc#dc#stop_copy()
 
-function! s:record_sink(item) abort
+function s:record_sink(item) abort
   let @@ = a:item
   norm! p
 endfunction
@@ -73,7 +73,7 @@ if executable('fzf')
 endif
 
 " hlcmd {{{1
-com! -nargs=0 ToggleCommandHighlight call misc#hlcmd#toggle()
+com -nargs=0 ToggleCommandHighlight call misc#hlcmd#toggle()
 silent ToggleCommandHighlight
 
 " undo {{{1
@@ -119,8 +119,8 @@ com -nargs=0 DebugvimDisable call misc#debugvim#disable()
 
 " misc {{{1
 com -range -nargs=+ T call misc#mult_t(<line1>, <line2>, <f-args>)
-com! -bar CamelToUnderscore exe printf('%%s/\v\C<%s>/%s/g', expand('<cword>'),
+com -bar CamelToUnderscore exe printf('%%s/\v\C<%s>/%s/g', expand('<cword>'),
       \ misc#camel_to_underscore(expand('<cword>')))
-com! CamelToUnderscoreAndSearchNext CamelToUnderscore | exec "norm! \<c-o>" | SearchNextCamel
-com! SearchNextCamel call search('\v\C\w*[A-Z]\w*', 'W')
-com! -nargs=1 SetNotifySeverity call misc#log#set_notify_severity(<f-args>)
+com CamelToUnderscoreAndSearchNext CamelToUnderscore | exec "norm! \<c-o>" | SearchNextCamel
+com SearchNextCamel call search('\v\C\w*[A-Z]\w*', 'W')
+com -nargs=1 SetNotifySeverity call misc#log#set_notify_severity(<f-args>)

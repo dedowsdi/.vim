@@ -118,17 +118,17 @@ function s:Gdb.kill()
 endfunction
 
 
-function! s:Gdb.send(data)
+function s:Gdb.send(data)
   call jobsend(self._client_id, a:data."\<cr>")
 endfunction
 
 
-function! s:Gdb.attach()
+function s:Gdb.attach()
   call self.send(printf('target remote %s', self._server_addr))
 endfunction
 
 
-function! s:Gdb.update_current_line_sign(add)
+function s:Gdb.update_current_line_sign(add)
   " to avoid flicker when removing/adding the sign column(due to the change in
   " line width), we switch ids for the line sign and only remove the old line
   " sign after marking the new one
@@ -141,7 +141,7 @@ function! s:Gdb.update_current_line_sign(add)
   exe 'sign unplace '.old_line_sign_id
 endfunction
 
-function! s:Spawn(server_cmd, client_cmd, server_addr, reconnect)
+function s:Spawn(server_cmd, client_cmd, server_addr, reconnect)
   if exists('g:gdb') | throw 'Gdb already running' | endif
   let gdb = vimexpect#Parser(s:GdbRunning, copy(s:Gdb))
   " gdbserver port
@@ -181,7 +181,7 @@ function! s:Spawn(server_cmd, client_cmd, server_addr, reconnect)
 endfunction
 
 
-function! s:Test(bang, filter)
+function s:Test(bang, filter)
   let cmd = 'GDB=1 make test'
   if a:bang ==# '!'
     let server_addr = '| vgdb'
@@ -197,7 +197,7 @@ function! s:Test(bang, filter)
 endfunction
 
 
-function! s:ToggleBreak()
+function s:ToggleBreak()
   let file_name = bufname('%')
   let file_breakpoints = get(s:breakpoints, file_name, {})
   let linenr = line('.')
@@ -212,14 +212,14 @@ function! s:ToggleBreak()
 endfunction
 
 
-function! s:ClearBreak()
+function s:ClearBreak()
   let s:breakpoints = {}
   call s:RefreshBreakpointSigns()
   call s:RefreshBreakpoints()
 endfunction
 
 
-function! s:RefreshBreakpointSigns()
+function s:RefreshBreakpointSigns()
   let buf = bufnr('%')
   let i = 5000
   while i <= s:max_breakpoint_sign_id
@@ -236,7 +236,7 @@ function! s:RefreshBreakpointSigns()
 endfunction
 
 
-function! s:RefreshBreakpoints()
+function s:RefreshBreakpoints()
   if !exists('g:gdb')
     return
   endif
@@ -257,7 +257,7 @@ function! s:RefreshBreakpoints()
 endfunction
 
 
-function! s:GetExpression(...) range
+function s:GetExpression(...) range
   let [lnum1, col1] = getpos("'<")[1:2]
   let [lnum2, col2] = getpos("'>")[1:2]
   let lines = getline(lnum1, lnum2)
@@ -267,7 +267,7 @@ function! s:GetExpression(...) range
 endfunction
 
 
-function! s:Send(data)
+function s:Send(data)
   if !exists('g:gdb')
     throw 'Gdb is not running'
   endif
@@ -275,12 +275,12 @@ function! s:Send(data)
 endfunction
 
 
-function! s:Eval(expr)
+function s:Eval(expr)
   call s:Send(printf('print %s', a:expr))
 endfunction
 
 
-function! s:Watch(expr)
+function s:Watch(expr)
   let expr = a:expr
   if expr[0] !=# '&'
     let expr = '&' . expr
@@ -291,7 +291,7 @@ function! s:Watch(expr)
 endfunction
 
 
-function! s:Interrupt()
+function s:Interrupt()
   if !exists('g:gdb')
     throw 'Gdb is not running'
   endif
@@ -299,7 +299,7 @@ function! s:Interrupt()
 endfunction
 
 
-function! s:Kill()
+function s:Kill()
   if !exists('g:gdb')
     throw 'Gdb is not running'
   endif
@@ -307,22 +307,22 @@ function! s:Kill()
 endfunction
 
 
-command! -nargs=+ GdbDebug call s:Spawn(printf('gdbserver localhost:%d %s', s:gdb_port, <q-args>), "gdb -q -f ".<q-args>,  printf('localhost:%d', s:gdb_port), 0)
-command! GdbDebugNvim call s:Spawn(printf('make && gdbserver localhost:%d build/bin/nvim', s:gdb_port), s:run_gdb, printf('localhost:%d', s:gdb_port), 0)
-command! -nargs=1 GdbDebugServer call s:Spawn(0, s:run_gdb, 'localhost:'.<q-args>, 0)
-command! -bang -nargs=? GdbDebugTest call s:Test(<q-bang>, <q-args>)
-command! -nargs=1 -complete=file GdbInspectCore call s:Spawn(0, printf('gdb -q -f -c %s build/bin/nvim', <q-args>), 0, 0)
-command! GdbDebugStop call s:Kill()
-command! GdbToggleBreakpoint call s:ToggleBreak()
-command! GdbClearBreakpoints call s:ClearBreak()
-command! GdbContinue call s:Send("c")
-command! GdbNext call s:Send("n")
-command! GdbStep call s:Send("s")
-command! GdbFinish call s:Send("finish")
-command! GdbFrameUp call s:Send("up")
-command! GdbFrameDown call s:Send("down")
-command! GdbInterrupt call s:Interrupt()
-command! GdbEvalWord call s:Eval(expand('<cword>'))
-command! -range GdbEvalRange call s:Eval(s:GetExpression(<f-args>))
-command! GdbWatchWord call s:Watch(expand('<cword>')
-command! -range GdbWatchRange call s:Watch(s:GetExpression(<f-args>))
+com -nargs=+ GdbDebug call s:Spawn(printf('gdbserver localhost:%d %s', s:gdb_port, <q-args>), "gdb -q -f ".<q-args>,  printf('localhost:%d', s:gdb_port), 0)
+com GdbDebugNvim call s:Spawn(printf('make && gdbserver localhost:%d build/bin/nvim', s:gdb_port), s:run_gdb, printf('localhost:%d', s:gdb_port), 0)
+com -nargs=1 GdbDebugServer call s:Spawn(0, s:run_gdb, 'localhost:'.<q-args>, 0)
+com -bang -nargs=? GdbDebugTest call s:Test(<q-bang>, <q-args>)
+com -nargs=1 -complete=file GdbInspectCore call s:Spawn(0, printf('gdb -q -f -c %s build/bin/nvim', <q-args>), 0, 0)
+com GdbDebugStop call s:Kill()
+com GdbToggleBreakpoint call s:ToggleBreak()
+com GdbClearBreakpoints call s:ClearBreak()
+com GdbContinue call s:Send("c")
+com GdbNext call s:Send("n")
+com GdbStep call s:Send("s")
+com GdbFinish call s:Send("finish")
+com GdbFrameUp call s:Send("up")
+com GdbFrameDown call s:Send("down")
+com GdbInterrupt call s:Interrupt()
+com GdbEvalWord call s:Eval(expand('<cword>'))
+com -range GdbEvalRange call s:Eval(s:GetExpression(<f-args>))
+com GdbWatchWord call s:Watch(expand('<cword>')
+com -range GdbWatchRange call s:Watch(s:GetExpression(<f-args>))

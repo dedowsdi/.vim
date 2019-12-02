@@ -11,7 +11,7 @@ endfunction
 
 " return {wise: , visual: ,start:, end:, text: , optype: }
 " optype is original type, you need it to call other operations
-function! misc#op#new(type, op_args, ...) abort
+function misc#op#new(type, op_args, ...) abort
   let visual = get(a:op_args, 0, 0)
   if visual
     let wise = visualmode()
@@ -40,7 +40,7 @@ endfunction
 
 
 " op can be opfunc or mapping
-function! misc#op#execute(operation, op) abort
+function misc#op#execute(operation, op) abort
   if exists('*'.a:operation)
     call call (a:operation, [a:op.optype, a:op.visual])
   else
@@ -49,30 +49,30 @@ function! misc#op#execute(operation, op) abort
   endif
 endfunction
 
-function! misc#op#search_literal(type, ...) abort
+function misc#op#search_literal(type, ...) abort
   let op = misc#op#new(a:type, a:000)
   let @/ = misc#literalize_vim(op.text)
 endfunction
 
-function! misc#op#literal_grep(type, ...) abort
+function misc#op#literal_grep(type, ...) abort
   let op = misc#op#new(a:type, a:000)
   call setreg('"', misc#literalize_grep(op.text))
   call feedkeys(":grep -F \<c-r>=@\"\<cr> ")
 endfunction
 
 " search pattern is <word> or literal
-function! misc#op#substitude(type, ...) abort
+function misc#op#substitude(type, ...) abort
   call call('misc#op#search_literal', [a:type] + a:000)
   call feedkeys(':%s//')
 endfunction
 
-function! misc#op#search_in_browser(type, ...)
+function misc#op#search_in_browser(type, ...)
   let op = misc#op#new(a:type, a:000)
   silent! exec 'silent! !google-chrome "http://google.com/search?q=' . op.text . '" &>/dev/null &'
   redraw!
 endfunction
 
-function! misc#op#system(type, ...) abort
+function misc#op#system(type, ...) abort
   let visual = get(a:000, 0, 0)
   let op = misc#op#new(a:type, a:000)
   let cmd = input('shell command : ')
@@ -85,7 +85,7 @@ endfunction
 " a,b        : a and b
 " a-         : a until last
 " -b         : 1 until b
-function! misc#op#column(type, ...) abort
+function misc#op#column(type, ...) abort
   let column = input('column : ')
   if empty(column) || column <= 0 | return | endif
 
@@ -123,7 +123,7 @@ function! misc#op#column(type, ...) abort
   call setreg(v:register, system(cmd, op.text), "\<c-v>")
 endfunction
 
-function! misc#op#clang_format(type, ...) abort
+function misc#op#clang_format(type, ...) abort
 
   let op = misc#op#new(a:type, a:000)
 
@@ -134,26 +134,26 @@ function! misc#op#clang_format(type, ...) abort
   exec cmd
 endfunction
 
-function! misc#op#setup_keep_cursor(func)
+function misc#op#setup_keep_cursor(func)
   let &opfunc = a:func
   call s:store_cursor()
   return 'g@'
 endfunction
 
-function! s:restore_cursor() abort
+function s:restore_cursor() abort
   if !exists('s:cpos')
     return
   endif
   call setpos('.', s:cpos)
 endfunction
 
-function! s:store_cursor() abort
+function s:store_cursor() abort
   let s:cpos = getcurpos()
 endfunction
 
 " mimic https://github.com/t9md/atom-vim-mode-plus/wiki/OccurrenceModifier
 " omo short for Occurence Modifier Operator
-function! misc#op#omo(operator) abort
+function misc#op#omo(operator) abort
   let s:omo_old_mark_a = getpos("'a")
   " there is no way to get current word position in opfunc, must mark it here
   let cpos = getcurpos()
@@ -164,7 +164,7 @@ function! misc#op#omo(operator) abort
   call feedkeys('g@')
 endfunction
 
-function! misc#op#omo_co(type, ...) abort
+function misc#op#omo_co(type, ...) abort
 
   let op = misc#op#new(a:type, a:000)
 
@@ -185,27 +185,27 @@ function! misc#op#omo_co(type, ...) abort
 
 endfunction
 
-function! misc#op#omo_do(type, ...) abort
+function misc#op#omo_do(type, ...) abort
   let op = misc#op#new(a:type, a:000)
   call misc#op#execute('misc#op#omo_co', op)
   call feedkeys("\<esc>")
 endfunction
 
-function! misc#op#omo_guo(type, ...) abort
+function misc#op#omo_guo(type, ...) abort
   let str = tolower(expand('<cword>'))
   let op = misc#op#new(a:type, a:000)
   call misc#op#execute('misc#op#omo_co', op)
   call feedkeys(printf("%s\<esc>", str))
 endfunction
 
-function! misc#op#omo_gUo(type, ...) abort
+function misc#op#omo_gUo(type, ...) abort
   let str = toupper(expand('<cword>'))
   let op = misc#op#new(a:type, a:000)
   call misc#op#execute('misc#op#omo_co', op)
   call feedkeys(printf("%s\<esc>", str))
 endfunction
 
-function! misc#op#omo_gso(type, ...) abort
+function misc#op#omo_gso(type, ...) abort
   let chars = split(expand('<cword>'), '\zs')
   let str = join(map(chars, {i,v -> v=~# '[a-z]' ? toupper(v) : tolower(v)}), '')
   let op = misc#op#new(a:type, a:000)
@@ -213,7 +213,7 @@ function! misc#op#omo_gso(type, ...) abort
   call feedkeys(printf("%s\<esc>", str))
 endfunction
 
-function! s:co_insert_leave() abort
+function s:co_insert_leave() abort
 
   let cword = @"
   let replacement = misc#get_last_change()

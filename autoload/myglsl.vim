@@ -7,7 +7,7 @@ let myglsl#shader_type_dict = {
       \ 'frag' : ['fs', 'frag']
       \ }
 
-function! s:get_shader_type(name) abort
+function s:get_shader_type(name) abort
   for [type, values] in items(g:myglsl#shader_type_dict)
     for value in values
       if value == a:name
@@ -18,7 +18,7 @@ function! s:get_shader_type(name) abort
   return ''
 endfunction
 
-function! myglsl#alternate() abort
+function myglsl#alternate() abort
   let filename = expand('%:t')
   let dir = expand('%:h')
 

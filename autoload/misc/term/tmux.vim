@@ -1,27 +1,27 @@
 let s:term = deepcopy(misc#term#new())
 
-function! misc#term#tmux#new() abort
+function misc#term#tmux#new() abort
   return deepcopy(s:term)
 endfunction
 
-function! s:term.exists() abort
+function s:term.exists() abort
   return has_key(self, 'pane') && self.pane.exists()
 endfunction
 
-function! s:term.isOpen() abort
+function s:term.isOpen() abort
   return self.pane.isWindowActive()
 endfunction
 
-function! s:term.isActive() abort
+function s:term.isActive() abort
   return self.pane.isActive()
 endfunction
 
-function! s:term.gotoWin() abort
+function s:term.gotoWin() abort
   call self.pane.select()
 endfunction
 
 " open buf or jump to buf wnd, do nothing if term buf doesn't exists
-function! s:term.open() abort
+function s:term.open() abort
   if self.isOpen()
     call self.gotoWin()
   else
@@ -29,12 +29,12 @@ function! s:term.open() abort
   endif
 endfunction
 
-function! s:term.hide() abort
+function s:term.hide() abort
   if !self.isOpen() | return | endif
   call self.pane.hide()
 endfunction
 
-function! s:term.close() abort
+function s:term.close() abort
   call self.pane.kill()
 
   " clear job term from jterm list
@@ -43,7 +43,7 @@ function! s:term.close() abort
   endif
 endfunction
 
-function! s:term.spawn(opts) abort
+function s:term.spawn(opts) abort
   let self.layout = a:opts.layout
   call self.split()
 
@@ -53,19 +53,19 @@ function! s:term.spawn(opts) abort
   endif
 endfunction
 
-function! misc#term#tmux#spawn(opts) abort
+function misc#term#tmux#spawn(opts) abort
   let term = misc#term#tmux#new()
   call term.spawn(a:opts)
   return term
 endfunction
 
 " start job
-function! s:term.jobStart(opts) abort
+function s:term.jobStart(opts) abort
    call self.pane.send([a:opts.cmd, 'Enter'])
 endfunction
 
 " start terminal, no job
-function! s:term.openTerm(opts) abort
+function s:term.openTerm(opts) abort
   terminal ++curwin
 endfunction
 
@@ -77,7 +77,7 @@ let s:wcos={
   \ 'right':{ 'split':'-h'}
   \ }
 
-function! s:term.split() abort
+function s:term.split() abort
   let wco = s:wcos[self.layout.position]
 
   let cmd = wco.split

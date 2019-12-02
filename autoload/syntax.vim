@@ -1,10 +1,10 @@
-function! syntax#opengl()
+function syntax#opengl()
   syn match glEnum /\v\C<GL_\w+/
 
   highlight link glEnum Macro
 endfunction
 
-function! syntax#glm()
+function syntax#glm()
   syn match glmVec /\v\C<vec\d>/
   syn match glmMat /\v\C<mat\d>/
   syn match glmNamespace /\v\C<glm>/
@@ -14,7 +14,7 @@ function! syntax#glm()
   highlight link glmNamespace Constant
 endfunction
 
-function! syntax#glfw()
+function syntax#glfw()
   syn match glfwMacro /\v\C<GLFW_\w+/
   syn match glfwType /\v\C<GLFW\l+/
 
@@ -22,7 +22,7 @@ function! syntax#glfw()
   highlight link glfwType Type
 endfunction
 
-function! syntax#qt()
+function syntax#qt()
   syn keyword qtNamespace Qt
   syn keyword qtMacro SIGNAL SLOT Q_OBJECT signals slots emit
   syn match qtMacro1 /\vQ_[A-Z_]+/
@@ -36,7 +36,7 @@ function! syntax#qt()
   highlight link qtNamespace Constant
 endfunction
 
-function! syntax#osg()
+function syntax#osg()
   syn keyword osgNamespaces osg osgAnimation osgDB osgFX osgGA osgManipulator osgParticle osgPresentation osgQt osgShadow osgSim osgTerrain osgText osgUI osgUtil osgViewer osgVolume osgWidget
   syn match osgSmartPointer /\v\C<(ref|observer)_ptr>/
 
@@ -44,7 +44,7 @@ function! syntax#osg()
   highlight link osgSmartPointer Type
 endfunction
 
-function! syntax#sdl()
+function syntax#sdl()
   syn match sdlType /\v\C<SDL_\w*[a-z]+\w*>/
   syn match sdlConstant /\v\C<SDL_[A-Z_]+>/
   
@@ -52,13 +52,13 @@ function! syntax#sdl()
   highlight link sdlConstant Constant
 endfunction
 
-function! syntax#mygui()
+function syntax#mygui()
   syn keyword myguiNamespace MyGUI
 
   highlight link myguiNamespace Constant
 endfunction
 
-function! syntax#openmw()
+function syntax#openmw()
   syn match mwNamespace /\v\C<MW\u+\l+\w*>/
   syn match csNamespace /\v\C<CS\u+\l+\w*>/
   " Cell Container Dialogue Sound are not included
@@ -72,14 +72,14 @@ function! syntax#openmw()
   highlight link csNamespace Constant
 endfunction
 
-function! syntax#cpp()
+function syntax#cpp()
   syn keyword cQues Ques contained
   syn cluster cCommentGroup add=cQues
 
   highlight link cQues Todo
 endfunction
 
-function! syntax#boost_program_options()
+function syntax#boost_program_options()
   syn keyword boostProgramOptionsNamespace program_options
   syn keyword boostProgramOptionsClass variables_map options_description option_description positional_options_description parsed_options
   syn keyword boostProgramOptionsClass validators validation_error
@@ -89,7 +89,7 @@ function! syntax#boost_program_options()
 endfunction
 
 " only a tiny part of class is included
-function! syntax#boost_iostreams()
+function syntax#boost_iostreams()
   syn keyword boostIostreamsNamespace iostreams
   syn keyword boostIostreamsClass sink source
   syn keyword boostIostreamsClass stdio_filter aggregate_filter symmetric_filter finite_state_filter

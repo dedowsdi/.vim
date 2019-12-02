@@ -1,5 +1,5 @@
 " expand history or wild menu
-function! misc#hist#expand(expand_wild) abort
+function misc#hist#expand(expand_wild) abort
 
   let cmdline = getcmdline()
 
@@ -43,7 +43,7 @@ endfunction
 "   modifier:
 " }
 "
-function! s:parse_cmdline(text, type, pos) abort
+function s:parse_cmdline(text, type, pos) abort
   let cs = s:split_command(a:text, a:type, a:pos)
   call s:parse_designator(cs)
   return cs
@@ -51,7 +51,7 @@ endfunction
 
 " setup event, word, modifier for !
 " setup string1, string2, modifier for ^
-function! s:parse_designator(cs) abort
+function s:parse_designator(cs) abort
   let l = matchlist(a:cs.cur, '\v^\^(.*)\^(.*)\^(\:\w+)?$')
   if len(l) >= 4
     " ^string1^string2^:modifier
@@ -66,7 +66,7 @@ function! s:parse_designator(cs) abort
   endif
 endfunction
 
-function! s:expand_wildmenu() abort
+function s:expand_wildmenu() abort
   " 'wildcharm' also works if it's not 0, 't' is not needed for 'wildcharm'
   call feedkeys(nr2char(&wildchar), 'nt')
 endfunction
@@ -82,7 +82,7 @@ endfunction
 " }
 "
 " text = pre....cur|post, cur has no blank
-function! s:split_command(text, type, pos) abort
+function s:split_command(text, type, pos) abort
   let cs = {'text':a:text, 'type':a:type, 'pos':a:pos, 'pre':'', 'cur':'', 'post':''}
 
   let [cs.pre, cs.post] = [a:text[0:a:pos-2], a:text[a:pos-1:]]
@@ -93,7 +93,7 @@ function! s:split_command(text, type, pos) abort
   return cs
 endfunction
 
-function! s:get_reverse_hist(cmdtype) abort
+function s:get_reverse_hist(cmdtype) abort
   " there has not built in method to get history list, don't like explicit loop
   let hist = reverse(split(execute('hist ' . a:cmdtype), "\n"))
   if empty(hist)
@@ -172,7 +172,7 @@ function s:get_word(designator)
   return [ word, rest ]
 endfunction
 
-function! s:split_designator(designator) abort
+function s:split_designator(designator) abort
   if a:designator !~# '\v^\!.*'
     return ['', '', '']
   endif
@@ -188,13 +188,13 @@ function! s:split_designator(designator) abort
 endfunction
 
 " record most recent !?
-function! s:set_last_string_search(s, cmdtype) abort
+function s:set_last_string_search(s, cmdtype) abort
   let s:d = get(s:, 'last_search', {})
   let s:d[a:cmdtype] = a:s
 endfunction
 
 " get most recent !?
-function! s:get_last_string_search(cmdtype) abort
+function s:get_last_string_search(cmdtype) abort
   let s:last_search = get(s:, 'last_search', {})
   return get(s:last_search, a:cmdtype, '')
 endfunction
@@ -211,7 +211,7 @@ function s:create_search_pattern(s) abort
   endif
 endfunction
 
-function! s:expand_event(cs) abort
+function s:expand_event(cs) abort
 
   let n = a:cs.event[1:]
   if n =~# '\v^\d+$' " !n
@@ -241,7 +241,7 @@ function! s:expand_event(cs) abort
   return ''
 endfunction
 
-function! s:get_word_start_end(pattern, num_cmdwords) abort
+function s:get_word_start_end(pattern, num_cmdwords) abort
   if a:pattern =~# '\v^\d+$' " 0, n
     return [a:pattern, a:pattern]
   elseif a:pattern ==# '^' " ^
@@ -265,7 +265,7 @@ function! s:get_word_start_end(pattern, num_cmdwords) abort
   endif
 endfunction
 
-function! s:expand_word(cs, s) abort
+function s:expand_word(cs, s) abort
   if empty(a:s)
     throw 'empty string'
   endif
@@ -286,7 +286,7 @@ function! s:expand_word(cs, s) abort
   return start > end || end >= num_cmdwords ? '' : join(cmd_words[start : end], ' ')
 endfunction
 
-function! s:substitute(s, old, new, flag, per_word)
+function s:substitute(s, old, new, flag, per_word)
   let pattern = s:create_search_pattern(a:old)
   if a:per_word
     let words = split(a:s, '\v\s+')
@@ -297,17 +297,17 @@ function! s:substitute(s, old, new, flag, per_word)
   endif
 endfunction
 
-function! s:set_last_substitute(old, new, cmdtype) abort
+function s:set_last_substitute(old, new, cmdtype) abort
   let s:last_sub = get(s:, 'last_sub', {})
   let s:last_sub[a:cmdtype] = [a:old, a:new]
 endfunction
 
-function! s:get_last_substitute(cmdtype) abort
+function s:get_last_substitute(cmdtype) abort
   let s:last_sub = get(s:, 'last_sub', {})
   return get(s:last_sub, a:cmdtype, ['', ''])
 endfunction
 
-function! s:expand_modifier(cs, s) abort
+function s:expand_modifier(cs, s) abort
   let [old, new] = s:get_last_substitute(a:cs.type)
   let found_G = 0
 
@@ -346,7 +346,7 @@ function! s:expand_modifier(cs, s) abort
   return s
 endfunction
 
-function! s:rebuild_command(cs, expansion)
+function s:rebuild_command(cs, expansion)
   if a:cs.pos <= len(a:cs.text)
     let s = a:expansion ==# '' ? a:cs.cur : a:expansion
     call setcmdpos(len(a:cs.pre) + len(s) + 1)
@@ -354,11 +354,11 @@ function! s:rebuild_command(cs, expansion)
   return a:cs.pre . a:expansion . a:cs.post
 endfunction
 
-function! s:expand_history(cs) abort
+function s:expand_history(cs) abort
   return a:cs.expansion_type ==# '!' ? s:expand_exclamation(a:cs) : s:expand_hat(a:cs)
 endfunction
 
-function! s:expand_exclamation(cs) abort
+function s:expand_exclamation(cs) abort
   let s = s:expand_event(a:cs)
   call misc#log#debug(printf('expand event to %s', s))
 
@@ -375,7 +375,7 @@ function! s:expand_exclamation(cs) abort
   return s:rebuild_command(a:cs, s)
 endfunction
 
-function! s:expand_hat(cs) abort
+function s:expand_hat(cs) abort
   let s = substitute(a:cs.text,
         \ printf('\V%s', escape(a:cs.string1, '\')), a:cs.string1, '')
 

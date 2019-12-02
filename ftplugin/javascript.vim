@@ -2,9 +2,9 @@
 " nnoremap <c-F12> :call JsOnComment()<CR>
 
 " javascript function comment
-command! -nargs=0 Jsfc call JsFuncComment() 
+com -nargs=0 Jsfc call JsFuncComment() 
 
-function! JsFuncComment()
+function JsFuncComment()
     let str = getline(".")
     let reName = '\vfunction\s*\zs<\w+>|\zs\S+\ze\s\='
     let reArg = '\v\(\zs.*\w+.*\ze\)'
@@ -41,7 +41,7 @@ function! JsFuncComment()
     
 endfunction
 
-function! JsOnComment()
+function JsOnComment()
     let str = getline(".")
     let reMsg = '\von.*[''"]\zs\w+\ze'
     let reArg = '\vfunction\s*\(\zs.*\w+.*\ze\)'
@@ -82,7 +82,7 @@ endfunction
 "cc file ChildClassName SupreClassName
 "mainly for javascript
 "javascript create class for createjs class
-function! Jscc(file, className, superName)
+function Jscc(file, className, superName)
     exec ':new'
     exec ':saveas ' . a:file
     exec ':0r ~/html5/template/CreatejsClass.js'
@@ -90,8 +90,8 @@ function! Jscc(file, className, superName)
     exec ':%s/SuperClass/' . a:superName . '/g'
 endfunction
 
-command! -nargs=+ Jscc :call Jscc(<f-args>)
+com -nargs=+ Jscc :call Jscc(<f-args>)
 
-function! JsCenterSpriteRegXY()
+function JsCenterSpriteRegXY()
     exec 'normal gg/\vwidth\D*<\zs\d+>yt,/\vregX\D*<\zs\d+>ct,=0/(2+0.0)gg/\vheight\D*<\zs\d+>yt,/\vregY\D*<\zs\d+>C=0/(2+0.0)'
 endfunction

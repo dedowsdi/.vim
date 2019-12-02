@@ -2,11 +2,11 @@ let s:pjcfg = fnamemodify('./.vim/project.json', '%:p')
 let s:last_target = 'all'
 let s:debug_term = {}
 
-function! mycpp#get_build_dir() abort
+function mycpp#get_build_dir() abort
   return fnamemodify(g:mycpp_build_dir, ':p')
 endfunction
 
-function! mycpp#get_target(target)
+function mycpp#get_target(target)
   let target_obj = filereadable(s:pjcfg) ?
         \ get(json_decode(join(readfile(s:pjcfg), "\n")), a:target, {}) : {}
   call extend(target_obj, {'name':a:target, 'make_args':'-j 3', 'exe_args':''}, 'keep')
@@ -14,11 +14,11 @@ function! mycpp#get_target(target)
 endfunction
 
 " command complete
-function! mycpp#make_complete(arg_lead, cmd_line, cursor_pos) abort
+function mycpp#make_complete(arg_lead, cmd_line, cursor_pos) abort
   return sort(filter(mycpp#get_make_targets(), 'stridx(v:val, a:arg_lead)==0'))
 endfunction
 
-function! mycpp#make_pp_complete(arg_lead, cmd_line, cursor_pos) abort
+function mycpp#make_pp_complete(arg_lead, cmd_line, cursor_pos) abort
   let l = split(a:cmd_line, '\v\s+', 1)
   if l[0] ==# ''
     call remove(l, 0)
@@ -30,7 +30,7 @@ endfunction
 " jterm, channel for vim8 (close_cb)
 " jterm, jobid, data, event for neovim
 " not working for tmux
-function! s:make_callback(...)
+function s:make_callback(...)
   let jterm = a:1
   if jterm.exit_code == 0 || !has_key(jterm, 'bufnr')
     call setqflist([])
@@ -40,7 +40,7 @@ function! s:make_callback(...)
   exe 'cgetbuffer' s:job_term.bufnr
 endfunction
 
-function! mycpp#make_pp(target, tu) abort
+function mycpp#make_pp(target, tu) abort
   call mycpp#exe('cd %m && make ' . a:tu, 1, a:target)
 endfunction
 
@@ -54,7 +54,7 @@ endfunction
 "   %m : deepest make dir
 "   %t : target
 "   %% : literal %
-function! mycpp#exe(cmd, term, args, ...) abort
+function mycpp#exe(cmd, term, args, ...) abort
   let exe_arg_idx = get(a:000, 0, 1)
   let [target, exe_args, cmd_args] = mycpp#parse_command(a:args, exe_arg_idx)
   let target_path = mycpp#get_target_path(target)
@@ -98,22 +98,22 @@ function! mycpp#exe(cmd, term, args, ...) abort
 
 endfunction
 
-function! mycpp#get_default_target() abort
+function mycpp#get_default_target() abort
   return s:last_target ==# '' ? mycpp#get_make_targets()[0] : s:last_target
 endfunction
 
 " generate make targets from Makefile
-function! mycpp#get_make_targets(...) abort
+function mycpp#get_make_targets(...) abort
   let dir = get(a:000, 0, mycpp#get_build_dir())
   let cmd = 'cd ' . dir . ' &&  make help | grep -Po "\.\.\. \K.+"'
   return systemlist(cmd)
 endfunction
 
-function! s:is_target(target) abort
+function s:is_target(target) abort
   return index(mycpp#get_make_targets(), a:target) != -1
 endfunction
 
-function! mycpp#get_target_path(target) abort
+function mycpp#get_target_path(target) abort
   let blank_res = { "make_path" : mycpp#get_build_dir(), "exe_path" : '' }
   if a:target =~# '\v^all>'
     return blank_res
@@ -159,7 +159,7 @@ function! mycpp#get_target_path(target) abort
 endfunction
 
 " {cmd [,insert]}
-function! mycpp#sendjob(cmd, ...) abort
+function mycpp#sendjob(cmd, ...) abort
   if exists('s:job_term')
     call s:job_term.close()
     unlet s:job_term
@@ -171,11 +171,11 @@ function! mycpp#sendjob(cmd, ...) abort
   let s:job_term = misc#term#jtermopen(opts)
 endfunction
 
-function! mycpp#run(args) abort
+function mycpp#run(args) abort
   call mycpp#exe('cd %b && ./%e', 1, a:args)
 endfunction
 
-function! mycpp#debug(args) abort
+function mycpp#debug(args) abort
   set nofoldenable
   let [target, exe_args, cmd_args] = mycpp#parse_command(a:args, 0)
   let path = mycpp#get_target_path(target)
@@ -188,7 +188,7 @@ function! mycpp#debug(args) abort
 endfunction
 
 " return [target, exe_args, cmd_args]
-function! mycpp#parse_command(cmd, exe_arg_idx) abort
+function mycpp#parse_command(cmd, exe_arg_idx) abort
   if a:cmd ==# ''
     let target = mycpp#get_default_target()
     let exe_args = ''
@@ -221,17 +221,17 @@ function! mycpp#parse_command(cmd, exe_arg_idx) abort
   return [target, exe_args, cmd_args]
 endfunction
 
-function! mycpp#set_last_target(target)
+function mycpp#set_last_target(target)
   let s:last_target = a:target
 endfunction
 
-function! mycpp#get_cmake_cache(name) abort
+function mycpp#get_cmake_cache(name) abort
   let cache_str = system('cd ' . mycpp#get_build_dir() . ' && cmake -LA -N ')
   let rex_value = '\v' . a:name . ':\w+\=\zs.{-}\ze\n'
   return matchstr(cache_str, rex_value)
 endfunction
 
-function! mycpp#cmake()
+function mycpp#cmake()
   let path = findfile('cmake.sh', '**')
   if empty(path)
     return
@@ -239,7 +239,7 @@ function! mycpp#cmake()
   call mycpp#sendjob('./' . path)
 endfunction
 
-function! mycpp#openProjectFile() abort
+function mycpp#openProjectFile() abort
   silent! exec 'edit ' . s:pjcfg
   if s:last_target !=# ''
     call search(printf('\v^\s*"<%s>"\s*:', s:last_target))
@@ -247,7 +247,7 @@ function! mycpp#openProjectFile() abort
 endfunction
 
 " opts : {"jump":bool}
-function! mycpp#gotoLastInclude(...) abort
+function mycpp#gotoLastInclude(...) abort
   "keepjumps normal! G
   let opts = get(a:000, 0, {'jump':0})
   let jump_flag = opts.jump ? 's' : ''
@@ -262,7 +262,7 @@ function! mycpp#gotoLastInclude(...) abort
   return 1
 endfunction
 
-function! mycpp#createTempTest()
+function mycpp#createTempTest()
   if !executable('cpptt')
     echoe 'cpptt not found'
     return
@@ -277,7 +277,7 @@ function mycpp#debugToggleBreak()
   endif
 endfunction
 
-function! mycpp#include_osg() abort
+function mycpp#include_osg() abort
   let class_name = matchstr(getline('.'),
         \ printf('\v%%<%dc<osg\w*::\w+>%%>%dc', col('.') + 1, col('.')) )
 

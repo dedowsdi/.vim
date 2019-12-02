@@ -1,6 +1,6 @@
 let s:data = []
 
-function! misc#dc#start_copy(reset)
+function misc#dc#start_copy(reset)
   if a:reset | let s:data = [] | endif
   augroup DATA_COPY_PASTE
     au!
@@ -9,7 +9,7 @@ function! misc#dc#start_copy(reset)
   echohl Title | echo 'start recording yank delete' | echohl None
 endfunction
 
-function! misc#dc#stop_copy()
+function misc#dc#stop_copy()
   augroup DATA_COPY_PASTE
     au!
     autocmd TextYankPost * call s:copy()
@@ -17,22 +17,22 @@ function! misc#dc#stop_copy()
   echohl Title | echo 'stop recording' | echohl None
 endfunction
 
-function! misc#dc#paste()
+function misc#dc#paste()
   call misc#dc#stop_copy()
   call s:paste()
 endfunction
 
-function! misc#dc#get_texts()
+function misc#dc#get_texts()
   return map(deepcopy(s:data), {i,v -> v.text})
 endfunction
 
-function! s:copy()
+function s:copy()
   let entry = {'text':@", 'mode':getregtype('"')}
   " if s:data[-1] != entry
   call add(s:data, entry)
 endfunction
 
-function! s:paste()
+function s:paste()
   if s:data == [] | return | endif
 
   let prompt = ''
@@ -62,7 +62,7 @@ endfunction
 " a-         : a until last
 " -b         : 1 until b
 " currently not used
-function! s:get_selection(str)
+function s:get_selection(str)
   if empty(a:str)
     return range(len(s:data))
   endif
@@ -81,7 +81,7 @@ function! s:get_selection(str)
   call filter(indices, 'v:val < len(s:data)') | return indices
 endfunction
 
-function! s:print(indices, cmd, do_tail)
+function s:print(indices, cmd, do_tail)
   let [reg_text, reg_type, i] = [@", getregtype('"'), 0]
   for index in a:indices
     let [entry, cpos, i] = [s:data[index], getcurpos(), i+1]

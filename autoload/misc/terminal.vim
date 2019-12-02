@@ -1,4 +1,4 @@
-function! misc#terminal#setup()
+function misc#terminal#setup()
 
   if has('gui_running') || &termguicolors
     " 16 ansi colors (gruvbox) for gvim or if 'termguicolors' is on
@@ -65,7 +65,7 @@ function! misc#terminal#setup()
 
 endfunction
 
-function! s:setup_rxvt()
+function s:setup_rxvt()
 
   call s:create_keymap('<c-f1>',  '<f25>', '[11^')
   call s:create_keymap('<c-f2>',  '<f26>', '[12^')
@@ -103,7 +103,7 @@ function! s:setup_rxvt()
 
 endfunction
 
-function! s:setup_screen()
+function s:setup_screen()
 
   call s:create_keymap('<c-f1>',  '<f25>', '[1;5P')
   call s:create_keymap('<c-f2>',  '<f26>', '[1;5Q')
@@ -139,7 +139,7 @@ function! s:setup_screen()
 
 endfunction
 
-function! s:setup_xterm()
+function s:setup_xterm()
 
   call s:create_keymap('<c-f1>',  '<f25>', '[1;5P')
   call s:create_keymap('<c-f2>',  '<f26>', '[1;5Q')
@@ -153,12 +153,12 @@ function! s:setup_xterm()
 
 endfunction
 
-function! s:create_keymap(keycode, vehicle, seq)
+function s:create_keymap(keycode, vehicle, seq)
   exec printf('set %s=%s', a:vehicle, a:seq)
   exec printf('map %s %s', a:vehicle, a:keycode)
 endfunction
 
-function! misc#terminal#test()
+function misc#terminal#test()
   for i in range(1, 12)
     exec printf('map <buffer> <f%d> :echo "f%d"<cr>', i, i)
     exec printf('map <buffer> <c-f%d> :echo "c-f%d"<cr>', i, i)

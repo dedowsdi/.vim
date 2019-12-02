@@ -7,9 +7,9 @@ iab M/ \frac{}{}<LEFT><LEFT><LEFT>
 iab Ms \sqrt{}<LEFT>
 iab Md \frac{\text{d}}{\text{d}x}
 
-command! MdAddBackSlash  :%s/\v\\@<!<(
+com MdAddBackSlash  :%s/\v\\@<!<(
       \sin|cos|tan|cot|arccos|arcsin|arctan|sinh|cosh|tanh|cosh|frac|sqrt|log
       \|pm
       \)>/\\\0/g
 nnoremap \$ :normal! ^i$<Esc>A$<Esc>
-command! MdAddLineBreak :global /\v^[^#]/ :s/\v\s*$/  
+com MdAddLineBreak :global /\v^[^#]/ :s/\v\s*$/  

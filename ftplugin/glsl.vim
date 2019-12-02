@@ -21,7 +21,7 @@ let s:glsl_stages = {
             \   }
 
 
-function! s:getStage()
+function s:getStage()
     let filename = expand('%:t')
     for [stage, extensions] in items(s:glsl_stages)
         for extension in extensions

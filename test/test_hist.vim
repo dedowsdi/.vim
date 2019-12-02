@@ -1,9 +1,9 @@
-function! s:build_script_function_alis(name)
+function s:build_script_function_alis(name)
   echom 'build alias : s:' . a:name
   return function(printf('<SNR>%d_%s', s:sid, a:name))
 endfunction
 
-function! s:test_parse_cmdline()
+function s:test_parse_cmdline()
   echom 'test parse cmdline'
   "              0.text,         1.pos, 2.type, 3.pre,   4.cur,       5.post,     6.etype, 7.event/s0, 8.word/s1, 9.modifier
   let data = [ [ 'echo "hello"', 5,     ':',    '',      'echo',      ' "hello"', '',      '',         '',        ''        ],
@@ -45,7 +45,7 @@ function! s:test_parse_cmdline()
   endfor
 endfunction
 
-function! s:test_split_designator()
+function s:test_split_designator()
   echom 'test split designator'
   let data = [
         "\ event only
@@ -106,7 +106,7 @@ function! s:test_split_designator()
 
 endfunction
 
-function! s:test_expand_history() abort
+function s:test_expand_history() abort
   echom 'test expand'
   let cmd1 = 'test_hist 1 2 3 4 5 6 7 8 9'
   let cmd2 = 'echo /a/bb/bb/c/c/d.ext'

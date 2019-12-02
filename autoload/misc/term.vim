@@ -17,11 +17,11 @@ let s:jterms=[]
 " unique global term
 let s:gterm = {}
 
-function! misc#term#new()
+function misc#term#new()
   return deepcopy(s:term)
 endfunction
 
-function! s:term.toggle() abort
+function s:term.toggle() abort
   if self.is_open()
     call self.hide()
   else
@@ -29,12 +29,12 @@ function! s:term.toggle() abort
   endif
 endfunction
 
-function! s:term.done() abort
+function s:term.done() abort
   return self.job_finished
 endfunction
 
 " opts: { cmd:, cmdopts:, switch: }
-function! misc#term#jtermopen(opts) abort
+function misc#term#jtermopen(opts) abort
 
   if empty(get(a:opts, 'cmd', ''))
     throw 'missing cmd for job term'
@@ -54,7 +54,7 @@ function! misc#term#jtermopen(opts) abort
   return jterm
 endfunction
 
-function! misc#term#close_finished() abort
+function misc#term#close_finished() abort
   for jt in s:jterms
     if jt.done()
       call jt.close()
@@ -62,13 +62,13 @@ function! misc#term#close_finished() abort
   endfor
 endfunction
 
-function! misc#term#close_all() abort
+function misc#term#close_all() abort
   for jt in s:jterms
     call jt.close()
   endfor
 endfunction
 
-function! s:spawn(opts) abort
+function s:spawn(opts) abort
 
   call extend(a:opts, {'layout': s:gterm_layout}, 'keep')
 
@@ -82,7 +82,7 @@ function! s:spawn(opts) abort
 
 endfunction
 
-function! misc#term#toggle_gterm() abort
+function misc#term#toggle_gterm() abort
   if s:gterm == {} || !s:gterm.exists()
     let s:gterm = s:spawn({})
   else

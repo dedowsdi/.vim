@@ -6,7 +6,7 @@
 " search starts at current cursor.
 "
 " opts : {exclude_space:1, delim:',', guard:'()', 'jump_pairs':[(),[],{},<>}
-function! misc#to#get_args(opts) abort
+function misc#to#get_args(opts) abort
 
   let cur_pos = getpos('.') | try
 
@@ -79,7 +79,7 @@ function! misc#to#get_args(opts) abort
 endfunction
 
 " visual select cur arg, by default space included
-function! misc#to#sel_cur_arg(opts) abort
+function misc#to#sel_cur_arg(opts) abort
   call extend(a:opts, {'exclude_space':0}, 'keep')
   let ranges = misc#to#get_args(a:opts)
 
@@ -98,7 +98,7 @@ endfunction
 " opts{direction:'h or l' , delim: default to ","
 " jump_pairs: default to ["()","[]","{}","<>"], guard : default to "()",
 " cursor_action : 'arg_first_char'(default), 'arg_last_char', 'static' }
-function! misc#to#bubble_arg(opts) abort
+function misc#to#bubble_arg(opts) abort
 
   let args = misc#to#get_args(a:opts)
   if args == [] | call misc#warn('illigal range')| return | endif
@@ -138,7 +138,7 @@ function! misc#to#bubble_arg(opts) abort
 endfunction
 
 "\w and \d only
-function! misc#to#sel_letter() abort
+function misc#to#sel_letter() abort
   let pattern = '\v[a-zA-Z]+'
   if misc#get_cc() !~# pattern | return -1 | endif
   call search(pattern, 'bc')
@@ -147,7 +147,7 @@ function! misc#to#sel_letter() abort
   return 1
 endfunction
 
-function! misc#to#column() abort
+function misc#to#column() abort
   exec "norm! \<c-v>"
   if misc#get_cc() !~# '\s'
     call misc#mo#vertical_motion('E')
@@ -163,7 +163,7 @@ endfunction
 " select lines if current line is between patterns, otherwise do nothing
 " style : 0 : use ai to include or exclude pattern line
 " style : 1 : use ai to include or exclude space
-function! misc#to#sel_lines(pattern0, pattern1, ai, style)
+function misc#to#sel_lines(pattern0, pattern1, ai, style)
   let cpos = getcurpos()
 
   try
@@ -221,7 +221,7 @@ function! misc#to#sel_lines(pattern0, pattern1, ai, style)
   exec endline
 endfunction
 
-function! misc#to#sel_expr() abort
+function misc#to#sel_expr() abort
   if misc#get_cc() !~? '\w'
     return
   endif

@@ -163,14 +163,13 @@ nmap <s-f12> <Plug>(coc-implementation)
 nnoremap <c-s> :call CocActionAsync('showSignatureHelp')<cr>
 inoremap <c-s> <c-r>=CocActionAsync('showSignatureHelp')<cr>
 
-command CocDiagnosticInfo exec "norm \<plug>(coc-diagnostic-info)"
-command CocReference exec "norm \<plug>(coc-references)"
-command CocHover call CocActionAsync('doHover')
-command CocCodeAction call CocActionAsync('codeAction')
+com CocDiagnosticInfo exec "norm \<plug>(coc-diagnostic-info)"
+com CocReference exec "norm \<plug>(coc-references)"
+com CocHover call CocActionAsync('doHover')
+com CocCodeAction call CocActionAsync('codeAction')
 
 " fugitive {{{2
-command! -nargs=* Glg Git! lg --color=never <args>
-command! -nargs=* Glg Git! log --graph --pretty=format:'%h - <%an> (%ad)%d %s' --abbrev-commit --date=local <args>
+com -nargs=* Glg Git! log --graph --pretty=format:'%h - <%an> (%ad)%d %s' --abbrev-commit --date=local <args>
 
 " lightline {{{2
 let g:lightline = {
@@ -199,7 +198,7 @@ endif
 
 " fzf {{{2
 set rtp+=~/.fzf
-function! s:build_quickfix_list(lines)
+function s:build_quickfix_list(lines)
   call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
   copen | cc
 endfunction
@@ -215,14 +214,14 @@ let g:fzf_action = {
 let g:fzf_layout = {'up':'~40%'}
 
 " change FZF_DEFAULT_COMMAND, execute cmd, restore FZF_DEFALUT_COMMAND
-function! s:fzf(fzf_default_cmd, cmd)
+function s:fzf(fzf_default_cmd, cmd)
   let oldcmds = $FZF_DEFAULT_COMMAND | try
     let $FZF_DEFAULT_COMMAND = a:fzf_default_cmd
     execute a:cmd
   finally | let $FZF_DEFAULT_COMMAND = oldcmds | endtry
 endfunction
 
-function! s:comp_dir()
+function s:comp_dir()
   let location = matchstr( getline('.'), printf('\v\S+%%%dc', col('.')) )
   if location ==# ''
     let location = '.'
@@ -239,8 +238,8 @@ inoremap <expr> <a-x><a-d> <sid>comp_dir()
 
 " vimtex {{{2
 let g:tex_flavor = 'latex'
-:command! -complete=file -nargs=1 Rpdf :r !pdftotext -nopgbrk -layout <q-args> -
-:command! -complete=file -nargs=1 Rpdffmt :r !pdftotext
+com -complete=file -nargs=1 Rpdf :r !pdftotext -nopgbrk -layout <q-args> -
+com -complete=file -nargs=1 Rpdffmt :r !pdftotext
             \ -nopgbrk -layout <q-args> - |fmt -csw78
 
 " vim-json {{{2
@@ -383,7 +382,7 @@ augroup end
                               " all kinds of maps {{{1
 
 " text object {{{2
-function! s:omap(to)
+function s:omap(to)
   return printf(":normal v%s\"%s\<cr>", a:to, v:register)
 endfunction
 
@@ -403,18 +402,18 @@ onoremap <expr> ic <sid>omap('ic')
 " motion and operator {{{2
 
 " circumvent count, register changes
-function! s:setup_opfunc(func)
+function s:setup_opfunc(func)
   let &opfunc = a:func
   return 'g@'
 endfunction
 
-function! s:add_op(key, func)
+function s:add_op(key, func)
   exe printf('nnoremap <expr> %s <sid>setup_opfunc("%s")', a:key, a:func)
   exe printf('vnoremap %s :<c-u>call %s(visualmode(), 1)<cr>', a:key, a:func)
 endfunction
 
 " motion and operator
-function! s:add_mo(keys, func)
+function s:add_mo(keys, func)
     exec printf('nnoremap %s :call %s<cr>', a:keys, a:func)
     exec printf('vnoremap %s :<c-u>exec "norm! gv" <bar> call %s<cr>', a:keys, a:func)
     exec printf('onoremap <expr> %s printf(":normal %%s%s<cr>",
@@ -504,22 +503,22 @@ imap <a-h> <Left>
                                   " command {{{1
 
 com Scratch new | setlocal buftype=nofile bufhidden=hide noswapfile nobuflisted
-command! HiTest source $VIMRUNTIME/syntax/hitest.vim
-command! TrimTrailingWhitespace :keepp %s/\v\s+$//g
-command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
+com HiTest source $VIMRUNTIME/syntax/hitest.vim
+com TrimTrailingWhitespace :keepp %s/\v\s+$//g
+com DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
   \ | diffthis | wincmd p | diffthis
-command! SelectLastPaste exec 'normal! `[' . getregtype() . '`]'
-command! ReverseQuickFixList call setqflist(reverse(getqflist()))
-command! SuperWrite :w !sudo tee % > /dev/null
-command! Terminal exe 'terminal' |
+com SelectLastPaste exec 'normal! `[' . getregtype() . '`]'
+com ReverseQuickFixList call setqflist(reverse(getqflist()))
+com SuperWrite :w !sudo tee % > /dev/null
+com Terminal exe 'terminal' |
             \ call term_sendkeys("", printf("cd %s \<cr>",
             \ fnamemodify(bufname(winbufnr(winnr('#'))), ':h') ) )
-command! -bang CfilterCoreHelp Cfilter<bang> '\v/vim/vim\d+/doc/[^/]+\.txt'
-command -nargs=1 DoRevert <args> e!
-command -nargs=1 DoSave <args> up
-command! Synstack echo map( synstack(line('.'), col('.')), 'synIDattr(v:val, "name")' )
-command! SynID echo synIDtrans(synID(line('.'), col('.'), 1))
-command! -nargs=+ SynIDattr echo synIDattr(
+com -bang CfilterCoreHelp Cfilter<bang> '\v/vim/vim\d+/doc/[^/]+\.txt'
+com -nargs=1 DoRevert <args> e!
+com -nargs=1 DoSave <args> up
+com Synstack echo map( synstack(line('.'), col('.')), 'synIDattr(v:val, "name")' )
+com SynID echo synIDtrans(synID(line('.'), col('.'), 1))
+com -nargs=+ SynIDattr echo synIDattr(
             \ synIDtrans(synID(line('.'), col('.'), 1)), <f-args>)
 com EditVimrc e `echo $MYVIMRC`
 
@@ -546,29 +545,29 @@ function s:expand_filepath(...)
 endfunction
 
 " Expand [x=+] [mods=%:p], " is always set
-command -nargs=* Expand call s:expand_filepath(<f-args>)
+com -nargs=* Expand call s:expand_filepath(<f-args>)
 
 " Browse {{{2
 function s:browse(...)
   let path = expand(get(a:000, 0, '%:p'))
   call system(printf('google-chrome %s&', path))
 endfunction
-command -nargs=? Browse call s:browse(<f-args>)
+com -nargs=? Browse call s:browse(<f-args>)
 
 " Less {{{2
-function! s:less(cmd)
+function s:less(cmd)
   new
   setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
   f [one-off]
   exec printf("put! =execute('%s')", a:cmd)
 endfunction
 
-command! -nargs=+ -complete=command Less call <sid>less(<q-args>)
+com -nargs=+ -complete=command Less call <sid>less(<q-args>)
 
 " Tapi_cd {{{2
 " arglist : [ cwd ]
 " change window local working directory
-function! Tapi_lcd(bufnum, arglist)
+function Tapi_lcd(bufnum, arglist)
   let winid = bufwinid(a:bufnum)
   let cwd = get(a:arglist, 0, '')
   if winid == -1 || empty(cwd)
@@ -593,7 +592,7 @@ endfunction
 com Folds call s:folds()
 
 " Ctags {{{2
-function! s:fzf_cpp_tags(...)
+function s:fzf_cpp_tags(...)
   let query = get(a:000, 0, '')
   " there exists an extra field which i don't know how to control in
   " fzf#vim#tags, that's why it use 1,4..-2
@@ -604,18 +603,18 @@ function! s:fzf_cpp_tags(...)
         \ extend(copy(g:fzf_layout), tags_options))
 endfunction
 
-command! -nargs=* Ctags :call <SID>fzf_cpp_tags(<q-args>)
+com -nargs=* Ctags :call <SID>fzf_cpp_tags(<q-args>)
 
 " FF {{{2
 " copy into @@, ignore leading index
-function! s:ff_sink(item)
+function s:ff_sink(item)
   let text = substitute(a:item, '\v^\>?\s*\d+\:?\s*', '', '')
   let @@ = empty(text) ? a:item : text
 endfunction
 
 " there are garbage new line in mes, don't know how to reproduce it. Filter
 " blank lines as temporary solution.
-command! -nargs=+ -bang -complete=command FF call fzf#run(fzf#wrap({
+com -nargs=+ -bang -complete=command FF call fzf#run(fzf#wrap({
             \ 'source' : filter(split(execute(<q-args>), "\n"), {i,v->!empty(v)}),
             \ 'sink': function('s:ff_sink'),
             \ 'options' : <bang>0 ? '--tac' : '',
@@ -625,7 +624,7 @@ command! -nargs=+ -bang -complete=command FF call fzf#run(fzf#wrap({
 " ExternalFiles {{{2
 let g:external_files = get(g:, 'external_files', [])
 
-function! s:fzf_external_files()
+function s:fzf_external_files()
   if empty(g:external_files)
     return
   endif

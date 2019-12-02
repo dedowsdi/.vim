@@ -3,7 +3,7 @@ if exists('b:loaded_quicifix_cfg')
 endif
 let b:loaded_quicifix_cfg = 1
 
-function! s:rm_qf_item(visual)
+function s:rm_qf_item(visual)
   let r = a:visual ? [getpos("'<")[1], getpos("'>")[1]] : [line('.'), line('.')]
   let l = getqflist() | call remove(l, r[0]-1, r[1]-1)
               \ | call setqflist(l) | call cursor(r[0], 1)

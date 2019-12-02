@@ -8,10 +8,10 @@ iab Md \frac{\text{d}}{\text{d}x}
 iab Mi \int\_{a}^{b} f(x) \text{d}x
 iab Ms \sum\_{i=0}^n
 
-command! MdAddBackSlash  :%s/\v\\@<!<(
+com MdAddBackSlash  :%s/\v\\@<!<(
       \sin|cos|tan|cot|arccos|arcsin|arctan|sinh|cosh|tanh|cosh|frac|sqrt|log
       \|pm
       \)>/\\\0/g
 nnoremap \$ :normal! ^i$<Esc>A$<Esc>
 
-command! MdAddLineBreak :global /\v^[^#]/ :s/\v\s*$/  
+com MdAddLineBreak :global /\v^[^#]/ :s/\v\s*$/  

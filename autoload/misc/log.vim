@@ -7,7 +7,7 @@ let g:NOTIFY_INFO = 4
 let g:NOTIFY_DEBUG = 5
 let g:NOTIFY_TRIVIAL = 6
 
-function! s:notify(msg, ...) abort
+function s:notify(msg, ...) abort
   let lvl = get(a:000, 0, g:NOTIFY_NOTICE)
   if lvl > g:notify_severity | return | endif
   if lvl == g:NOTIFY_FATEL
@@ -17,7 +17,7 @@ function! s:notify(msg, ...) abort
   endif
 endfunction
 
-function! misc#log#set_notify_severity(v)
+function misc#log#set_notify_severity(v)
   let severity = min([a:v, g:NOTIFY_TRIVIAL])
   let severity = max([a:v, 0])
   let g:notify_severity = severity
@@ -33,24 +33,24 @@ function! misc#log#set_notify_severity(v)
   call misc#log#notice('set g:notify_severity to ' . names[g:notify_severity] )
 endfunction
 
-function! misc#log#always(msg) abort
+function misc#log#always(msg) abort
   call s:notify(a:msg, g:NOTIFY_ALWAYS)
 endfunction
-function! misc#log#fatel(msg) abort
+function misc#log#fatel(msg) abort
   call s:notify(a:msg, g:NOTIFY_FATEL)
 endfunction
-function! misc#log#warn(msg) abort
+function misc#log#warn(msg) abort
   call s:notify(a:msg, g:NOTIFY_WARN)
 endfunction
-function! misc#log#notice(msg) abort
+function misc#log#notice(msg) abort
   call s:notify(a:msg, g:NOTIFY_NOTICE)
 endfunction
-function! misc#log#info(msg) abort
+function misc#log#info(msg) abort
   call s:notify(a:msg, g:NOTIFY_INFO)
 endfunction
-function! misc#log#debug(msg) abort
+function misc#log#debug(msg) abort
   call s:notify(a:msg, g:NOTIFY_DEBUG)
 endfunction
-function! misc#log#trivial(msg) abort
+function misc#log#trivial(msg) abort
   call s:notify(a:msg, g:NOTIFY_TRIVIAL)
 endfunction

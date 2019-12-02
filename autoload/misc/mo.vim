@@ -1,5 +1,5 @@
 " vertical E,W,B,S(space). it's too much trouble to implement e,w,b.
-function! misc#mo#vertical_motion(motion)
+function misc#mo#vertical_motion(motion)
 
   " changed from https://vi.stackexchange.com/questions/15151/move-to-the-first-last-non-whitespace-character-of-the-column-vertical-w-b-e
   let curcol = virtcol('.')
@@ -41,7 +41,7 @@ function! misc#mo#vertical_motion(motion)
 endfunction
 
 " TODO add setting for different filetype?
-function! s:search_expression() abort
+function s:search_expression() abort
   if search('\v%#.\_s*[([{<]', 'ce')
     norm! %
     call s:search_expression()
@@ -52,7 +52,7 @@ function! s:search_expression() abort
   endif
 endfunction
 
-function! misc#mo#expr() abort
+function misc#mo#expr() abort
   if misc#get_cc() !~? '\v\w'
     return
   endif

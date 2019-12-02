@@ -1,12 +1,12 @@
 let s:maps = {}
 
-function! misc#ui#load_maps(maps)
+function misc#ui#load_maps(maps)
   for item in a:maps
     call misc#ui#bind_key(item[0], item[1], item[2], item[3], item[4])
   endfor
 endfunction
 
-function! misc#ui#bind_key(key, mode, no, filetypes, map) abort
+function misc#ui#bind_key(key, mode, no, filetypes, map) abort
   if a:map ==# '' | return | endif
 
   let has_nvim = has('nvim')
@@ -26,7 +26,7 @@ function! misc#ui#bind_key(key, mode, no, filetypes, map) abort
   endfor
 endfunction
 
-function! misc#ui#load_filetype_map(ft) abort
+function misc#ui#load_filetype_map(ft) abort
   if !has_key(s:maps, a:ft) | return | endif
 
   let maps = s:maps[a:ft]
@@ -40,7 +40,7 @@ function! misc#ui#load_filetype_map(ft) abort
   endfor
 endfunction
 
-function! misc#ui#load_auto_map(ft) abort
+function misc#ui#load_auto_map(ft) abort
   if !has_key(s:maps, a:ft) | return | endif
 
   let maps = s:maps[a:ft]
@@ -57,7 +57,7 @@ function! misc#ui#load_auto_map(ft) abort
   augroup END
 endfunction
 
-function! misc#ui#load_proj_setting(proj_type)
+function misc#ui#load_proj_setting(proj_type)
   let proj_map = get(g:projMaps, a:proj_type, [])
   if proj_map == [] | return | endif
   "call misc#switch_rtp('./.vim')

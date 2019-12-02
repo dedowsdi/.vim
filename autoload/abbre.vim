@@ -1,7 +1,7 @@
-function! abbre#glsl()
+function abbre#glsl()
 endfunction
 
-function! abbre#cpp()
+function abbre#cpp()
 
   "boost  abbreviation
 
@@ -31,7 +31,7 @@ function! abbre#cpp()
   " :iab <buffer> ul64 uint_least64_t
 endfunction
 
-function! abbre#opengl()
+function abbre#opengl()
 
   " auto generated from ctag
   :iab <buffer> gl2b GL_2_BYTES
@@ -1673,7 +1673,7 @@ function! abbre#opengl()
 
 endfunction
 
-function! abbre#mygui()
+function abbre#mygui()
   :iab <buffer> M MyGUI
 
   "mygui widget
@@ -1741,7 +1741,7 @@ function! abbre#mygui()
   :iab <buffer> Msgwm MyGUI::WidgetManager::getSingleton()
 endfunction
 
-function! abbre#osg()
+function abbre#osg()
   :iab <buffer> oaf osg::AlphaFunc
   :iab <buffer> oap osg::AnimationPath
   :iab <buffer> oapc osg::AnimationPathCallback
@@ -2866,7 +2866,7 @@ function! abbre#osg()
   :iab <buffer> oma osg::Material
 endfunction
 
-function! abbre#ogre()
+function abbre#ogre()
   "ogre related
   :iab <buffer> O Ogre
 
@@ -3033,11 +3033,11 @@ function! abbre#ogre()
   :iab <buffer> Oents Ogre::Node::TransformSpace
 endfunction
 
-function! abbre#qt()
+function abbre#qt()
 endfunction
 
 " a little helper to comment duplicated abbrevation
-function! abbre#clearDuplicatedAbbrevation() abort
+function abbre#clearDuplicatedAbbrevation() abort
   while 1
     normal! j
     if line('.') == line('$')
