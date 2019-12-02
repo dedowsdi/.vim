@@ -499,7 +499,7 @@ imap <a-h> <Left>
 
                                   " command {{{1
 
-com Scratch new | setlocal buftype=nofile bufhidden=hide noswapfile
+com Scratch new | setlocal buftype=nofile bufhidden=hide noswapfile nobuflisted
 command! HiTest source $VIMRUNTIME/syntax/hitest.vim
 command! TrimTrailingWhitespace :keepp %s/\v\s+$//g
 command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
