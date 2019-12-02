@@ -513,8 +513,6 @@ command! Terminal exe 'terminal' |
 command! -bang CfilterCoreHelp Cfilter<bang> '\v/vim/vim\d+/doc/[^/]+\.txt'
 command -nargs=1 DoRevert <args> e!
 command -nargs=1 DoSave <args> up
-command WriteUndo setlocal undofile | w | setlocal noundofile
-command ReadUndo setlocal undofile | e | setlocal noundofile
 command! Synstack echo map( synstack(line('.'), col('.')), 'synIDattr(v:val, "name")' )
 command! SynID echo synIDtrans(synID(line('.'), col('.'), 1))
 command! -nargs=+ SynIDattr echo synIDattr(

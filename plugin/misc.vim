@@ -76,10 +76,23 @@ endif
 com! -nargs=0 ToggleCommandHighlight call misc#hlcmd#toggle()
 silent ToggleCommandHighlight
 
-" undotreetag {{{1
-com -nargs=+ -bang UndotreeTag call misc#undotag#add(<bang>0, <f-args>)
-com -nargs=1 -complete=customlist,misc#undotag#complete UndotreeCheckout call misc#undotag#checkout(<f-args>)
-com -nargs=0 UndotreePrevBranchPoint call misc#undo_prev_branch_point()
+" undo {{{1
+com -nargs=+ -bang UndotreeTag call misc#undo#tag(<bang>0, <f-args>)
+com -nargs=1 -complete=customlist,misc#undo#complete_tag UndotreeCheckout call misc#undo#checkout(<f-args>)
+com UndotreeCheckoutBranchPoint call misc#undo#undo_branch_point()
+com UndotreeListTags call misc#undo#list_tags()
+
+if &undofile
+  com UndotreeCheckoutStart call misc#undo#undostart()
+  com U0 UndotreeCheckoutStart
+
+  " install a 0 tag for existing file
+  augroup undotree_tag
+    au!
+    autocmd BufRead * call misc#undo#tag_start()
+  augroup end
+  nnoremap u :call misc#undo#safeundo()<cr>
+endif
 
 " readline {{{hist
 cnoremap <Plug>dedowsdi_hist_expand_hist_wild <c-\>emisc#hist#expand(1)<cr>
