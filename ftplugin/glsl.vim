@@ -46,3 +46,5 @@ onoremap <buffer> af :normal vaf<cr>
 onoremap <buffer> if :normal vif<cr>
 
 nnoremap <buffer> <a-o> :call myglsl#alternate()<cr>
+
+call abbre#glsl()

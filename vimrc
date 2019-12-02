@@ -52,7 +52,7 @@ set nrformats=octal,hex,bin
 let &backup = !has('vms')
 set backupdir=$HOME/.vimbak//
 set directory=$HOME/.vimswap//
-set undodir=$HOME/.vimundo//
+set undofile undodir=$HOME/.vimundo//
 
 " hide buffer when it's abandoned
 set hidden
@@ -360,18 +360,23 @@ endif
 
 augroup zxd_misc
   au!
+
   if v:version > 800
-    autocmd DirChanged * if filereadable('.vim/init.vim') | source .vim/init.vim | endif
+
+    " too dangerious?
+    " autocmd DirChanged * if filereadable('.vim/init.vim') | source .vim/init.vim | endif
     if !has('nvim')
-        autocmd TerminalOpen * setl nonumber norelativenumber
+      autocmd TerminalOpen * setl nonumber norelativenumber
     endif
   endif
 
-  autocmd BufWritePost *.l if &filetype ==# 'lpfg' | call myl#runLpfg() | endif
   autocmd InsertEnter,InsertLeave * set cursorline!
-  autocmd FileType * try | call call('abbre#'.expand('<amatch>'), [])
-              \ | catch /.*/ | endtry
-              \ | setlocal formatoptions-=o formatoptions+=j
+
+  " place cursor to the position when last existing
+  autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+
+  " no auto comment leader after o or O, remove comment leader when join comment lines
+  autocmd FileType * setlocal formatoptions-=o formatoptions+=j
 augroup end
 
 
