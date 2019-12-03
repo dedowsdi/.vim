@@ -78,14 +78,39 @@ endfunction
 " start job
 function s:term.job_start(opts) abort
 
-function
+  function self.exit_cb(job, status) closure
+    let self.job_finished = 1
+    let self.exit_code = a:status
+    if has_key(a:opts, 'exit_cb')
+      call a:opts.exit_cb(self, a:job, a:status)
+    endif
+  endfunction
+
+  function self.close_cb(channel) closure
+    if has_key(a:opts, 'close_cb')
+      call a:opts.close_cb(self, a:channel)
+    endif
+  endfunction
+
+  let opts = {'curwin':1, 'exit_cb':self.exit_cb, 'close_cb':self.close_cb}
+  if has_key(a:opts, 'out_cb')
+    let opts.out_cb = a:opts.out_cb
+  endif
+  if has_key(a:opts, 'callback')
+    let opts.callback = a:opts.callback
+  endif
+  if has_key(a:opts, 'err_cb')
+    let opts.err_cb = a:opts.err_cb
+  endif
+
+  let self.job = term_start(a:opts.cmd, opts)
 endfunction
 
 " start terminal, no job
 function s:term.open_term(opts) abort
   terminal ++curwin
 endfunction
-function
+
 " wnd commands and options
 let s:wcos={
   \ 'top' : { 'split':'to'     , 'resize':'res'     , 'fixed_size':'height', 'size':'lines'},
