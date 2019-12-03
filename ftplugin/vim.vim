@@ -26,3 +26,5 @@ nnoremap <buffer> <f5>       :so %<cr>
 nnoremap <buffer> <f9>       :VimlBreakHere<cr>
 nnoremap <buffer> <leader>df :verbose function{}<left>
 nnoremap <buffer> <leader>ej :VimlJoin<cr>
+
+nnoremap <buffer> <c-n><c-n> :new `mkt -s .vim`<cr>

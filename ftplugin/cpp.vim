@@ -6,3 +6,4 @@ nnoremap <buffer> _] <c-]><esc>T:c2h/<esc>
 nnoremap <buffer> _i :call mycpp#include_osg()<cr>
 
 call abbre#cpp()
+nnoremap <buffer> <c-n><c-n> :Job mktt -t cpp<cr>
