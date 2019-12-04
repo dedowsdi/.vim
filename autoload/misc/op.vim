@@ -155,9 +155,14 @@ endfunction
 " omo short for Occurence Modifier Operator
 function misc#op#omo(operator) abort
   let s:omo_old_mark_a = getpos("'a")
-  " there is no way to get current word position in opfunc, must mark it here
   let cpos = getcurpos()
-  norm! "_yiw
+
+  " goto start of word only if it's \w
+  if misc#get_cc() =~# '\w'
+    norm! "_yiw
+  endif
+
+  " there is no way to get current word position in opfunc, must mark it here
   norm! ma
   call setpos('.', cpos)
   exe 'set opfunc=misc#op#omo_' . a:operator
@@ -181,7 +186,7 @@ function misc#op#omo_co(type, ...) abort
   " go back to starting position, change current word
   norm! `a
 
-  call feedkeys('ciw')
+  call feedkeys( misc#get_cc() =~# '\w' ? 'ciw' : 'cl' )
 
 endfunction
 
@@ -244,12 +249,11 @@ function s:co_insert_leave() abort
         let @/ = printf('\v\C%%V<%s%%V%s>', cword[0:-2], cword[-1:-1])
       endif
     else
-      let w = escape(cword, '\')
-      if cword_len == 1
-        let @/ = printf('\V\%%V%s', w)
-      else
-        let @/ = printf('\V\%%V%s\%%V%s', w[0:-2], w[-1:-1])
+      if len(cword) != 1
+        throw 'unknown state, changing multiple non-word characters'
       endif
+      let w = escape(cword, '\')
+      let @/ = printf('\V\%%V%s', w)
     endif
 
     call misc#log#debug('omo : @/ : ' . @/)
