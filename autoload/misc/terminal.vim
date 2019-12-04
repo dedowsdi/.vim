@@ -80,7 +80,7 @@ function s:setup_rxvt()
   call s:create_keymap('<c-f11>', '<f35>', '[23^')
   call s:create_keymap('<c-f12>', '<f36>', '[24^')
 
-  " rxvt s-f1=f11, s-f2=f12, s-f4 and s-f4 don't work for unknown reason,
+  " rxvt s-f1=f11, s-f2=f12, s-f4 and s-f5 don't work for unknown reason,
   " replace them with xterm code
   set <s-f1>=[1;2P
   set <s-f2>=[1;2Q
@@ -97,6 +97,12 @@ function s:setup_rxvt()
 
   set <c-left>=Od
   set <c-right>=Oc
+  " set <c-up>=Oa
+  " set <c-down>=Ob
+  set <s-left>=[d
+  set <s-right>=[c
+  set <s-up>=[a
+  set <s-down>=[b
 
   call s:create_keymap('<c-pageup>', '<f13>', '[5^')
   call s:create_keymap('<c-pagedown>', '<f14>', '[6^')
@@ -133,6 +139,12 @@ function s:setup_screen()
 
   set <c-left>=[1;5D
   set <c-right>=[1;5C
+  " set <c-up>=[1;5A
+  " set <c-down>=[1;5B
+  set <s-left>=[1;2D
+  set <s-right>=[1;2C
+  set <s-up>=[1;2A
+  set <s-down>=[1;2B
 
   call s:create_keymap('<c-pageup>', '<f13>', '[5;5~')
   call s:create_keymap('<c-pagedown>', '<f14>', '[6;5~')
@@ -159,14 +171,40 @@ function s:create_keymap(keycode, vehicle, seq)
 endfunction
 
 function misc#terminal#test()
-  for i in range(1, 12)
-    exec printf('map <buffer> <f%d> :echo "f%d"<cr>', i, i)
-    exec printf('map <buffer> <c-f%d> :echo "c-f%d"<cr>', i, i)
-    exec printf('map <buffer> <s-f%d> :echo "s-f%d"<cr>', i, i)
-  endfor
-  nnoremap <buffer> <c-left> :echo 'c-left'<cr>
-  nnoremap <buffer> <c-right> :echo 'c-right'<cr>
-  nnoremap <buffer> <c-pageup> :echo 'c-pageup'<cr>
-  nnoremap <buffer> <c-pagedown> :echo 'c-pagedown'<cr>
-endfunction
 
+  new
+
+  for i in range(1, 12)
+    exec printf('map <buffer> <f%d> :echom "f%d"<cr>', i, i)
+    exec printf('map <buffer> <c-f%d> :echom "c-f%d"<cr>', i, i)
+    exec printf('map <buffer> <s-f%d> :echom "s-f%d"<cr>', i, i)
+  endfor
+  nnoremap <buffer> <c-left> :echom 'c-left'<cr>
+  nnoremap <buffer> <c-right> :echom 'c-right'<cr>
+  " nnoremap <buffer> <c-up> :echom 'c-up'<cr>
+  " nnoremap <buffer> <c-down> :echom 'c-down'<cr>
+  nnoremap <buffer> <s-left> :echom 's-left'<cr>
+  nnoremap <buffer> <s-right> :echom 's-right'<cr>
+  nnoremap <buffer> <s-up> :echom 's-up'<cr>
+  nnoremap <buffer> <s-down> :echom 's-down'<cr>
+  nnoremap <buffer> <c-pageup> :echom 'c-pageup'<cr>
+  nnoremap <buffer> <c-pagedown> :echom 'c-pagedown'<cr>
+
+  for i in range(1, 12)
+    call feedkeys( eval( printf( '"\<f%d>"', i ) ) )
+    call feedkeys( eval( printf( '"\<c-f%d>"', i ) ) )
+    call feedkeys( eval( printf( '"\<s-f%d>"', i ) ) )
+  endfor
+
+  call feedkeys( eval( printf( '"\<c-left>"' ) ) )
+  call feedkeys( eval( printf( '"\<c-right>"' ) ) )
+  " call feedkeys( eval( printf( '"\<c-up>"' ) ) )
+  " call feedkeys( eval( printf( '"\<c-down>"' ) ) )
+  call feedkeys( eval( printf( '"\<s-left>"' ) ) )
+  call feedkeys( eval( printf( '"\<s-right>"' ) ) )
+  call feedkeys( eval( printf( '"\<s-up>"' ) ) )
+  call feedkeys( eval( printf( '"\<s-down>"' ) ) )
+  call feedkeys( eval( printf( '"\<c-pageup>"' ) ) )
+  call feedkeys( eval( printf( '"\<c-pagedown>"' ) ) )
+
+endfunction
