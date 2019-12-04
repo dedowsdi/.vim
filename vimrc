@@ -276,8 +276,8 @@ cmap <a-l> <Plug>dedowsdi_readline_lowercase_word
 cmap <a-d> <Plug>dedowsdi_readline_forward_delete
 cmap <a-k> <Plug>dedowsdi_readline_kill
 
-nmap <leader>tt <plug>dedowsdi_term_toggle_gterm
-tmap <leader>tt <plug>dedowsdi_term_toggle_gterm
+nmap <leader>t <plug>dedowsdi_term_toggle_gterm
+tmap <leader>t <plug>dedowsdi_term_toggle_gterm
 
 " install plugins {{{2
 if empty(glob('~/.vim/autoload/plug.vim'))
@@ -467,6 +467,7 @@ nmap ds<space> <plug>dedowsdi_misc_pair_minus_space
 
 nnoremap <c-w><space> :tab split<cr>
 tnoremap <c-w><space> <c-w>:tab split<cr>
+nnoremap <c-w>O :CloseFinishedTerminal<cr>
 
 inoremap <c-x><c-p> <c-r>=misc#complete_expresson(1)<cr>
 inoremap <c-x><c-n> <c-r>=misc#complete_expresson(0)<cr>
