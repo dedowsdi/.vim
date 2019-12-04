@@ -257,7 +257,8 @@ let g:gutentags_define_advanced_commands = 1
 let g:gutentags_ctags_options_file = '.vim/.gutctags'
 
 " .vim {{{2
-let g:clang_format_py_path = '/usr/local/source/llvm8.0.0/share/clang/clang-format.py'
+let g:clang_format_py_path = '/usr/share/clang/clang-format-8/clang-format.py'
+
 let g:clang_format_fallback_style = 'LLVM'
 let g:hist_use_vim_regex_search = 1
 
