@@ -567,8 +567,9 @@ com -nargs=? Browse call s:browse(<f-args>)
 function s:less(cmd)
   new
   setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
-  f [one-off]
-  exec printf("put! =execute('%s')", a:cmd)
+  exe printf("file [one-off] %s", a:cmd)
+  exe printf("put! =execute('%s')", a:cmd)
+  1
 endfunction
 
 com -nargs=+ -complete=command Less call <sid>less(<q-args>)
