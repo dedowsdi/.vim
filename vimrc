@@ -587,19 +587,20 @@ function Tapi_lcd(bufnum, arglist)
 endfunction
 
 " folds {{{2
-function s:folds() abort
-  let lines = map(getline(1, '$'), {i,v -> (i+1) . ' : ' . v})
-  call filter(lines, {i,v -> v =~# '\v.*\{\{\{\d*$'})
-  call fzf#run({'source' : lines, 'sink' : function('s:fold_sink')})
+function FZF_lines(filter) abort
+  let lines = getline(1, '$')
+  let indices = filter( range( len(lines) ), { i,v -> lines[v] =~# a:filter } )
+  let lines = map(indices, { i,v -> v . ' : ' . lines[v] })
+  call fzf#run( fzf#wrap( { 'source' : lines, 'sink' : function('s:fzf_lines_sink'),
+        \ 'options' : '--with-nth 3..' } ) )
 endfunction
 
-function s:fold_sink(item) abort
+function s:fzf_lines_sink(item) abort
   let lnum = matchstr(a:item, '\v^\s*\d+')
   exe lnum
-  norm! zOzz
 endfunction
 
-com Folds call s:folds()
+com Folds call FZF_lines('\v.*\{\{\{\d*$')
 
 " Ctags {{{2
 function s:fzf_cpp_tags(...)
