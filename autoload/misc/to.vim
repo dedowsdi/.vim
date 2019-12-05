@@ -8,8 +8,9 @@
 " opts : {exclude_space:1, delim:',', guard:'()', 'jump_pairs':[(),[],{},<>}
 function misc#to#get_args(opts) abort
 
-  let cur_pos = getpos('.') | try
-
+  try
+    let cur_pos = getpos('.') 
+    let cview = winsaveview()
     let delim = get(a:opts, 'delim', ',')
     let guard = get(a:opts, 'guard', '()')
     let exclude_space = get(a:opts, 'exclude_space', 1)
@@ -75,7 +76,9 @@ function misc#to#get_args(opts) abort
 
     return [arg_index, total_range, arg_ranges]
 
-  finally | call setpos('.', cur_pos) | endtry
+  finally
+    call winrestview(cview)
+  endtry
 endfunction
 
 " visual select cur arg, by default space included
