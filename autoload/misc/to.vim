@@ -1,3 +1,36 @@
+" things to remember when you create text object:
+"
+" omap is always implemented in terms of vmap, the only way to know it's an omap
+" is to use state() ? In order to pass register from omap to vmap, one can use:
+"
+"   :normal <visual_mode><key>"<register><cr>
+"
+" It's a bit weird that "<register> appears after key, get used to it.
+"
+" `norm! V:` reset col to start of line, be very very careful about this, we
+" must avoid that, use
+"    vnoremap key <esc>:...
+" instead of
+"    vnoremap key :<c-u>...
+"
+" visualmode() refer to last visual mode, not current, so `norm! V` won't set
+" visualmode() to `V`, but `norm! V\<esc>` or `norm! VV` will do.
+"
+" In order to pass motion force from omap to vmap, one can use mode(1), it has
+" to be used with <expr>:
+" omap <expr> :s omap(key, mode(1), default_wise)
+"
+" To create a text object function:
+"    visually select textobject
+"    force motion
+
+function s:force_motion(cur_mode) abort
+  let vmode = state() =~# 'o' ? visualmode() : a:cur_mode
+  if vmode !=# a:cur_mode
+    exe 'norm!' vmode
+  endif
+endfunction
+
 " simple text objects
 
 " return [itemIndex, [total range] [item1 range, item 2 range ....]]
@@ -9,7 +42,7 @@
 function misc#to#get_args(opts) abort
 
   try
-    let cur_pos = getpos('.') 
+    let cur_pos = getpos('.')
     let cview = winsaveview()
     let delim = get(a:opts, 'delim', ',')
     let guard = get(a:opts, 'guard', '()')
@@ -83,6 +116,7 @@ endfunction
 
 " visual select cur arg, by default space included
 function misc#to#sel_cur_arg(opts) abort
+  " how to reset cursor from V: ?
   call extend(a:opts, {'exclude_space':0}, 'keep')
   let ranges = misc#to#get_args(a:opts)
 
@@ -96,6 +130,7 @@ function misc#to#sel_cur_arg(opts) abort
 
   let cur_arg_range = ranges[2][arg_index]
   call misc#visual_select(cur_arg_range, 'v')
+  call s:force_motion('v')
 endfunction
 
 " opts{direction:'h or l' , delim: default to ","
@@ -145,8 +180,9 @@ function misc#to#sel_letter() abort
   let pattern = '\v[a-zA-Z]+'
   if misc#get_cc() !~# pattern | return -1 | endif
   call search(pattern, 'bc')
-  normal! v
+  norm! v
   call search(pattern, 'ce')  " \w+ will jump to next word if it's a single letter
+  call s:force_motion('v')
   return 1
 endfunction
 
@@ -161,6 +197,7 @@ function misc#to#column() abort
       norm! k
     endif
   endif
+  call s:force_motion("\<c-v>")
 endfunction
 
 " select lines if current line is between patterns, otherwise do nothing
@@ -230,6 +267,7 @@ function misc#to#sel_expr() abort
   endif
   norm! viw
   call misc#mo#expr()
+  call s:force_motion('v')
 endfunction
 
 " ov : o for omap, v for v map

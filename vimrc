@@ -387,22 +387,37 @@ augroup end
                               " all kinds of maps {{{1
 
 " text object {{{2
-function s:omap(to)
-  return printf(":normal v%s\"%s\<cr>", a:to, v:register)
+
+function s:omap(key, mode, vmode)
+  let vmode = a:mode[2:2]
+  if vmode ==# ''
+    let vmode = a:vmode
+  endif
+  if vmode ==# "\<c-v>"
+    let vmode .= vmode
+  endif
+
+  " force motion, pass register
+  return printf(":normal %s%s\"%s\<cr>", vmode, a:key, v:register)
 endfunction
 
-vnoremap aa :<C-U>silent! call misc#to#sel_cur_arg({})<cr>
-onoremap <expr> aa <sid>omap('aa')
-vnoremap ia :<C-U>silent! call misc#to#sel_cur_arg({'exclude_space':1})<cr>
-onoremap <expr> ia <sid>omap('ia')
-vnoremap ie :<C-U>call misc#to#sel_expr()<cr>
-onoremap <expr> ie <sid>omap('ie')
-vnoremap al :<C-U>silent! call misc#to#sel_letter()<cr>
-onoremap <expr> al <sid>omap('al')
-vnoremap il :<C-U>silent! call misc#to#sel_letter()<cr>
-onoremap <expr> il <sid>omap('il')
-vnoremap ic :<c-u>call misc#to#column()<cr>
-onoremap <expr> ic <sid>omap('ic')
+vnoremap aa <esc>:silent! call misc#to#sel_cur_arg({})<cr>
+onoremap <expr> aa <sid>omap('aa', mode(1), 'v')
+
+vnoremap ia <esc>:silent! call misc#to#sel_cur_arg({'exclude_space':1})<cr>
+onoremap <expr> ia <sid>omap('ia', mode(1), 'v')
+
+vnoremap ie <esc>:call misc#to#sel_expr()<cr>
+onoremap <expr> ie <sid>omap('ie', mode(1), 'v')
+
+vnoremap al <esc>:call misc#to#sel_letter()<cr>
+onoremap <expr> al <sid>omap('al', mode(1), 'v')
+
+vmap il al
+omap il al
+
+vnoremap ic <esc>:call misc#to#column()<cr>
+onoremap <expr> ic <sid>omap('ic', mode(1), "\<c-v>")
 
 " motion and operator {{{2
 
