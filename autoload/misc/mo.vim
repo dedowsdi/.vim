@@ -45,7 +45,7 @@ function s:search_expression() abort
   if search('\v%#.\_s*[([{<]', 'ce')
     norm! %
     call s:search_expression()
-  elseif search('\v%#.\w+', 'ce') || search('\v%#.(\.|\-\>|\:\:)\*?\w*', 'ce')
+  elseif search('\v%#.\k+', 'ce') || search('\v%#.(\.|\-\>|\:\:)\*?\w*', 'ce')
     call s:search_expression()
   else
     return
