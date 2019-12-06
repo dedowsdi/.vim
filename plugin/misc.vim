@@ -19,6 +19,8 @@ call s:add_mo('<plug>dedowsdi_mo_expr', 'misc#mo#expr()')
 
 " to {{{1
 
+" key is executed as
+"   exe "norm {vmode}{key}"
 function s:omap(key, mode, vmode)
   let vmode = a:mode[2:2]
   if vmode ==# ''
@@ -29,23 +31,23 @@ function s:omap(key, mode, vmode)
   endif
 
   " force motion, pass register
-  return printf(":normal %s%s\"%s\<cr>", vmode, a:key, v:register)
+  return printf(':exe "normal %s%s\"%s' . "\<cr>", vmode, a:key, v:register)
 endfunction
 
 vnoremap <plug>dedowsdi_to_aa <esc>:silent! call misc#to#sel_cur_arg({})<cr>
-onoremap <expr> <plug>dedowsdi_to_aa <sid>omap('aa', mode(1), 'v')
+onoremap <expr> <plug>dedowsdi_to_aa <sid>omap('\<plug>dedowsdi_to_aa', mode(1), 'v')
 
 vnoremap <plug>dedowsdi_to_ia <esc>:silent! call misc#to#sel_cur_arg({'exclude_space':1})<cr>
-onoremap <expr> <plug>dedowsdi_to_ia <sid>omap('ia', mode(1), 'v')
+onoremap <expr> <plug>dedowsdi_to_ia <sid>omap('\<plug>dedowsdi_to_ia', mode(1), 'v')
 
 vnoremap <plug>dedowsdi_to_ie <esc>:call misc#to#sel_expr()<cr>
-onoremap <expr> <plug>dedowsdi_to_ie <sid>omap('ie', mode(1), 'v')
+onoremap <expr> <plug>dedowsdi_to_ie <sid>omap('\<plug>dedowsdi_to_ie', mode(1), 'v')
 
-vnoremap <plug>dedowsdi_to_al <esc>:call misc#to#sel_letter()<cr>
-onoremap <expr> <plug>dedowsdi_to_al <sid>omap('al', mode(1), 'v')
+vnoremap <plug>dedowsdi_to_il <esc>:call misc#to#sel_letter()<cr>
+onoremap <expr> <plug>dedowsdi_to_il <sid>omap('\<plug>dedowsdi_to_il', mode(1), 'v')
 
 vnoremap <plug>dedowsdi_to_ic <esc>:call misc#to#column()<cr>
-onoremap <expr> <plug>dedowsdi_to_ic <sid>omap('ic', mode(1), "\<c-v>")
+onoremap <expr> <plug>dedowsdi_to_ic <sid>omap('\<plug>dedowsdi_to_ic', mode(1), "\<c-v>")
 
 " op {{{1
 
@@ -189,6 +191,19 @@ com -nargs=0 DebugvimDisable call misc#debugvim#disable()
 com! AhlRemoveWindowHighlights call misc#ahl#remove_wnd_highlights()
 com! AhlRemoveCursorHighlights call misc#ahl#remove_cursor_highlights()
 call s:add_op('<plug>dedowsdi_ahl_remove_cursor_highlights', 'misc#ahl#op')
+
+" popup {{{1
+if !has('nvim')
+  let [s:psk_down, s:psk_up, s:psk_rotate] = get(g:, 'dedowsdi_popup_scroll_keys', [0, 0, 0])
+  if type(s:psk_down) !=# v:t_number
+    exe printf('nnoremap <expr> %s misc#popup#scroll_cursor_popup(1)
+          \ ? "<esc>" : "%s"', s:psk_down, s:psk_down)
+    exe printf('nnoremap <expr> %s misc#popup#scroll_cursor_popup(0)
+          \ ? "<esc>" : "%s"', s:psk_up, s:psk_up)
+    exe printf('nnoremap <expr> %s misc#popup#rotate_cursor_popup(0)
+          \ ? "<esc>" : "%s"', s:psk_rotate, s:psk_rotate)
+  endif
+endif
 
 " misc {{{1
 

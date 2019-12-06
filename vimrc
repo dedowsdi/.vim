@@ -140,16 +140,12 @@ let g:ale_linters = {
 \   'cpp'  : []
 \}
 
-let g:ale_glsl_glslang_executable = '/usr/local/bin/glslangValidator'
-let g:ale_vim_vint_show_style_issues = 0
-let g:ale_linters_explicit = 1
-
 " ultisnips {{{2
 let g:UltiSnipsExpandTrigger='<tab>'
 let g:UltiSnipsJumpForwardTrigger='<c-j>'
 let g:UltiSnipsJumpBackwardTrigger='<c-k>'
 
-" If you want :UltiSnipsEdit to split your window.
+" split your window for :UltiSnipsEdit
 let g:UltiSnipsEditSplit='vertical'
 
 " coc.nvim {{{2
@@ -199,9 +195,7 @@ endif
 
 " fzf {{{2
 
-" this block doesn't include command created on top of fzf, they are in the end
-" of this file.
-
+" fzf maps, commands {{{3
 nnoremap <c-j> :BTags<cr>
 nnoremap <a-j> :Ctags<cr>
 nnoremap <c-h> :History<cr>
@@ -228,6 +222,7 @@ com -nargs=+ -bang -complete=command FF call fzf#run(fzf#wrap({
             \ 'up':'~40%'
             \ }))
 
+" fzf options {{{3
 set rtp+=~/.fzf
 
 function s:build_quickfix_list(lines)
@@ -262,7 +257,7 @@ endfunction
 function FZF_lines(filter) abort
   let lines = getline(1, '$')
   let indices = filter( range( len(lines) ), { i,v -> lines[v] =~# a:filter } )
-  let lines = map(indices, { i,v -> v . ' : ' . lines[v] })
+  let lines = map(indices, { i,v -> (v+1) . ' : ' . lines[v] })
   call fzf#run( fzf#wrap( { 'source' : lines, 'sink' : function('s:fzf_lines_sink'),
         \ 'options' : '--with-nth 3..' } ) )
 endfunction
@@ -335,28 +330,11 @@ nmap     ,cc <Plug>CommentaryLine
 nmap     ,cu <Plug>Commentary<Plug>Commentary
 
 " .vim {{{2
-cmap <c-a> <Plug>dedowsdi_readline_beginning_of_line
-cmap <a-a> <c-a>
-cmap <a-f> <Plug>dedowsdi_readline_forward_word
-cmap <a-b> <Plug>dedowsdi_readline_backward_word
-" cmap <c-f> <Plug>dedowsdi_readline_forward_char
-" cmap <c-b> <Plug>dedowsdi_readline_backward_char
-cmap <a-u> <Plug>dedowsdi_readline_uppercase_word
-cmap <a-l> <Plug>dedowsdi_readline_lowercase_word
-cmap <a-d> <Plug>dedowsdi_readline_forward_delete
-cmap <a-k> <Plug>dedowsdi_readline_kill
+let g:dedowsdi_clang_format_py_path = '/usr/share/clang/clang-format-8/clang-format.py'
+" let g:dedowsdi_clang_format_fallback_style = 'LLVM'
 
-nmap <leader>t <plug>dedowsdi_term_toggle_gterm
-tmap <leader>t <plug>dedowsdi_term_toggle_gterm
-
-let g:clang_format_py_path = '/usr/share/clang/clang-format-8/clang-format.py'
-let g:clang_format_fallback_style = 'LLVM'
-
-let g:hist_use_vim_regex_search = 1
-if v:version > 800
-  cmap <tab> <Plug>dedowsdi_hist_expand_hist_wild
-  set wildchar=<c-z>
-endif
+let g:dedowsdi_hist_use_vim_regex_search = 1
+let g:dedowsdi_popup_scroll_keys = ['<c-y>', '<c-e>', '<c-f>']
 
 " install plugins {{{2
 if empty(glob('~/.vim/autoload/plug.vim'))
@@ -461,19 +439,19 @@ augroup zxd_misc
   autocmd FileType * setlocal formatoptions-=o formatoptions+=j
 augroup end
 
-                              " all kinds of maps {{{1
+" all kinds of maps {{{1
 
 " text object {{{2
 function s:add_to(lhs, rhs) abort
-  exe printf('vmap %s %s', a:lhs, a:rhs)
-  exe printf('omap %s %s', a:lhs, a:rhs)
+    exe printf('vmap %s %s', a:lhs, a:rhs)
+    exe printf('omap %s %s', a:lhs, a:rhs)
 endfunction
 
 call s:add_to('aa', '<plug>dedowsdi_to_aa')
 call s:add_to('ia', '<plug>dedowsdi_to_ia')
 call s:add_to('ie', '<plug>dedowsdi_to_ie')
-call s:add_to('al', '<plug>dedowsdi_to_al')
-call s:add_to('il', 'al')
+call s:add_to('il', '<plug>dedowsdi_to_il')
+call s:add_to('al', 'il')
 call s:add_to('ic', '<plug>dedowsdi_to_ic')
 
 " motion and operator {{{2
@@ -484,25 +462,25 @@ nmap ,e <plug>dedowsdi_mo_expr
 nnoremap ,,  ,
 
 function s:add_op(key, rhs)
-  exe printf('nmap %s %s', a:key, a:rhs)
-  exe printf('vmap %s %s', a:key, a:rhs)
+    exe printf('nmap %s %s', a:key, a:rhs)
+    exe printf('vmap %s %s', a:key, a:rhs)
 endfunction
 
 call s:add_op(',h', '<plug>dedowsdi_ahl_remove_cursor_highlights')
 nnoremap ,hh :AhlRemoveCursorHighlights<cr>
 
 call s:add_op(',l',     '<plug>dedowsdi_op_search_literal')
-call s:add_op(',s',     '<plug>dedowsdi_op_substitude')
+call s:add_op(',s',     '<plug>dedowsdi_op_substitute')
 call s:add_op(',S',     '<plug>dedowsdi_op_system')
 call s:add_op(',<bar>', '<plug>dedowsdi_op_column')
 call s:add_op(',G',     '<plug>dedowsdi_op_literal_grep')
 call s:add_op(',g',     '<plug>dedowsdi_op_search_in_browser')
 
-nnoremap co  <plug>dedowsdi_op_co
-nnoremap do  <plug>dedowsdi_op_do
-nnoremap guo <plug>dedowsdi_op_guo
-nnoremap gUo <plug>dedowsdi_op_gUo
-nnoremap g~o <plug>dedowsdi_op_g~o
+nmap co  <plug>dedowsdi_op_co
+nmap do  <plug>dedowsdi_op_do
+nmap guo <plug>dedowsdi_op_guo
+nmap gUo <plug>dedowsdi_op_gUo
+nmap g~o <plug>dedowsdi_op_g~o
 
 " common maps {{{2
 nnoremap <f3>    :set hlsearch!<cr>
@@ -517,17 +495,16 @@ nnoremap <c-w><space> :tab split<cr>
 tnoremap <c-w><space> <c-w>:tab split<cr>
 nnoremap <c-w>O :CloseFinishedTerminal<cr>
 
+if v:version > 800
+  cmap <tab> <Plug>dedowsdi_hist_expand_hist_wild
+  set wildchar=<c-z>
+endif
+
 nmap ys<space> <plug>dedowsdi_misc_pair_add_space
 nmap ds<space> <plug>dedowsdi_misc_pair_minus_space
 
 imap <c-x><c-p> <plug>dedowsdi_misc_complete_next_expression
 imap <c-x><c-n> <plug>dedowsdi_misc_complete_prev_expression
-
-if !has('nvim')
-  nnoremap <expr> <c-y> misc#popup#scroll_cursor_popup(1) ? '<esc>' : '<c-y>'
-  nnoremap <expr> <c-e> misc#popup#scroll_cursor_popup(0) ? '<esc>' : '<c-e>'
-  nnoremap <expr> <c-f> misc#popup#rotate_cursor_popup(0) ? '<esc>' : '<c-f>'
-endif
 
 " stop cursor movement from breaking undo in insert mode
 inoremap <Left>  <c-g>U<Left>
@@ -538,6 +515,20 @@ inoremap <expr> <Home> repeat('<c-g>U<Left>', col('.') - 1)
 inoremap <expr> <End> repeat('<c-g>U<Right>', col('$') - col('.'))
 imap <a-l> <Right>
 imap <a-h> <Left>
+
+cmap <c-a> <Plug>dedowsdi_readline_beginning_of_line
+cmap <a-a> <c-a>
+cmap <a-f> <Plug>dedowsdi_readline_forward_word
+cmap <a-b> <Plug>dedowsdi_readline_backward_word
+" cmap <c-f> <Plug>dedowsdi_readline_forward_char
+" cmap <c-b> <Plug>dedowsdi_readline_backward_char
+cmap <a-u> <Plug>dedowsdi_readline_uppercase_word
+cmap <a-l> <Plug>dedowsdi_readline_lowercase_word
+cmap <a-d> <Plug>dedowsdi_readline_forward_delete
+cmap <a-k> <Plug>dedowsdi_readline_kill
+
+nmap <leader>t <plug>dedowsdi_term_toggle_gterm
+tmap <leader>t <plug>dedowsdi_term_toggle_gterm
 
 " cnoremap <expr> %%  getcmdtype() == ":" ? expand("%:h")."/" : "%%"
 " cnoremap <expr> %t  getcmdtype() == ":" ? expand("%:t") : "%t"

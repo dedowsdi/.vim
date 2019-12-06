@@ -200,7 +200,7 @@ function s:get_last_string_search(cmdtype) abort
 endfunction
 
 function s:use_vim_regex_search() abort
-  return get(g:, 'hist_use_vim_regex_search', 0)
+  return get(g:, 'dedowsdi_hist_use_vim_regex_search', 0)
 endfunction
 
 function s:create_search_pattern(s) abort
