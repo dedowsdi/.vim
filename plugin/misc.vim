@@ -190,6 +190,19 @@ com! AhlRemoveWindowHighlights call misc#ahl#remove_wnd_highlights()
 com! AhlRemoveCursorHighlights call misc#ahl#remove_cursor_highlights()
 call s:add_op('<plug>dedowsdi_ahl_remove_cursor_highlights', 'misc#ahl#op')
 
+" popup {{{1
+if !has('nvim')
+  let [s:psk_down, s:psk_up, s:psk_rotate] = get(g:, 'dedowsdi_popup_scroll_keys', [0, 0, 0])
+  if type(s:psk_down) !=# v:t_number
+    exe printf('nnoremap <expr> %s misc#popup#scroll_cursor_popup(1)
+          \ ? "<esc>" : "%s"', s:psk_down, s:psk_down)
+    exe printf('nnoremap <expr> %s misc#popup#scroll_cursor_popup(0)
+          \ ? "<esc>" : "%s"', s:psk_up, s:psk_up)
+    exe printf('nnoremap <expr> %s misc#popup#rotate_cursor_popup(0)
+          \ ? "<esc>" : "%s"', s:psk_rotate, s:psk_rotate)
+  endif
+endif
+
 " misc {{{1
 
 inoremap <plug>dedowsdi_misc_complete_next_expression <c-r>=misc#complete_expresson(1)<cr>

@@ -129,7 +129,7 @@ function misc#op#clang_format(type, ...) abort
 
   " clang-format.py will check l:lines to determine range
   let l:lines = printf('%d:%d', op.start[1], op.end[1])
-  let cmd = printf('py3file %s', g:clang_format_py_path)
+  let cmd = printf('py3file %s', g:dedowsdi_clang_format_py_path)
   call misc#log#debug('ClangFormat command : ' . cmd)
   exec cmd
 endfunction
