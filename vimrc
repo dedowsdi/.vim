@@ -1,17 +1,9 @@
 " vim:set foldmethod=marker :
 
-" Always remember that your goal is to build your own Editor.
-"
 " This vimrc should also work for 8.0(default version on ubuntu18.04).
 "
-" about map and command position in this file :
-"     put it in map fold if:
-"        1. it doesn't rely on plugin at all
-"        2. it relies on plugin, but it's a common operation. e.g. <c-f7> is
-"        bound to lint current file, both coc and ale implement this function.
-"
-"     Otherwise put it the plugin fold that it relies on.
-
+" Map and command are public interface, plugin settings and functions are
+" private implementation, interface must appear before implementation.
 
                                    " options {{{1
 
@@ -127,6 +119,8 @@ set belloff=esc
                                 " plugin {{{1
 
 " ale {{{2
+nnoremap <c-f7>  :ALELint<cr>
+
 let g:ale_vim_vint_show_style_issues = 0
 let g:ale_linters_explicit = 1
 
@@ -147,8 +141,6 @@ let g:ale_linters = {
 \}
 
 let g:ale_glsl_glslang_executable = '/usr/local/bin/glslangValidator'
-
-" ale {{{2
 let g:ale_vim_vint_show_style_issues = 0
 let g:ale_linters_explicit = 1
 
@@ -162,10 +154,15 @@ let g:UltiSnipsEditSplit='vertical'
 
 " coc.nvim {{{2
 inoremap <silent><expr> <c-space> coc#refresh()
-nmap <c-f12> <Plug>(coc-type-definition)
-nmap <s-f12> <Plug>(coc-implementation)
 nnoremap <c-s> :call CocActionAsync('showSignatureHelp')<cr>
 inoremap <c-s> <c-r>=CocActionAsync('showSignatureHelp')<cr>
+
+nmap <f2> <Plug>(coc-rename)
+nnoremap <f4> :CocHover<cr>
+nmap <s-f10> <Plug>(coc-references)
+nmap <f12> <Plug>(coc-definition)
+nmap <c-f12> <Plug>(coc-type-definition)
+nmap <s-f12> <Plug>(coc-implementation)
 
 com CocDiagnosticInfo exec "norm \<plug>(coc-diagnostic-info)"
 com CocReference exec "norm \<plug>(coc-references)"
@@ -201,7 +198,38 @@ if &t_Co == 256
 endif
 
 " fzf {{{2
+
+" this block doesn't include command created on top of fzf, they are in the end
+" of this file.
+
+nnoremap <c-j> :BTags<cr>
+nnoremap <a-j> :Ctags<cr>
+nnoremap <c-h> :History<cr>
+nnoremap <c-b> :Buffers<cr>
+nnoremap <c-p> :call <sid>fzf(g:fzf_file_project, ":Files")<cr>
+nnoremap <a-p> :FZF<cr>
+
+imap <a-x><a-k> <plug>(fzf-complete-word)
+imap <a-x><a-f> <plug>(fzf-complete-path)
+imap <a-x><a-j> <plug>(fzf-complete-file-ag)
+imap <a-x><a-l> <plug>(fzf-complete-line)
+inoremap <expr> <a-x><a-d> <sid>comp_dir()
+
+com -nargs=* Ctags :call <SID>fzf_cpp_tags(<q-args>)
+com P call <sid>fzf_external_files()
+com Folds call FZF_lines('\v.*\{\{\{\d*$')
+
+" there are garbage new line in mes, don't know how to reproduce it. Filter
+" blank lines as temporary solution.
+com -nargs=+ -bang -complete=command FF call fzf#run(fzf#wrap({
+            \ 'source' : filter(split(execute(<q-args>), "\n"), {i,v->!empty(v)}),
+            \ 'sink': function('s:ff_sink'),
+            \ 'options' : <bang>0 ? '--tac' : '',
+            \ 'up':'~40%'
+            \ }))
+
 set rtp+=~/.fzf
+
 function s:build_quickfix_list(lines)
   call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
   copen | cc
@@ -216,6 +244,12 @@ let g:fzf_action = {
       \ 'ctrl-q': function('s:build_quickfix_list')
       \ }
 let g:fzf_layout = {'up':'~40%'}
+let g:fzf_file_project = 'find . \( -name ".hg" -o -name ".git" -o -name "build"
+            \ -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
+
+let g:external_files = get(g:, 'external_files', [])
+
+" fzf helper functions {{{3
 
 " change FZF_DEFAULT_COMMAND, execute cmd, restore FZF_DEFALUT_COMMAND
 function s:fzf(fzf_default_cmd, cmd)
@@ -223,6 +257,19 @@ function s:fzf(fzf_default_cmd, cmd)
     let $FZF_DEFAULT_COMMAND = a:fzf_default_cmd
     execute a:cmd
   finally | let $FZF_DEFAULT_COMMAND = oldcmds | endtry
+endfunction
+
+function FZF_lines(filter) abort
+  let lines = getline(1, '$')
+  let indices = filter( range( len(lines) ), { i,v -> lines[v] =~# a:filter } )
+  let lines = map(indices, { i,v -> v . ' : ' . lines[v] })
+  call fzf#run( fzf#wrap( { 'source' : lines, 'sink' : function('s:fzf_lines_sink'),
+        \ 'options' : '--with-nth 3..' } ) )
+endfunction
+
+function s:fzf_lines_sink(item) abort
+  let lnum = matchstr(a:item, '\v^\s*\d+')
+  exe lnum
 endfunction
 
 function s:comp_dir()
@@ -234,17 +281,39 @@ function s:comp_dir()
     \ {'source': printf('find "%s" -type d', location)} )
 endfunction
 
-imap <a-x><a-k> <plug>(fzf-complete-word)
-imap <a-x><a-f> <plug>(fzf-complete-path)
-imap <a-x><a-j> <plug>(fzf-complete-file-ag)
-imap <a-x><a-l> <plug>(fzf-complete-line)
-inoremap <expr> <a-x><a-d> <sid>comp_dir()
+function s:fzf_cpp_tags(...)
+  let query = get(a:000, 0, '')
+  " there exists an extra field which i don't know how to control in
+  " fzf#vim#tags, that's why it use 1,4..-2
+  let tags_options = { 'options' : '--no-reverse -m -d "\t" --tiebreak=begin
+              \ --with-nth 1,4..-2 -n .. --prompt "Ctags> "'}
+  call fzf#vim#tags(
+        \ query,
+        \ extend(copy(g:fzf_layout), tags_options))
+endfunction
+
+" copy into @@, ignore leading index
+function s:ff_sink(item)
+  let text = substitute(a:item, '\v^\>?\s*\d+\:?\s*', '', '')
+  let @@ = empty(text) ? a:item : text
+endfunction
+
+function s:fzf_external_files()
+  if empty(g:external_files)
+    return
+  endif
+
+  let source = 'find "' . join(g:external_files, '" "') . '" \( -name ".hg" -o -name ".git" -o
+            \ -name "build" -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
+  call fzf#run(fzf#wrap({'source' : source}))
+endfunction
 
 " vimtex {{{2
-let g:tex_flavor = 'latex'
 com -complete=file -nargs=1 Rpdf :r !pdftotext -nopgbrk -layout <q-args> -
 com -complete=file -nargs=1 Rpdffmt :r !pdftotext
             \ -nopgbrk -layout <q-args> - |fmt -csw78
+
+let g:tex_flavor = 'latex'
 
 " vim-json {{{2
 let g:vim_json_syntax_conceal = 0
@@ -256,16 +325,16 @@ let g:gutentags_exclude_filetypes = ['cmake', 'sh', 'json', 'md', 'text']
 let g:gutentags_define_advanced_commands = 1
 let g:gutentags_ctags_options_file = '.vim/.gutctags'
 
+" easyalign {{{2
+nmap     ,a  <Plug>(EasyAlign)
+vmap     ,a  <Plug>(EasyAlign)
+
+" commentary {{{2
+map      ,c  <Plug>Commentary
+nmap     ,cc <Plug>CommentaryLine
+nmap     ,cu <Plug>Commentary<Plug>Commentary
+
 " .vim {{{2
-let g:clang_format_py_path = '/usr/share/clang/clang-format-8/clang-format.py'
-
-let g:clang_format_fallback_style = 'LLVM'
-let g:hist_use_vim_regex_search = 1
-
-if v:version > 800
-  cmap <tab> <Plug>dedowsdi_hist_expand_hist_wild
-  set wildchar=<c-z>
-endif
 cmap <c-a> <Plug>dedowsdi_readline_beginning_of_line
 cmap <a-a> <c-a>
 cmap <a-f> <Plug>dedowsdi_readline_forward_word
@@ -279,6 +348,15 @@ cmap <a-k> <Plug>dedowsdi_readline_kill
 
 nmap <leader>t <plug>dedowsdi_term_toggle_gterm
 tmap <leader>t <plug>dedowsdi_term_toggle_gterm
+
+let g:clang_format_py_path = '/usr/share/clang/clang-format-8/clang-format.py'
+let g:clang_format_fallback_style = 'LLVM'
+
+let g:hist_use_vim_regex_search = 1
+if v:version > 800
+  cmap <tab> <Plug>dedowsdi_hist_expand_hist_wild
+  set wildchar=<c-z>
+endif
 
 " install plugins {{{2
 if empty(glob('~/.vim/autoload/plug.vim'))
@@ -383,133 +461,73 @@ augroup zxd_misc
   autocmd FileType * setlocal formatoptions-=o formatoptions+=j
 augroup end
 
-
                               " all kinds of maps {{{1
 
 " text object {{{2
-
-function s:omap(key, mode, vmode)
-  let vmode = a:mode[2:2]
-  if vmode ==# ''
-    let vmode = a:vmode
-  endif
-  if vmode ==# "\<c-v>"
-    let vmode .= vmode
-  endif
-
-  " force motion, pass register
-  return printf(":normal %s%s\"%s\<cr>", vmode, a:key, v:register)
+function s:add_to(lhs, rhs) abort
+  exe printf('vmap %s %s', a:lhs, a:rhs)
+  exe printf('omap %s %s', a:lhs, a:rhs)
 endfunction
 
-vnoremap aa <esc>:silent! call misc#to#sel_cur_arg({})<cr>
-onoremap <expr> aa <sid>omap('aa', mode(1), 'v')
-
-vnoremap ia <esc>:silent! call misc#to#sel_cur_arg({'exclude_space':1})<cr>
-onoremap <expr> ia <sid>omap('ia', mode(1), 'v')
-
-vnoremap ie <esc>:call misc#to#sel_expr()<cr>
-onoremap <expr> ie <sid>omap('ie', mode(1), 'v')
-
-vnoremap al <esc>:call misc#to#sel_letter()<cr>
-onoremap <expr> al <sid>omap('al', mode(1), 'v')
-
-vmap il al
-omap il al
-
-vnoremap ic <esc>:call misc#to#column()<cr>
-onoremap <expr> ic <sid>omap('ic', mode(1), "\<c-v>")
+call s:add_to('aa', '<plug>dedowsdi_to_aa')
+call s:add_to('ia', '<plug>dedowsdi_to_ia')
+call s:add_to('ie', '<plug>dedowsdi_to_ie')
+call s:add_to('al', '<plug>dedowsdi_to_al')
+call s:add_to('il', 'al')
+call s:add_to('ic', '<plug>dedowsdi_to_ic')
 
 " motion and operator {{{2
-
-" circumvent count, register changes
-function s:setup_opfunc(func)
-  let &opfunc = a:func
-  return 'g@'
-endfunction
-
-function s:add_op(key, func)
-  exe printf('nnoremap <expr> %s <sid>setup_opfunc("%s")', a:key, a:func)
-  exe printf('vnoremap %s :<c-u>call %s(visualmode(), 1)<cr>', a:key, a:func)
-endfunction
-
-" motion and operator
-function s:add_mo(keys, func)
-    exec printf('nnoremap %s :call %s<cr>', a:keys, a:func)
-    exec printf('vnoremap %s :<c-u>exec "norm! gv" <bar> call %s<cr>', a:keys, a:func)
-    exec printf('onoremap <expr> %s printf(":normal %%s%s<cr>",
-                \ mode(1) ==# "no" ? "v" : mode(1)[2])', a:keys, a:keys)
-endfunction
-nmap     ,a  <Plug>(EasyAlign)
-vmap     ,a  <Plug>(EasyAlign)
-map      ,c  <Plug>Commentary
-nmap     ,cc <Plug>CommentaryLine
-nmap     ,cu <Plug>Commentary<Plug>Commentary
-nmap     ,cs <plug>NERDCommenterSexy
-vmap     ,cs <Plug>NERDCommenterSexy
-call s:add_mo(',e', 'misc#mo#vertical_motion("E")')
-call s:add_mo(',w', 'misc#mo#vertical_motion("W")')
-call s:add_mo(',b', 'misc#mo#vertical_motion("B")')
-call s:add_mo(',E', 'misc#mo#expr()')
+nmap ,E <plug>dedowsdi_mo_vertical_E
+nmap ,W <plug>dedowsdi_mo_vertical_W
+nmap ,B <plug>dedowsdi_mo_vertical_B
+nmap ,e <plug>dedowsdi_mo_expr
 nnoremap ,,  ,
 
-call s:add_op(',h', 'misc#ahl#op')
-com -nargs=0 AhlRemoveWindowHighlights call misc#ahl#remove_wnd_highlights()
-com -nargs=0 AhlRemoveCursorHighlights call misc#ahl#remove_cursor_highlights()
+function s:add_op(key, rhs)
+  exe printf('nmap %s %s', a:key, a:rhs)
+  exe printf('vmap %s %s', a:key, a:rhs)
+endfunction
+
+call s:add_op(',h', '<plug>dedowsdi_ahl_remove_cursor_highlights')
 nnoremap ,hh :AhlRemoveCursorHighlights<cr>
 
-call s:add_op(',l', 'misc#op#search_literal')
-call s:add_op(',s', 'misc#op#substitude')
-call s:add_op(',S', 'misc#op#system')
-call s:add_op(',<bar>', 'misc#op#column')
-nmap     ,sl :let @/="\\v<".expand("<cword>").">"<cr>vif:s/<c-r><c-/>/
-nmap     ,s} :let @/="\\v<".expand("<cword>").">"<cr>vi}:s/<c-r><c-/>/
-nmap     ,s{ ,s}
-call s:add_op(',G', 'misc#op#literal_grep')
-call s:add_op(',g', 'misc#op#search_in_browser')
-nnoremap co :call misc#op#omo('co')<cr>
-nnoremap do :call misc#op#omo('do')<cr>
-nnoremap guo :call misc#op#omo('guo')<cr>
-nnoremap gUo :call misc#op#omo('gUo')<cr>
-nnoremap g~o :call misc#op#omo('gso')<cr>
+call s:add_op(',l',     '<plug>dedowsdi_op_search_literal')
+call s:add_op(',s',     '<plug>dedowsdi_op_substitude')
+call s:add_op(',S',     '<plug>dedowsdi_op_system')
+call s:add_op(',<bar>', '<plug>dedowsdi_op_column')
+call s:add_op(',G',     '<plug>dedowsdi_op_literal_grep')
+call s:add_op(',g',     '<plug>dedowsdi_op_search_in_browser')
+
+nnoremap co  <plug>dedowsdi_op_co
+nnoremap do  <plug>dedowsdi_op_do
+nnoremap guo <plug>dedowsdi_op_guo
+nnoremap gUo <plug>dedowsdi_op_gUo
+nnoremap g~o <plug>dedowsdi_op_g~o
 
 " common maps {{{2
-nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
+nnoremap <f3>    :set hlsearch!<cr>
+
 nnoremap Y  y$
 nnoremap K  :exec 'norm! K' <bar> wincmd p<cr>
 nnoremap gc :SelectLastPaste<cr>
-
-nmap ys<space> <plug>dedowsdi_misc_pair_add_space
-nmap ds<space> <plug>dedowsdi_misc_pair_minus_space
+nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
+nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
 
 nnoremap <c-w><space> :tab split<cr>
 tnoremap <c-w><space> <c-w>:tab split<cr>
 nnoremap <c-w>O :CloseFinishedTerminal<cr>
 
-inoremap <c-x><c-p> <c-r>=misc#complete_expresson(1)<cr>
-inoremap <c-x><c-n> <c-r>=misc#complete_expresson(0)<cr>
+nmap ys<space> <plug>dedowsdi_misc_pair_add_space
+nmap ds<space> <plug>dedowsdi_misc_pair_minus_space
 
-nmap <f2> <Plug>(coc-rename)
-nnoremap <f3>    :set hlsearch!<cr>
-nnoremap <f4>    :CocHover<cr>
-nnoremap <c-f7>  :ALELint<cr>
-nmap <s-f10> <Plug>(coc-references)
-nmap <f12> <Plug>(coc-definition)
+imap <c-x><c-p> <plug>dedowsdi_misc_complete_next_expression
+imap <c-x><c-n> <plug>dedowsdi_misc_complete_prev_expression
 
 if !has('nvim')
   nnoremap <expr> <c-y> misc#popup#scroll_cursor_popup(1) ? '<esc>' : '<c-y>'
   nnoremap <expr> <c-e> misc#popup#scroll_cursor_popup(0) ? '<esc>' : '<c-e>'
   nnoremap <expr> <c-f> misc#popup#rotate_cursor_popup(0) ? '<esc>' : '<c-f>'
 endif
-
-nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
-nnoremap <c-j> :BTags<cr>
-nnoremap <a-j> :Ctags<cr>
-nnoremap <c-h> :History<cr>
-nnoremap <c-b> :Buffers<cr>
-let g:fzf_file_project = 'find . \( -name ".hg" -o -name ".git" -o
-            \ -name "build" -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
-nnoremap <c-p> :call <sid>fzf(g:fzf_file_project, ":Files")<cr>
-nnoremap <a-p> :FZF<cr>
 
 " stop cursor movement from breaking undo in insert mode
 inoremap <Left>  <c-g>U<Left>
@@ -547,6 +565,9 @@ com -nargs=+ SynIDattr echo synIDattr(
 com EditVimrc e `echo $MYVIMRC`
 
 " Expand {{{2
+" Expand [x=+] [mods=%:p], " is always set
+com -nargs=* Expand call s:expand_filepath(<f-args>)
+
 function s:expand_filepath(...)
   if a:0 == 0
     let reg = '+'
@@ -568,17 +589,17 @@ function s:expand_filepath(...)
   call setreg('"', expand(expr))
 endfunction
 
-" Expand [x=+] [mods=%:p], " is always set
-com -nargs=* Expand call s:expand_filepath(<f-args>)
-
 " Browse {{{2
+com -nargs=? Browse call s:browse(<f-args>)
+
 function s:browse(...)
   let path = expand(get(a:000, 0, '%:p'))
   call system(printf('google-chrome %s&', path))
 endfunction
-com -nargs=? Browse call s:browse(<f-args>)
 
 " Less {{{2
+com -nargs=+ -complete=command Less call <sid>less(<q-args>)
+
 function s:less(cmd)
   new
   setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
@@ -586,8 +607,6 @@ function s:less(cmd)
   exe printf("put! =execute('%s')", a:cmd)
   1
 endfunction
-
-com -nargs=+ -complete=command Less call <sid>less(<q-args>)
 
 " Tapi_cd {{{2
 " arglist : [ cwd ]
@@ -601,76 +620,19 @@ function Tapi_lcd(bufnum, arglist)
   call win_execute(winid, 'lcd ' . cwd)
 endfunction
 
-" folds {{{2
-function FZF_lines(filter) abort
-  let lines = getline(1, '$')
-  let indices = filter( range( len(lines) ), { i,v -> lines[v] =~# a:filter } )
-  let lines = map(indices, { i,v -> v . ' : ' . lines[v] })
-  call fzf#run( fzf#wrap( { 'source' : lines, 'sink' : function('s:fzf_lines_sink'),
-        \ 'options' : '--with-nth 3..' } ) )
-endfunction
-
-function s:fzf_lines_sink(item) abort
-  let lnum = matchstr(a:item, '\v^\s*\d+')
-  exe lnum
-endfunction
-
-com Folds call FZF_lines('\v.*\{\{\{\d*$')
-
-" Ctags {{{2
-function s:fzf_cpp_tags(...)
-  let query = get(a:000, 0, '')
-  " there exists an extra field which i don't know how to control in
-  " fzf#vim#tags, that's why it use 1,4..-2
-  let tags_options = { 'options' : '--no-reverse -m -d "\t" --tiebreak=begin
-              \ --with-nth 1,4..-2 -n .. --prompt "Ctags> "'}
-  call fzf#vim#tags(
-        \ query,
-        \ extend(copy(g:fzf_layout), tags_options))
-endfunction
-
-com -nargs=* Ctags :call <SID>fzf_cpp_tags(<q-args>)
-
-" FF {{{2
-" copy into @@, ignore leading index
-function s:ff_sink(item)
-  let text = substitute(a:item, '\v^\>?\s*\d+\:?\s*', '', '')
-  let @@ = empty(text) ? a:item : text
-endfunction
-
-" there are garbage new line in mes, don't know how to reproduce it. Filter
-" blank lines as temporary solution.
-com -nargs=+ -bang -complete=command FF call fzf#run(fzf#wrap({
-            \ 'source' : filter(split(execute(<q-args>), "\n"), {i,v->!empty(v)}),
-            \ 'sink': function('s:ff_sink'),
-            \ 'options' : <bang>0 ? '--tac' : '',
-            \ 'up':'~40%'
-            \ }))
-
-" ExternalFiles {{{2
-let g:external_files = get(g:, 'external_files', [])
-
-function s:fzf_external_files()
-  if empty(g:external_files)
-    return
-  endif
-
-  let source = 'find "' . join(g:external_files, '" "') . '" \( -name ".hg" -o -name ".git" -o
-            \ -name "build" -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
-  call fzf#run(fzf#wrap({'source' : source}))
-endfunction
-com P call <sid>fzf_external_files()
-
 " CloseFinishedTerminal{{{2
+com -nargs=0 CloseFinishedTerminal call s:close_finished_terminal()
+
 function s:close_finished_terminal() abort
   let bufs = map(split( execute('ls F'), "\n" ), {i,v -> matchstr(v, '\v^\s*\zs\d+')})
   for buf in bufs
     call win_execute(bufwinid(str2nr( buf )), 'close')
   endfor
 endfunction
-com -nargs=0 CloseFinishedTerminal call s:close_finished_terminal()
 
 " Job{{{2
+com -nargs=+ -complete=shellcmd Job call s:job(<q-args>)
+
 function s:job(cmd) abort
   call job_start( a:cmd, { "exit_cb":function('s:job_exit_cb'),
               \ "err_cb": function('s:job_err_cb') } )
@@ -689,4 +651,3 @@ function s:job_err_cb(ch, msg)
   echomsg printf('%s : %s', a:ch, a:msg)
   echohl None
 endfunction
-com -nargs=+ -complete=shellcmd Job call s:job(<q-args>)

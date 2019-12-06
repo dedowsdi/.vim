@@ -5,6 +5,74 @@ if exists('g:loaded_misc_plugin')
 endif
 let g:loaded_misc_plugin = 1
 
+" mo {{{1
+function s:add_mo(keys, func)
+    exec printf('nnoremap %s :call %s<cr>', a:keys, a:func)
+    exec printf('vnoremap %s :<c-u>exec "norm! gv" <bar> call %s<cr>', a:keys, a:func)
+    exec printf('onoremap <expr> %s printf(":normal %%s%s<cr>",
+                \ mode(1) ==# "no" ? "v" : mode(1)[2])', a:keys, a:keys)
+endfunction
+call s:add_mo('<plug>dedowsdi_mo_vertical_E', 'misc#mo#vertical_motion("E")')
+call s:add_mo('<plug>dedowsdi_mo_vertical_W', 'misc#mo#vertical_motion("W")')
+call s:add_mo('<plug>dedowsdi_mo_vertical_B', 'misc#mo#vertical_motion("B")')
+call s:add_mo('<plug>dedowsdi_mo_expr', 'misc#mo#expr()')
+
+" to {{{1
+
+function s:omap(key, mode, vmode)
+  let vmode = a:mode[2:2]
+  if vmode ==# ''
+    let vmode = a:vmode
+  endif
+  if vmode ==# "\<c-v>"
+    let vmode .= vmode
+  endif
+
+  " force motion, pass register
+  return printf(":normal %s%s\"%s\<cr>", vmode, a:key, v:register)
+endfunction
+
+vnoremap <plug>dedowsdi_to_aa <esc>:silent! call misc#to#sel_cur_arg({})<cr>
+onoremap <expr> <plug>dedowsdi_to_aa <sid>omap('aa', mode(1), 'v')
+
+vnoremap <plug>dedowsdi_to_ia <esc>:silent! call misc#to#sel_cur_arg({'exclude_space':1})<cr>
+onoremap <expr> <plug>dedowsdi_to_ia <sid>omap('ia', mode(1), 'v')
+
+vnoremap <plug>dedowsdi_to_ie <esc>:call misc#to#sel_expr()<cr>
+onoremap <expr> <plug>dedowsdi_to_ie <sid>omap('ie', mode(1), 'v')
+
+vnoremap <plug>dedowsdi_to_al <esc>:call misc#to#sel_letter()<cr>
+onoremap <expr> <plug>dedowsdi_to_al <sid>omap('al', mode(1), 'v')
+
+vnoremap <plug>dedowsdi_to_ic <esc>:call misc#to#column()<cr>
+onoremap <expr> <plug>dedowsdi_to_ic <sid>omap('ic', mode(1), "\<c-v>")
+
+" op {{{1
+
+" circumvent count, register changes
+function s:setup_opfunc(func)
+  let &opfunc = a:func
+  return 'g@'
+endfunction
+
+function s:add_op(key, func)
+  exe printf('nnoremap <expr> %s <sid>setup_opfunc("%s")', a:key, a:func)
+  exe printf('vnoremap %s :<c-u>call %s(visualmode(), 1)<cr>', a:key, a:func)
+endfunction
+
+call s:add_op('<plug>dedowsdi_op_search_literal', 'misc#op#search_literal')
+call s:add_op('<plug>dedowsdi_op_substitute', 'misc#op#substitude')
+call s:add_op('<plug>dedowsdi_op_system', 'misc#op#system')
+call s:add_op('<plug>dedowsdi_op_bar', 'misc#op#column')
+call s:add_op('<plug>dedowsdi_op_literal_grep', 'misc#op#literal_grep')
+call s:add_op('<plug>dedowsdi_op_browse', 'misc#op#search_in_browser')
+
+nnoremap <plug>dedowsdi_op_co :call misc#op#omo('co')<cr>
+nnoremap <plug>dedowsdi_op_do :call misc#op#omo('do')<cr>
+nnoremap <plug>dedowsdi_op_guo :call misc#op#omo('guo')<cr>
+nnoremap <plug>dedowsdi_op_gUo :call misc#op#omo('gUo')<cr>
+nnoremap <plug>dedowsdi_op_g~o :call misc#op#omo('gso')<cr>
+
 " cpp {{{1
 let g:mycpp_def_src_ext    = get(g:, 'mycpp_def_src_ext'    , 'cpp')
 let g:mycpp_build_dir     = get(g:, 'mycpp_build_dir'     , './')
@@ -117,7 +185,17 @@ com -nargs=0 DebugvimInfoDisplay call misc#debugvim#info_display()
 com -nargs=0 DebugvimEnable call misc#debugvim#enable()
 com -nargs=0 DebugvimDisable call misc#debugvim#disable()
 
+" ahl {{{1
+com! AhlRemoveWindowHighlights call misc#ahl#remove_wnd_highlights()
+com! AhlRemoveCursorHighlights call misc#ahl#remove_cursor_highlights()
+call s:add_op('<plug>dedowsdi_ahl_remove_cursor_highlights', 'misc#ahl#op')
+
 " misc {{{1
+
+inoremap <plug>dedowsdi_misc_complete_next_expression <c-r>=misc#complete_expresson(1)<cr>
+inoremap <plug>dedowsdi_misc_complete_prev_expression <c-r>=misc#complete_expresson(0)<cr>
+
+
 com -range -nargs=+ T call misc#mult_t(<line1>, <line2>, <f-args>)
 com -bar CamelToUnderscore exe printf('%%s/\v\C<%s>/%s/g', expand('<cword>'),
       \ misc#camel_to_underscore(expand('<cword>')))
