@@ -101,8 +101,8 @@ function misc#search_over_pairs(expr, jump_pairs, flags) abort
 endfunction
 
 function misc#visual_select(range, mode) abort
-  " note that '< and '> are not changed during the entire script lifetime. I
-  " guess 'normal ' .. is pending ?
+
+  " note that '< and '> are not changed until this visual mode finishes
   call setpos('.', a:range[0]) | exec 'normal! ' . a:mode | call setpos('.', a:range[1])
 endfunction
 
@@ -233,6 +233,7 @@ endfunction
 function misc#get_pos_string(p0, p1, vmode)
   let [lnum1, col1] = a:p0[1:2]
   let [lnum2, col2] = a:p1[1:2]
+
   let lines = getline(lnum1, lnum2)
   if a:vmode =~# "\<c-v>"
     let lines = map(lines, 'v:val[col1-1 : col2-1]')
@@ -390,10 +391,17 @@ function misc#get_last_change() abort
 
   let pos0 = getpos("'[")
   let pos1 = getpos("']")
+  if pos0 == pos1
+    return ''
+  endif
 
-  " mark motion is exclusive. It's possible that pos1[2]-1 = 0, it's a blank
-  " line in this case.
-  let pos1[2] -= 1
+  " mark motion is exclusive unless it ends in newline (cursor in column 1 of
+  " next line)
+  let change = misc#get_pos_string(pos0, pos1, 'v')
+  if change[-1:-1] !=# "\n"
+    let change = change[0:-2]
+  endif
+
   return misc#get_pos_string(pos0, pos1, 'v')
 endfunction
 

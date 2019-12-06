@@ -159,7 +159,7 @@ function misc#op#omo(operator) abort
 
   " goto start of word only if it's \w
   if misc#get_cc() =~# '\w'
-    norm! "_yiw
+    norm! yiw
   endif
 
   " there is no way to get current word position in opfunc, must mark it here
@@ -175,7 +175,7 @@ function misc#op#omo_co(type, ...) abort
 
   " select text, release, gv will be used in co_insert_leave
   call op.select()
-  exe "norm \<esc>"
+  exe "norm! \<esc>"
 
   " hook callback
   augroup mo_co_insert
@@ -197,21 +197,21 @@ function misc#op#omo_do(type, ...) abort
 endfunction
 
 function misc#op#omo_guo(type, ...) abort
-  let str = tolower(expand('<cword>'))
+  let str = tolower(@@)
   let op = misc#op#new(a:type, a:000)
   call misc#op#execute('misc#op#omo_co', op)
   call feedkeys(printf("%s\<esc>", str))
 endfunction
 
 function misc#op#omo_gUo(type, ...) abort
-  let str = toupper(expand('<cword>'))
+  let str = toupper(@@)
   let op = misc#op#new(a:type, a:000)
   call misc#op#execute('misc#op#omo_co', op)
   call feedkeys(printf("%s\<esc>", str))
 endfunction
 
 function misc#op#omo_gso(type, ...) abort
-  let chars = split(expand('<cword>'), '\zs')
+  let chars = split(@@, '\zs')
   let str = join(map(chars, {i,v -> v=~# '[a-z]' ? toupper(v) : tolower(v)}), '')
   let op = misc#op#new(a:type, a:000)
   call misc#op#execute('misc#op#omo_co', op)
