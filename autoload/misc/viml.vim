@@ -13,7 +13,6 @@ endfunction
 function misc#viml#get_function_range() abort
   try
     let cview = winsaveview()
-    exec 'norm! v'
     call misc#viml#sel_function('i')
     exec "norm! \<esc>"
   finally
