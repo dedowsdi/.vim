@@ -39,6 +39,7 @@ endfunction
 function misc#cmdline#range2lnum(range_text) abort
   try
     let cpos = getcurpos()
+    let cview = winsaveview()
 
     " silent is used to reverse reversed command range
     exec printf('silent %s call Tech_get_range()', a:range_text)
@@ -48,7 +49,7 @@ function misc#cmdline#range2lnum(range_text) abort
   catch /^Vim\%((\a\+)\)\=:E486:/ " pattern not found
     " "A,"B is a common source of this kind of error.
   finally
-    call setpos('.', cpos)
+    call winrestview(cview)
   endtry
 
   return []
@@ -89,12 +90,13 @@ function misc#cmdline#address2lnum(address) abort
 
   try
     let cpos = getcurpos()
+    let cview = winsaveview()
     let old_modifiable = &modifiable
     set nomodifiable
     exec a:address
     return line('.')
   finally
-    call setpos('.', cpos)
+    call winrestview(cview)
     let &l:modifiable = old_modifiable
   endtry
 endfunction

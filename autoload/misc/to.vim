@@ -241,6 +241,7 @@ endfunction
 " style : 1 : use ai to include or exclude space
 function misc#to#sel_lines(pattern0, pattern1, ai, style)
   let cpos = getcurpos()
+  let cview = winsaveview()
 
   try
 
@@ -285,9 +286,7 @@ function misc#to#sel_lines(pattern0, pattern1, ai, style)
     endif
 
   finally
-
-    " restore current position before return
-    call setpos('.', cpos)
+    call winrestview(cview)
   endtry
 
   " visually select from startline to endline

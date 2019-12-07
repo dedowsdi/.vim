@@ -120,30 +120,33 @@ function misc#swap_range(range0, range1, mode) abort
 endfunction
 
 function misc#get_range(range, mode) abort
-  return misc#get_pos_strng(a:range[0], a:range[1], a:mode)
+  return misc#get_pos_string(a:range[0], a:range[1], a:mode)
 endfunction
 
 function misc#replace_range(range, content, mode) abort
-  let [cursor_pos, paste, reg_text, reg_type]= [getcurpos(), &paste, @a, getregtype('a')]
+  let [cview, paste, reg_text, reg_type]= [winsaveview(), &paste, @a, getregtype('a')]
   try
     let [&paste, @a]= [1, a:content]
     call misc#visual_select(a:range, a:mode)
     silent normal! "ap
   finally
-    call setpos('.', cursor_pos) | let &paste = paste | call setreg('a', reg_text, reg_type)
+    call winrestview(cview) | let &paste = paste | call setreg('a', reg_text, reg_type)
   endtry
 endfunction
 
 "return new trimed characterwise range
 function misc#trim_range(range) abort
-  let pos = getcurpos() | try
+  try
+    let cview = winsaveview()
     let new_range = deepcopy(a:range)
 
     call setpos('.', a:range[0]) | call search('\v\S', 'cW') | let new_range[0] = getpos('.')
     call setpos('.', a:range[1]) | call search('\v\S', 'bcW') | let new_range[1] = getpos('.')
 
     return new_range
-  finally | call setpos('.', pos) | endtry
+  finally
+    call winrestview(cview)
+  endtry
 endfunction
 
 " pos can be [l,c] or getpos() format
@@ -211,13 +214,13 @@ endfunction
 "add lnum, cnum to jump list
 function misc#create_jumps(lnum,cnum) abort
   let [start_line, start_col]= [line('.'), col('.')] | try
-    let oldpos = getpos('.')
+    let cview = winsaveview()
 
     call cursor(a:lnum, a:cnum)
     normal! m'
 
   finally
-    call setpos('.', oldpos)
+    call winrestview(cview)
   endtry
 endfunction
 

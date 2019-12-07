@@ -11,9 +11,15 @@ function misc#viml#goto_function(...) abort
 endfunction
 
 function misc#viml#get_function_range() abort
-  let cpos = getcurpos()
-  exec 'norm! v' | call misc#viml#sel_function('i') | exec "norm! \<esc>"
-  call setpos('.', cpos)
+  try
+    let cview = winsaveview()
+    exec 'norm! v'
+    call misc#viml#sel_function('i')
+    exec "norm! \<esc>"
+  finally
+    call winrestview(cview)
+  endtry
+
   let [pos0, pos1] = [getpos("'<"), getpos("'>")]
   return pos0 == pos1 ? [] : [pos0, pos1]
 endfunction
@@ -42,7 +48,9 @@ endfunction
 " break at current line in current function, doesn't work if it's a dict
 " [func_name [,line, [,plugFileName]]]
 function misc#viml#break_here() abort
-  let cpos = getcurpos() | try
+  try
+    let cpos = getcurpos() 
+    let cview = winsaveview()
     if misc#viml#goto_function()
 
       let [scope, func_name] = matchlist(getline('.'), '\v(\w:)?(\k+)\ze\s*\(.*\)')[1:2]
@@ -57,7 +65,9 @@ function misc#viml#break_here() abort
 
     let cmd = 'breakadd func ' . break_line . ' ' . func_name | echom cmd
     execute cmd
-  finally | call setpos('.', cpos) | endtry
+  finally
+    call winrestview(cview)
+  endtry
 endfunction
 
 function misc#viml#break_numbered_function() abort
@@ -195,7 +205,7 @@ endif
 
 function misc#viml#reload_loaded_script() abort
   try
-    let oldpos = getcurpos()
+    let cview = winsaveview()
     let re_script_guard = '\v^\s*let\s+\zs[gb]:loaded\w+\ze'
     keepjumps normal! gg
     if search(re_script_guard, 'W')
@@ -206,6 +216,6 @@ function misc#viml#reload_loaded_script() abort
       throw 'script guard not found' | return
     endif
   finally
-    call setpos('.', oldpos)
+    call winrestview(cview)
   endtry
 endfunction
