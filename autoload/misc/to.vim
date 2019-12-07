@@ -24,10 +24,17 @@
 "    visually select textobject
 "    force motion
 
-function s:force_motion(cur_mode) abort
-  let vmode = state() =~# 'o' ? visualmode() : a:cur_mode
-  if vmode !=# a:cur_mode
-    exe 'norm!' vmode
+function s:force_motion() abort
+  if mode() !~# "[vV\<c-v>]"
+    throw "illegal mode in force motion"
+  endif
+
+  " visualmode is last visual mode, which is applied by norm! [vV<c-v>] throw
+  " omap, mode() is current visual mode.
+  if state() =~# 'o'
+    if visualmode() !=# mode()
+      exe 'norm!' visualmode()
+    endif
   endif
 endfunction
 
@@ -130,7 +137,7 @@ function misc#to#sel_cur_arg(opts) abort
 
   let cur_arg_range = ranges[2][arg_index]
   call misc#visual_select(cur_arg_range, 'v')
-  call s:force_motion('v')
+  call s:force_motion()
 endfunction
 
 " opts{direction:'h or l' , delim: default to ","
@@ -206,7 +213,7 @@ function misc#to#sel(pat, ai) abort
       endif
     endif
 
-    call s:force_motion(mode())
+    call s:force_motion()
 
     return 1
   finally
@@ -233,7 +240,7 @@ function misc#to#column() abort
       norm! k
     endif
   endif
-  call s:force_motion("\<c-v>")
+  call s:force_motion()
 endfunction
 
 " select lines if current line is between patterns, otherwise do nothing
@@ -293,7 +300,7 @@ function misc#to#sel_lines(pattern0, pattern1, ai, style)
   exec startline
   norm! V
   exec endline
-  call s:force_motion('V')
+  call s:force_motion()
 endfunction
 
 function misc#to#sel_expr() abort
@@ -302,7 +309,7 @@ function misc#to#sel_expr() abort
   endif
   norm! viw
   call misc#mo#expr()
-  call s:force_motion('v')
+  call s:force_motion()
 endfunction
 
 " ov : o for omap, v for v map
