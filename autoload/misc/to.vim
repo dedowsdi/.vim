@@ -127,12 +127,10 @@ function misc#to#get_args(opts) abort
   endtry
 endfunction
 
-" visual select cur arg, by default space included
-function misc#to#sel_cur_arg(opts) abort
+function misc#to#sel_cur_arg(ai) abort
   call s:assert_start_state()
-  " how to reset cursor from V: ?
-  call extend(a:opts, {'exclude_space':0}, 'keep')
-  let ranges = misc#to#get_args(a:opts)
+  let opts = {'exclude_space': a:ai ==# 'i'}
+  let ranges = misc#to#get_args(opts)
 
   if ranges == [] | call misc#warn('illigal range') | return | endif
 
@@ -233,7 +231,8 @@ function misc#to#sel_number(ai) abort
   return misc#to#sel( '\v[0-9.\-]*%#[0-9.\-]+', a:ai )
 endfunction
 
-function misc#to#column() abort
+" TODO implement a?
+function misc#to#column(ai) abort
   call s:assert_start_state()
   exec "norm! \<c-v>"
   if misc#get_cc() !~# '\s'
@@ -309,7 +308,8 @@ function misc#to#sel_lines(pattern0, pattern1, ai, style)
   call s:force_motion()
 endfunction
 
-function misc#to#sel_expr() abort
+" TODO implement a?
+function misc#to#sel_expr(ai) abort
   call s:assert_start_state()
   if misc#get_cc() !~? '\w'
     return

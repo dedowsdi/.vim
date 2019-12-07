@@ -34,35 +34,27 @@ function s:omap(key, mode, vmode)
   return printf(':exe "normal %s%s\"%s' . "\<cr>", vmode, a:key, v:register)
 endfunction
 
-vnoremap <plug>dedowsdi_to_aa <esc>:silent! call misc#to#sel_cur_arg({})<cr>
-onoremap <expr> <plug>dedowsdi_to_aa <sid>omap('\<plug>dedowsdi_to_aa', mode(1), 'v')
+function s:add_to(ai, letter, vmode, func, ...) abort
+  let prefix = get(a:000, 0, '<plug>dedowsdi_to_')
+  if a:ai =~# 'a'
+    let key = printf("%sa%s", prefix, a:letter)
+    exe printf('vnoremap %s <esc>:silent! call call("%s", ["a"])<cr>', key, a:func)
+    exe printf('onoremap <expr> %s <sid>omap(''\%s'', mode(1), "%s")', key, key, a:vmode)
+  endif
 
-vnoremap <plug>dedowsdi_to_ia <esc>:silent! call misc#to#sel_cur_arg({'exclude_space':1})<cr>
-onoremap <expr> <plug>dedowsdi_to_ia <sid>omap('\<plug>dedowsdi_to_ia', mode(1), 'v')
+  if a:ai =~# 'i'
+    let key = printf("%si%s", prefix, a:letter)
+    exe printf('vnoremap %s <esc>:silent! call call("%s", ["i"])<cr>', key, a:func)
+    exe printf('onoremap <expr> %s <sid>omap(''\%s'', mode(1), "%s")', key, key, a:vmode)
+  endif
+endfunction
 
-vnoremap <plug>dedowsdi_to_ie <esc>:call misc#to#sel_expr()<cr>
-onoremap <expr> <plug>dedowsdi_to_ie <sid>omap('\<plug>dedowsdi_to_ie', mode(1), 'v')
-
-vnoremap <plug>dedowsdi_to_il <esc>:call misc#to#sel_letter('i')<cr>
-onoremap <expr> <plug>dedowsdi_to_il <sid>omap('\<plug>dedowsdi_to_il', mode(1), 'v')
-
-vnoremap <plug>dedowsdi_to_al <esc>:call misc#to#sel_letter('a')<cr>
-onoremap <expr> <plug>dedowsdi_to_al <sid>omap('\<plug>dedowsdi_to_al', mode(1), 'v')
-
-vnoremap <plug>dedowsdi_to_in <esc>:call misc#to#sel_number('i')<cr>
-onoremap <expr> <plug>dedowsdi_to_in <sid>omap('\<plug>dedowsdi_to_in', mode(1), 'v')
-
-vnoremap <plug>dedowsdi_to_an <esc>:call misc#to#sel_number('a')<cr>
-onoremap <expr> <plug>dedowsdi_to_an <sid>omap('\<plug>dedowsdi_to_an', mode(1), 'v')
-
-vnoremap <plug>dedowsdi_to_ic <esc>:call misc#to#column()<cr>
-onoremap <expr> <plug>dedowsdi_to_ic <sid>omap('\<plug>dedowsdi_to_ic', mode(1), "\<c-v>")
-
-vnoremap <plug>dedowsdi_viml_to_if  <esc>:call misc#viml#sel_func('i')<cr>
-onoremap <expr> <plug>dedowsdi_viml_to_if  <sid>omap('\<plug>dedowsdi_viml_to_if ', mode(1), 'v')
-
-vnoremap <plug>dedowsdi_viml_to_af  <esc>:call misc#viml#sel_func('a')<cr>
-onoremap <expr> <plug>dedowsdi_viml_to_af  <sid>omap('\<plug>dedowsdi_viml_to_af ', mode(1), 'v')
+call s:add_to('ai', 'a', 'v',      'misc#to#sel_cur_arg')
+call s:add_to('i',  'e', 'v',      'misc#to#sel_expr')
+call s:add_to('ai', 'l', 'v',      'misc#to#sel_letter')
+call s:add_to('ai', 'n', 'v',      'misc#to#sel_number')
+call s:add_to('i',  'c', '\<c-v>', 'misc#to#column')
+call s:add_to('ai', 'f', 'V',      'misc#viml#sel_func', '<plug>dedowsdi_viml_to_')
 
 " op {{{1
 
