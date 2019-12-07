@@ -46,6 +46,9 @@ onoremap <expr> <plug>dedowsdi_to_ie <sid>omap('\<plug>dedowsdi_to_ie', mode(1),
 vnoremap <plug>dedowsdi_to_il <esc>:call misc#to#sel_letter()<cr>
 onoremap <expr> <plug>dedowsdi_to_il <sid>omap('\<plug>dedowsdi_to_il', mode(1), 'v')
 
+vnoremap <plug>dedowsdi_to_in <esc>:call misc#to#sel_number()<cr>
+onoremap <expr> <plug>dedowsdi_to_in <sid>omap('\<plug>dedowsdi_to_in', mode(1), 'v')
+
 vnoremap <plug>dedowsdi_to_ic <esc>:call misc#to#column()<cr>
 onoremap <expr> <plug>dedowsdi_to_ic <sid>omap('\<plug>dedowsdi_to_ic', mode(1), "\<c-v>")
 

@@ -175,15 +175,39 @@ function misc#to#bubble_arg(opts) abort
 
 endfunction
 
-"\w and \d only
+" pat will always contain %#
+function misc#to#sel(pat) abort
+
+  if stridx(a:pat, '%#') ==# -1
+    throw 'sel pattern must contain %#'
+  endif
+
+  if mode() =~# "[vV\<c-v>]"
+    throw 'illegal visual mode'
+  endif
+
+  try
+    let spat = @/
+    let @/ = a:pat
+    norm! gn
+    if mode() !~# "[vV\<c-v>]"
+      return 0
+    endif
+
+    call s:force_motion(mode())
+
+    return 1
+  finally
+    let @/ = spat
+  endtry
+endfunction
+
 function misc#to#sel_letter() abort
-  let pattern = '\v[a-zA-Z]+'
-  if misc#get_cc() !~# pattern | return -1 | endif
-  call search(pattern, 'bc')
-  norm! v
-  call search(pattern, 'ce')  " \w+ will jump to next word if it's a single letter
-  call s:force_motion('v')
-  return 1
+  return misc#to#sel( '\v[a-zA-Z]*%#[a-zA-Z]+' )
+endfunction
+
+function misc#to#sel_number() abort
+  return misc#to#sel( '\v[0-9.\-]*%#[0-9.\-]+' )
 endfunction
 
 function misc#to#column() abort

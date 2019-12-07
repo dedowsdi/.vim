@@ -451,7 +451,8 @@ call s:add_to('aa', '<plug>dedowsdi_to_aa')
 call s:add_to('ia', '<plug>dedowsdi_to_ia')
 call s:add_to('ie', '<plug>dedowsdi_to_ie')
 call s:add_to('il', '<plug>dedowsdi_to_il')
-call s:add_to('al', 'il')
+call s:add_to('al', 'ljl')
+call s:add_to('in', '<plug>dedowsdi_to_in')
 call s:add_to('ic', '<plug>dedowsdi_to_ic')
 
 " motion and operator {{{2
