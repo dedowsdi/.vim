@@ -38,6 +38,12 @@ function s:force_motion() abort
   endif
 endfunction
 
+function s:assert_start_state() abort
+  if mode() =~# "[vV\<c-v>]"
+    throw "illegal visual mode in start of text object"
+  endif
+endfunction
+
 " simple text objects
 
 " return [itemIndex, [total range] [item1 range, item 2 range ....]]
@@ -123,6 +129,7 @@ endfunction
 
 " visual select cur arg, by default space included
 function misc#to#sel_cur_arg(opts) abort
+  call s:assert_start_state()
   " how to reset cursor from V: ?
   call extend(a:opts, {'exclude_space':0}, 'keep')
   let ranges = misc#to#get_args(a:opts)
@@ -184,13 +191,10 @@ endfunction
 
 " select regex pattern, pattern must contain %#
 function misc#to#sel(pat, ai) abort
+  call s:assert_start_state()
 
   if stridx(a:pat, '%#') ==# -1
     throw 'sel pattern must contain %#'
-  endif
-
-  if mode() =~# "[vV\<c-v>]"
-    throw 'illegal visual mode'
   endif
 
   try
@@ -230,6 +234,7 @@ function misc#to#sel_number(ai) abort
 endfunction
 
 function misc#to#column() abort
+  call s:assert_start_state()
   exec "norm! \<c-v>"
   if misc#get_cc() !~# '\s'
     call misc#mo#vertical_motion('E')
@@ -247,6 +252,7 @@ endfunction
 " style : 0 : use ai to include or exclude pattern line
 " style : 1 : use ai to include or exclude space
 function misc#to#sel_lines(pattern0, pattern1, ai, style)
+  call s:assert_start_state()
 
   try
     let cpos = getcurpos()
@@ -304,6 +310,7 @@ function misc#to#sel_lines(pattern0, pattern1, ai, style)
 endfunction
 
 function misc#to#sel_expr() abort
+  call s:assert_start_state()
   if misc#get_cc() !~? '\w'
     return
   endif
