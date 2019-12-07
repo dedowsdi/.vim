@@ -43,11 +43,17 @@ onoremap <expr> <plug>dedowsdi_to_ia <sid>omap('\<plug>dedowsdi_to_ia', mode(1),
 vnoremap <plug>dedowsdi_to_ie <esc>:call misc#to#sel_expr()<cr>
 onoremap <expr> <plug>dedowsdi_to_ie <sid>omap('\<plug>dedowsdi_to_ie', mode(1), 'v')
 
-vnoremap <plug>dedowsdi_to_il <esc>:call misc#to#sel_letter()<cr>
+vnoremap <plug>dedowsdi_to_il <esc>:call misc#to#sel_letter('i')<cr>
 onoremap <expr> <plug>dedowsdi_to_il <sid>omap('\<plug>dedowsdi_to_il', mode(1), 'v')
 
-vnoremap <plug>dedowsdi_to_in <esc>:call misc#to#sel_number()<cr>
+vnoremap <plug>dedowsdi_to_al <esc>:call misc#to#sel_letter('a')<cr>
+onoremap <expr> <plug>dedowsdi_to_al <sid>omap('\<plug>dedowsdi_to_al', mode(1), 'v')
+
+vnoremap <plug>dedowsdi_to_in <esc>:call misc#to#sel_number('i')<cr>
 onoremap <expr> <plug>dedowsdi_to_in <sid>omap('\<plug>dedowsdi_to_in', mode(1), 'v')
+
+vnoremap <plug>dedowsdi_to_an <esc>:call misc#to#sel_number('a')<cr>
+onoremap <expr> <plug>dedowsdi_to_an <sid>omap('\<plug>dedowsdi_to_an', mode(1), 'v')
 
 vnoremap <plug>dedowsdi_to_ic <esc>:call misc#to#column()<cr>
 onoremap <expr> <plug>dedowsdi_to_ic <sid>omap('\<plug>dedowsdi_to_ic', mode(1), "\<c-v>")

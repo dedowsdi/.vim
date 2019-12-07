@@ -175,8 +175,8 @@ function misc#to#bubble_arg(opts) abort
 
 endfunction
 
-" pat will always contain %#
-function misc#to#sel(pat) abort
+" select regex pattern, pattern must contain %#
+function misc#to#sel(pat, ai) abort
 
   if stridx(a:pat, '%#') ==# -1
     throw 'sel pattern must contain %#'
@@ -189,9 +189,21 @@ function misc#to#sel(pat) abort
   try
     let spat = @/
     let @/ = a:pat
+    call misc#log#debug( printf( 'sel : %s', @/ ) )
     norm! gn
     if mode() !~# "[vV\<c-v>]"
       return 0
+    endif
+
+    " expand to right or left neighbor space
+    if a:ai ==# 'a'
+      if !search( '\v%#.\s+', 'ce', line('.') )
+        norm! o
+
+        " mimic vaw, ignore leading space
+        call search( '\v\S\zs\s+%#.', 'bc', line('.') )
+        norm! o
+      endif
     endif
 
     call s:force_motion(mode())
@@ -202,12 +214,12 @@ function misc#to#sel(pat) abort
   endtry
 endfunction
 
-function misc#to#sel_letter() abort
-  return misc#to#sel( '\v[a-zA-Z]*%#[a-zA-Z]+' )
+function misc#to#sel_letter(ai) abort
+  return misc#to#sel( '\v[a-zA-Z]*%#[a-zA-Z]+', a:ai )
 endfunction
 
-function misc#to#sel_number() abort
-  return misc#to#sel( '\v[0-9.\-]*%#[0-9.\-]+' )
+function misc#to#sel_number(ai) abort
+  return misc#to#sel( '\v[0-9.\-]*%#[0-9.\-]+', a:ai )
 endfunction
 
 function misc#to#column() abort
