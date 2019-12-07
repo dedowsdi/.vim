@@ -240,10 +240,10 @@ endfunction
 " style : 0 : use ai to include or exclude pattern line
 " style : 1 : use ai to include or exclude space
 function misc#to#sel_lines(pattern0, pattern1, ai, style)
-  let cpos = getcurpos()
-  let cview = winsaveview()
 
   try
+    let cpos = getcurpos()
+    let cview = winsaveview()
 
     " jump to start line or exit
     if !search(a:pattern0, 'bcW') | return | endif
@@ -290,10 +290,10 @@ function misc#to#sel_lines(pattern0, pattern1, ai, style)
   endtry
 
   " visually select from startline to endline
-  norm! V
   exec startline
-  norm! o
+  norm! V
   exec endline
+  call s:force_motion('V')
 endfunction
 
 function misc#to#sel_expr() abort
