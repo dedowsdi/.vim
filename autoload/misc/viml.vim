@@ -13,7 +13,7 @@ endfunction
 function misc#viml#get_function_range() abort
   try
     let cview = winsaveview()
-    call misc#viml#sel_function('i')
+    call misc#viml#sel_func('i')
     exec "norm! \<esc>"
   finally
     call winrestview(cview)
@@ -23,7 +23,7 @@ function misc#viml#get_function_range() abort
   return pos0 == pos1 ? [] : [pos0, pos1]
 endfunction
 
-function misc#viml#sel_function(ai)
+function misc#viml#sel_func(ai)
   call misc#to#sel_lines('\v^\s*fu%[nction]?\!?\s+\S+\(',
         \ '\v^\s*endf%[unction]?\s*$', a:ai, 1)
 endfunction

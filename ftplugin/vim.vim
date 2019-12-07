@@ -9,10 +9,13 @@ setlocal omnifunc=syntaxcomplete#Complete
 setlocal foldmethod=indent
 setlocal keywordprg&
 
-vnoremap <buffer> af :<C-U>silent! call misc#viml#sel_function('a')<cr>
-vnoremap <buffer> if :<C-U>silent! call misc#viml#sel_function('i')<cr>
-onoremap <buffer> af :normal vaf<cr>
-onoremap <buffer> if :normal vif<cr>
+function s:add_to(lhs, rhs) abort
+    exe printf('vmap <buffer> %s %s', a:lhs, a:rhs)
+    exe printf('omap <buffer> %s %s', a:lhs, a:rhs)
+endfunction
+
+call s:add_to('if', '<plug>dedowsdi_viml_to_if')
+call s:add_to('af', '<plug>dedowsdi_viml_to_af')
 
 nnoremap <buffer> <c-f5>     :VimlReloadScript<cr>
 nnoremap <buffer> <c-f9>     :VimlBreakNumberedFunction<cr>

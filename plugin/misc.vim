@@ -58,6 +58,12 @@ onoremap <expr> <plug>dedowsdi_to_an <sid>omap('\<plug>dedowsdi_to_an', mode(1),
 vnoremap <plug>dedowsdi_to_ic <esc>:call misc#to#column()<cr>
 onoremap <expr> <plug>dedowsdi_to_ic <sid>omap('\<plug>dedowsdi_to_ic', mode(1), "\<c-v>")
 
+vnoremap <plug>dedowsdi_viml_to_if  <esc>:call misc#viml#sel_func('i')<cr>
+onoremap <expr> <plug>dedowsdi_viml_to_if  <sid>omap('\<plug>dedowsdi_viml_to_if ', mode(1), 'v')
+
+vnoremap <plug>dedowsdi_viml_to_af  <esc>:call misc#viml#sel_func('a')<cr>
+onoremap <expr> <plug>dedowsdi_viml_to_af  <sid>omap('\<plug>dedowsdi_viml_to_af ', mode(1), 'v')
+
 " op {{{1
 
 " circumvent count, register changes
