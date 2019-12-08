@@ -628,20 +628,26 @@ endfunction
 com -nargs=+ -complete=shellcmd Job call s:job(<q-args>)
 
 function s:job(cmd) abort
-  call job_start( a:cmd, { "exit_cb":function('s:job_exit_cb'),
-              \ "err_cb": function('s:job_err_cb') } )
+  call term_start( a:cmd, { "exit_cb" : function('s:job_exit_cb'), "hidden"  : 1 } )
 endfunction
 
+" if exit 0, wipe self in 10min, otherwise display self in split
 function s:job_exit_cb(job, exit_status)
-  if a:exit_status != 0
-    echohl WarningMsg
-    echomsg printf('%s exit with %d', a:job, a:exit_status)
-    echohl None
-  endif
-endfunction
+  let buf = ch_getbufnr(a:job, 'out')
+  if a:exit_status == 0
+    echom printf('%s, buf : %d', a:job, buf)
 
-function s:job_err_cb(ch, msg)
-  echohl WarningMsg
-  echomsg printf('%s : %s', a:ch, a:msg)
-  echohl None
+    function! s:clear_job_buf(timer) closure abort
+      exe 'bwipe' buf
+    endfunction
+
+    let timer_id = timer_start( 10 * 60 * 1000, funcref('s:clear_job_buf') )
+
+    augroup job_event_group
+      exe printf('autocmd BufWinEnter <buffer=%d> call timer_stop(%d)', buf, timer_id)
+    augroup end
+
+  else
+    exe 'botright sbuffer +set\ nonumber\ norelativenumber' buf
+  endif
 endfunction
