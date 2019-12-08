@@ -405,7 +405,7 @@ function misc#get_last_change() abort
     let change = change[0:-2]
   endif
 
-  return misc#get_pos_string(pos0, pos1, 'v')
+  return change
 endfunction
 
 function s:default_string_mark()
