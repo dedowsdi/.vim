@@ -1,2 +1,6 @@
 .VimballRecord
 plugged
+plug.vim
+
+plugin/*
+!plugin/misc.vim
