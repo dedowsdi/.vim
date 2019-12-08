@@ -18,7 +18,8 @@ set -o nounset
 
 PROG_NAME=$0
 
-show_usage() {
+show_usage()
+{
 	echo "Usage:"
 	echo ""
 	echo "    $PROG_NAME ${1:args}"
@@ -30,7 +31,7 @@ show_usage() {
 while getopts "hmM" opt; do
 	case $opt in
 		h)
-			show_suage
+			show_usage
 			exit 0
 			;;
 
@@ -44,3 +45,8 @@ shift $((OPTIND-1))
 
 exit 0
 endsnippet
+
+snippet ift
+if [[ ${1:cond} ]]; then ${2:A}; else ${3:B}; fi
+endsnippet
+

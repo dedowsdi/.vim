@@ -84,7 +84,7 @@ endsnippet
 
 ## functions
 snippet main "main() (main)" b
-int main(int argc, char *argv[])
+int main( int argc, char *argv[] )
 {
 	${VISUAL}$0
 	return 0;
@@ -385,7 +385,7 @@ std::forward<${1:T}>($0)
 endsnippet
 
 snippet ag
-std::${1:sort}(${2:ctn.}begin(), $2end());
+std::${1:sort}( ${2:ctn.}begin(), $2end() );
 endsnippet
 
 snippet arr
@@ -397,6 +397,10 @@ snippet lambda "lambda" w
 {
 	${VISUAL}$0
 }
+endsnippet
+
+snippet l "lambda in one line" w
+[](${1:arg}) { ${VISUAL}$0 }
 endsnippet
 
 snippet dt "declare type" w
