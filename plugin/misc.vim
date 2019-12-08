@@ -8,7 +8,9 @@ let g:loaded_misc_plugin = 1
 " mo {{{1
 function s:add_mo(keys, func)
     exec printf('nnoremap %s :call %s<cr>', a:keys, a:func)
-    exec printf('vnoremap %s :<c-u>exec "norm! gv" <bar> call %s<cr>', a:keys, a:func)
+    exec printf('vnoremap %s <esc>:exec "norm! gv" <bar> call %s<cr>', a:keys, a:func)
+
+    " use forced motion wise or v
     exec printf('onoremap <expr> %s printf(":normal %%s%s<cr>",
                 \ mode(1) ==# "no" ? "v" : mode(1)[2])', a:keys, a:keys)
 endfunction
@@ -21,31 +23,29 @@ call s:add_mo('<plug>dedowsdi_mo_expr', 'misc#mo#expr()')
 
 " key is executed as
 "   exe "norm {vmode}{key}"
-function s:omap(key, mode, vmode)
-  let vmode = a:mode[2:2]
-  if vmode ==# ''
-    let vmode = a:vmode
-  endif
+function s:omap(key, mode, default_vmode)
+  let vmode = a:mode ==# 'no' ? a:default_vmode : a:mode[2]
   if vmode ==# "\<c-v>"
     let vmode .= vmode
   endif
 
-  " force motion, pass register
+  " apply forced motion, pass register.
   return printf(':exe "normal %s%s\"%s' . "\<cr>", vmode, a:key, v:register)
 endfunction
 
-function s:add_to(ai, letter, vmode, func, ...) abort
+" add text object, assume func prototype as: func(ai)
+function s:add_to(ai, letter, default_vmode, func, ...) abort
   let prefix = get(a:000, 0, '<plug>dedowsdi_to_')
   if a:ai =~# 'a'
     let key = printf("%sa%s", prefix, a:letter)
     exe printf('vnoremap %s <esc>:silent! call call("%s", ["a"])<cr>', key, a:func)
-    exe printf('onoremap <expr> %s <sid>omap(''\%s'', mode(1), "%s")', key, key, a:vmode)
+    exe printf('onoremap <expr> %s <sid>omap(''\%s'', mode(1), "%s")', key, key, a:default_vmode)
   endif
 
   if a:ai =~# 'i'
     let key = printf("%si%s", prefix, a:letter)
     exe printf('vnoremap %s <esc>:silent! call call("%s", ["i"])<cr>', key, a:func)
-    exe printf('onoremap <expr> %s <sid>omap(''\%s'', mode(1), "%s")', key, key, a:vmode)
+    exe printf('onoremap <expr> %s <sid>omap(''\%s'', mode(1), "%s")', key, key, a:default_vmode)
   endif
 endfunction
 
