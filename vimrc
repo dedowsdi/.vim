@@ -414,9 +414,10 @@ colorscheme gruvbox
 
 " must be applied after colorscheme, avoid highlight overwrite.
 if v:version > 800
-  packadd cfilter
-  packadd termdebug
+  packadd! cfilter
+  packadd! termdebug
 endif
+packadd! matchit
 
 augroup zxd_misc
   au!
