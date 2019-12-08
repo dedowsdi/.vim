@@ -427,7 +427,7 @@ augroup zxd_misc
     " too dangerious?
     " autocmd DirChanged * if filereadable('.vim/init.vim') | source .vim/init.vim | endif
     if !has('nvim')
-      autocmd TerminalOpen * setl nonumber norelativenumber
+      autocmd TerminalWinOpen * setl nonumber norelativenumber
     endif
   endif
 
