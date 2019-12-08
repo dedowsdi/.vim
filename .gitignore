@@ -4,3 +4,6 @@ plug.vim
 
 plugin/*
 !plugin/misc.vim
+
+autoload/DrawIt.vim
+doc/DrawIt.txt
