@@ -36,6 +36,12 @@ endfunction
 
 " warning when you try to undo into older sessions
 function misc#undo#safeundo() abort
+
+  " restrict to normal buffer
+  if &buftype !=# ''
+    return
+  endif
+
   if changenr() == misc#undo#get_tag('start_tag')
     echohl ErrorMsg
     echom 'Reaching start point! use norm! u instead'

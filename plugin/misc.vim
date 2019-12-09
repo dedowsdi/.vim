@@ -166,9 +166,13 @@ if &undofile
   " install a 0 tag for existing file
   augroup undotree_tag
     au!
-    autocmd BufRead * call misc#undo#tag_start()
+
+    autocmd BufRead * if &buftype ==# '' && &modifiable
+                   \|   call misc#undo#tag_start()
+                   \|   exe 'nnoremap <buffer> u :call misc#undo#safeundo()<cr>'
+                   \| endif
   augroup end
-  nnoremap u :call misc#undo#safeundo()<cr>
+  
 endif
 
 " readline {{{hist
