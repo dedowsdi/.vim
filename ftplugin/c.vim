@@ -45,9 +45,14 @@ nnoremap <buffer> <a-o>      :CdefSwitchFile<cr>
 " nnoremap <buffer> <c-f7>     :YcmDiags<cr>
 inoremap <buffer> <c-l>      ->
 nnoremap <buffer> <f8>       :CdefSwitch<cr>
-nnoremap <buffer> <leader>ed :CdefDef<cr>
-vnoremap <buffer> <leader>ed :CdefDef<cr>
-nnoremap <buffer> <leader>ei :call mycpp#manual_include()<cr>
+nnoremap <buffer> _d :CdefDef<cr>
+vnoremap <buffer> _d :CdefDef<cr>
+nnoremap <buffer> _s :CdefCreateSourceFile<cr>
+nnoremap <buffer> _h :CdefAddHeadGuard<cr>
+nnoremap <buffer> _g :CdefGetSet<cr>
+vnoremap <buffer> _g :CdefGetSet<cr>
+nnoremap <buffer> _G :CdefConstGetSet<cr>
+vnoremap <buffer> _G :CdefConstGetSet<cr>
 nnoremap <buffer> <s-f7>     :CppMakeFileName<cr>
 
 if !exists(':FZF')
