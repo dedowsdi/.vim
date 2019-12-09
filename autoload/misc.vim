@@ -398,10 +398,10 @@ function misc#get_last_change() abort
     return ''
   endif
 
-  " mark motion is exclusive unless it ends in newline (cursor in column 1 of
-  " next line)
   let change = misc#get_pos_string(pos0, pos1, 'v')
-  if change[-1:-1] !=# "\n"
+
+  " mark motion is exclusive, '] might past end of line for 1 byte.
+  if pos1[2] <= len( getline(pos1[1]) )
     let change = change[0:-2]
   endif
 
