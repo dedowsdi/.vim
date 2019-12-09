@@ -166,7 +166,9 @@ function misc#op#omo(operator) abort
   norm! ma
   call setpos('.', cpos)
   exe 'set opfunc=misc#op#omo_' . a:operator
-  call feedkeys('g@')
+
+  " use i to make sure it works with norm co..
+  call feedkeys('g@', 'im')
 endfunction
 
 function misc#op#omo_co(type, ...) abort
@@ -186,7 +188,10 @@ function misc#op#omo_co(type, ...) abort
   " go back to starting position, change current word
   norm! `a
 
-  call feedkeys( misc#get_cc() =~# '\w' ? 'ciw' : 'cl' )
+  let s:omo_cnr = changenr()
+
+  " use i to make sure it works with norm co..
+  call feedkeys( misc#get_cc() =~# '\w' ? 'ciw' : 'cl', 'in' )
 
 endfunction
 
@@ -224,9 +229,10 @@ function s:co_insert_leave() abort
   let replacement = misc#get_last_change()
   let is_word = cword !~# '\W'
   try
+
     " undo last change, all change are done in following :substitute, this also
     " make sure `< and `> is still valid.
-    norm! u
+    exe 'undo ' s:omo_cnr
 
     " mark visual end with special string mark
     norm! `>
@@ -271,11 +277,16 @@ function s:co_insert_leave() abort
   finally
     " clear string marks
     norm! `a^
-    call misc#search_string_mark(visual_end_mark)
-    call misc#remove_string_mark(visual_end_mark)
+    if has_key(l:, 'visual_end_mark')
+      call misc#search_string_mark(visual_end_mark)
+      call misc#remove_string_mark(visual_end_mark)
+    endif
+
     norm! `a^
-    call misc#search_string_mark(first_change_mark)
-    call misc#remove_string_mark(first_change_mark)
+    if has_key(l:, 'first_change_mark')
+      call misc#search_string_mark(first_change_mark)
+      call misc#remove_string_mark(first_change_mark)
+    endif
     let @@ = cword
     call setpos("'a", s:omo_old_mark_a)
   endtry
