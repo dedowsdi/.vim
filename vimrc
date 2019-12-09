@@ -595,10 +595,13 @@ endfunction
 com -nargs=+ -complete=command Less call <sid>less(<q-args>)
 
 function s:less(cmd)
+
+  " get result in current buffer, must be called before new
+  let result = execute(a:cmd)
   new
   setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
   exe printf("file [one-off] %s", a:cmd)
-  exe printf("put! =execute('%s')", a:cmd)
+  call setline(1, split(result, "\n"))
   1
 endfunction
 
