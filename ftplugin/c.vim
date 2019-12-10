@@ -63,12 +63,14 @@ endif
 
 function s:fzf_cpp_btags()
 
-  let fzf_btags_cmd = 'ctags 
-        \ -D "META_Object(library,name)=" 
-        \ -D "META_ValueObject(value, valueObject)=" 
+  let fzf_btags_cmd = 'ctags
         \ -f -
-        \ --excmd=number --sort=no --fields-c++=+{properties}{template}
-        \ --fields=KsSi --kinds-c++=+pUN --links=yes --language-force=c++'
+        \ --sort=no
+        \ --fields-c++=+{properties}{template}
+        \ --fields=KsSi
+        \ --links=yes
+        \ --language-force=c++'
+
   " display everything except filename and line number.
   " fuzzy search all fields.
   call fzf#vim#buffer_tags(
