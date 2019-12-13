@@ -654,3 +654,23 @@ function s:job_exit_cb(job, exit_status)
     exe 'botright sbuffer +set\ nonumber\ norelativenumber' buf
   endif
 endfunction
+
+" {Enable|Disable}AutoFormatTable
+com EnableAutoFormatTable autocmd! auto_format_table BufWrite <buffer> call s:format_table()
+com DisableAutoFormatTable autocmd! auto_format_table BufWrite <buffer>
+
+augroup auto_format_table
+  autocmd!
+augroup end
+
+function s:format_table()
+  try
+    let cview = winsaveview()
+
+    " match only last line of table. It's
+    " | ..........| + (endof file | blank line | line that doesn't starts with |)
+    g /\v^\s*\|.*\|\s*$%(%$|\n\s*%($|[^|]))/ exe "norm \<Plug>(EasyAlign)ip*|\<cr>"
+  finally
+    call winrestview(cview)
+  endtry
+endfunction
