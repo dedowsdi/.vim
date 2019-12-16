@@ -115,6 +115,7 @@ set scrolloff=1
 set showmode showcmd novisualbell
 set noshowmatch matchtime=3 matchpairs+=<:>
 set belloff=esc
+set nofoldenable
 
                                 " plugin {{{1
 
