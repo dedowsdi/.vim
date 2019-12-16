@@ -335,7 +335,7 @@ function misc#camel_to_underscore(name)
   return substitute(s, '\v\C[A-Z]', '_\l\0', 'g')
 endfunction
 
-function misc#complete_expresson(backward)
+function misc#complete_expresson(backward) abort
   let l = matchlist(getline('.'), printf('\v(.*)(<\w+)\zs%%%dc', col('.')))
   if empty(l) || l[2] ==# ''
     return ''
@@ -345,30 +345,51 @@ function misc#complete_expresson(backward)
 
   let view = winsaveview()
 
-  " place cursor at start of current WORD
-  norm! B
+  " collect completions, if there are duplicates, prefer before cursor
+  " completions for backward, after cursor completions for forward.
+  "
+  " note that if you don't clear duplicates, vim will do it for you, not sure
+  " what rule is used by vim.
+
+  " place cursor at start of current word
+  norm! b
   let cpos = getcurpos()
   let pattern = '\v<'.base
 
-  " collection completion before cursor
-  let part0 = []
-  while search(pattern, 'bW')
-    norm yie
-    let part0 = [ @" ] + part0
-  endwhile
+  let comps = {}
+  let flag0 = a:backward ? 'bW' : 'W'
+  let flag1 = a:backward ? 'W' : 'bW'
 
-  " collection completion after cursor
-  call setpos('.', cpos)
-  let part1 = []
-  while search(pattern, 'W')
-    norm yie
-    let part1 = part1 + [ @" ]
-  endwhile
+  for flag in [flag0, flag1]
+    call setpos('.', cpos)
+    while search(pattern, flag)
+      exe "norm y\<plug>dedowsdi_to_ie"
+      if !has_key(comps, @@)
+        let comps[@@] = line('.')
+      endif
+    endwhile
+  endfor
 
   call winrestview(view)
 
-  " join completions, follow in the same convention as ctrl-p and ctrl-n
-  call complete(start_col, part1 + part0)
+  " join completions, follow the same convention as ctrl-p and ctrl-n,
+  " completions after cursor on top of the list.
+
+  " sort by line
+  let sorted_comps = sort( items(comps), { v1,v2 -> v1[1] - v2[1] } )
+
+  " get items after cursor, and items before cursor
+  let before_curosr_comps = []
+  let after_cursor_comps = []
+  for [text, lnum] in sorted_comps
+    if lnum <= cpos[1]
+      let before_curosr_comps += [text]
+    else
+      let after_cursor_comps += [text]
+    endif
+  endfor
+
+  call complete(start_col, after_cursor_comps + before_curosr_comps)
   if a:backward
     " are there other ways to do this ?
     call feedkeys(repeat("\<c-p>", 2))
