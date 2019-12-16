@@ -4,4 +4,5 @@ if exists("b:loaded_sh_cfg")
 endif
 let b:loaded_sh_cfg = 1
 
-:setlocal expandtab textwidth=160
+setlocal textwidth=160
+nnoremap <buffer> <f5> :terminal ./%<cr><c-w><c-p>
