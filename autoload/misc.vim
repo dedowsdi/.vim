@@ -362,10 +362,12 @@ function misc#complete_expresson(backward) abort
 
   for flag in [flag0, flag1]
     call setpos('.', cpos)
-    while search(pattern, flag)
+    let idx = 0
+    while search(pattern, flag) && idx < g:dedowsdi_misc_complete_maxitem_per_direction
       exe "norm y\<plug>dedowsdi_to_ie"
       if !has_key(comps, @@)
         let comps[@@] = line('.')
+        let idx += 1
       endif
     endwhile
   endfor

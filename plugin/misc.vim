@@ -218,6 +218,7 @@ endif
 
 " misc {{{1
 
+let g:dedowsdi_misc_complete_maxitem_per_direction = 16
 inoremap <plug>dedowsdi_misc_complete_next_expression <c-r>=misc#complete_expresson(1)<cr>
 inoremap <plug>dedowsdi_misc_complete_prev_expression <c-r>=misc#complete_expresson(0)<cr>
 
