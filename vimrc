@@ -12,7 +12,7 @@ scriptencoding utf-8
 set list listchars=trail:┄,tab:†·,extends:>,precedes:<,nbsp:+
 scriptencoding
 
-" add all child dir to path
+" add all child dir of current dir to path
 set path+=/usr/local/include,**
 
 " reduce esc delay to a acceptable number
