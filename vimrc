@@ -557,6 +557,7 @@ com SynID echo synIDtrans(synID(line('.'), col('.'), 1))
 com -nargs=+ SynIDattr echo synIDattr(
             \ synIDtrans(synID(line('.'), col('.'), 1)), <f-args>)
 com EditVimrc e `echo $MYVIMRC`
+com ReloadDotVimFtplugin unlet b:loaded_{&filetype}_cfg | e
 
 " Expand {{{2
 " Expand [x=+] [mods=%:p], " is always set
