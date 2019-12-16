@@ -507,8 +507,8 @@ endif
 nmap ys<space> <plug>dedowsdi_misc_pair_add_space
 nmap ds<space> <plug>dedowsdi_misc_pair_minus_space
 
-imap <c-x><c-p> <plug>dedowsdi_misc_complete_next_expression
-imap <c-x><c-n> <plug>dedowsdi_misc_complete_prev_expression
+imap <c-x><c-n> <plug>dedowsdi_misc_complete_next_expression
+imap <c-x><c-p> <plug>dedowsdi_misc_complete_prev_expression
 
 " stop cursor movement from breaking undo in insert mode
 inoremap <Left>  <c-g>U<Left>
