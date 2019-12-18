@@ -172,7 +172,7 @@ if &undofile
                    \|   exe 'nnoremap <buffer> u :call misc#undo#safeundo()<cr>'
                    \| endif
   augroup end
-  
+
 endif
 
 " readline {{{hist

@@ -330,6 +330,13 @@ map      ,c  <Plug>Commentary
 nmap     ,cc <Plug>CommentaryLine
 nmap     ,cu <Plug>Commentary<Plug>Commentary
 
+" eython {{{2
+map  <silent> ,e         <plug>eython_motion
+vmap <silent> ie         <plug>eython_textobject_ie
+omap <silent> ie         <plug>eython_textobject_ie
+imap <silent> <c-x><c-n> <plug>eython_complete_next
+imap <silent> <c-x><c-p> <plug>eython_complete_prev
+
 " .vim {{{2
 let g:dedowsdi_clang_format_py_path = '/usr/share/clang/clang-format-8/clang-format.py'
 " let g:dedowsdi_clang_format_fallback_style = 'LLVM'
@@ -386,6 +393,7 @@ Plug 'majutsushi/tagbar'
 
 " auto complete
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'dedowsdi/vim-eython'
 
 " ftplugin
 Plug 'octol/vim-cpp-enhanced-highlight'
@@ -451,7 +459,6 @@ endfunction
 
 call s:add_to('aa', '<plug>dedowsdi_to_aa')
 call s:add_to('ia', '<plug>dedowsdi_to_ia')
-call s:add_to('ie', '<plug>dedowsdi_to_ie')
 call s:add_to('il', '<plug>dedowsdi_to_il')
 call s:add_to('al', '<plug>dedowsdi_to_al')
 call s:add_to('in', '<plug>dedowsdi_to_in')
@@ -462,7 +469,6 @@ call s:add_to('ic', '<plug>dedowsdi_to_ic')
 nmap ,E <plug>dedowsdi_mo_vertical_E
 nmap ,W <plug>dedowsdi_mo_vertical_W
 nmap ,B <plug>dedowsdi_mo_vertical_B
-nmap ,e <plug>dedowsdi_mo_expr
 nnoremap ,,  ,
 
 function s:add_op(key, rhs)
@@ -506,9 +512,6 @@ endif
 
 nmap ys<space> <plug>dedowsdi_misc_pair_add_space
 nmap ds<space> <plug>dedowsdi_misc_pair_minus_space
-
-imap <c-x><c-n> <plug>dedowsdi_misc_complete_next_expression
-imap <c-x><c-p> <plug>dedowsdi_misc_complete_prev_expression
 
 " stop cursor movement from breaking undo in insert mode
 inoremap <Left>  <c-g>U<Left>
