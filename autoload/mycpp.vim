@@ -292,6 +292,10 @@ function mycpp#include_osg() abort
   endif
 
   let lnum = searchpos('\v^\#include\s*\<osg', 'bnW')[0]
+  if lnum == 0
+    let lnum = searchpos('\v^\#include\s*["<]', 'bnW')[0]
+  endif
+
   call append(lnum, head)
   " avoid :h :echo-redraw
   redraw
