@@ -69,8 +69,9 @@ set mouse=a
 " conceal only in visual and normal mode
 set concealcursor=vn conceallevel=0
 
-" add project .vim, .vim/after to rtp, add ~/.vim to rtp from nvim
-set rtp+=.vim,.vim/after
+" add per project setting
+set rtp+=.dedowsdi,.dedowsdi/after
+
 if has('nvim')
   set rtp+=~/.vim
 endif
@@ -315,7 +316,7 @@ let g:tex_flavor = 'latex'
 let g:vim_json_syntax_conceal = 0
 
 " gutentags {{{2
-let g:gutentags_project_root = ['.vim']
+let g:gutentags_project_root = ['.dedowsdi']
 let g:gutentags_exclude_project_root = [$HOME]
 let g:gutentags_exclude_filetypes = ['cmake', 'sh', 'json', 'md', 'text']
 let g:gutentags_define_advanced_commands = 1
