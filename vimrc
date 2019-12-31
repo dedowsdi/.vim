@@ -503,6 +503,10 @@ nnoremap K  :exec 'norm! K' <bar> wincmd p<cr>
 nnoremap gc :SelectLastPaste<cr>
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
+nnoremap _m :ReadtagsI -ok m -k e <c-r><c-A><cr>
+
+nnoremap <c-n><c-s> :NewScratch<cr>
+nnoremap <c-n><c-v> :NewVimScript<cr>
 
 nnoremap <c-w><space> :tab split<cr>
 tnoremap <c-w><space> <c-w>:tab split<cr>
@@ -681,4 +685,15 @@ function s:format_table()
   finally
     call winrestview(cview)
   endtry
+endfunction
+
+" ReadTagMemberNames{{{2
+com -nargs=+ ReadtagsI call s:readtags_i(<q-args>)
+
+function s:readtags_i(args) abort
+  let cmd = printf( 'readtagsi %s %s',
+              \ join( map( tagfiles(), { i,v-> printf('-t "%s"', v)  } ) ),
+              \ a:args )
+  call misc#log#debug(cmd)
+  call append( line('.'), systemlist(cmd) )
 endfunction
