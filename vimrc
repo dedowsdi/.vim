@@ -531,7 +531,7 @@ imap <a-l> <Right>
 imap <a-h> <Left>
 
 cmap <c-a> <Plug>dedowsdi_readline_beginning_of_line
-cmap <a-a> <c-a>
+cnoremap <a-a> <c-a>
 cmap <a-f> <Plug>dedowsdi_readline_forward_word
 cmap <a-b> <Plug>dedowsdi_readline_backward_word
 " cmap <c-f> <Plug>dedowsdi_readline_forward_char
@@ -541,15 +541,18 @@ cmap <a-l> <Plug>dedowsdi_readline_lowercase_word
 cmap <a-d> <Plug>dedowsdi_readline_forward_delete
 cmap <a-k> <Plug>dedowsdi_readline_kill
 
-nmap <leader>t <plug>dedowsdi_term_toggle_gterm
-tmap <leader>t <plug>dedowsdi_term_toggle_gterm
+nmap <c-w>` <plug>dedowsdi_term_toggle_gterm
+tmap <c-w>` <plug>dedowsdi_term_toggle_gterm
 
 " cnoremap <expr> %%  getcmdtype() == ":" ? expand("%:h")."/" : "%%"
 " cnoremap <expr> %t  getcmdtype() == ":" ? expand("%:t") : "%t"
 
                                   " command {{{1
 
-com Scratch new | setlocal buftype=nofile bufhidden=hide noswapfile nobuflisted
+com NewScratch new | setlocal buftype=nofile bufhidden=hide noswapfile nobuflisted
+com NewVimScript split `mkt -s .vim`
+com NewBashScript split `mkt -s .sh`
+com -nargs=1 -complete=file SaveScratch file <args> | set buftype= swapfile buflisted | w
 com HiTest source $VIMRUNTIME/syntax/hitest.vim
 com TrimTrailingWhitespace :keepp %s/\v\s+$//g
 com DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
@@ -647,7 +650,7 @@ function s:job(cmd) abort
 endfunction
 
 " if exit 0, wipe self in 10min, otherwise display self in split
-function s:job_exit_cb(job, exit_status)
+function s:job_exit_cb(job, exit_status) abort
   let buf = ch_getbufnr(a:job, 'out')
   if a:exit_status == 0
     echom printf('%s, buf : %d', a:job, buf)
@@ -675,7 +678,7 @@ augroup auto_format_table
   autocmd!
 augroup end
 
-function s:format_table()
+function s:format_table() abort
   try
     let cview = winsaveview()
 
