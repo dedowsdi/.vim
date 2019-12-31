@@ -14,6 +14,17 @@ function mycpp#dump_proj_file() abort
   let targets = mycpp#get_make_targets()
   let obj = {}
   for target in targets
+
+    " skip .i, .o, .s
+    if target =~# '\v\..$'
+      continue
+    endif
+
+    " skip cmake specific target
+    if index(['depend', 'edit_cache', 'rebuild_cache', 'clean'], target) != -1
+      continue
+    endif
+
     let target_obj = mycpp#get_target(target)
 
     " clear name and trivial working_dir
