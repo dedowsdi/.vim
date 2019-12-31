@@ -3,7 +3,6 @@ if exists('b:loaded_glsl_cfg')
 endif
 let b:loaded_glsl_cfg = 1
 
-setlocal shiftwidth=2 tabstop=2 textwidth=80
 setlocal commentstring=//\ %s
 setlocal complete-=t
 " setlocal complete+=s
