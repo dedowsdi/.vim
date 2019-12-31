@@ -231,6 +231,14 @@ function misc#to#sel_number(ai) abort
   return misc#to#sel( '\v[0-9.\-]*%#[0-9.\-]+', a:ai )
 endfunction
 
+function misc#to#sel_file(ai) abort
+  call s:assert_start_state()
+  1
+  norm! V
+  $
+  call s:force_motion()
+endfunction
+
 " TODO implement a?
 function misc#to#column(ai) abort
   call s:assert_start_state()

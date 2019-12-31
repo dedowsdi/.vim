@@ -465,6 +465,8 @@ call s:add_to('al', '<plug>dedowsdi_to_al')
 call s:add_to('in', '<plug>dedowsdi_to_in')
 call s:add_to('an', '<plug>dedowsdi_to_an')
 call s:add_to('ic', '<plug>dedowsdi_to_ic')
+call s:add_to('iF', '<plug>dedowsdi_to_iF')
+call s:add_to('aF', 'iF')
 
 " motion and operator {{{2
 nmap ,E <plug>dedowsdi_mo_vertical_E
@@ -483,7 +485,7 @@ nnoremap ,hh :AhlRemoveCursorHighlights<cr>
 call s:add_op(',l',     '<plug>dedowsdi_op_search_literal')
 call s:add_op(',s',     '<plug>dedowsdi_op_substitute')
 call s:add_op(',S',     '<plug>dedowsdi_op_system')
-call s:add_op(',<bar>', '<plug>dedowsdi_op_column')
+call s:add_op(',<bar>', '<plug>dedowsdi_op_get_column')
 call s:add_op(',G',     '<plug>dedowsdi_op_literal_grep')
 call s:add_op(',g',     '<plug>dedowsdi_op_search_in_browser')
 

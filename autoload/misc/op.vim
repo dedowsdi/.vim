@@ -85,7 +85,7 @@ endfunction
 " a,b        : a and b
 " a-         : a until last
 " -b         : 1 until b
-function misc#op#column(type, ...) abort
+function misc#op#get_column(type, ...) abort
   let column = input('column : ')
   if empty(column) || column <= 0 | return | endif
 

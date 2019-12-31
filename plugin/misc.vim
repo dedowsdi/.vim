@@ -55,6 +55,7 @@ call s:add_to('ai', 'l', 'v',      'misc#to#sel_letter')
 call s:add_to('ai', 'n', 'v',      'misc#to#sel_number')
 call s:add_to('i',  'c', '\<c-v>', 'misc#to#column')
 call s:add_to('ai', 'f', 'V',      'misc#viml#sel_func', '<plug>dedowsdi_viml_to_')
+call s:add_to('i', 'F', 'V',      'misc#to#sel_file')
 
 " op {{{1
 
@@ -72,9 +73,9 @@ endfunction
 call s:add_op('<plug>dedowsdi_op_search_literal', 'misc#op#search_literal')
 call s:add_op('<plug>dedowsdi_op_substitute', 'misc#op#substitude')
 call s:add_op('<plug>dedowsdi_op_system', 'misc#op#system')
-call s:add_op('<plug>dedowsdi_op_bar', 'misc#op#column')
 call s:add_op('<plug>dedowsdi_op_literal_grep', 'misc#op#literal_grep')
 call s:add_op('<plug>dedowsdi_op_browse', 'misc#op#search_in_browser')
+call s:add_op('<plug>dedowsdi_op_get_column', 'misc#op#get_column')
 
 nnoremap <plug>dedowsdi_op_co :call misc#op#omo('co')<cr>
 nnoremap <plug>dedowsdi_op_do :call misc#op#omo('do')<cr>
