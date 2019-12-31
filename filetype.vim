@@ -10,4 +10,5 @@ augroup filetypedetect
   autocmd! BufNewFile,BufRead *.compositor setfiletype compositor
   autocmd! BufNewFile,BufRead *.material setfiletype material
   autocmd! BufNewFile *.l setfiletype cpfg
+  autocmd! BufNewFile,BufRead *.osgt setfiletype osgt
 augroup END
