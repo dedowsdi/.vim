@@ -1,15 +1,48 @@
-let s:pjcfg = fnamemodify('./.vim/project.json', '%:p')
+let s:pjcfg = fnamemodify('./.dedowsdi/proj.json', '%:p')
 let s:last_target = 'all'
 let s:debug_term = {}
 
 function mycpp#get_build_dir() abort
-  return fnamemodify(g:mycpp_build_dir, ':p')
+  let dir = $CPP_BUILD_DIR
+  if empty(dir)
+    let dir = 'build/gcc/Debug' 
+  endif
+  return fnamemodify(dir, ':p')
 endfunction
 
-function mycpp#get_target(target)
-  let target_obj = filereadable(s:pjcfg) ?
-        \ get(json_decode(join(readfile(s:pjcfg), "\n")), a:target, {}) : {}
-  call extend(target_obj, {'name':a:target, 'make_args':'-j 3', 'exe_args':''}, 'keep')
+function mycpp#dump_proj_file() abort
+  let targets = mycpp#get_make_targets()
+  let obj = {}
+  for target in targets
+    let target_obj = mycpp#get_target(target)
+
+    " clear name and trivial working_dir
+    call remove(target_obj, 'name')
+    if fnamemodify(target_obj.working_dir, ':p') ==# mycpp#get_build_dir()
+      let target_obj.working_dir = ''
+    endif
+    call extend(obj, {target : target_obj})
+  endfor
+  let tempfile = tempname()
+  call writefile( split( json_encode( obj ), "\n" ), tempfile )
+  call system(printf('jq "." %s > %s ', tempfile, s:pjcfg))
+endfunction
+
+" replace empty string with value in source
+function s:extend_blank(target, source) abort
+  for [key, value] in items(a:source)
+    if !has_key(a:target, key) || empty(a:target[key])
+      let a:target[key] = value
+    endif
+  endfor
+endfunction
+
+function mycpp#get_target(target) abort
+  let obj = filereadable(s:pjcfg) ?
+        \ json_decode( join( readfile(s:pjcfg), "\n" ) ) : v:none
+  let target_obj = type(obj) !=# type(v:none) ? get(obj , a:target, {} ) : {}
+  call s:extend_blank(target_obj, { 'name':a:target, 'make_args':'-j 3',
+        \ 'exe_args':'', 'working_dir':mycpp#get_build_dir() })
   return target_obj
 endfunction
 
@@ -49,6 +82,7 @@ endfunction
 "   %A : cmd args
 "   %b : binary dir
 "   %B : build dir
+"   %w : working dir
 "   %e : executable
 "   %E : absolute path of executable
 "   %m : deepest make dir
@@ -60,6 +94,7 @@ function mycpp#exe(cmd, term, args, ...) abort
   let target_path = mycpp#get_target_path(target)
   let abs_exe = target_path.exe_path
   let make_dir = target_path.make_path
+  let working_dir = target_path.working_dir
   let exe = fnamemodify(abs_exe, ':t')
   let bin_dir = fnamemodify(abs_exe, ':h')
   let build_dir = mycpp#get_build_dir()
@@ -74,6 +109,7 @@ function mycpp#exe(cmd, term, args, ...) abort
   let cmd = substitute(cmd, '\V\C%A', cmd_args, 'g')
   let cmd = substitute(cmd, '\V\C%b', bin_dir,  'g')
   let cmd = substitute(cmd, '\V\C%B', build_dir, 'g')
+  let cmd = substitute(cmd, '\V\C%w', working_dir, 'g')
   let cmd = substitute(cmd, '\V\C%e', exe,      'g')
   let cmd = substitute(cmd, '\V\C%E', abs_exe,  'g')
   let cmd = substitute(cmd, '\V\C%m', make_dir,  'g')
@@ -114,7 +150,8 @@ function s:is_target(target) abort
 endfunction
 
 function mycpp#get_target_path(target) abort
-  let blank_res = { "make_path" : mycpp#get_build_dir(), "exe_path" : '' }
+  let build_dir = mycpp#get_build_dir()
+  let blank_res = { 'make_path' : build_dir, 'exe_path' : '', 'working_dir' : build_dir }
   if a:target =~# '\v^all>'
     return blank_res
   endif
@@ -123,8 +160,6 @@ function mycpp#get_target_path(target) abort
     call misc#warn(a:target . ' is not a valid make target')
     return blank_res
   endif
-
-  let build_dir = mycpp#get_build_dir()
 
   " find make_dir/target.dir/CMakeFiles/link.txt
   let link_tail = printf('CMakeFiles/%s.dir/link.txt', a:target)
@@ -150,12 +185,19 @@ function mycpp#get_target_path(target) abort
 
   let cmd = printf('grep -Po ''\s+\-o\s+\K\S+'' ''%s'' ', link_path)
   call misc#log#debug(cmd)
-  let exe_path = simplify(make_path . systemlist(cmd)[0])
-  if v:shell_error != 0
-    throw 'failed to execute : ' . cmd
+  let exe_path = trim( system(cmd) )
+  if !empty(exe_path)
+    let exe_path = simplify(make_path . exe_path)
   endif
 
-  return { "make_path" : make_path, "exe_path" : exe_path }
+  " it's possible taht grep exit non 0, some library build doesn't use -o
+  " if v:shell_error != 0
+  "   throw 'failed to execute : ' . cmd
+  " endif
+
+  return { 'make_path' : make_path,
+        \  'exe_path' : exe_path,
+        \  'working_dir':mycpp#get_target(a:target).working_dir }
 endfunction
 
 " {cmd [,insert]}
@@ -179,7 +221,10 @@ function mycpp#debug(args) abort
   set nofoldenable
   let [target, exe_args, cmd_args] = mycpp#parse_command(a:args, 0)
   let path = mycpp#get_target_path(target)
-  exec 'Termdebug ' . path.exe_path . ' ' . exe_args
+  exec 'Termdebug ' . path.exe_path
+  if !empty(exe_args)
+    call term_sendkeys('', printf("set args %s\<cr>",  exe_args) )
+  endif
   call term_sendkeys('', printf("set cwd %s\<cr>",
         \ fnameescape(fnamemodify(path.exe_path, ':h')) ) )
   wincmd p
@@ -231,12 +276,13 @@ function mycpp#get_cmake_cache(name) abort
   return matchstr(cache_str, rex_value)
 endfunction
 
-function mycpp#cmake()
-  let path = findfile('cmake.sh', '**')
+function mycpp#cmake(args)
+  let path = findfile('cmake.sh', '.dedowsdi')
   if empty(path)
-    return
+    call mycpp#sendjob( printf('mycmake %s', a:args))
+  else
+    call mycpp#sendjob( printf('./%s %s', path, a:args) )
   endif
-  call mycpp#sendjob('./' . path)
 endfunction
 
 function mycpp#openProjectFile() abort
@@ -269,7 +315,7 @@ function mycpp#createTempTest()
   endif
 endfunction
 
-function mycpp#debugToggleBreak()
+function mycpp#debug_toggle_break()
   if empty(sign_getplaced('', {'lnum':9, 'group':''})[0].signs)
     Break
   else

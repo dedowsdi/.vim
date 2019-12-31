@@ -46,7 +46,9 @@ nnoremap <buffer> <a-o>      :CdefSwitchFile<cr>
 inoremap <buffer> <c-l>      ->
 nnoremap <buffer> <f8>       :CdefSwitch<cr>
 nnoremap <buffer> _d :CdefDef<cr>
-vnoremap <buffer> _d :CdefDef<cr>
+nnoremap <buffer> _D :CdefDefAndSwitch<cr>
+nnoremap <buffer> _p :CdefFuncToProto<cr>
+nnoremap <buffer> _P :CdefFuncToProtoAndSwitch<cr>
 nnoremap <buffer> _s :CdefCreateSourceFile<cr>
 nnoremap <buffer> _h :CdefAddHeadGuard<cr>
 nnoremap <buffer> _g :CdefGetSet<cr>

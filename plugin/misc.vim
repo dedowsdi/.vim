@@ -37,13 +37,13 @@ endfunction
 function s:add_to(ai, letter, default_vmode, func, ...) abort
   let prefix = get(a:000, 0, '<plug>dedowsdi_to_')
   if a:ai =~# 'a'
-    let key = printf("%sa%s", prefix, a:letter)
+    let key = printf('%sa%s', prefix, a:letter)
     exe printf('vnoremap %s <esc>:silent! call call("%s", ["a"])<cr>', key, a:func)
     exe printf('onoremap <expr> %s <sid>omap(''\%s'', mode(1), "%s")', key, key, a:default_vmode)
   endif
 
   if a:ai =~# 'i'
-    let key = printf("%si%s", prefix, a:letter)
+    let key = printf('%si%s', prefix, a:letter)
     exe printf('vnoremap %s <esc>:silent! call call("%s", ["i"])<cr>', key, a:func)
     exe printf('onoremap <expr> %s <sid>omap(''\%s'', mode(1), "%s")', key, key, a:default_vmode)
   endif
@@ -86,25 +86,26 @@ nnoremap <plug>dedowsdi_op_g~o :call misc#op#omo('gso')<cr>
 let g:mycpp_def_src_ext    = get(g:, 'mycpp_def_src_ext'    , 'cpp')
 let g:mycpp_build_dir     = get(g:, 'mycpp_build_dir'     , './')
 
-com -nargs=* -complete=customlist,mycpp#make_complete CppRun           call mycpp#exe('cd %b && ./%e %a', 1, <q-args>, 0)
+com CppDumpProjFile call mycpp#dump_proj_file()
+com -nargs=* -complete=customlist,mycpp#make_complete CppRun           call mycpp#exe('cd %w && %E %a', 1, <q-args>, 0)
 com -nargs=* -complete=customlist,mycpp#make_complete CppMake          update | call mycpp#exe('cd %B && make -j3 %A %t', 1, <q-args>)
 com -nargs=* -complete=customlist,mycpp#make_complete CppMakeFileName  exec 'CppMake ' . expand('%:t:r')
-com -nargs=* -complete=customlist,mycpp#make_complete CppMakeRun       update | call mycpp#exe('cd %B && make %A %t && cd %b &&./%e %a', 1, <q-args>, 0)
-com -nargs=* -complete=customlist,mycpp#make_complete CppMakeDebug     update | call mycpp#exe('cd %B && make %t && cd %b && gdb %A --args ./%e %a', 1, <q-args>)
-com -nargs=* -complete=customlist,mycpp#make_complete CppRenderdoc     call mycpp#exe('cd "%b" && renderdoccmd capture %A "./%e" %a', 1, <q-args>)
+com -nargs=* -complete=customlist,mycpp#make_complete CppMakeRun       update | call mycpp#exe('cd %B && make %A %t && cd %w && %E %a', 1, <q-args>, 0)
+com -nargs=* -complete=customlist,mycpp#make_complete CppMakeDebug     update | call mycpp#exe('cd %B && make %t && cd %w && gdb %A --args %E %a', 1, <q-args>)
+com -nargs=* -complete=customlist,mycpp#make_complete CppRenderdoc     call mycpp#exe('cd "%w" && renderdoccmd capture %A "%E" %a', 1, <q-args>)
 
 let s:apitrace_opencmd = 'cd "%b" && qapitrace $(grep -oP "(?<=tracing to ).*$" trace.log)'
-com -nargs=* -complete=customlist,mycpp#make_complete -bar CppApitrace   call mycpp#exe('cd "%b" && apitrace trace "./%e" %a |& tee trace.log && ' . s:apitrace_opencmd, 1, <q-args>)
+com -nargs=* -complete=customlist,mycpp#make_complete -bar CppApitrace   call mycpp#exe('cd "%w" && apitrace trace "%E" %a |& tee trace.log && ' . s:apitrace_opencmd, 1, <q-args>)
 com -nargs=* -complete=customlist,mycpp#make_complete CppOpenLastApitrace      call mycpp#exe(s:apitrace_opencmd, 1, <q-args>)
-com -nargs=* -complete=customlist,mycpp#make_complete CppNNL           call mycpp#exe('cd "%b" && nnl --activity="Frame Debugger" --exe="%e" --args="%a" ', 0, <q-args>)
-com -nargs=* -complete=customlist,mycpp#make_complete CppValgrind      call mycpp#exe('cd "%b" && valgrind %A ./%e ', 1, <q-args>)
+com -nargs=* -complete=customlist,mycpp#make_complete CppNNL           call mycpp#exe('cd "%w" && nnl --activity="Frame Debugger" --exe="%E" --args="%a" ', 0, <q-args>)
+com -nargs=* -complete=customlist,mycpp#make_complete CppValgrind      call mycpp#exe('cd "%w" && valgrind %A %E ', 1, <q-args>)
 com -nargs=+ -complete=customlist,mycpp#make_pp_complete CppMakePP  update | call mycpp#make_pp(<f-args>)
 com -nargs=0 CppJsonProj                                              call mycpp#open_project_file()
 com -nargs=0 CppSearchDerived                                         call mycpp#search_derived()
-com -nargs=0 CppCmake call mycpp#cmake()
+com -nargs=* -complete=shellcmd CppCmake call mycpp#cmake(<q-args>)
 
 com -nargs=* -complete=customlist,mycpp#make_complete CppDebug         call mycpp#debug(<q-args>)
-com CppDebugToggleBreak call ycpp#debug_toggle_break()
+com CppDebugToggleBreak call mycpp#debug_toggle_break()
 com CppDebugStep        call mycpp#debug_step()
 com CppDebugNext        call mycpp#debug_next()
 com CppDebugContinue    call mycpp#debug_continue()
