@@ -1,3 +1,7 @@
+snippet arr "${array[@]}" w
+"${${1:arr}[${2:@}]}"
+endsnippet
+
 snippet readfile "read file in old style (while)"
 while IFS='' read -r line || [[ -n "$line" ]] ; do
 	echo "$line"
@@ -13,22 +17,20 @@ endsnippet
 snippet main
 #!/usr/bin/env bash
 
-set -o errexit
-set -o nounset
-
-PROG_NAME=$0
+set -eux -o pipefail
+shopt -s failglob
 
 show_usage()
 {
-	echo "Usage:"
-	echo ""
-	echo "    $PROG_NAME ${1:args}"
-	echo ""
-	echo ""
-	echo "    -h show this help"
+	echo "
+  Usage: ${0##*/}
+
+  Options:
+    -h  Show this help.
+"
 }
 
-while getopts "hmM" opt; do
+while getopts ":h" opt; do
 	case $opt in
 		h)
 			show_usage
@@ -43,6 +45,8 @@ while getopts "hmM" opt; do
 done
 shift $((OPTIND-1))
 
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &>/dev/null && pwd )"
+
 exit 0
 endsnippet
 
@@ -50,3 +54,6 @@ snippet ift
 if [[ ${1:cond} ]]; then ${2:A}; else ${3:B}; fi
 endsnippet
 
+snippet #! "she bang" b
+#!/usr/bin/env bash
+endsnippet
