@@ -348,12 +348,30 @@ function mycpp#include_osg() abort
     return
   endif
 
+  " try osg block
   let lnum = searchpos('\v^\#include\s*\<osg', 'bnW')[0]
+
+  " try other include block
   if lnum == 0
     let lnum = searchpos('\v^\#include\s*["<]', 'bnW')[0]
   endif
 
-  call append(lnum, head)
+  if lnum != 0
+    call append(lnum, head)
+  else
+
+    " no include, this must be a new file, try the first #define
+    try
+      let cview = winsaveview()
+      keepjump norm! gg
+      let lnum = searchpos('\v^\#define\s+\S+', 'Wn')[0]
+    finally
+      call winrestview( cview )
+    endtry
+    call append(lnum, head)
+    call append(lnum, '')
+  endif
+
   " avoid :h :echo-redraw
   redraw
   call misc#log#notice(head)
