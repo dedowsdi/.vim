@@ -29,9 +29,6 @@ function mycpp#dump_proj_file() abort
 
     " clear name and trivial working_dir
     call remove(target_obj, 'name')
-    if fnamemodify(target_obj.working_dir, ':p') ==# mycpp#get_build_dir()
-      let target_obj.working_dir = ''
-    endif
     call extend(obj, {target : target_obj})
   endfor
   let tempfile = tempname()
@@ -53,7 +50,7 @@ function mycpp#get_target(target) abort
         \ json_decode( join( readfile(s:pjcfg), "\n" ) ) : v:none
   let target_obj = type(obj) !=# type(v:none) ? get(obj , a:target, {} ) : {}
   call s:extend_blank(target_obj, { 'name':a:target, 'make_args':'-j 3',
-        \ 'exe_args':'', 'working_dir':mycpp#get_build_dir() })
+        \ 'exe_args':'', 'working_dir':'' })
   return target_obj
 endfunction
 
@@ -162,7 +159,7 @@ endfunction
 
 function mycpp#get_target_path(target) abort
   let build_dir = mycpp#get_build_dir()
-  let blank_res = { 'make_path' : build_dir, 'exe_path' : '', 'working_dir' : build_dir }
+  let blank_res = { 'make_path' : build_dir, 'exe_path' : '', 'working_dir' : '' }
   if a:target =~# '\v^all>'
     return blank_res
   endif
@@ -201,6 +198,11 @@ function mycpp#get_target_path(target) abort
     let exe_path = simplify(make_path . exe_path)
   endif
 
+  let working_dir = mycpp#get_target(a:target).working_dir
+  if empty(working_dir)
+    let working_dir = fnamemodify(exe_path, ':h')
+  endif
+
   " it's possible taht grep exit non 0, some library build doesn't use -o
   " if v:shell_error != 0
   "   throw 'failed to execute : ' . cmd
@@ -208,7 +210,7 @@ function mycpp#get_target_path(target) abort
 
   return { 'make_path' : make_path,
         \  'exe_path' : exe_path,
-        \  'working_dir':mycpp#get_target(a:target).working_dir }
+        \  'working_dir': working_dir }
 endfunction
 
 " {cmd [,insert]}
