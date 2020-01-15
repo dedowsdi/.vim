@@ -101,7 +101,7 @@ com -nargs=* -complete=customlist,mycpp#make_complete CppOpenLastApitrace      c
 com -nargs=* -complete=customlist,mycpp#make_complete CppNNL           call mycpp#exe('cd "%w" && nnl --activity="Frame Debugger" --exe="%E" --args="%a" ', 0, <q-args>)
 com -nargs=* -complete=customlist,mycpp#make_complete CppValgrind      call mycpp#exe('cd "%w" && valgrind %A "%E" ', 1, <q-args>)
 com -nargs=+ -complete=customlist,mycpp#make_pp_complete CppMakePP  update | call mycpp#make_pp(<f-args>)
-com -nargs=0 CppJsonProj                                              call mycpp#open_project_file()
+com CppConfig call mycpp#open_project_file()
 com -nargs=0 CppSearchDerived                                         call mycpp#search_derived()
 com -nargs=* -complete=shellcmd CppCmake call mycpp#cmake(<q-args>)
 
@@ -217,6 +217,10 @@ if !has('nvim')
           \ ? "<esc>" : "%s"', s:psk_rotate, s:psk_rotate)
   endif
 endif
+
+" popup {{{1
+com -nargs=? SaveBufferLayout call misc#layout#save(<q-args>)
+com -nargs=? RestoreBufferLayout call misc#layout#restore(<q-args>)
 
 " misc {{{1
 
