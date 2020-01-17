@@ -511,6 +511,11 @@ nnoremap <c-n><c-v> :NewVimScript<cr>
 nnoremap <c-w><space> :tab split<cr>
 tnoremap <c-w><space> <c-w>:tab split<cr>
 nnoremap <c-w>O :CloseFinishedTerminal<cr>
+tnoremap <expr> <c-w>m printf('<c-w>:mark %s<cr>',  nr2char(getchar()))
+tnoremap <c-w><pageup> <c-w>:tabprevious<cr>
+tnoremap <c-w><pagedown> <c-w>:tabnext<cr>
+nnoremap <c-w><pageup> <c-w>:tabprevious<cr>
+nnoremap <c-w><pagedown> <c-w>:tabnext<cr>
 
 if v:version > 800
   cmap <tab> <Plug>dedowsdi_hist_expand_hist_wild
