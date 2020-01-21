@@ -202,7 +202,7 @@ nnoremap <c-j> :BTags<cr>
 nnoremap <a-j> :Ctags<cr>
 nnoremap <c-h> :History<cr>
 nnoremap <c-b> :Buffers<cr>
-nnoremap <c-p> :call <sid>fzf(g:fzf_file_project, ":Files")<cr>
+nnoremap <c-p> :call fzf#vim#files('', {'source': g:fzf_project_source})<cr>
 nnoremap <a-p> :FZF<cr>
 
 imap <a-x><a-k> <plug>(fzf-complete-word)
@@ -237,24 +237,16 @@ let g:fzf_action = {
       \ 'ctrl-x': 'split',
       \ 'ctrl-v': 'vertical rightbelow split',
       \ 'ctrl-a': 'argadd',
-      \ 'ctrl-o': '!gvfs-open',
+      \ 'ctrl-o': '!gio open',
       \ 'ctrl-q': function('s:build_quickfix_list')
       \ }
 let g:fzf_layout = {'up':'~40%'}
-let g:fzf_file_project = 'find . \( -name ".hg" -o -name ".git" -o -name "build"
+let g:fzf_project_source = 'find . \( -name ".hg" -o -name ".git" -o -name "build"
             \ -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
 
 let g:external_files = get(g:, 'external_files', [])
 
 " fzf helper functions {{{3
-
-" change FZF_DEFAULT_COMMAND, execute cmd, restore FZF_DEFALUT_COMMAND
-function s:fzf(fzf_default_cmd, cmd)
-  let oldcmds = $FZF_DEFAULT_COMMAND | try
-    let $FZF_DEFAULT_COMMAND = a:fzf_default_cmd
-    execute a:cmd
-  finally | let $FZF_DEFAULT_COMMAND = oldcmds | endtry
-endfunction
 
 function FZF_lines(filter) abort
   let lines = getline(1, '$')
