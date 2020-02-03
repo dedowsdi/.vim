@@ -567,7 +567,7 @@ com Synstack echo map( synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'
 com SynID echo synIDtrans(synID(line('.'), col('.'), 1))
 com -nargs=+ SynIDattr echo synIDattr(
             \ synIDtrans(synID(line('.'), col('.'), 1)), <f-args>)
-com EditVimrc e `echo $MYVIMRC`
+com EditVimrc split $MYVIMRC
 com ReloadDotVimFtplugin unlet b:loaded_{&filetype}_cfg | e
 com-range UnsortUniq let g:__d={} | <line1>,<line2>g/^/
       \ if has_key(g:__d, getline('.')) | d | else | let g:__d[getline('.')]=1 | endif
