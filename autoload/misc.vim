@@ -330,9 +330,21 @@ function misc#update_link(type) abort
   endtry
 endfunction
 
-function misc#camel_to_underscore(name)
+function misc#camel_to_underscore(name) abort
+
+  " change leading uppercase to lower case
   let s = substitute(a:name, '\v\C^[A-Z]', '\l\0', '')
+
+  " change other uppercase to _lowercase
   return substitute(s, '\v\C[A-Z]', '_\l\0', 'g')
+endfunction
+
+function misc#underscore_to_camel(name, leading_uppercase) abort
+  let s = substitute(a:name, '\v\c_([a-z])', '\u\1', 'g')
+  if a:leading_uppercase
+    let s = substitute(s, '\v\C[a-z]', '\u\0', '')
+  endif
+  return s
 endfunction
 
 function misc#complete_expresson(backward) abort
@@ -611,4 +623,13 @@ function misc#expand_pair(add) abort
     " always stop at open pair?
     call cursor(pair.pos0)
   endtry
+endfunction
+
+function misc#reload_ftplugin(unlet_list) abort
+  for var in a:unlet_list
+    if exists(var)
+      exe 'unlet' var
+    endif
+  endfor
+  e
 endfunction

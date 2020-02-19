@@ -228,10 +228,9 @@ let g:dedowsdi_misc_complete_maxitem_per_direction = 16
 inoremap <plug>dedowsdi_misc_complete_next_expression <c-r>=misc#complete_expresson(0)<cr>
 inoremap <plug>dedowsdi_misc_complete_prev_expression <c-r>=misc#complete_expresson(1)<cr>
 
-
 com -range -nargs=+ T call misc#mult_t(<line1>, <line2>, <f-args>)
-com -bar CamelToUnderscore exe printf('%%s/\v\C<%s>/%s/g', expand('<cword>'),
-      \ misc#camel_to_underscore(expand('<cword>')))
+com -bar CamelToUnderscore norm! ciw<c-r>=misc#camel_to_underscore(@@)<cr><esc>
+com -bar -bang UnderscoreToCamel norm! ciw<c-r>=misc#underscore_to_camel(@@, <bang>0)<cr><esc>
 com CamelToUnderscoreAndSearchNext CamelToUnderscore | exec "norm! \<c-o>" | SearchNextCamel
 com SearchNextCamel call search('\v\C\w*[A-Z]\w*', 'W')
 com -nargs=1 SetNotifySeverity call misc#log#set_notify_severity(<f-args>)

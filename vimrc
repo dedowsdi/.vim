@@ -496,6 +496,9 @@ nnoremap gc :SelectLastPaste<cr>
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
 nnoremap _m :ReadtagsI -ok m -k e <c-r><c-A><cr>
+nnoremap _u :CamelToUnderscore<cr>
+nnoremap _c :UnderscoreToCamel<cr>
+nnoremap _C :UnderscoreToCamel!<cr>
 
 nnoremap <c-n><c-s> :NewScratch<cr>
 nnoremap <c-n><c-v> :NewVimScript<cr>
