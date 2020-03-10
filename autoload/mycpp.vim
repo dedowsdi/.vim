@@ -298,7 +298,7 @@ function mycpp#cmake(args)
   endif
 endfunction
 
-function mycpp#openProjectFile() abort
+function mycpp#open_project_file() abort
   silent! exec 'edit ' . s:pjcfg
   if s:last_target !=# ''
     call search(printf('\v^\s*"<%s>"\s*:', s:last_target))
@@ -306,7 +306,7 @@ function mycpp#openProjectFile() abort
 endfunction
 
 " opts : {"jump":bool}
-function mycpp#gotoLastInclude(...) abort
+function mycpp#goto_last_include(...) abort
   "keepjumps normal! G
   let opts = get(a:000, 0, {'jump':0})
   let jump_flag = opts.jump ? 's' : ''
@@ -345,13 +345,13 @@ function mycpp#include_osg() abort
   endif
 
   let head = printf('#include <%s>', substitute(class_name, '::', '/', 'g'))
-  if searchpos('\V\^\s\*' . head, 'bnW')[0] != 0
+  if searchpos('\V\C\^\s\*' . head, 'bnW')[0] != 0
     call misc#log#notice(head . ' already exists, skipped')
     return
   endif
 
   " try osg block
-  let lnum = searchpos('\v^\#include\s*\<osg', 'bnW')[0]
+  let lnum = searchpos('\v\C^\#include\s*\<osg', 'bnW')[0]
 
   " try other include block
   if lnum == 0
