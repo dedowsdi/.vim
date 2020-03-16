@@ -10,6 +10,6 @@ nnoremap <buffer> S :SubSection<cr>
 nnoremap <buffer> o :Option<cr>
 nnoremap <buffer> i /\v^\s*
 
-com -buffer Section call FZF_lines('\v\C^[A-Z][^a-z]*$')
-com -buffer Option call FZF_lines('\v\C^\s+\-\-?\w')
-com -buffer SubSection call FZF_lines('\v\C^   \S.*$')
+com -buffer Section FFline \v\C^[A-Z][^a-z]*$
+com -buffer Option FFline \v\C^\s+\-\-?\w
+com -buffer SubSection FFline \v\C^   \S.*$

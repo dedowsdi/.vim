@@ -213,7 +213,12 @@ inoremap <expr> <a-x><a-d> <sid>comp_dir()
 
 com -nargs=* Ctags :call <SID>fzf_cpp_tags(<q-args>)
 com P call <sid>fzf_external_files()
-com Folds call FZF_lines('\v.*\{\{\{\d*$')
+com -nargs=+ FFline call s:fzf_line(<q-args>)
+com Folds FFline \v.*\{\{\{\d*$
+com -nargs=+ FFfline call s:fzf_file_line(<q-args>)
+
+" select file from cached grep result
+com Subject exe 'FFfline cat' @%
 
 " there are garbage new line in mes, don't know how to reproduce it. Filter
 " blank lines as temporary solution.
@@ -248,17 +253,29 @@ let g:external_files = get(g:, 'external_files', [])
 
 " fzf helper functions {{{3
 
-function FZF_lines(filter) abort
+" deal with lnum:content for current buffer
+function s:fzf_line(filter) abort
   let lines = getline(1, '$')
   let indices = filter( range( len(lines) ), { i,v -> lines[v] =~# a:filter } )
-  let lines = map(indices, { i,v -> (v+1) . ' : ' . lines[v] })
-  call fzf#run( fzf#wrap( { 'source' : lines, 'sink' : function('s:fzf_lines_sink'),
-        \ 'options' : '--with-nth 3..' } ) )
+  let lines = map(indices, { i,v -> (v+1) . ':' . lines[v] })
+  call fzf#run( fzf#wrap( { 'source' : lines, 'sink' : function('s:fzf_line_sink'),
+        \ 'options' : '-d ":" --with-nth 2..' } ) )
 endfunction
 
-function s:fzf_lines_sink(item) abort
+function s:fzf_line_sink(item) abort
   let lnum = matchstr(a:item, '\v^\s*\d+')
   exe lnum
+endfunction
+
+" deal with lnum:filename:content style
+function s:fzf_file_line(source) abort
+  call fzf#run( fzf#wrap( { 'source' : a:source, 'sink' : function('s:fzf_file_line_sink'),
+        \ 'options' : '-d ":" --with-nth 3..' } ) )
+endfunction
+
+function s:fzf_file_line_sink(item) abort
+  let [fname, lnum] = split(a:item, ':')[0:1]
+  exe printf('e +%d %s', lnum, fname)
 endfunction
 
 function s:comp_dir()
