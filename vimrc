@@ -13,7 +13,7 @@ set list listchars=trail:┄,tab:†·,extends:>,precedes:<,nbsp:+
 scriptencoding
 
 " add all child dir of current dir to path
-set path+=/usr/local/include,**
+set path+=.,**,/usr/local/include,
 
 " reduce esc delay to a acceptable number
 set ttimeout ttimeoutlen=5 timeoutlen=1000
@@ -51,7 +51,7 @@ set hidden
 
 " bash style wild menu
 set wildmenu
-set wildmode=longest,list
+set wildmode=list:longest
 
 " use unix / and 0a as new line in session file
 set sessionoptions+=unix,slash
