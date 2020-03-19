@@ -27,11 +27,6 @@ vnoremap <buffer> iC :<C-U>silent! call cdef#sel_class('i')<cr>
 onoremap <buffer> aC :normal vaC<cr>
 onoremap <buffer> iC :normal viC<cr>
 
-" operator
-nnoremap ,f :set opfunc=misc#op#clang_format<cr>g@
-vnoremap ,f  :<c-u>call misc#op#clang_format(visualmode(), 1)<cr>
-nmap <expr> ,ff ',f' . v:count1 . '_'
-
 " external application
 nnoremap <buffer> <leader>aa :CppApitrace<cr>
 nnoremap <buffer> <leader>al :CppOpenLastApitrace<cr>
@@ -46,7 +41,9 @@ nnoremap <buffer> <a-o>      :CdefSwitchFile<cr>
 inoremap <buffer> <c-l>      ->
 nnoremap <buffer> <f8>       :CdefSwitch<cr>
 nnoremap <buffer> _d :CdefDef<cr>
+vnoremap <buffer> _d :CdefDef<cr>
 nnoremap <buffer> _D :CdefDefAndSwitch<cr>
+vnoremap <buffer> _D :CdefDefAndSwitch<cr>
 nnoremap <buffer> _p :CdefFuncToProto<cr>
 nnoremap <buffer> _P :CdefFuncToProtoAndSwitch<cr>
 nnoremap <buffer> _s :CdefCreateSourceFile<cr>
@@ -56,6 +53,7 @@ vnoremap <buffer> _g :CdefGetSet<cr>
 nnoremap <buffer> _G :CdefConstGetSet<cr>
 vnoremap <buffer> _G :CdefConstGetSet<cr>
 nnoremap <buffer> <s-f7>     :CppMakeFileName<cr>
+nnoremap <buffer> <leader>cc :CppConfig<cr>
 
 if !exists(':FZF')
   finish

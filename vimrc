@@ -503,6 +503,8 @@ nmap do  <plug>dedowsdi_op_do
 nmap guo <plug>dedowsdi_op_guo
 nmap gUo <plug>dedowsdi_op_gUo
 nmap g~o <plug>dedowsdi_op_g~o
+nmap ,f  <plug>dedowsdi_op_clang_format
+nmap <expr> ,ff ',f' . v:count1 . '_'
 
 " common maps {{{2
 nnoremap <f3>    :set hlsearch!<cr>
