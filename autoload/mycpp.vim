@@ -112,6 +112,11 @@ function mycpp#exe(cmd, term, args, ...) abort
     return
   endif
 
+  let $CPP_MAKE_PATH = make_dir
+  let $CPP_BINARY_PATH = abs_exe
+  let $CPP_BUILD_PATH = build_dir
+  let $CPP_WORKING_PATH = working_dir
+
   let cmd = escape(a:cmd,   '"')
   let cmd = substitute(cmd, '\V\C%a', exe_args, 'g')
   let cmd = substitute(cmd, '\V\C%A', cmd_args, 'g')
