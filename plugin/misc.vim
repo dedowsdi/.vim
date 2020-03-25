@@ -100,7 +100,7 @@ let s:apitrace_opencmd = 'cd "%b" && qapitrace $(grep -oP "(?<=tracing to ).*$" 
 com -nargs=* -complete=customlist,mycpp#make_complete -bar CppApitrace   call mycpp#exe('cd "%w" && apitrace trace "%E" %a |& tee trace.log && ' . s:apitrace_opencmd, 1, <q-args>)
 com -nargs=* -complete=customlist,mycpp#make_complete CppOpenLastApitrace      call mycpp#exe(s:apitrace_opencmd, 1, <q-args>)
 com -nargs=* -complete=customlist,mycpp#make_complete CppNNL           call mycpp#exe('cd "%w" && nnl --activity="Frame Debugger" --exe="%E" --args="%a" ', 0, <q-args>)
-com -nargs=* -complete=customlist,mycpp#make_complete CppValgrind      call mycpp#exe('cd "%w" && valgrind %A "%E" ', 1, <q-args>)
+com -nargs=* -complete=customlist,mycpp#make_complete CppValgrind      call mycpp#exe('cd "%w" && valgrind %A "%E" %a', 1, <q-args>)
 com -nargs=+ -complete=customlist,mycpp#make_pp_complete CppMakePP  update | call mycpp#make_pp(<f-args>)
 com CppConfig call mycpp#open_project_file()
 com -nargs=0 CppSearchDerived                                         call mycpp#search_derived()
@@ -243,3 +243,5 @@ endfunction
 
 call s:repeat_plug_map('<Plug>dedowsdi_misc_pair_add_space', ':call misc#expand_pair(1)<cr>')
 call s:repeat_plug_map('<Plug>dedowsdi_misc_pair_minus_space', ':call misc#expand_pair(0)<cr>')
+
+com -bang -nargs=1 Slide call misc#prepare_slide(<bang>0, <f-args>)

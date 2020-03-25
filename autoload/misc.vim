@@ -633,3 +633,59 @@ function misc#reload_ftplugin(unlet_list) abort
   endfor
   e
 endfunction
+
+" Slide slide_step
+" Setup slide step, remap <c-a> and <c-x> if slide_step is not 1
+
+" Set up map, slide step.
+function misc#prepare_slide(save, step) abort
+
+  if a:step == 1 && !a:save
+    silent! nunmap <c-a>
+    silent! nunmap <c-x>
+    return
+  endif
+
+  nnoremap <c-a> :call <sid>slide(1)<cr>
+  nnoremap <c-x> :call <sid>slide(0)<cr>
+  let s:slide_step = str2float(a:step)
+  let s:slide_save = a:save
+
+endfunction
+
+let s:slide_step = 0.1
+let s:slide_save = 0
+
+function s:slide(positive) abort
+
+  " split current line into 3 parts by first number whose ends column is no less
+  " then current column
+  "
+  " Regex:
+  "   ^(.{-})  Leading part, as less as possible
+  "   (-?%%(\d+\.)?\d+%%>%dc)  Match number.
+  "     -?  Might start with -
+  "     %%(\d+\.)?  Might followed by digits and a dot
+  "   \d+%%>%dc  Always end with digits. One past end column must be greater
+  "              than %dc
+  "   (.*$)  Tail
+  let matches = matchlist( getline('.'),
+        \ printf( '\v^(.{-})(-?%%(\d+\.)?\d+%%>%dc)(.*$)', col('.') ) )
+  if empty(matches)
+    return
+  endif
+  let [part0, part1, part2] = matches[1:3]
+
+  " update number, join line
+  let number = str2float(part1)
+  let number += s:slide_step * (a:positive ? 1 : -1)
+  let new_part1 = printf('%s', number)
+  call setline('.', part0 . new_part1 . part2)
+
+  " place cursor at number end
+  call cursor( line('.'), len(part0) + len(new_part1) )
+
+  if s:slide_save
+    w
+  endif
+endfunction
