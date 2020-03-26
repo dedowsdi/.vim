@@ -34,7 +34,8 @@ endfunction
 
 let s:stage = s:getStage()
 if s:stage ==# ''
-  echoe 'faled to determine stage'
+  echom 'faled to determine stage, use frag instead'
+  let s:stage = 'frag'
 endif
 
 let b:ale_glsl_glslang_options = printf('-S %s', s:stage)
@@ -47,3 +48,5 @@ onoremap <buffer> if :normal vif<cr>
 nnoremap <buffer> <a-o> :call myglsl#alternate()<cr>
 
 call abbre#glsl()
+
+com RunFrag rightbelow ter ++rows=16 ntoy --shadertoy --frag %
