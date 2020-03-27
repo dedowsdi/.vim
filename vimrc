@@ -510,21 +510,14 @@ nnoremap <f3>    :set hlsearch!<cr>
 
 nnoremap Y  y$
 nnoremap K  :exec 'norm! K' <bar> wincmd p<cr>
-nnoremap gc :SelectLastPaste<cr>
+nnoremap gc :SelectLastChange<cr>
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
 nnoremap _m :ReadtagsI -ok m -k e <c-r><c-A><cr>
-nnoremap _u :CamelToUnderscore<cr>
-nnoremap _c :UnderscoreToCamel<cr>
-nnoremap _C :UnderscoreToCamel!<cr>
-
-nnoremap <c-n><c-s> :NewScratch<cr>
-nnoremap <c-n><c-v> :NewVimScript<cr>
 
 nnoremap <c-w><space> :tab split<cr>
 tnoremap <c-w><space> <c-w>:tab split<cr>
 nnoremap <c-w>O :CloseFinishedTerminal<cr>
-tnoremap <expr> <c-w>m printf('<c-w>:mark %s<cr>',  nr2char(getchar()))
 tnoremap <c-w><pageup> <c-w>:tabprevious<cr>
 tnoremap <c-w><pagedown> <c-w>:tabnext<cr>
 nnoremap <c-w><pageup> <c-w>:tabprevious<cr>
@@ -537,16 +530,6 @@ endif
 
 nmap ys<space> <plug>dedowsdi_misc_pair_add_space
 nmap ds<space> <plug>dedowsdi_misc_pair_minus_space
-
-" stop cursor movement from breaking undo in insert mode
-inoremap <Left>  <c-g>U<Left>
-inoremap <Right> <c-g>U<Right>
-inoremap <C-Left>  <c-g>U<c-Left>
-inoremap <C-Right> <c-g>U<c-Right>
-inoremap <expr> <Home> repeat('<c-g>U<Left>', col('.') - 1)
-inoremap <expr> <End> repeat('<c-g>U<Right>', col('$') - col('.'))
-imap <a-l> <Right>
-imap <a-h> <Left>
 
 cmap <c-a> <Plug>dedowsdi_readline_beginning_of_line
 cnoremap <a-a> <c-a>
@@ -562,33 +545,20 @@ cmap <a-k> <Plug>dedowsdi_readline_kill
 nmap <c-w>` <plug>dedowsdi_term_toggle_gterm
 tmap <c-w>` <plug>dedowsdi_term_toggle_gterm
 
-" cnoremap <expr> %%  getcmdtype() == ":" ? expand("%:h")."/" : "%%"
-" cnoremap <expr> %t  getcmdtype() == ":" ? expand("%:t") : "%t"
-
                                   " command {{{1
 
-com NewScratch new | setlocal buftype=nofile bufhidden=hide noswapfile nobuflisted
-com NewVimScript split `mkt -s .vim`
-com NewBashScript split `mkt -s .sh`
-com -nargs=1 -complete=file SaveScratch file <args> | set buftype= swapfile buflisted | w
 com HiTest source $VIMRUNTIME/syntax/hitest.vim
 com TrimTrailingWhitespace :keepp %s/\v\s+$//g
 com DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
   \ | diffthis | wincmd p | diffthis
-com SelectLastPaste exec 'normal! `[' . getregtype() . '`]'
+com SelectLastChange exec 'normal! `[' . getregtype() . '`]'
 com ReverseQuickFixList call setqflist(reverse(getqflist()))
 com SuperWrite :w !sudo tee % > /dev/null
-com Terminal exe 'terminal' |
-            \ call term_sendkeys("", printf("cd %s \<cr>",
-            \ fnamemodify(bufname(winbufnr(winnr('#'))), ':h') ) )
 com -bang CfilterCoreHelp Cfilter<bang> '\v/vim/vim\d+/doc/[^/]+\.txt'
-com -nargs=1 DoRevert <args> e!
-com -nargs=1 DoSave <args> up
 com Synstack echo map( synstack(line('.'), col('.')), 'synIDattr(v:val, "name")' )
 com SynID echo synIDtrans(synID(line('.'), col('.'), 1))
 com -nargs=+ SynIDattr echo synIDattr(
             \ synIDtrans(synID(line('.'), col('.'), 1)), <f-args>)
-com EditVimrc split $MYVIMRC
 com ReloadDotVimFtplugin unlet b:loaded_{&filetype}_cfg | e
 com-range UnsortUniq let g:__d={} | <line1>,<line2>g/^/
       \ if has_key(g:__d, getline('.')) | d | else | let g:__d[getline('.')]=1 | endif
