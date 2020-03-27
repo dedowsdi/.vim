@@ -72,6 +72,9 @@ set concealcursor=vn conceallevel=0
 " add per project setting
 set rtp+=.dedowsdi,.dedowsdi/after
 
+" display search count
+set shortmess-=S
+
 if has('nvim')
   set rtp+=~/.vim
 endif
@@ -137,7 +140,7 @@ let g:ale_lint_on_insert_leave = 0
 let g:ale_linters = {
 \   'vim': ['vint'],
 \   'sh': ['shellcheck'],
-\   'glsl' : ['glslang'],
+\   'glsl' : [],
 \   'python' : [],
 \   'cpp'  : []
 \}
