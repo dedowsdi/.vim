@@ -399,9 +399,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 
 " tags
-if executable('ctags')
-  Plug 'ludovicchabant/vim-gutentags'
-endif
+Plug 'ludovicchabant/vim-gutentags'
 Plug 'majutsushi/tagbar'
 
 " auto complete
@@ -414,9 +412,7 @@ Plug 'othree/html5.vim'
 Plug 'elzr/vim-json'
 Plug 'tikhomirov/vim-glsl'
 Plug 'lervag/vimtex'
-if executable('ctags')
-  Plug 'dedowsdi/cdef'
-endif
+Plug 'dedowsdi/cdef'
 
 call plug#end()
 
