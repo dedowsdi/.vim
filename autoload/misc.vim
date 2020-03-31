@@ -689,3 +689,22 @@ function s:slide(positive) abort
     w
   endif
 endfunction
+
+function misc#win_fit_buf(extra_lines) abort
+  let cview = winsaveview()
+  try
+
+    " I must find screen line count for current buffer, I don't know how to do
+    " it directly, so I decide to maximize current window first, then shrink to
+    " fit, I only need last screen line of current buffer this way.
+    wincmd _
+
+    " Clear scroll, goto last byte. I start this with 0 and $ , but they don't
+    " clear scroll until script finished.
+    keepjump norm! ggG$
+
+    exe printf('%dwincmd _',  winline() + a:extra_lines)
+  finally
+    cal winrestview(cview)
+  endtry
+endfunction

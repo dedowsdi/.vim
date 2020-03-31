@@ -245,3 +245,5 @@ call s:repeat_plug_map('<Plug>dedowsdi_misc_pair_add_space', ':call misc#expand_
 call s:repeat_plug_map('<Plug>dedowsdi_misc_pair_minus_space', ':call misc#expand_pair(0)<cr>')
 
 com -bang -nargs=1 Slide call misc#prepare_slide(<bang>0, <f-args>)
+
+com -count WinFitBuf call misc#win_fit_buf(<count>)

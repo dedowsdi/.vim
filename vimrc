@@ -522,6 +522,7 @@ tnoremap <c-w><pageup> <c-w>:tabprevious<cr>
 tnoremap <c-w><pagedown> <c-w>:tabnext<cr>
 nnoremap <c-w><pageup> <c-w>:tabprevious<cr>
 nnoremap <c-w><pagedown> <c-w>:tabnext<cr>
+nnoremap <expr> <c-w>0 printf(':<c-u>%dWinFitBuf<cr>', v:count)
 
 if v:version > 800
   cmap <tab> <Plug>dedowsdi_hist_expand_hist_wild
@@ -605,7 +606,7 @@ function s:less(cmd)
   let result = execute(a:cmd)
   new
   setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
-  exe printf("file [one-off] %s", a:cmd)
+  exe printf('file [one-off] %s', a:cmd)
   call setline(1, split(result, "\n"))
   1
 endfunction
@@ -636,7 +637,7 @@ endfunction
 com -nargs=+ -complete=shellcmd Job call s:job(<q-args>)
 
 function s:job(cmd) abort
-  call term_start( a:cmd, { "exit_cb" : function('s:job_exit_cb'), "hidden"  : 1 } )
+  call term_start( a:cmd, { 'exit_cb' : function('s:job_exit_cb'), 'hidden'  : 1 } )
 endfunction
 
 " if exit 0, wipe self in 10min, otherwise display self in split
