@@ -661,16 +661,12 @@ function s:slide(positive) abort
   " split current line into 3 parts by first number whose ends column is no less
   " then current column
   "
-  " Regex:
-  "   ^(.{-})  Leading part, as less as possible
-  "   (-?%%(\d+\.)?\d+%%>%dc)  Match number.
-  "     -?  Might start with -
-  "     %%(\d+\.)?  Might followed by digits and a dot
-  "   \d+%%>%dc  Always end with digits. One past end column must be greater
-  "              than %dc
-  "   (.*$)  Tail
-  let matches = matchlist( getline('.'),
-        \ printf( '\v^(.{-})(-?%%(\d+\.)?\d+%%>%dc)(.*$)', col('.') ) )
+  "                               match 1, 1., 1.1,   or .1, with
+  "                               optional leading -, the ending must
+  "                               occur after cursor column
+  "             leading part------++++++++++++++++++++++++++++++++++++---- tail part
+  let pattern = printf( '\v^(.{-})(%%(-?\d+\.?%%(\d+)?|-?\.\d+)%%>%dc)(.*$)', col('.') )
+  let matches = matchlist( getline('.'),  pattern )
   if empty(matches)
     return
   endif
@@ -679,7 +675,9 @@ function s:slide(positive) abort
   " update number, join line
   let number = str2float(part1)
   let number += s:slide_step * (a:positive ? 1 : -1)
-  let new_part1 = printf('%s', number)
+
+  " convert float to string, remove trailing 0
+  let new_part1 = substitute(printf('%f', number), '\v\..*\zs0+$', '', 'g')
   call setline('.', part0 . new_part1 . part2)
 
   " place cursor at number end
@@ -699,7 +697,7 @@ function misc#win_fit_buf(extra_lines) abort
     " fit, I only need last screen line of current buffer this way.
     wincmd _
 
-    " Clear scroll, goto last byte. I start this with 0 and $ , but they don't
+    " Clear scroll, goto last byte. I start this with ex 0 and $, but they don't
     " clear scroll until script finished.
     keepjump norm! ggG$
 
