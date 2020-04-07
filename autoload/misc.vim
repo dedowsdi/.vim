@@ -634,10 +634,7 @@ function misc#reload_ftplugin(unlet_list) abort
   e
 endfunction
 
-" Slide slide_step
-" Setup slide step, remap <c-a> and <c-x> if slide_step is not 1
-
-" Set up map, slide step.
+" Set up map, slide step, slide save.
 function misc#prepare_slide(save, step) abort
 
   if a:step == 1 && !a:save
@@ -646,8 +643,8 @@ function misc#prepare_slide(save, step) abort
     return
   endif
 
-  nnoremap <c-a> :call <sid>slide(1)<cr>
-  nnoremap <c-x> :call <sid>slide(0)<cr>
+  nnoremap <c-a> :<c-u>call <sid>slide(1, v:count1)<cr>
+  nnoremap <c-x> :<c-u>call <sid>slide(0, v:count1)<cr>
   let s:slide_step = str2float(a:step)
   let s:slide_save = a:save
 
@@ -656,7 +653,7 @@ endfunction
 let s:slide_step = 0.1
 let s:slide_save = 0
 
-function s:slide(positive) abort
+function s:slide(positive, steps) abort
 
   " split current line into 3 parts by first number whose ends column is no less
   " then current column
@@ -674,10 +671,10 @@ function s:slide(positive) abort
 
   " update number, join line
   let number = str2float(part1)
-  let number += s:slide_step * (a:positive ? 1 : -1)
+  let number += s:slide_step * a:steps * (a:positive ? 1 : -1)
 
   " convert float to string, remove trailing 0
-  let new_part1 = substitute(printf('%f', number), '\v\..*\zs0+$', '', 'g')
+  let new_part1 = substitute(printf('%f', number), '\v\..{-}\zs0+$', '', 'g')
   call setline('.', part0 . new_part1 . part2)
 
   " place cursor at number end
