@@ -120,6 +120,7 @@ set showmode showcmd novisualbell
 set noshowmatch matchtime=3 matchpairs+=<:>
 set belloff=esc
 set nofoldenable
+set signcolumn=number
 
                                 " plugin {{{1
 
