@@ -4,4 +4,4 @@ if exists("b:loaded_sh_cfg")
 endif
 let b:loaded_sh_cfg = 1
 
-nnoremap <buffer> <f5> :terminal ./%<cr><c-w><c-p>
+nnoremap <buffer> <f5> :terminal %:p<cr><c-w><c-p>

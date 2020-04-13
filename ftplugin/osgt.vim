@@ -11,6 +11,10 @@ nnoremap <buffer> <down> zo
 setl nomodifiable
 setl foldmethod=expr
 setl foldexpr=FoldOsgt(v:lnum)
+setl shiftwidth=2 softtabstop=2
+
+" clear continuation line indention
+set cino=+0
 
 function FoldOsgt(lnum) abort
   let l = getline(a:lnum)
