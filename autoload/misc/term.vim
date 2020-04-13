@@ -4,9 +4,9 @@ if empty(g:term_type)
 endif
 
 let s:jterm_layout = get(g:, 'misc_jterm_layout', {})
-call extend(s:jterm_layout, {'position':'bot' , 'psize':0.4}, 'keep')
+call extend(s:jterm_layout, {'position':'bot' , 'psize':0.35}, 'keep')
 let s:gterm_layout = get(g:, 'misc_gterm_layout', {})
-call extend(s:gterm_layout, {'position':'bot', 'psize':0.5}, 'keep')
+call extend(s:gterm_layout, {'position':'bot', 'psize':0.35}, 'keep')
 
 " base class of all kinds of term
 let s:term = {'job_finished':0}
