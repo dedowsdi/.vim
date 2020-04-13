@@ -72,7 +72,13 @@ endsnippet
 snippet #ifdef "#ifdef ...#endif" b
 #ifdef ${1:NAME}
 ${0}
-#endif
+#endif // ifdef $1
+endsnippet
+
+snippet #ifndef "#ifndef ...#endif" b
+#ifdef ${1:NAME}
+${0}
+#endif // ifndef $1
 endsnippet
 
 snippet fsMain "fsMain"

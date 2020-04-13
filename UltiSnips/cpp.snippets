@@ -1,3 +1,8 @@
+snippet cf "clang-format off on" b
+// clang-format off
+${VISUAL}$0
+// clang-format on
+endsnippet
 ## macros
 
 snippet #def "#define ..." b
@@ -178,7 +183,7 @@ for (auto ${2:i} = 0; $2 < ${1:count}; ${3:++$2})
 endsnippet
 
 snippet fore "for (auto .. : ctn)" m
-for (const auto& ${1:item} : ${2:container})
+for (auto ${1:item} : ${2:container})
 {
 	${VISUAL}$0
 }
@@ -256,6 +261,14 @@ endsnippet
 ## basic
 snippet s "std::string " w
 std::string
+endsnippet
+
+snippet cs "const std::string& " w
+const std::string& 
+endsnippet
+
+snippet nl "numeric limits" w
+std::numeric_limits<${VISUAL}$0>
 endsnippet
 
 snippet R "raw string" w
@@ -521,9 +534,43 @@ public:
 	}
 
 private:
-	$1();
-	~$1();
+	$1() = default;
+	~$1() = default;
 };
+endsnippet
+
+snippet wrapperMemberVector "wrapper internal vector member, don't use this for trivial ones" bm
+void add${1:Weapon}($1* v)
+{
+	${2:_weapons}.push_back( v );
+}
+
+bool remove$1(int i, int numElementsToRemove = 1)
+{
+	if (numElementsToRemove == 0)
+		return false;
+
+	if (i >= $2.size())
+	{
+		OSG_WARN << "Warning: invalid index i passed to " << __FILE__ << ":" << __LINE__
+			<< ", ignoring call" << std::endl;
+		return false;
+	}
+
+	auto endIndex = i + numElementsToRemove;
+	if ( endIndex >= $2.size() )
+	{
+		OSG_WARN << "Warning: invalid numElementsToRemove passed to " << __FILE__ << ":"
+			<< __LINE__ << ", removing on from i to end" << std::endl;
+		endIndex = $2.size();
+	}
+
+	$2.erase( $2.begin() + i, $2.begin() + endIndex );
+	return true;
+}
+$1& get$1(int i) { return *$2[i]; }
+const $1& get$1(int i) const { return *$2[i]; }
+int getNum$1() const { return $2.size(); }
 endsnippet
 
 snippet osgMain "osg main" bm
@@ -554,9 +601,9 @@ endsnippet
 snippet osgCallback
 class ${1:ClasName} : public osg::Callback
 {
-	virtual bool run(osg::Object* object, osg::Object* data) override
+	bool run(osg::Object* object, osg::Object* data) override
 	{
-		traverse(object, data);
+		return traverse(object, data);
 	}
 };
 endsnippet
@@ -589,9 +636,15 @@ endsnippet
 snippet osgNodeVisitor "osg node visitor" bm
 class ${1:Name} : public osg::NodeVisitor
 {
+public:
+	$1()
+	{
+		setTraversalMode( osg::NodeVisitor::TRAVERSE_ALL_CHILDREN );
+	}
+
 	void apply(osg::Node& node) override
 	{
-		
+		traverse(node);
 	}
 };
 endsnippet
@@ -599,10 +652,10 @@ endsnippet
 snippet osgText "ost text" bm
 osg::ref_ptr<osgText::Text> ${1:text} = new osgText::Text;
 $1->setDataVariance(osg::Object::DYNAMIC);
+$1->setFont(osgText::readFontFile("fonts/arial.ttf"));
 $1->setCharacterSize(20);
 $1->setAxisAlignment(osgText::TextBase::XY_PLANE);
 $1->setPosition(osg::Vec3(20, height - 30, 0));
-$1->setFont(osgText::readFontFile("fonts/arial.ttf"));
 $1->setText("$0");
 endsnippet
 
@@ -729,15 +782,13 @@ class ${1:MyGuiEventHandler} : public osgGA::GUIEventHandler
 };
 endsnippet
 
-snippet osgObjectDescendent "osg object descendent" bm
+snippet osgClass "osg class descendent" bm
 class ${1:Classname} : public osg::${2:Object}
 {
 public:
 
 $1(){}
-$1(const $1& copy, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY)
-		: osg::$2(copy, copyop) {}
-~$1(){}
+$1(const $1& copy, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
 META_${3:Object}(${4:zxd}, $1);
 
 };
