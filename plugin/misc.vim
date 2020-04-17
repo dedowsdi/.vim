@@ -223,6 +223,9 @@ endif
 com -nargs=? SaveBufferLayout call misc#layout#save(<q-args>)
 com -nargs=? RestoreBufferLayout call misc#layout#restore(<q-args>)
 
+" hare {{{1
+com -nargs=+ Hare call misc#hare#exec(<q-args>)
+
 " misc {{{1
 
 let g:dedowsdi_misc_complete_maxitem_per_direction = 16

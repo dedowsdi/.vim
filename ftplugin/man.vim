@@ -10,6 +10,11 @@ nnoremap <buffer> S :SubSection<cr>
 nnoremap <buffer> o :Option<cr>
 nnoremap <buffer> i /\v^\s*
 
-com -buffer Section FFline \v\C^[A-Z][^a-z]*$
-com -buffer Option FFline \v\C^\s+\-\-?\w
-com -buffer SubSection FFline \v\C^   \S.*$
+" com -buffer Section FFline \v\C^[A-Z][^a-z]*$
+" com -buffer Option FFline \v\C^\s+\-\-?\w
+" com -buffer SubSection FFline \v\C^   \S.*$
+
+com -buffer Section Hare ilist /\v\C^[A-Z][^a-z]*$
+com -buffer Option Hare ilist /\v\C^\s+\-\-?\w
+com -buffer SubSection Hare ilist /\v\C^   \S.*$
+

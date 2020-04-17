@@ -218,7 +218,8 @@ inoremap <expr> <a-x><a-d> <sid>comp_dir()
 com -nargs=* Ctags :call <SID>fzf_cpp_tags(<q-args>)
 com P call <sid>fzf_external_files()
 com -nargs=+ FFline call s:fzf_line(<q-args>)
-com Folds FFline \v.*\{\{\{\d*$
+" com Folds FFline \v.*\{\{\{\d*$
+com Folds Hare ilist /\v.*\{\{\{\d*$
 com -nargs=+ FFfline call s:fzf_file_line(<q-args>)
 
 " select file from cached grep result
@@ -516,6 +517,28 @@ nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
 nnoremap _m :ReadtagsI -ok m -k e <c-r><c-A><cr>
 
+nnoremap <c-h> :call misc#hare#jump('file', ':oldfiles')<cr>
+nnoremap <c-p> :call misc#hare#jump('file', '!' . g:fzf_project_source)<cr>
+nnoremap <c-b> :call misc#hare#jump('file',
+            \ map(split(execute('ls'), "\n"), {i,v->matchstr(v, '\v.*"\zs.+\ze"')})
+            \)<cr>
+nnoremap <c-j> :call misc#hare#jump('btag',
+            \ '!ctags -f - ' . expand('%') . '<bar> cut -f1,3-')<cr>
+" nnoremap <a-j> :call misc#hare#jump(function('Read_all_tags'), 'tag')<cr>
+
+function Read_all_tags() abort
+  for tag in tagfiles()
+    exe '$read' tag
+  endfor
+endfunction
+
+function s:browse_project_source() abort
+  NewOneOff
+  exe 'read !' g:fzf_project_source
+  1
+  call matchadd('Comment', '\v^.+$')
+endfunction
+
 nnoremap <c-w><space> :tab split<cr>
 tnoremap <c-w><space> <c-w>:tab split<cr>
 nnoremap <c-w>O :CloseFinishedTerminal<cr>
@@ -598,18 +621,31 @@ function s:browse(...)
   call system(printf('google-chrome %s&', path))
 endfunction
 
-" Less {{{2
-com -nargs=+ -complete=command Less call <sid>less(<q-args>)
+" NewOneOff
+com NewOneOff call <sid>new_oneoff(<q-mods>)
 
-function s:less(cmd)
+function s:new_oneoff(mods) abort
+  exe a:mods 'new'
+  setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted modifiable
+  file [one-off]
+endfunction
+
+" Less {{{2
+com -bang -nargs=+ -complete=command Less call <sid>less(<q-args>, <q-mods>, <bang>0)
+
+function s:less(cmd, mods, replace)
 
   " get result in current buffer, must be called before new
   let result = execute(a:cmd)
-  new
-  setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
+  NewOneOff
   exe printf('file [one-off] %s', a:cmd)
   call setline(1, split(result, "\n"))
   1
+  " close old window buffer
+  if a:replace
+    wincmd p
+    wincmd q
+  endif
 endfunction
 
 " Tapi_cd {{{2

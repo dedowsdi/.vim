@@ -63,19 +63,22 @@ endif
 
 function s:fzf_cpp_btags()
 
-  let fzf_btags_cmd = 'ctags
+  let fzf_btags_cmd = '!ctags
         \ -f -
         \ --sort=no
         \ --fields-c++=+{properties}{template}
         \ --fields=KsSi
         \ --links=yes
-        \ --language-force=c++'
+        \ --language-force=c++ ' . expand('%')
+        \ . '| cut -f1,3-'
 
   " display everything except filename and line number.
   " fuzzy search all fields.
-  call fzf#vim#buffer_tags(
-        \ '',[fzf_btags_cmd . ' ' . expand('%:S')],
-        \ {'options' :
-        \      '--tiebreak=begin --with-nth 1,4.. --nth .. --prompt "Ctags> "'}
-        \ )
+  " call fzf#vim#buffer_tags(
+  "       \ '',[fzf_btags_cmd . ' ' . expand('%:S')],
+  "       \ {'options' :
+  "       \      '--tiebreak=begin --with-nth 1,4.. --nth .. --prompt "Ctags> "'}
+  "       \ )
+
+  call misc#hare#jump('btag', fzf_btags_cmd)
 endfunction
