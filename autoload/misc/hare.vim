@@ -1,3 +1,5 @@
+" Current implementation doesn't work well for large data.
+"
 " keys:
 "   <cr> is remapped in normal and command mode to jump.
 "   If you need to find next/previous search, you can use c-g and c-t in command
@@ -187,9 +189,13 @@ function s:tag_sink() abort
     throw 'Illegal tag line' . getline('.')
   endif
 
+  let parent_pattern = '\v^\!_TAG_PARENT_PATH\t*\zs.+'
+  let [lnum, col] = searchpos(parent_pattern, 'bWn')
+  let parent = lnum==0 ? '' : matchstr(getline(lnum), parent_pattern) . '/'
+
   let [path, pattern] = l[1:2]
   call s:close_hair_buffer()
-  call s:open_file(path)
+  call s:open_file(parent . path)
   exe pattern
 endfunction
 

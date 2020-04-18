@@ -83,11 +83,12 @@ endif
 " nothing found
 " set tags=./tags;,tags
 
-set wildignore=*.o,*.a,*.so,tags,TAGS,*/.git/*,*/build/*,*/.clangd/*
+" . doesn't include hidden files. Don't include ** in any root!
+set path+=include/**,src/**,cmake/**,script/**,data/shader/**
+set wildignore=*/build/*,*/.git*,*/.clangd/*,*.o,*.a,*.so,tags,TAGS
 
 " add -I to ignore binary file, exclude some dirs
 let &grepprg = 'grep -n $* /dev/null --exclude-dir={.git,.hg,.clangd} -I'
-" set grepprg=ag\ --vimgrep\ $* grepformat=%f:%l:%c:%m
 
 if executable('zsh')
   let &shell = '/bin/zsh -o extendedglob'
@@ -199,40 +200,45 @@ if &t_Co == 256
   let g:lightline.colorscheme = 'gruvbox'
 endif
 
+" hare {{{2
+let s:find_exclude = '-name .hg -o -name .git -o -name build -o -name .vscode -o -name .clangd'
+let g:project_source = printf('find . -type d \( %s \) -prune -o -type f -print', s:find_exclude)
+nnoremap <c-p> :exe 'Hare file !' . g:project_source<cr>
+nnoremap <c-h> :Hare file oldfiles<cr>
+nnoremap <a-p> :exe 'Hare file !find . -type f'<cr>
+nnoremap <c-b> :call misc#hare#jump('file',
+            \ map(split(execute('ls'), "\n"), {i,v->matchstr(v, '\v.*"\zs.+\ze"')})
+            \)<cr>
+nnoremap <c-j> :call misc#hare#jump('btag',
+            \ printf('!ctags -f -  %s <bar> cut -f1,3-', expand('%')), '/\v^')<cr>
+nnoremap <a-j> :call misc#hare#jump('tag', function('Read_all_tags'), '/\v^')<cr>
+
+let g:find_path = []
+command Find exe printf('Hare file !find %s -type d \( %s \) -prune -o -type f -print',
+            \ join(g:find_path), s:find_exclude)
+com Folds Hare ilist /\v.*\{\{\{\d*$
+com GrepCache exe 'Hare fline !cat' expand('%')
+
+function Read_all_tags() abort
+  for tag in tagfiles()
+    " must add tag parent path for this to work
+    call append('$', printf("!_TAG_PARENT_PATH\t%s", fnamemodify(tag, ':p:h')))
+    exe '$read' tag
+  endfor
+endfunction
+
 " fzf {{{2
 
-" fzf maps, commands {{{3
-nnoremap <c-j> :BTags<cr>
-nnoremap <a-j> :Ctags<cr>
-nnoremap <c-h> :History<cr>
-nnoremap <c-b> :Buffers<cr>
-nnoremap <c-p> :call fzf#vim#files('', {'source': g:fzf_project_source})<cr>
-nnoremap <a-p> :FZF<cr>
+" fzf maps, commands {{{3\v^\!_TAG_PARENT_PATH\t\zs\s+
 
 imap <a-x><a-k> <plug>(fzf-complete-word)
 imap <a-x><a-f> <plug>(fzf-complete-path)
 imap <a-x><a-j> <plug>(fzf-complete-file-ag)
 imap <a-x><a-l> <plug>(fzf-complete-line)
-inoremap <expr> <a-x><a-d> <sid>comp_dir()
 
 com -nargs=* Ctags :call <SID>fzf_cpp_tags(<q-args>)
-com P call <sid>fzf_external_files()
-com -nargs=+ FFline call s:fzf_line(<q-args>)
-" com Folds FFline \v.*\{\{\{\d*$
-com Folds Hare ilist /\v.*\{\{\{\d*$
-com -nargs=+ FFfline call s:fzf_file_line(<q-args>)
 
 " select file from cached grep result
-com Subject exe 'FFfline cat' @%
-
-" there are garbage new line in mes, don't know how to reproduce it. Filter
-" blank lines as temporary solution.
-com -nargs=+ -bang -complete=command FF call fzf#run(fzf#wrap({
-            \ 'source' : filter(split(execute(<q-args>), "\n"), {i,v->!empty(v)}),
-            \ 'sink': function('s:ff_sink'),
-            \ 'options' : <bang>0 ? '--tac' : '',
-            \ 'up':'~40%'
-            \ }))
 
 " fzf options {{{3
 set rtp+=~/.fzf
@@ -251,46 +257,8 @@ let g:fzf_action = {
       \ 'ctrl-q': function('s:build_quickfix_list')
       \ }
 let g:fzf_layout = {'up':'~40%'}
-let g:fzf_project_source = 'find . \( -name ".hg" -o -name ".git" -o -name "build"
-            \ -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
-
-let g:external_files = get(g:, 'external_files', [])
 
 " fzf helper functions {{{3
-
-" deal with lnum:content for current buffer
-function s:fzf_line(filter) abort
-  let lines = getline(1, '$')
-  let indices = filter( range( len(lines) ), { i,v -> lines[v] =~# a:filter } )
-  let lines = map(indices, { i,v -> (v+1) . ':' . lines[v] })
-  call fzf#run( fzf#wrap( { 'source' : lines, 'sink' : function('s:fzf_line_sink'),
-        \ 'options' : '-d ":" --with-nth 2..' } ) )
-endfunction
-
-function s:fzf_line_sink(item) abort
-  let lnum = matchstr(a:item, '\v^\s*\d+')
-  exe lnum
-endfunction
-
-" deal with lnum:filename:content style
-function s:fzf_file_line(source) abort
-  call fzf#run( fzf#wrap( { 'source' : a:source, 'sink' : function('s:fzf_file_line_sink'),
-        \ 'options' : '-d ":" --with-nth 3..' } ) )
-endfunction
-
-function s:fzf_file_line_sink(item) abort
-  let [fname, lnum] = split(a:item, ':')[0:1]
-  exe printf('e +%d %s', lnum, fname)
-endfunction
-
-function s:comp_dir()
-  let location = matchstr( getline('.'), printf('\v\S+%%%dc', col('.')) )
-  if location ==# ''
-    let location = '.'
-  endif
-  return fzf#vim#complete#word(
-    \ {'source': printf('find "%s" -type d', location)} )
-endfunction
 
 function s:fzf_cpp_tags(...)
   let query = get(a:000, 0, '')
@@ -301,22 +269,6 @@ function s:fzf_cpp_tags(...)
   call fzf#vim#tags(
         \ query,
         \ extend(copy(g:fzf_layout), tags_options))
-endfunction
-
-" copy into @@, ignore leading index
-function s:ff_sink(item)
-  let text = substitute(a:item, '\v^\>?\s*\d+\:?\s*', '', '')
-  let @@ = empty(text) ? a:item : text
-endfunction
-
-function s:fzf_external_files()
-  if empty(g:external_files)
-    return
-  endif
-
-  let source = 'find "' . join(g:external_files, '" "') . '" \( -name ".hg" -o -name ".git" -o
-            \ -name "build" -o -name ".vscode" -o -name ".clangd" \) -prune -o -type f -print'
-  call fzf#run(fzf#wrap({'source' : source}))
 endfunction
 
 " vimtex {{{2
@@ -516,21 +468,6 @@ nnoremap gc :SelectLastChange<cr>
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
 nnoremap _m :ReadtagsI -ok m -k e <c-r><c-A><cr>
-
-nnoremap <c-h> :call misc#hare#jump('file', ':oldfiles')<cr>
-nnoremap <c-p> :call misc#hare#jump('file', '!' . g:fzf_project_source)<cr>
-nnoremap <c-b> :call misc#hare#jump('file',
-            \ map(split(execute('ls'), "\n"), {i,v->matchstr(v, '\v.*"\zs.+\ze"')})
-            \)<cr>
-nnoremap <c-j> :call misc#hare#jump('btag',
-            \ '!ctags -f - ' . expand('%') . '<bar> cut -f1,3-')<cr>
-" nnoremap <a-j> :call misc#hare#jump(function('Read_all_tags'), 'tag')<cr>
-
-function Read_all_tags() abort
-  for tag in tagfiles()
-    exe '$read' tag
-  endfor
-endfunction
 
 function s:browse_project_source() abort
   NewOneOff
