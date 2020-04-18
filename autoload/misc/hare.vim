@@ -103,24 +103,27 @@ function s:fill_buffer(source) abort
 endfunction
 
 function s:install_map(sink) abort
-  nnoremap <buffer> <cr> :call b:hare_sink()<cr>
-  cnoremap <buffer> <cr> <cr>:call b:hare_sink()<cr>
-  cnoremap <buffer> <esc> <esc>:wincmd q<cr>
-  cnoremap <buffer> <c-y> <cr>
 
   let stype = type(a:sink)
 
   if stype ==# v:t_func
-    let b:hare_sink = a:sink
+    let Hare_sink = a:sink
   elseif stype ==# v:t_string
     if !has_key(s:default_sinks, a:sink)
       throw 'unknown sink ' . a:sink
     endif
 
-    let b:hare_sink = s:default_sinks[a:sink]
+    let Hare_sink = s:default_sinks[a:sink]
   else
     throw 'unknown sink type ' . a:sink
   endif
+
+  exe printf('nnoremap <buffer> <cr>
+        \ :call call(%s, [])<cr>', string(get(Hare_sink, 'name')))
+  exe printf('cnoremap <buffer> <cr>
+        \ <cr>:call call(%s, [])<cr>', string(get(Hare_sink, 'name')))
+  cnoremap <buffer> <esc> <esc>:wincmd q<cr>
+  cnoremap <buffer> <c-y> <cr>
 endfunction
 
 function s:install_autocmd() abort
