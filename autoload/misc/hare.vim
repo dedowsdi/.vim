@@ -1,13 +1,9 @@
 " Current implementation doesn't work well for large data.
 "
 " keys:
-"   <cr> is remapped in normal and command mode to jump.
-"   If you need to find next/previous search, you can use c-g and c-t in command
-"   mode.
-"   <c-y> is remapped in command as <cr>
-"
-"   <esc> is remapped in command mode to abort. If you want to return to normal
-"   mode, use c-c or c-\c-n
+"   <cr> is remapped in normal mode to jump.
+"   <c-o> is remapped in command mode to jump.
+"   <c-c> is remapped in command mode to abort.
 "   If you want to abort in normal mode, use <c-w>q or :q
 "
 " sink:
@@ -42,7 +38,7 @@
 " buffer is the hare buffer, not the original one.
 "
 " ...:
-"   keys feeded to feedkeys(), it defaults to `/\v<`
+"   keys feeded to feedkeys(), it defaults to `/\v.*<`
 function misc#hare#jump(sink, source, ...) abort
 
   try
@@ -55,11 +51,10 @@ function misc#hare#jump(sink, source, ...) abort
     set filetype=hare
 
     call s:fill_buffer(a:source)
-    setlocal nomodifiable
 
     call s:install_map(a:sink)
     call s:install_autocmd()
-    call feedkeys(a:0 > 0 ? a:1 : '/\v<', 'n')
+    call feedkeys(a:0 > 0 ? a:1 : '/\v.*<', 'n')
 
   catch /.*/
     echohl WarningMsg
@@ -134,10 +129,9 @@ function s:install_map(sink) abort
 
   exe printf('nnoremap <buffer> <cr>
         \ :call call(%s, [])<cr>', string(get(Hare_sink, 'name')))
-  exe printf('cnoremap <buffer> <cr>
+  exe printf('cnoremap <buffer> <c-o>
         \ <cr>:call call(%s, [])<cr>', string(get(Hare_sink, 'name')))
-  cnoremap <buffer> <esc> <esc>:wincmd q<cr>
-  cnoremap <buffer> <c-y> <cr>
+  cnoremap <buffer> <c-c> <esc>:wincmd q<cr>
 endfunction
 
 function s:install_autocmd() abort
