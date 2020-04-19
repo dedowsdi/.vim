@@ -91,7 +91,7 @@ endif
 " set tags=./tags;,tags
 
 " add -I to ignore binary file, exclude some dirs
-let &grepprg = 'grep -n $* /dev/null --exclude-dir={.git,.hg,.clangd} -I'
+let &grepprg = 'grep -n -I -D skip --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.clangd} $* /dev/null'
 
 if executable('zsh')
   let &shell = '/bin/zsh -o extendedglob'
