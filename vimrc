@@ -214,15 +214,16 @@ nnoremap <c-b> :Hare ls ls<cr>
 "             \ map(split(execute('ls'), "\n"), {i,v->matchstr(v, '\v.*"\zs.+\ze"')})
 "             \)<cr>
 nnoremap <c-j> :call misc#hare#jump('btag',
-            \ printf('!ctags --fields=-l -f -  %s <bar> cut -f1,3-', expand('%')), '/\v^')<cr>
+            \ printf('!ctags --fields=-l -f -  %s <bar> cut -f1,3-', @%), '/\v^')<cr>
 nnoremap <a-j> :call misc#hare#jump('tag', function('<sid>read_tags', [""]), '/\v^')<cr>
 
 let g:find_path = []
 com Find exe printf('Hare file !find %s -type d \( %s \) -prune -o -type f -print',
             \ join(g:find_path), s:find_exclude)
 com Folds Hare line /\v.*\{\{\{\d*$
-com GrepCache exe 'Hare fline !cat' expand('%')
+com GrepCache exe 'Hare fline !cat' @%
 com -nargs=1 Ctags call misc#hare#jump('tag', function('s:read_tags', [<f-args>]), '/\v^')
+com Tagbar exe 'Hare btag !tagbar' @%
 
 " kinds is a combination of single letter kind
 function s:read_tags(kinds) abort
@@ -321,7 +322,6 @@ Plug 'tpope/vim-rhubarb'
 
 " tags
 Plug 'ludovicchabant/vim-gutentags'
-Plug 'majutsushi/tagbar'
 
 " auto complete
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
