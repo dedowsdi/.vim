@@ -17,10 +17,12 @@
 "                path
 "                1 : path
 "     line     lnum...
-"     ilist    index:lnum ...
 "     fline    file:line:...
 "     tag      name\tpath\tline
 "     btag     name\tline
+"     ilist    ilist result
+"     ls       ls result
+"     tselect  tselect result
 "
 " source:
 "   a shell command, it must starts with !, it's executed as `exe 'read' a:source`
@@ -92,7 +94,17 @@ function s:fill_buffer(source) abort
     if c==# '!'
       exe 'read' a:source
     elseif c==# '/'
-      put! =win_execute(b:hare_orig_winid, printf('ilist! /%s/', a:source[1:]))
+      let pattern = a:source[-1:-1] ==# '/' ? a:source[1:-2] : a:source[1:]
+      try
+        " clear path, exclude include
+        let opath = &path
+        let &path = ''
+        let lines = split(win_execute(b:hare_orig_winid, printf('ilist! /%s/', pattern)), "\n")
+        let lines = map(lines[1:], {i,v -> v[stridx(v, ':')+1 : ]})
+        call setline(1, lines)
+      finally
+        let &path = opath
+      endtry
     else
       put! =execute(a:source)
     endif
@@ -162,15 +174,6 @@ function s:line_sink() abort
   exe lnum
 endfunction
 
-function s:ilist_sink() abort
-  let lnum = matchstr(getline('.'), '\v^\s*\d+\s*:\s*\zs\d+')
-  if empty(lnum)
-    throw 'Illegal line : ' . getline('.')
-  endif
-  call s:close_hair_buffer()
-  exe lnum
-endfunction
-
 function s:fline_sink() abort
   let l = matchlist(getline('.'), '\v^([^:]+)\s*:\s*(\d+):')
   if empty(l)
@@ -210,6 +213,52 @@ function s:btag_sink() abort
   exe pattern
 endfunction
 
+function s:ilist_sink() abort
+  let lnum = matchstr(getline('.'), '\v^\s*\d+\s*:\s*\zs\d+')
+  if empty(lnum)
+    throw 'Illegal line : ' . getline('.')
+  endif
+  call s:close_hair_buffer()
+  exe lnum
+endfunction
+
+function s:ls_sink() abort
+  let l = matchlist(getline('.'), '\v^[^"]+"(.+)"\s*line\s*(\d+)')
+  if empty(l)
+    throw 'Illegal tag line' . getline('.')
+  endif
+
+  let [path, lnum] = l[1:2]
+  call s:close_hair_buffer()
+  call s:open_file(path)
+  exe lnum
+endfunction
+
+function s:tselect_sink() abort
+
+  let menu = getline(2)
+  let tag_index = stridx(menu, 'tag')
+  let file_index = stridx(menu, 'file')
+
+  " goto tag start line
+  if !search('\v^\s{,8}\d+', 'bW')
+    throw 'Illegal entry ' . getline('.')
+  endif
+
+  let path = getline('.')[file_index : ]
+
+  " search pattern or line number
+  let pattern_regex = printf('\v^\s+\zs%%%dc\S+', tag_index + 3)
+  if !search( pattern_regex, 'W')
+    throw 'Illegal entry ' . getline('.')
+  endif
+
+  let pattern = matchstr(getline('.'), pattern_regex )
+  call s:close_hair_buffer()
+  call s:open_file(path)
+  exe pattern
+endfunction
+
 function s:open_file(path) abort
   let bnr = bufnr(a:path)
   if bnr == -1
@@ -225,9 +274,11 @@ endfunction
 
 let s:default_sinks = {
       \ 'file': function('s:file_sink'),
-      \ 'ilist': function('s:ilist_sink'),
       \ 'line': function('s:line_sink'),
       \ 'fline': function('s:fline_sink'),
       \ 'tag': function('s:tag_sink'),
       \ 'btag': function('s:btag_sink'),
+      \ 'ilist': function('s:ilist_sink'),
+      \ 'ls': function('s:ls_sink'),
+      \ 'tselect': function('s:tselect_sink'),
       \ }

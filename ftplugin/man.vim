@@ -14,7 +14,7 @@ nnoremap <buffer> i /\v^\s*
 " com -buffer Option FFline \v\C^\s+\-\-?\w
 " com -buffer SubSection FFline \v\C^   \S.*$
 
-com -buffer Section Hare ilist /\v\C^[A-Z][^a-z]*$
-com -buffer Option Hare ilist /\v\C^\s+\-\-?\w
-com -buffer SubSection Hare ilist /\v\C^   \S.*$
+com -buffer Section Hare line /\v\C^[A-Z][^a-z]*$
+com -buffer Option Hare line /\v\C^\s+\-\-?\w
+com -buffer SubSection Hare line /\v\C^   \S.*$
 

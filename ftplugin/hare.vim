@@ -4,7 +4,11 @@ endif
 let b:loaded_hare_cfg = 1
 
 setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted modifiable
-      \ nonumber norelativenumber
+      \ nofoldenable
+      \ nonumber norelativenumber nolist
+      \ undolevels=-1
+      \ statusline=hare
+
 
 " clear map to misc#hare..
 function s:get_maps() abort

@@ -12,8 +12,12 @@ scriptencoding utf-8
 set list listchars=trail:┄,tab:†·,extends:>,precedes:<,nbsp:+
 scriptencoding
 
-" add all child dir of current dir to path
-set path+=.,**,/usr/local/include,
+" add common source to path
+set path+=**
+
+" ignore tool and build
+set wildignore=*/build/*,*/.git/*,*/.hg/*,*/.vscode/*,*/.clangd/*,*.o,*.a,*.so,*.dll,tags
+set wildignorecase
 
 " reduce esc delay to a acceptable number
 set ttimeout ttimeoutlen=5 timeoutlen=1000
@@ -82,10 +86,6 @@ endif
 " search tag in dir of current file upward until root, use current dir tags if
 " nothing found
 " set tags=./tags;,tags
-
-" . doesn't include hidden files. Don't include ** in any root!
-set path+=include/**,src/**,cmake/**,script/**,data/shader/**
-set wildignore=*/build/*,*/.git*,*/.clangd/*,*.o,*.a,*.so,tags,TAGS
 
 " add -I to ignore binary file, exclude some dirs
 let &grepprg = 'grep -n $* /dev/null --exclude-dir={.git,.hg,.clangd} -I'
@@ -210,20 +210,31 @@ nnoremap <c-b> :call misc#hare#jump('file',
             \ map(split(execute('ls'), "\n"), {i,v->matchstr(v, '\v.*"\zs.+\ze"')})
             \)<cr>
 nnoremap <c-j> :call misc#hare#jump('btag',
-            \ printf('!ctags -f -  %s <bar> cut -f1,3-', expand('%')), '/\v^')<cr>
-nnoremap <a-j> :call misc#hare#jump('tag', function('Read_all_tags'), '/\v^')<cr>
+            \ printf('!ctags --fields=-l -f -  %s <bar> cut -f1,3-', expand('%')), '/\v^')<cr>
+nnoremap <a-j> :call misc#hare#jump('tag', function('<sid>read_tags', [""]), '/\v^')<cr>
 
 let g:find_path = []
-command Find exe printf('Hare file !find %s -type d \( %s \) -prune -o -type f -print',
+com Find exe printf('Hare file !find %s -type d \( %s \) -prune -o -type f -print',
             \ join(g:find_path), s:find_exclude)
-com Folds Hare ilist /\v.*\{\{\{\d*$
+com Folds Hare line /\v.*\{\{\{\d*$
 com GrepCache exe 'Hare fline !cat' expand('%')
+com -nargs=1 Readtags call misc#hare#jump('tag', function('s:read_tags', [<f-args>]), '/\v^')
 
-function Read_all_tags() abort
+" kinds is a combination of single letter kind
+function s:read_tags(kinds) abort
+  if !empty(a:kinds)
+    let ors = map(split(a:kinds, '\zs'), {i,v->printf('(prefix? $kind "%s")', v)})
+    let condition = printf('-Q ''(or %s )''', join(ors) )
+  endif
+
   for tag in tagfiles()
     " must add tag parent path for this to work
     call append('$', printf("!_TAG_PARENT_PATH\t%s", fnamemodify(tag, ':p:h')))
-    exe '$read' tag
+    if empty(a:kinds)
+      exe '$read' tag
+    else
+      exe printf('$read !readtags -t %s %s -el | grep -v "^__anon"', tag, condition)
+    endif
   endfor
 endfunction
 

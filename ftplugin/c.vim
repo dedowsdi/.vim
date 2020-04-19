@@ -67,7 +67,7 @@ function s:fzf_cpp_btags()
         \ -f -
         \ --sort=no
         \ --fields-c++=+{properties}{template}
-        \ --fields=KsSi
+        \ --fields=ksSi
         \ --links=yes
         \ --language-force=c++ ' . expand('%')
         \ . '| cut -f1,3-'
