@@ -85,6 +85,8 @@ function s:fill_buffer(source) abort
       throw 'empty source string'
     endif
 
+    exe printf('let &statusline="%s"', a:source)
+
     let c = a:source[0]
     if c==# '!'
       exe 'read' a:source
