@@ -222,7 +222,7 @@ com Find exe printf('Hare file !find %s -type d \( %s \) -prune -o -type f -prin
             \ join(g:find_path), s:find_exclude)
 com Folds Hare line /\v.*\{\{\{\d*$
 com GrepCache exe 'Hare fline !cat' expand('%')
-com -nargs=1 Readtags call misc#hare#jump('tag', function('s:read_tags', [<f-args>]), '/\v^')
+com -nargs=1 Ctags call misc#hare#jump('tag', function('s:read_tags', [<f-args>]), '/\v^')
 
 " kinds is a combination of single letter kind
 function s:read_tags(kinds) abort
@@ -240,50 +240,6 @@ function s:read_tags(kinds) abort
       exe printf('$read !readtags -t %s %s -el | grep -v "^__anon"', tag, condition)
     endif
   endfor
-endfunction
-
-" fzf {{{2
-
-" fzf maps, commands {{{3\v^\!_TAG_PARENT_PATH\t\zs\s+
-
-imap <a-x><a-k> <plug>(fzf-complete-word)
-imap <a-x><a-f> <plug>(fzf-complete-path)
-imap <a-x><a-j> <plug>(fzf-complete-file-ag)
-imap <a-x><a-l> <plug>(fzf-complete-line)
-
-com -nargs=* Ctags :call <SID>fzf_cpp_tags(<q-args>)
-
-" select file from cached grep result
-
-" fzf options {{{3
-set rtp+=~/.fzf
-
-function s:build_quickfix_list(lines)
-  call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
-  copen | cc
-endfunction
-
-let g:fzf_action = {
-      \ 'ctrl-t': 'tab split',
-      \ 'ctrl-x': 'split',
-      \ 'ctrl-v': 'vertical rightbelow split',
-      \ 'ctrl-a': 'argadd',
-      \ 'ctrl-o': '!gio open',
-      \ 'ctrl-q': function('s:build_quickfix_list')
-      \ }
-let g:fzf_layout = {'up':'~40%'}
-
-" fzf helper functions {{{3
-
-function s:fzf_cpp_tags(...)
-  let query = get(a:000, 0, '')
-  " there exists an extra field which i don't know how to control in
-  " fzf#vim#tags, that's why it use 1,4..-2
-  let tags_options = { 'options' : '--no-reverse -m -d "\t" --tiebreak=begin
-              \ --with-nth 1,4..-2 -n .. --prompt "Ctags> "'}
-  call fzf#vim#tags(
-        \ query,
-        \ extend(copy(g:fzf_layout), tags_options))
 endfunction
 
 " vimtex {{{2
@@ -351,10 +307,6 @@ Plug 'tpope/vim-commentary'
 
 " status line
 Plug 'itchyny/lightline.vim'
-
-" fuzzy
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
 
 " lint
 Plug 'w0rp/ale'
