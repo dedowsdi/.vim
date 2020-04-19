@@ -703,3 +703,74 @@ function misc#win_fit_buf(extra_lines) abort
     cal winrestview(cview)
   endtry
 endfunction
+
+function misc#format_table() abort
+  try
+    let cview = winsaveview()
+
+    " match only last line of table. It's
+    " | ..........| + (endof file | blank line | line that doesn't starts with |)
+    g /\v^\s*\|.*\|\s*$%(%$|\n\s*%($|[^|]))/ exe "norm \<Plug>(EasyAlign)ip*|\<cr>"
+  finally
+    call winrestview(cview)
+  endtry
+endfunction
+
+function misc#job(cmd) abort
+  call term_start( a:cmd, { 'exit_cb' : function('s:job_exit_cb'), 'hidden'  : 1 } )
+endfunction
+
+" if exit 0, wipe self in 10min, otherwise display self in split
+function s:job_exit_cb(job, exit_status) abort
+  let buf = ch_getbufnr(a:job, 'out')
+  if a:exit_status == 0
+    echom printf('%s, buf : %d', a:job, buf)
+
+    function! s:clear_job_buf(timer) closure abort
+      exe 'bwipe' buf
+    endfunction
+
+    let timer_id = timer_start( 10 * 60 * 1000, funcref('s:clear_job_buf') )
+
+    augroup job_event_group
+      exe printf('autocmd BufWinEnter <buffer=%d> call timer_stop(%d)', buf, timer_id)
+    augroup end
+
+  else
+    exe 'botright sbuffer +set\ nonumber\ norelativenumber' buf
+  endif
+endfunction
+
+function misc#expand_filepath(...)
+  if a:0 == 0
+    let reg = '+'
+    let expr = '%:p'
+  elseif a:0 == 1
+    if a:1 =~# '\v^[a-zA-Z"*+]$'
+      let reg = a:1
+      let expr = '%:p'
+    else
+      let reg = '+'
+      let expr = a:1
+    endif
+  else
+    let reg = a:1
+    let expr = a:2
+  endif
+
+  call setreg(reg, expand(expr))
+  call setreg('"', expand(expr))
+endfunction
+
+function misc#close_finished_terminal() abort
+  let bufs = map(split( execute('ls F'), "\n" ), {i,v -> matchstr(v, '\v^\s*\zs\d+')})
+  for buf in bufs
+    call win_execute(bufwinid(str2nr( buf )), 'close')
+  endfor
+endfunction
+
+function misc#browse(...)
+  let path = expand(get(a:000, 0, '%:p'))
+  call system(printf('google-chrome %s&', path))
+endfunction
+

@@ -4,6 +4,9 @@
 "
 " Map and command are public interface, plugin settings and functions are
 " private implementation, interface must appear before implementation.
+"
+" Only include frequently used, trivial command and function here, others belong
+" to misc.vim.
 
                                    " options {{{1
 
@@ -478,14 +481,6 @@ nnoremap K  :exec 'norm! K' <bar> wincmd p<cr>
 nnoremap gc :SelectLastChange<cr>
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
-nnoremap _m :ReadtagsI -ok m -k e <c-r><c-A><cr>
-
-function s:browse_project_source() abort
-  NewOneOff
-  exe 'read !' g:fzf_project_source
-  1
-  call matchadd('Comment', '\v^.+$')
-endfunction
 
 nnoremap <c-w><space> :tab split<cr>
 tnoremap <c-w><space> <c-w>:tab split<cr>
@@ -504,72 +499,23 @@ endif
 nmap ys<space> <plug>dedowsdi_misc_pair_add_space
 nmap ds<space> <plug>dedowsdi_misc_pair_minus_space
 
-cmap <c-a> <Plug>dedowsdi_readline_beginning_of_line
-cnoremap <a-a> <c-a>
-cmap <a-f> <Plug>dedowsdi_readline_forward_word
-cmap <a-b> <Plug>dedowsdi_readline_backward_word
-" cmap <c-f> <Plug>dedowsdi_readline_forward_char
-" cmap <c-b> <Plug>dedowsdi_readline_backward_char
-cmap <a-u> <Plug>dedowsdi_readline_uppercase_word
-cmap <a-l> <Plug>dedowsdi_readline_lowercase_word
-cmap <a-d> <Plug>dedowsdi_readline_forward_delete
-cmap <a-k> <Plug>dedowsdi_readline_kill
-
 nmap <c-w>` <plug>dedowsdi_term_toggle_gterm
 tmap <c-w>` <plug>dedowsdi_term_toggle_gterm
 
                                   " command {{{1
 
-com HiTest source $VIMRUNTIME/syntax/hitest.vim
-com TrimTrailingWhitespace :keepp %s/\v\s+$//g
-com DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
-  \ | diffthis | wincmd p | diffthis
 com SelectLastChange exec 'normal! `[' . getregtype() . '`]'
+
 com ReverseQuickFixList call setqflist(reverse(getqflist()))
+
 com SuperWrite :w !sudo tee % > /dev/null
+
 com -bang CfilterCoreHelp Cfilter<bang> '\v/vim/vim\d+/doc/[^/]+\.txt'
-com Synstack echo map( synstack(line('.'), col('.')), 'synIDattr(v:val, "name")' )
-com SynID echo synIDtrans(synID(line('.'), col('.'), 1))
-com -nargs=+ SynIDattr echo synIDattr(
-            \ synIDtrans(synID(line('.'), col('.'), 1)), <f-args>)
+
 com ReloadDotVimFtplugin unlet b:loaded_{&filetype}_cfg | e
-com-range UnsortUniq let g:__d={} | <line1>,<line2>g/^/
-      \ if has_key(g:__d, getline('.')) | d | else | let g:__d[getline('.')]=1 | endif
 
-" Expand {{{2
-" Expand [x=+] [mods=%:p], " is always set
-com -nargs=* Expand call s:expand_filepath(<f-args>)
-
-function s:expand_filepath(...)
-  if a:0 == 0
-    let reg = '+'
-    let expr = '%:p'
-  elseif a:0 == 1
-    if a:1 =~# '\v^[a-zA-Z"*+]$'
-      let reg = a:1
-      let expr = '%:p'
-    else
-      let reg = '+'
-      let expr = a:1
-    endif
-  else
-    let reg = a:1
-    let expr = a:2
-  endif
-
-  call setreg(reg, expand(expr))
-  call setreg('"', expand(expr))
-endfunction
-
-" Browse {{{2
-com -nargs=? Browse call s:browse(<f-args>)
-
-function s:browse(...)
-  let path = expand(get(a:000, 0, '%:p'))
-  call system(printf('google-chrome %s&', path))
-endfunction
-
-" NewOneOff
+" Less {{{2
+com -nargs=+ -complete=command Less call <sid>less(<q-args>, <q-mods>)
 com NewOneOff call <sid>new_oneoff(<q-mods>)
 
 function s:new_oneoff(mods) abort
@@ -577,9 +523,6 @@ function s:new_oneoff(mods) abort
   setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted modifiable
   file [one-off]
 endfunction
-
-" Less {{{2
-com -nargs=+ -complete=command Less call <sid>less(<q-args>, <q-mods>)
 
 function s:less(cmd, mods)
   let winid = win_getid()
@@ -598,73 +541,4 @@ function Tapi_lcd(bufnum, arglist)
     return
   endif
   call win_execute(winid, 'lcd ' . cwd)
-endfunction
-
-" CloseFinishedTerminal{{{2
-com -nargs=0 CloseFinishedTerminal call s:close_finished_terminal()
-
-function s:close_finished_terminal() abort
-  let bufs = map(split( execute('ls F'), "\n" ), {i,v -> matchstr(v, '\v^\s*\zs\d+')})
-  for buf in bufs
-    call win_execute(bufwinid(str2nr( buf )), 'close')
-  endfor
-endfunction
-
-" Job{{{2
-com -nargs=+ -complete=shellcmd Job call s:job(<q-args>)
-
-function s:job(cmd) abort
-  call term_start( a:cmd, { 'exit_cb' : function('s:job_exit_cb'), 'hidden'  : 1 } )
-endfunction
-
-" if exit 0, wipe self in 10min, otherwise display self in split
-function s:job_exit_cb(job, exit_status) abort
-  let buf = ch_getbufnr(a:job, 'out')
-  if a:exit_status == 0
-    echom printf('%s, buf : %d', a:job, buf)
-
-    function! s:clear_job_buf(timer) closure abort
-      exe 'bwipe' buf
-    endfunction
-
-    let timer_id = timer_start( 10 * 60 * 1000, funcref('s:clear_job_buf') )
-
-    augroup job_event_group
-      exe printf('autocmd BufWinEnter <buffer=%d> call timer_stop(%d)', buf, timer_id)
-    augroup end
-
-  else
-    exe 'botright sbuffer +set\ nonumber\ norelativenumber' buf
-  endif
-endfunction
-
-" {Enable|Disable}AutoFormatTable
-com EnableAutoFormatTable autocmd! auto_format_table BufWrite <buffer> call s:format_table()
-com DisableAutoFormatTable autocmd! auto_format_table BufWrite <buffer>
-
-augroup auto_format_table
-  autocmd!
-augroup end
-
-function s:format_table() abort
-  try
-    let cview = winsaveview()
-
-    " match only last line of table. It's
-    " | ..........| + (endof file | blank line | line that doesn't starts with |)
-    g /\v^\s*\|.*\|\s*$%(%$|\n\s*%($|[^|]))/ exe "norm \<Plug>(EasyAlign)ip*|\<cr>"
-  finally
-    call winrestview(cview)
-  endtry
-endfunction
-
-" ReadTagMemberNames{{{2
-com -nargs=+ ReadtagsI call s:readtags_i(<q-args>)
-
-function s:readtags_i(args) abort
-  let cmd = printf( 'readtagsi %s %s',
-              \ join( map( tagfiles(), { i,v-> printf('-t "%s"', v)  } ) ),
-              \ a:args )
-  call misc#log#debug(cmd)
-  call append( line('.'), systemlist(cmd) )
 endfunction

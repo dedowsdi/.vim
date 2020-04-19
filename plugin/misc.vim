@@ -226,6 +226,9 @@ com -nargs=? RestoreBufferLayout call misc#layout#restore(<q-args>)
 " hare {{{1
 com -nargs=+ Hare call misc#hare#exec(<q-args>)
 
+" tag {{{1
+com -nargs=+ Readtagsi call misc#readtagsi(<q-args>)
+
 " misc {{{1
 
 let g:dedowsdi_misc_complete_maxitem_per_direction = 16
@@ -250,3 +253,35 @@ call s:repeat_plug_map('<Plug>dedowsdi_misc_pair_minus_space', ':call misc#expan
 com -bang -nargs=1 Slide call misc#prepare_slide(<bang>0, <f-args>)
 
 com -count WinFitBuf call misc#win_fit_buf(<count>)
+
+augroup auto_format_table
+  autocmd!
+augroup end
+
+com EnableAutoFormatTable autocmd! auto_format_table BufWrite <buffer> call misc#format_table()
+com DisableAutoFormatTable autocmd! auto_format_table BufWrite <buffer>
+
+com -nargs=+ -complete=shellcmd Job call misc#job(<q-args>)
+
+com -nargs=* Expand call misc#expand_filepath(<f-args>)
+
+com -nargs=0 CloseFinishedTerminal call misc#close_finished_terminal()
+
+com -nargs=? Browse call misc#browse(<f-args>)
+
+com -range UnsortUniq let g:__d={} | <line1>,<line2>g/^/
+      \ if has_key(g:__d, getline('.')) | d | else | let g:__d[getline('.')]=1 | endif
+
+com Synstack echo map( synstack(line('.'), col('.')), 'synIDattr(v:val, "name")' )
+
+com SynID echo synIDtrans(synID(line('.'), col('.'), 1))
+
+com -nargs=+ SynIDattr echo synIDattr(
+            \ synIDtrans(synID(line('.'), col('.'), 1)), <f-args>)
+
+com HiTest source $VIMRUNTIME/syntax/hitest.vim
+
+com TrimTrailingWhitespace :keepp %s/\v\s+$//g
+
+com DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
+  \ | diffthis | wincmd p | diffthis
