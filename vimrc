@@ -12,7 +12,7 @@ scriptencoding utf-8
 set list listchars=trail:┄,tab:†·,extends:>,precedes:<,nbsp:+
 scriptencoding
 
-" add common source to path
+" for convenience, add all children to path.
 set path+=**
 
 " ignore tool and build
@@ -579,21 +579,13 @@ function s:new_oneoff(mods) abort
 endfunction
 
 " Less {{{2
-com -bang -nargs=+ -complete=command Less call <sid>less(<q-args>, <q-mods>, <bang>0)
+com -nargs=+ -complete=command Less call <sid>less(<q-args>, <q-mods>)
 
-function s:less(cmd, mods, replace)
-
-  " get result in current buffer, must be called before new
-  let result = execute(a:cmd)
+function s:less(cmd, mods)
+  let winid = win_getid()
   NewOneOff
-  exe printf('file [one-off] %s', a:cmd)
-  call setline(1, split(result, "\n"))
+  exe printf('put! =win_execute(%s, ''%s'')', winid, a:cmd)
   1
-  " close old window buffer
-  if a:replace
-    wincmd p
-    wincmd q
-  endif
 endfunction
 
 " Tapi_cd {{{2
