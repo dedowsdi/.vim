@@ -209,9 +209,10 @@ let g:project_source = printf('find . -type d \( %s \) -prune -o -type f -print'
 nnoremap <c-p> :exe 'Hare file !' . g:project_source<cr>
 nnoremap <c-h> :Hare file oldfiles<cr>
 nnoremap <a-p> :exe 'Hare file !find . -type f'<cr>
-nnoremap <c-b> :call misc#hare#jump('file',
-            \ map(split(execute('ls'), "\n"), {i,v->matchstr(v, '\v.*"\zs.+\ze"')})
-            \)<cr>
+nnoremap <c-b> :Hare ls ls<cr>
+" nnoremap <c-b> :call misc#hare#jump('file',
+"             \ map(split(execute('ls'), "\n"), {i,v->matchstr(v, '\v.*"\zs.+\ze"')})
+"             \)<cr>
 nnoremap <c-j> :call misc#hare#jump('btag',
             \ printf('!ctags --fields=-l -f -  %s <bar> cut -f1,3-', expand('%')), '/\v^')<cr>
 nnoremap <a-j> :call misc#hare#jump('tag', function('<sid>read_tags', [""]), '/\v^')<cr>
