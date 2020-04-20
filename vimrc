@@ -152,8 +152,8 @@ let g:ale_linters = {
 
 " ultisnips {{{2
 let g:UltiSnipsExpandTrigger='<tab>'
-let g:UltiSnipsJumpForwardTrigger='<c-j>'
-let g:UltiSnipsJumpBackwardTrigger='<c-k>'
+let g:UltiSnipsJumpForwardTrigger='<c-l>'
+let g:UltiSnipsJumpBackwardTrigger='<c-h>'
 
 " split your window for :UltiSnipsEdit
 let g:UltiSnipsEditSplit='vertical'
@@ -213,9 +213,9 @@ nnoremap <c-b> :Hare ls ls<cr>
 " nnoremap <c-b> :call misc#hare#jump('file',
 "             \ map(split(execute('ls'), "\n"), {i,v->matchstr(v, '\v.*"\zs.+\ze"')})
 "             \)<cr>
-nnoremap <c-j> :call misc#hare#jump('btag',
+nnoremap <c-k> :call misc#hare#jump('btag',
             \ printf('!ctags --fields=-l -f -  %s <bar> cut -f1,3-', @%), '/\v^')<cr>
-nnoremap <a-j> :call misc#hare#jump('tag', function('<sid>read_tags', [""]), '/\v^')<cr>
+nnoremap <a-k> :call misc#hare#jump('tag', function('<sid>read_tags', [""]), '/\v^')<cr>
 
 let g:find_path = []
 com Find exe printf('Hare file !find %s -type d \( %s \) -prune -o -type f -print',

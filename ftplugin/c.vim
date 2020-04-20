@@ -35,7 +35,7 @@ nnoremap <buffer> <leader>an :CppNNL<cr>
 
 " misc
 " nnoremap <f4>  :YcmCompleter GetType<cr>
-nnoremap <buffer> <c-j>      :call <sid>fzf_cpp_btags()<cr>
+nnoremap <buffer> <c-k>      :call <sid>btags()<cr>
 nnoremap <buffer> <a-o>      :CdefSwitchFile<cr>
 " nnoremap <buffer> <c-f7>     :YcmDiags<cr>
 inoremap <buffer> <c-l>      ->
@@ -55,15 +55,9 @@ vnoremap <buffer> _G :CdefConstGetSet<cr>
 nnoremap <buffer> <s-f7>     :CppMakeFileName<cr>
 nnoremap <buffer> <leader>cc :CppConfig<cr>
 
-if !exists(':FZF')
-  finish
-endif
+function s:btags()
 
-"type, scope, signature, inheritance
-
-function s:fzf_cpp_btags()
-
-  let fzf_btags_cmd = '!ctags
+  let btags_cmd = '!ctags
         \ -f -
         \ --sort=no
         \ --fields-c++=+{properties}{template}
@@ -72,13 +66,5 @@ function s:fzf_cpp_btags()
         \ --language-force=c++ ' . expand('%')
         \ . '| cut -f1,3-'
 
-  " display everything except filename and line number.
-  " fuzzy search all fields.
-  " call fzf#vim#buffer_tags(
-  "       \ '',[fzf_btags_cmd . ' ' . expand('%:S')],
-  "       \ {'options' :
-  "       \      '--tiebreak=begin --with-nth 1,4.. --nth .. --prompt "Ctags> "'}
-  "       \ )
-
-  call misc#hare#jump('btag', fzf_btags_cmd)
+  call misc#hare#jump('btag', btags_cmd)
 endfunction
