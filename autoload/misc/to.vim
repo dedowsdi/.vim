@@ -317,13 +317,14 @@ function misc#to#sel_lines(pattern0, pattern1, ai, style)
 endfunction
 
 " TODO implement a?
-function misc#to#sel_expr(ai) abort
+function misc#to#eython(ai) abort
   call s:assert_start_state()
   if misc#get_cc() !~? '\w'
     return
   endif
+
   norm! viw
-  call misc#mo#expr()
+  call misc#mo#eython()
   call s:force_motion()
 endfunction
 

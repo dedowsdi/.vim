@@ -17,7 +17,7 @@ endfunction
 call s:add_mo('<plug>dedowsdi_mo_vertical_E', 'misc#mo#vertical_motion("E")')
 call s:add_mo('<plug>dedowsdi_mo_vertical_W', 'misc#mo#vertical_motion("W")')
 call s:add_mo('<plug>dedowsdi_mo_vertical_B', 'misc#mo#vertical_motion("B")')
-call s:add_mo('<plug>dedowsdi_mo_expr', 'misc#mo#expr()')
+call s:add_mo('<plug>dedowsdi_mo_eython', 'misc#mo#eython()')
 
 " to {{{1
 
@@ -50,7 +50,7 @@ function s:add_to(ai, letter, default_vmode, func, ...) abort
 endfunction
 
 call s:add_to('ai', 'a', 'v',      'misc#to#sel_cur_arg')
-call s:add_to('i',  'e', 'v',      'misc#to#sel_expr')
+call s:add_to('i',  'e', 'v',      'misc#to#eython')
 call s:add_to('ai', 'l', 'v',      'misc#to#sel_letter')
 call s:add_to('ai', 'n', 'v',      'misc#to#sel_number')
 call s:add_to('i',  'c', '\<c-v>', 'misc#to#column')
@@ -232,8 +232,8 @@ com -nargs=+ Readtagsi call misc#readtagsi(<q-args>)
 " misc {{{1
 
 let g:dedowsdi_misc_complete_maxitem_per_direction = 16
-inoremap <plug>dedowsdi_misc_complete_next_expression <c-r>=misc#complete_expresson(0)<cr>
-inoremap <plug>dedowsdi_misc_complete_prev_expression <c-r>=misc#complete_expresson(1)<cr>
+inoremap <plug>dedowsdi_eython_complete_next <c-r>=misc#eython#complete(0)<cr>
+inoremap <plug>dedowsdi_eython_complete_prev <c-r>=misc#eython#complete(1)<cr>
 
 com -range -nargs=+ T call misc#mult_t(<line1>, <line2>, <f-args>)
 com -bar CamelToUnderscore norm! ciw<c-r>=misc#camel_to_underscore(@@)<cr><esc>

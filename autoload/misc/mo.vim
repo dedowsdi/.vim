@@ -43,16 +43,18 @@ endfunction
 " TODO add setting for different filetype?
 function s:search_expression() abort
   if search('\v%#.\_s*[([{<]', 'ce')
-    norm! %
+    keepjumps norm! %
     call s:search_expression()
+
   elseif search('\v%#.\k+', 'ce') || search('\v%#.(\.|\-\>|\:\:)\*?\k*', 'ce')
+    " lhs of above || is used to match current identifier
     call s:search_expression()
   else
     return
   endif
 endfunction
 
-function misc#mo#expr() abort
+function misc#mo#eython() abort
   if misc#get_cc() !~? '\v\w'
     return
   endif

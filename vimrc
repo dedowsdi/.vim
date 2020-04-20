@@ -269,13 +269,6 @@ map      ,c  <Plug>Commentary
 nmap     ,cc <Plug>CommentaryLine
 nmap     ,cu <Plug>Commentary<Plug>Commentary
 
-" eython {{{2
-map  <silent> ,e         <plug>eython_motion
-vmap <silent> ie         <plug>eython_textobject_ie
-omap <silent> ie         <plug>eython_textobject_ie
-imap <silent> <c-x><c-n> <plug>eython_complete_next
-imap <silent> <c-x><c-p> <plug>eython_complete_prev
-
 " .vim {{{2
 let g:dedowsdi_clang_format_py_path = '/usr/share/clang/clang-format-8/clang-format.py'
 " let g:dedowsdi_clang_format_fallback_style = 'LLVM'
@@ -325,7 +318,6 @@ Plug 'ludovicchabant/vim-gutentags'
 
 " auto complete
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'dedowsdi/vim-eython'
 
 " ftplugin
 Plug 'octol/vim-cpp-enhanced-highlight'
@@ -396,11 +388,13 @@ call s:add_to('an', '<plug>dedowsdi_to_an')
 call s:add_to('ic', '<plug>dedowsdi_to_ic')
 call s:add_to('iF', '<plug>dedowsdi_to_iF')
 call s:add_to('aF', 'iF')
+call s:add_to('ie', '<plug>dedowsdi_to_ie')
 
 " motion and operator {{{2
 nmap ,E <plug>dedowsdi_mo_vertical_E
 nmap ,W <plug>dedowsdi_mo_vertical_W
 nmap ,B <plug>dedowsdi_mo_vertical_B
+nmap ,e <plug>dedowsdi_mo_eython
 nnoremap ,,  ,
 
 function s:add_op(key, rhs)
@@ -425,6 +419,9 @@ nmap gUo <plug>dedowsdi_op_gUo
 nmap g~o <plug>dedowsdi_op_g~o
 nmap ,f  <plug>dedowsdi_op_clang_format
 nmap <expr> ,ff ',f' . v:count1 . '_'
+
+imap <silent> <c-x><c-n> <plug>dedowsdi_eython_complete_next
+imap <silent> <c-x><c-p> <plug>dedowsdi_eython_complete_prev
 
 " common maps {{{2
 nnoremap <f3>    :set hlsearch!<cr>
