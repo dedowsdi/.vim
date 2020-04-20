@@ -1,9 +1,9 @@
 " Current implementation doesn't work well for large data.
 "
 " keys:
-"   <cr> is remapped in normal mode to jump.
-"   <c-o> is remapped in command mode to jump.
-"   <c-c> is remapped in command mode to abort.
+"   <cr> is remapped to jump.
+"   c_ctrl-o is remapped to jump.
+"   c_ctrl-c is remapped in command mode to abort.
 "   If you want to abort in normal mode, use <c-w>q or :q
 "
 " sink:
