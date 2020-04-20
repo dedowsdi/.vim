@@ -710,3 +710,13 @@ function misc#browse(...)
   call system(printf('google-chrome %s&', path))
 endfunction
 
+" type cmd character one by one with interval
+let g:type_interval='200ms'
+function misc#type(cmd) abort
+
+  " spawn a timer_star for every char, the inner lambda call feedkeys with
+  " captured current char. It doesn't care about mapping delay and keycode
+  " delay, it just type one by one.
+  call map(split(a:cmd, '\zs'),
+        \ { i,v -> timer_start( g:type_interval * i, { t -> feedkeys(v) } ) })
+endfunction
