@@ -10,18 +10,9 @@ setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted modifiable
       \ statusline=hare
 
 
-" clear map to misc#hare..
-function s:get_maps() abort
-  if exists('s:maps')
-    return s:maps
-  endif
-
-  let s:maps = split(execute('filter /\v<Hare>|misc#hare#/ nmap'), "\n")
-  let s:maps = map(s:maps, {i,v -> matchstr(v, '\v^\w+\s+\zs\S+')})
-  return s:maps
-endfunction
-
-" overwrite hare related map to original meaning
-for key in s:get_maps()
-  exe 'nnoremap <buffer>' key key
-endfor
+" clear hare map by dummy
+nnoremap <buffer> <c-p> <c-p>
+nnoremap <buffer> <a-p> <a-p>
+nnoremap <buffer> <c-h> <c-h>
+nnoremap <buffer> <c-b> <c-b>
+nnoremap <buffer> <c-k> <c-k>
