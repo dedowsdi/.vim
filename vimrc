@@ -206,7 +206,7 @@ endif
 " hare {{{2
 " nnoremap <c-p> :Source<cr>
 nnoremap <c-p> :e **/
-nnoremap <a-p> :Source<cr>
+nnoremap <a-p> :Src<cr>
 nnoremap <c-h> :History<cr>
 nnoremap <c-b> :Ls<cr>
 nnoremap <c-k> :Btag<cr>

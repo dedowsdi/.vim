@@ -238,7 +238,7 @@ com Buffer call misc#hare#jump('file',
 let s:find_exclude = '-name .hg -o -name .git -o -name build -o -name .vscode -o -name .clangd'
 let g:project_source = printf('find . -type d \( %s \) -prune -o -type f -print', s:find_exclude)
 
-com Source exe 'Hare file !' . g:project_source
+com Src exe 'Hare file !' . g:project_source
 
 com File exe 'Hare file !find . -type f'
 
