@@ -35,7 +35,6 @@ nnoremap <buffer> <leader>an :CppNNL<cr>
 
 " misc
 " nnoremap <f4>  :YcmCompleter GetType<cr>
-nnoremap <buffer> <c-k>      :call <sid>btags()<cr>
 nnoremap <buffer> <a-o>      :CdefSwitchFile<cr>
 " nnoremap <buffer> <c-f7>     :YcmDiags<cr>
 inoremap <buffer> <c-l>      ->
@@ -54,17 +53,3 @@ nnoremap <buffer> _G :CdefConstGetSet<cr>
 vnoremap <buffer> _G :CdefConstGetSet<cr>
 nnoremap <buffer> <s-f7>     :CppMakeFileName<cr>
 nnoremap <buffer> <leader>cc :CppConfig<cr>
-
-function s:btags()
-
-  let btags_cmd = '!ctags
-        \ -f -
-        \ --sort=no
-        \ --fields-c++=+{properties}{template}
-        \ --fields=ksSi
-        \ --links=yes
-        \ --language-force=c++ ' . expand('%')
-        \ . '| cut -f1,3-'
-
-  call misc#hare#jump('btag', btags_cmd)
-endfunction

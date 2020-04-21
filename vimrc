@@ -209,8 +209,7 @@ nnoremap <c-p> :e **/
 nnoremap <a-p> :Source<cr>
 nnoremap <c-h> :History<cr>
 nnoremap <c-b> :Ls<cr>
-nnoremap <c-k> :tag<space>
-nnoremap <a-k> :Btag<cr>
+nnoremap <c-k> :Btag<cr>
 
 " vimtex {{{2
 com -complete=file -nargs=1 Rpdf :r !pdftotext -nopgbrk -layout <q-args> -

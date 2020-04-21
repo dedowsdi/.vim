@@ -248,8 +248,34 @@ com Find exe printf('Hare file !find %s -type d \( %s \) -prune -o -type f -prin
 
 com GrepCache exe 'Hare fline !cat' @%
 
-com Btag call misc#hare#jump('btag',
-      \  printf('!ctags --fields=-l -f -  %s <bar> cut -f1,3-', @%), '/\v^')
+com Btag call misc#hare#jump('btag', s:get_btag_cmd(&filetype) , '/\v^')
+
+" {filetype:string or funcref(which return cmd string)}
+let g:hare_btag_cmd = get(g:, 'hare_btag_cmd', {})
+
+if !has_key(g:hare_btag_cmd, 'help')
+  let g:hare_btag_cmd.help =
+        \ { -> printf(' !readtags -t "%s" -Q ''(eq? $input "%s")'' -l
+        \ | cut -f1,3-', expand('%:h') . '/tags', expand('%:t') ) }
+endif
+
+if !has_key(g:hare_btag_cmd, 'c')
+  let g:hare_btag_cmd.c = { -> printf('!ctags -f - --sort=no --fields=ksSi
+        \ --fields-c++=+{properties}{template} --language-force=c++ %s
+        \ | cut -f1,3-', expand('%')) }
+endif
+
+if !has_key(g:hare_btag_cmd, 'cpp')
+  let g:hare_btag_cmd.cpp = g:hare_btag_cmd.c
+endif
+
+function s:get_btag_cmd(filetype) abort
+  if has_key(g:hare_btag_cmd, a:filetype)
+    let Cmd = g:hare_btag_cmd[a:filetype]
+    return type(Cmd) ==# v:t_func ? Cmd() : Cmd
+  endif
+  return printf('!ctags --fields=-l -f -  %s | cut -f1,3-', expand('%'))
+endfunction
 
 com -nargs=* Tag call misc#hare#jump('tag', function('s:read_tags', [<f-args>]), '/\v^')
 
