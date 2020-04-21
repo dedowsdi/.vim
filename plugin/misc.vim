@@ -226,6 +226,54 @@ com -nargs=? RestoreBufferLayout call misc#layout#restore(<q-args>)
 " hare {{{1
 com -nargs=+ Hare call misc#hare#exec(<q-args>)
 
+com History Hare file oldfiles
+
+com Ls Hare ls ls
+
+com Fold Hare line /\v.*\{\{\{\d*$
+
+com Buffer call misc#hare#jump('file',
+      \ map(split(execute('ls'), "\n"), {i,v->matchstr(v, '\v.*"\zs.+\ze"')}))
+
+let s:find_exclude = '-name .hg -o -name .git -o -name build -o -name .vscode -o -name .clangd'
+let g:project_source = printf('find . -type d \( %s \) -prune -o -type f -print', s:find_exclude)
+
+com Source exe 'Hare file !' . g:project_source
+
+com File exe 'Hare file !find . -type f'
+
+let g:find_path = []
+com Find exe printf('Hare file !find %s -type d \( %s \) -prune -o -type f -print',
+            \ join(g:find_path), s:find_exclude)
+
+com GrepCache exe 'Hare fline !cat' @%
+
+com Btag call misc#hare#jump('btag',
+      \  printf('!ctags --fields=-l -f -  %s <bar> cut -f1,3-', @%), '/\v^')
+
+com -nargs=* Tag call misc#hare#jump('tag', function('s:read_tags', [<f-args>]), '/\v^')
+
+com Tagbar exe 'Hare btag !tagbar' @%
+
+" kinds is a combination of single letter kind
+function s:read_tags(...) abort
+  let kinds = get(a:000, 0, [])
+  if !empty(kinds)
+    let ors = map(split(kinds, '\zs'), {i,v->printf('(prefix? $kind "%s")', v)})
+    let condition = printf('-Q ''(or %s )''', join(ors) )
+  endif
+
+  for tag in tagfiles()
+    " must add tag parent path for this to work
+    call append('$', printf("!_TAG_PARENT_PATH\t%s", fnamemodify(tag, ':p:h')))
+    if empty(kinds)
+      exe '$read' tag
+    else
+      exe printf('$read !readtags -t %s %s -el | grep -v "^__anon"', tag, condition)
+    endif
+  endfor
+endfunction
+
 " tag {{{1
 com -nargs=+ Readtagsi call misc#readtagsi(<q-args>)
 

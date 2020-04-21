@@ -204,44 +204,13 @@ if &t_Co == 256
 endif
 
 " hare {{{2
-let s:find_exclude = '-name .hg -o -name .git -o -name build -o -name .vscode -o -name .clangd'
-let g:project_source = printf('find . -type d \( %s \) -prune -o -type f -print', s:find_exclude)
-nnoremap <c-p> :exe 'Hare file !' . g:project_source<cr>
-nnoremap <c-h> :Hare file oldfiles<cr>
-nnoremap <a-p> :exe 'Hare file !find . -type f'<cr>
-nnoremap <c-b> :Hare ls ls<cr>
-" nnoremap <c-b> :call misc#hare#jump('file',
-"             \ map(split(execute('ls'), "\n"), {i,v->matchstr(v, '\v.*"\zs.+\ze"')})
-"             \)<cr>
-nnoremap <c-k> :call misc#hare#jump('btag',
-            \ printf('!ctags --fields=-l -f -  %s <bar> cut -f1,3-', @%), '/\v^')<cr>
-nnoremap <a-k> :call misc#hare#jump('tag', function('<sid>read_tags', [""]), '/\v^')<cr>
-
-let g:find_path = []
-com Find exe printf('Hare file !find %s -type d \( %s \) -prune -o -type f -print',
-            \ join(g:find_path), s:find_exclude)
-com Folds Hare line /\v.*\{\{\{\d*$
-com GrepCache exe 'Hare fline !cat' @%
-com -nargs=1 Ctags call misc#hare#jump('tag', function('s:read_tags', [<f-args>]), '/\v^')
-com Tagbar exe 'Hare btag !tagbar' @%
-
-" kinds is a combination of single letter kind
-function s:read_tags(kinds) abort
-  if !empty(a:kinds)
-    let ors = map(split(a:kinds, '\zs'), {i,v->printf('(prefix? $kind "%s")', v)})
-    let condition = printf('-Q ''(or %s )''', join(ors) )
-  endif
-
-  for tag in tagfiles()
-    " must add tag parent path for this to work
-    call append('$', printf("!_TAG_PARENT_PATH\t%s", fnamemodify(tag, ':p:h')))
-    if empty(a:kinds)
-      exe '$read' tag
-    else
-      exe printf('$read !readtags -t %s %s -el | grep -v "^__anon"', tag, condition)
-    endif
-  endfor
-endfunction
+" nnoremap <c-p> :Source<cr>
+nnoremap <c-p> :e **/
+nnoremap <a-p> :Source<cr>
+nnoremap <c-h> :History<cr>
+nnoremap <c-b> :Ls<cr>
+nnoremap <c-k> :tag<space>
+nnoremap <a-k> :Btag<cr>
 
 " vimtex {{{2
 com -complete=file -nargs=1 Rpdf :r !pdftotext -nopgbrk -layout <q-args> -

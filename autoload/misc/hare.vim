@@ -44,7 +44,10 @@ function misc#hare#jump(sink, source, ...) abort
   try
     let winid = win_getid()
     let bnr = bufnr()
-    keepalt topleft new
+
+    " it's fixed in the bottom, it doesn't make sense to separate / pattern and
+    " the hare buffer.
+    keepalt botright new
     16wincmd _
     let b:hare_orig_winid = winid
     let b:hare_orig_buf = bnr
