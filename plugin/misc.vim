@@ -226,7 +226,7 @@ com -nargs=? RestoreBufferLayout call misc#layout#restore(<q-args>)
 " hare {{{1
 com -nargs=+ Hare call misc#hare#exec(<q-args>)
 
-com History Hare file oldfiles
+com History Hare file filter! /^fugitive/ oldfiles
 
 com Ls Hare ls ls
 
@@ -248,7 +248,8 @@ com Find exe printf('Hare file !find %s -type d \( %s \) -prune -o -type f -prin
 
 com GrepCache exe 'Hare fline !cat' @%
 
-com Btag call misc#hare#jump('btag', s:get_btag_cmd(&filetype) , '/\v^')
+com Btag call misc#hare#jump('btag',
+      \ s:get_btag_cmd(&filetype) , s:get_tag_pattern(&filetype))
 
 " {filetype:string or funcref(which return cmd string)}
 let g:hare_btag_cmd = get(g:, 'hare_btag_cmd', {})
@@ -277,7 +278,22 @@ function s:get_btag_cmd(filetype) abort
   return printf('!ctags --fields=-l -f -  %s | cut -f1,3-', expand('%'))
 endfunction
 
-com -nargs=* Tag call misc#hare#jump('tag', function('s:read_tags', [<f-args>]), '/\v^')
+let g:hare_tag_pattern = get(g:, 'hare_btag_pattern', {})
+
+if !has_key(g:hare_tag_pattern, 'vim')
+  let g:hare_tag_pattern.vim = '/\v<'
+endif
+
+function s:get_tag_pattern(filetype) abort
+  if has_key(g:hare_tag_pattern, a:filetype)
+    let pat = g:hare_tag_pattern[a:filetype]
+    return type(pat) ==# v:t_func ? pat() : pat
+  endif
+  return '/\v^'
+endfunction
+
+com -nargs=* Tag call misc#hare#jump('tag',
+      \ function('s:read_tags', [<f-args>]), s:get_tag_pattern(&filetype))
 
 com Tagbar exe 'Hare btag !tagbar' @%
 
