@@ -49,6 +49,7 @@ function misc#hare#jump(sink, source, ...) abort
     " the hare buffer.
     keepalt botright new
     16wincmd _
+    setlocal winfixheight
     let b:hare_orig_winid = winid
     let b:hare_orig_buf = bnr
     set filetype=hare
