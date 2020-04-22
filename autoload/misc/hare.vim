@@ -41,21 +41,27 @@
 "   keys feeded to feedkeys(), it defaults to `/\v.*<`
 function misc#hare#jump(sink, source, ...) abort
 
+  " close existing hare buffers
+  call map( reverse( range( 1, winnr('$') ) ),
+        \ { i,v -> win_execute( win_getid(v),
+        \ 'if &filetype ==# "hare" | wincmd q | endif' ) } )
+
   try
     let winid = win_getid()
     let bnr = bufnr()
 
-    " it's fixed in the bottom, it doesn't make sense to separate / pattern and
-    " the hare buffer.
+    " fix it in the bottom, it doesn't make sense to separate / pattern and the
+    " hare buffer.
     keepalt botright new
     16wincmd _
     setlocal winfixheight
+
     let b:hare_orig_winid = winid
     let b:hare_orig_buf = bnr
 
     set filetype=hare
     call s:fill_buffer(a:source)
-    call s:setup_buffer(a:sink)
+    call s:setup_map_and_event(a:sink)
 
     let s:start_pattern = a:0 > 0 ? a:1 : '/\v.*<'
     call feedkeys(s:start_pattern, 'n')
@@ -65,7 +71,9 @@ function misc#hare#jump(sink, source, ...) abort
     echom v:exception
     echohl None
 
-    wincmd q
+    if &buftype ==# 'hare'
+      wincmd q
+    endif
   endtry
 endfunction
 
@@ -117,7 +125,7 @@ function s:fill_buffer(source) abort
   1
 endfunction
 
-function s:setup_buffer(sink) abort
+function s:setup_map_and_event(sink) abort
 
   " validate sink
   let stype = type(a:sink)

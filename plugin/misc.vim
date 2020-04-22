@@ -225,7 +225,7 @@ com -nargs=? RestoreBufferLayout call misc#layout#restore(<q-args>)
 
 " hare {{{1
 
-let g:hare_dynamic_filter_threshold = get(g:, 'hare_dynamic_filter_threshold', 1024)
+let g:hare_dynamic_filter_threshold = get(g:, 'hare_dynamic_filter_threshold', 4096)
 let g:hare_local_marks = get(g:, 'hare_local_marks', 4)
 let g:hare_global_marks = get(g:, 'hare_global_marks', 4)
 
