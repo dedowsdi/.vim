@@ -224,6 +224,11 @@ com -nargs=? SaveBufferLayout call misc#layout#save(<q-args>)
 com -nargs=? RestoreBufferLayout call misc#layout#restore(<q-args>)
 
 " hare {{{1
+
+" disable dynamic filter, it has performance issue, it also cause vim internal
+" error
+let g:hare_dynamic_filter_threshold = get(g:, 'hare_dynamic_filter_threshold', 1000)
+
 com -nargs=+ Hare call misc#hare#exec(<q-args>)
 
 com History Hare file filter! /^fugitive/ oldfiles

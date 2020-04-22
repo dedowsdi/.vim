@@ -52,13 +52,13 @@ function misc#hare#jump(sink, source, ...) abort
     setlocal winfixheight
     let b:hare_orig_winid = winid
     let b:hare_orig_buf = bnr
+
     set filetype=hare
-
     call s:fill_buffer(a:source)
+    call s:setup_buffer(a:sink)
 
-    call s:install_map(a:sink)
-    call s:install_autocmd()
-    call feedkeys(a:0 > 0 ? a:1 : '/\v.*<', 'n')
+    let s:start_pattern = a:0 > 0 ? a:1 : '/\v.*<'
+    call feedkeys(s:start_pattern, 'n')
 
   catch /.*/
     echohl WarningMsg
@@ -117,7 +117,7 @@ function s:fill_buffer(source) abort
   1
 endfunction
 
-function s:install_map(sink) abort
+function s:setup_buffer(sink) abort
 
   let stype = type(a:sink)
 
@@ -138,12 +138,42 @@ function s:install_map(sink) abort
   exe printf('cnoremap <buffer> <c-o>
         \ <cr>:call call(%s, [])<cr>', string(get(Hare_sink, 'name')))
   cnoremap <buffer> <c-c> <esc>:wincmd q<cr>
-endfunction
 
-function s:install_autocmd() abort
   augroup au_hare_buffer | au!
     autocmd  WinLeave <buffer> call s:quit_hare()
+
+    if line('$') < g:hare_dynamic_filter_threshold
+      autocmd  CmdlineChanged <buffer> call s:filter()
+      let s:lines = getline(1, '$')
+      let s:first_cmdline_change = 1
+    endif
   augroup end
+
+endfunction
+
+function s:filter() abort
+  if getcmdtype() !~# '[/?]'
+    return
+  endif
+
+  let pattern = getcmdline()
+
+  " ignore feedkeys
+  if s:first_cmdline_change != 0
+    if pattern ==# s:start_pattern[1:]
+      let s:first_cmdline_change = 0
+    endif
+    return
+  endif
+
+ " This will won't work for last character in feedkeys?
+  " if state('m') !=# ''
+  "   return
+  " endif
+
+  1,$d _
+  let new_lines = filter(copy(s:lines), {i,v -> v =~? pattern })
+  call setline(1, new_lines)
 endfunction
 
 function s:quit_hare() abort
