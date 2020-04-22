@@ -105,7 +105,7 @@ function s:fill_buffer(source) abort
     elseif c==# '/'
       let pattern = a:source[-1:-1] ==# '/' ? a:source[1:-2] : a:source[1:]
       try
-        " clear path, exclude include
+        " clear path, exclude include to make ilist work on current buffer only
         let opath = &path
         let &path = ''
         let lines = split(win_execute(b:hare_orig_winid, printf('ilist! /%s/', pattern)), "\n")
@@ -181,7 +181,10 @@ function s:filter() abort
     return
   endif
 
- " This will won't work for last character in feedkeys?
+  " take special care of 'tag' sink, need to reserve the parent PATH
+  let pattern = printf('^!_TAG_PARENT_PATH\|%s', pattern)
+
+  " This will won't work for last character in feedkeys?
   " if state('m') !=# ''
   "   return
   " endif
@@ -232,15 +235,16 @@ function s:tag_sink() abort
   if empty(l)
     throw 'Illegal tag line' . getline('.')
   endif
-
-  let parent_pattern = '\v^\!_TAG_PARENT_PATH\t*\zs.+'
-  let [lnum, col] = searchpos(parent_pattern, 'bWn')
-  if lnum == 0
-    throw 'Failed to search TAG_PARENT_PATH for line ' . line('.')
-  endif
-
-  let parent = matchstr(getline(lnum), parent_pattern) . '/'
   let [path, pattern] = l[1:2]
+
+  if path !~# '^/'
+    let parent_pattern = '\v^\!_TAG_PARENT_PATH\t*\zs.+'
+    let [lnum, col] = searchpos(parent_pattern, 'bWn')
+    if lnum == 0
+      throw 'Failed to search TAG_PARENT_PATH for line ' . line('.')
+    endif
+    let path = printf('%s/%s', matchstr(getline(lnum), parent_pattern), path)
+  endif
 
   call misc#hare#land({'file' : path, 'line' : pattern})
 endfunction
