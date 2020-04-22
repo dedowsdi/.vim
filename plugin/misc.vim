@@ -228,6 +228,8 @@ com -nargs=? RestoreBufferLayout call misc#layout#restore(<q-args>)
 " disable dynamic filter, it has performance issue, it also cause vim internal
 " error
 let g:hare_dynamic_filter_threshold = get(g:, 'hare_dynamic_filter_threshold', 1000)
+let g:hare_local_marks = get(g:, 'hare_local_marks', 4)
+let g:hare_global_marks = get(g:, 'hare_global_marks', 4)
 
 com -nargs=+ Hare call misc#hare#exec(<q-args>)
 

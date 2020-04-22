@@ -119,6 +119,7 @@ endfunction
 
 function s:setup_buffer(sink) abort
 
+  " validate sink
   let stype = type(a:sink)
 
   if stype ==# v:t_func
@@ -133,6 +134,7 @@ function s:setup_buffer(sink) abort
     throw 'unknown sink type ' . a:sink
   endif
 
+  " install map and auto command
   exe printf('nnoremap <buffer> <cr>
         \ :call call(%s, [])<cr>', string(get(Hare_sink, 'name')))
   exe printf('cnoremap <buffer> <c-o>
@@ -191,8 +193,7 @@ function s:file_sink() abort
   if empty(path)
     throw 'Illegal file : ' . getline('.')
   endif
-  call s:close_hair_buffer()
-  call s:open_file(path)
+  call misc#hare#land({'file' : path})
 endfunction
 
 function s:line_sink() abort
@@ -200,8 +201,7 @@ function s:line_sink() abort
   if empty(lnum)
     throw 'Illegal line : ' . getline('.')
   endif
-  call s:close_hair_buffer()
-  exe lnum
+  call misc#hare#land({'line' : lnum})
 endfunction
 
 function s:fline_sink() abort
@@ -211,9 +211,7 @@ function s:fline_sink() abort
   endif
 
   let [path, lnum] = l[1:2]
-  call s:close_hair_buffer()
-  call s:open_file(path)
-  exe lnum
+  call misc#hare#land({'file' : path, 'line' : lnum})
 endfunction
 
 function s:tag_sink() abort
@@ -224,12 +222,14 @@ function s:tag_sink() abort
 
   let parent_pattern = '\v^\!_TAG_PARENT_PATH\t*\zs.+'
   let [lnum, col] = searchpos(parent_pattern, 'bWn')
-  let parent = lnum==0 ? '' : matchstr(getline(lnum), parent_pattern) . '/'
+  if lnum == 0
+    throw 'Failed to search TAG_PARENT_PATH for line ' . line('.')
+  endif
 
+  let parent = matchstr(getline(lnum), parent_pattern) . '/'
   let [path, pattern] = l[1:2]
-  call s:close_hair_buffer()
-  call s:open_file(parent . path)
-  exe pattern
+
+  call misc#hare#land({'file' : path, 'line' : pattern})
 endfunction
 
 function s:btag_sink() abort
@@ -238,9 +238,7 @@ function s:btag_sink() abort
     throw 'Illegal btag line' . getline('.')
   endif
 
-  let pattern = l[1]
-  call s:close_hair_buffer()
-  exe pattern
+  call misc#hare#land({'line' : l[1]})
 endfunction
 
 function s:ilist_sink() abort
@@ -248,8 +246,7 @@ function s:ilist_sink() abort
   if empty(lnum)
     throw 'Illegal line : ' . getline('.')
   endif
-  call s:close_hair_buffer()
-  exe lnum
+  call misc#hare#land({'line' : lnum})
 endfunction
 
 function s:ls_sink() abort
@@ -257,11 +254,8 @@ function s:ls_sink() abort
   if empty(l)
     throw 'Illegal tag line' . getline('.')
   endif
-
   let [path, lnum] = l[1:2]
-  call s:close_hair_buffer()
-  call s:open_file(path)
-  exe lnum
+  call misc#hare#land({'file' : path, 'line' : lnum})
 endfunction
 
 function s:tselect_sink() abort
@@ -274,7 +268,6 @@ function s:tselect_sink() abort
   if !search('\v^\s{,8}\d+', 'bW')
     throw 'Illegal entry ' . getline('.')
   endif
-
   let path = getline('.')[file_index : ]
 
   " search pattern or line number
@@ -282,11 +275,9 @@ function s:tselect_sink() abort
   if !search( pattern_regex, 'W')
     throw 'Illegal entry ' . getline('.')
   endif
-
   let pattern = matchstr(getline('.'), pattern_regex )
-  call s:close_hair_buffer()
-  call s:open_file(path)
-  exe pattern
+
+  call misc#hare#land({'file':path, 'line':pattern})
 endfunction
 
 function s:open_file(path) abort
@@ -300,6 +291,49 @@ function s:open_file(path) abort
       exe 'b' bnr
     endif
   endif
+endfunction
+
+" {'file': name , 'line': ex_cmd}
+function misc#hare#land(target) abort
+  if !has_key(a:target, 'file') && !has_key(a:target, 'line')
+    throw 'failed to find file or line in target : ' . string(a:target)
+  endif
+
+  call s:close_hair_buffer()
+  if has_key(a:target, 'file')
+    call s:open_file(a:target.file)
+    call s:rotate_global_mark()
+  endif
+
+  if has_key(a:target, 'line')
+    exe a:target.line
+    call s:rotate_local_mark()
+  endif
+endfunction
+
+function s:rotate_global_mark() abort
+  if g:hare_global_marks < 1
+    return
+  endif
+
+  let marks = map(range(65, 65 + g:hare_global_marks - 1), {i,v -> nr2char(v)})
+  call s:rotate_mark(marks, getpos('.'))
+endfunction
+
+function s:rotate_local_mark() abort
+  if g:hare_local_marks < 1
+    return
+  endif
+
+  let marks = map(range(97, 97 + g:hare_global_marks - 1), {i,v -> nr2char(v)})
+  call s:rotate_mark(marks, [bufnr('')] + getpos('.')[1:])
+endfunction
+
+function s:rotate_mark(marks, new_mark) abort
+  " ... d->c c->b b->a
+  let rmarks = reverse(copy(a:marks))
+  call map(rmarks[0:-2], {i,v -> setpos("'" . v, getpos("'" . rmarks[i+1]))})
+  call setpos("'" . a:marks[0], a:new_mark)
 endfunction
 
 let s:default_sinks = {
