@@ -2,8 +2,8 @@
 "
 " keys:
 "   <cr> is remapped to jump.
-"   c_ctrl-o is remapped to jump.
-"   c_ctrl-c is remapped in command mode to abort.
+"   c_ctrl-o in / or ? is remapped to jump.
+"   c_ctrl-c in / or ? is remapped in command mode to abort.
 "   If you want to abort in normal mode, use <c-w>q or :q
 "
 " sink:
@@ -159,6 +159,11 @@ function s:filter() abort
   endif
 
   let pattern = getcmdline()
+
+  " avoid E315 in filter()
+  if pattern ==# '\'
+    return
+  endif
 
   " ignore feedkeys
   if s:first_cmdline_change != 0
