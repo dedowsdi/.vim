@@ -442,13 +442,12 @@ com NewOneOff call <sid>new_oneoff(<q-mods>)
 function s:new_oneoff(mods) abort
   exe a:mods 'new'
   setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted modifiable
-  file [one-off]
 endfunction
 
 function s:less(cmd, mods)
   let winid = win_getid()
   NewOneOff
-  exe printf('put! =win_execute(%s, ''%s'')', winid, a:cmd)
+  exe printf('put! =win_execute(%d, %s)', winid, string(a:cmd))
   1
 endfunction
 
