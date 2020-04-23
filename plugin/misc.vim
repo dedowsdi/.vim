@@ -228,6 +228,7 @@ com -nargs=? RestoreBufferLayout call misc#layout#restore(<q-args>)
 let g:hare_dynamic_filter_threshold = get(g:, 'hare_dynamic_filter_threshold', 4096)
 let g:hare_local_marks = get(g:, 'hare_local_marks', 4)
 let g:hare_global_marks = get(g:, 'hare_global_marks', 4)
+let g:hare_height = get(g:, 'hare_height', 8)
 
 com -nargs=+ Hare call misc#hare#exec(<q-args>)
 
@@ -240,9 +241,9 @@ com Fold Hare line /\v.*\{\{\{\d*$
 com Buffer call misc#hare#jump('file',
       \ map(split(execute('ls'), "\n"), {i,v->matchstr(v, '\v.*"\zs.+\ze"')}))
 
-let s:find_exclude = '-name .hg -o -name .git -o -name build -o -name .vscode -o -name .clangd'
+let g:find_exclude = '-name .hg -o -name .git -o -name build -o -name .vscode -o -name .clangd'
 let g:project_source = get(g:, 'project_source',
-      \ printf('find . -type d \( %s \) -prune -o -type f -print', s:find_exclude) )
+      \ printf('find . -type d \( %s \) -prune -o -type f -print', g:find_exclude) )
 
 com Src exe 'Hare file !' . g:project_source
 
@@ -250,7 +251,7 @@ com File exe 'Hare file !find . -type f'
 
 let g:find_path = []
 com Find exe printf('Hare file !find %s -type d \( %s \) -prune -o -type f -print',
-            \ join(g:find_path), s:find_exclude)
+            \ join(g:find_path), g:find_exclude)
 
 com GrepCache exe 'Hare fline !cat' @%
 
@@ -281,7 +282,7 @@ function s:get_btag_cmd(filetype) abort
     let Cmd = g:hare_btag_cmd[a:filetype]
     return type(Cmd) ==# v:t_func ? Cmd() : Cmd
   endif
-  return printf('!ctags --fields=-l -f -  %s | cut -f1,3-', expand('%'))
+  return printf('!ctags --options=NONE --fields=k -f -  %s | cut -f1,3-', expand('%'))
 endfunction
 
 let g:hare_tag_pattern = get(g:, 'hare_btag_pattern', {})
@@ -303,6 +304,10 @@ com -nargs=* Tag call misc#hare#jump('tag',
 
 com Tagbar exe 'Hare btag !tagbar' @%
 
+com -nargs=+ -bang -complete=tag Tselect Hare tselect tselect<bang> <args>
+
+com Undolist exe 'Hare undolist undolist'
+
 " [kinds, [prefix]]
 " kinds is a combination of single letter kind
 function s:read_tags(...) abort
@@ -319,9 +324,15 @@ function s:read_tags(...) abort
     let cond = printf('%s', kcond)
   endif
 
+  let first_tag = 1
   for tag in tagfiles()
     " must add tag parent path for this to work
     call append('$', printf("!_TAG_PARENT_PATH\t%s", fnamemodify(tag, ':p:h')))
+    if first_tag
+      1 d_
+      let first_tag = 0
+    endif
+
     if empty(cond)
       exe '$read' tag
     else

@@ -53,7 +53,7 @@ function misc#hare#jump(sink, source, ...) abort
     " fix it in the bottom, it doesn't make sense to separate / pattern and the
     " hare buffer.
     keepalt botright new
-    16wincmd _
+    exe g:hare_height 'wincmd _'
     setlocal winfixheight
 
     let b:hare_orig_winid = winid
@@ -101,7 +101,7 @@ function s:fill_buffer(source) abort
 
     let c = a:source[0]
     if c==# '!'
-      exe 'read' a:source
+      exe '0read' a:source
     elseif c==# '/'
       let pattern = a:source[-1:-1] ==# '/' ? a:source[1:-2] : a:source[1:]
       try
@@ -115,7 +115,7 @@ function s:fill_buffer(source) abort
         let &path = opath
       endtry
     else
-      put! =execute(a:source)
+      put! =trim(win_execute(b:hare_orig_winid, a:source))
     endif
   elseif stype == v:t_func
     call a:source()
@@ -142,10 +142,10 @@ function s:setup_map_and_event(sink) abort
     throw 'unknown sink type ' . a:sink
   endif
 
-  " install map and auto command
-  exe printf('nnoremap <buffer> <cr>
+  " install map and auto command.
+  exe printf('nnoremap <silent> <buffer> <cr>
         \ :call call(%s, [])<cr>', string(get(Hare_sink, 'name')))
-  exe printf('cnoremap <buffer> <c-o>
+  exe printf('cnoremap <silent> <buffer> <c-o>
         \ <cr>:call call(%s, [])<cr>', string(get(Hare_sink, 'name')))
   cnoremap <buffer> <c-c> <esc>:wincmd q<cr>
 
@@ -293,11 +293,27 @@ function s:tselect_sink() abort
   call misc#hare#land({'file':path, 'line':pattern})
 endfunction
 
+function s:undolist_sink() abort
+  let number = matchstr(getline('.'), '\v^\s+\zs\d+\ze\s+\d+\s+\S+')
+  if empty(number)
+    throw 'Illegal undo leaf line : ' . getline('.')
+  endif
+  
+  " win_execute doesn't scroll?
+  " echom trim(win_execute(b:hare_orig_winid, printf('undo %d', number)))
+
+  " The user should turn on cursorline to see this
+  let hare_winnr = winnr()
+  exe win_id2win(b:hare_orig_winid) 'wincmd w'
+  exe 'undo' number
+  exe hare_winnr 'wincmd w'
+endfunction
+
 function s:open_file(path) abort
   let bnr = bufnr(a:path)
   if bnr == -1
     exe 'e' a:path
-  elseif bnr != bufnr('')
+  elseif bnr != bufnr()
     if bufwinid(bnr) != -1
       exe bufwinnr(bnr) 'wincmd w'
     else
@@ -330,7 +346,7 @@ function s:rotate_global_mark() abort
   endif
 
   let marks = map(range(65, 65 + g:hare_global_marks - 1), {i,v -> nr2char(v)})
-  call s:rotate_mark(marks, getpos('.'))
+  call s:rotate_mark(marks, [bufnr('')] + getpos('.')[1:])
 endfunction
 
 function s:rotate_local_mark() abort
@@ -339,10 +355,14 @@ function s:rotate_local_mark() abort
   endif
 
   let marks = map(range(97, 97 + g:hare_global_marks - 1), {i,v -> nr2char(v)})
-  call s:rotate_mark(marks, [bufnr('')] + getpos('.')[1:])
+  call s:rotate_mark(marks, getpos('.'))
 endfunction
 
 function s:rotate_mark(marks, new_mark) abort
+  if a:new_mark == getpos("'" . a:marks[0])
+    return
+  endif
+
   " ... d->c c->b b->a
   let rmarks = reverse(copy(a:marks))
   call map(rmarks[0:-2], {i,v -> setpos("'" . v, getpos("'" . rmarks[i+1]))})
@@ -358,5 +378,5 @@ let s:default_sinks = {
       \ 'ilist': function('s:ilist_sink'),
       \ 'ls': function('s:ls_sink'),
       \ 'tselect': function('s:tselect_sink'),
-      \ 'undolist': function('s:undolist'),
+      \ 'undolist': function('s:undolist_sink'),
       \ }

@@ -204,9 +204,7 @@ if &t_Co == 256
 endif
 
 " hare {{{2
-" nnoremap <c-p> :Source<cr>
-nnoremap <c-p> :e **/
-nnoremap <a-p> :Src<cr>
+nnoremap <c-p> :Src<cr>
 nnoremap <c-h> :History<cr>
 nnoremap <c-b> :Ls<cr>
 nnoremap <c-k> :Btag<cr>
@@ -254,7 +252,6 @@ endif
 call plug#begin('~/.vim/plugged')
 
 " common
-Plug 'mbbill/undotree'
 Plug 'junegunn/vim-easy-align'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
