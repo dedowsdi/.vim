@@ -168,11 +168,6 @@ function s:filter() abort
 
   let pattern = getcmdline()
 
-  " avoid E315 in filter()
-  if pattern ==# '\'
-    return
-  endif
-
   " ignore feedkeys
   if s:first_cmdline_change != 0
     if pattern ==# s:start_pattern[1:]
@@ -189,8 +184,9 @@ function s:filter() abort
   "   return
   " endif
 
-  1,$d _
+  " generate new lines first, then delete, otherwise see E315 from time to time
   let new_lines = filter(copy(s:lines), {i,v -> v =~? pattern })
+  1,$d _
   call setline(1, new_lines)
 endfunction
 
@@ -362,4 +358,5 @@ let s:default_sinks = {
       \ 'ilist': function('s:ilist_sink'),
       \ 'ls': function('s:ls_sink'),
       \ 'tselect': function('s:tselect_sink'),
+      \ 'undolist': function('s:undolist'),
       \ }
