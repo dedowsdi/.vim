@@ -241,7 +241,8 @@ com Buffer call misc#hare#jump('file',
       \ map(split(execute('ls'), "\n"), {i,v->matchstr(v, '\v.*"\zs.+\ze"')}))
 
 let s:find_exclude = '-name .hg -o -name .git -o -name build -o -name .vscode -o -name .clangd'
-let g:project_source = printf('find . -type d \( %s \) -prune -o -type f -print', s:find_exclude)
+let g:project_source = get(g:, 'project_source',
+      \ printf('find . -type d \( %s \) -prune -o -type f -print', s:find_exclude) )
 
 com Src exe 'Hare file !' . g:project_source
 
@@ -302,21 +303,30 @@ com -nargs=* Tag call misc#hare#jump('tag',
 
 com Tagbar exe 'Hare btag !tagbar' @%
 
+" [kinds, [prefix]]
 " kinds is a combination of single letter kind
 function s:read_tags(...) abort
   let kinds = get(a:000, 0, [])
-  if !empty(kinds)
-    let ors = map(split(kinds, '\zs'), {i,v->printf('(prefix? $kind "%s")', v)})
-    let condition = printf('-Q ''(or %s )''', join(ors) )
+  let prefix = get(a:000, 1, '')
+  let cond = ''
+  let kcond = empty(kinds) ? '' : printf('(or %s )', join(
+        \ map(split(kinds, '\zs'), {i,v->printf('(prefix? $kind "%s")', v)}) ) )
+  let pcond = empty(prefix) ? '' : printf('(prefix? $name "%s")', prefix)
+
+  if !empty(pcond)
+    let cond = printf('(and %s %s)', kcond, pcond)
+  elseif !empty(kcond)
+    let cond = printf('%s', kcond)
   endif
 
   for tag in tagfiles()
     " must add tag parent path for this to work
     call append('$', printf("!_TAG_PARENT_PATH\t%s", fnamemodify(tag, ':p:h')))
-    if empty(kinds)
+    if empty(cond)
       exe '$read' tag
     else
-      exe printf('$read !readtags -t %s %s -el | grep -v "^__anon"', tag, condition)
+      exe printf('$read !readtags -t %s -Q %s -el | grep -v "^__anon"',
+            \ shellescape(tag), shellescape(cond))
     endif
   endfor
 endfunction
