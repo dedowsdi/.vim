@@ -11,5 +11,5 @@ augroup filetypedetect
   autocmd! BufNewFile,BufRead *.material setfiletype material
   autocmd! BufNewFile *.l setfiletype cpfg
   autocmd! BufNewFile,BufRead *.osgt setfiletype osgt
-  autocmd! BufNewFile,BufRead *.config,*.clang-format setfiletype cfg
+  autocmd! BufNewFile,BufRead *.config,*.clang-format,*.ctags setfiletype cfg
 augroup END
