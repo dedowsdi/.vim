@@ -282,7 +282,7 @@ function s:get_btag_cmd(filetype) abort
     let Cmd = g:hare_btag_cmd[a:filetype]
     return type(Cmd) ==# v:t_func ? Cmd() : Cmd
   endif
-  return printf('!ctags --options=NONE --fields=k -f -  %s | cut -f1,3-', expand('%'))
+  return printf('!ctags --options=NONE --fields=k -f - %s 2>/dev/null | cut -f1,3-', expand('%'))
 endfunction
 
 let g:hare_tag_pattern = get(g:, 'hare_btag_pattern', {})
