@@ -56,9 +56,9 @@ set undofile undodir=$HOME/.vimundo//
 " hide buffer when it's abandoned
 set hidden
 
-" bash style wild menu
+" turn on wild menu, complete 1st match
 set wildmenu
-set wildmode=list:longest
+set wildmode=full
 
 " use unix / and 0a as new line in session file
 set sessionoptions+=unix,slash
