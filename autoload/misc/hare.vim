@@ -336,6 +336,7 @@ function misc#hare#land(target) abort
 
   if has_key(a:target, 'line')
     exe a:target.line
+    norm! zz
     call s:rotate_local_mark()
   endif
 endfunction
