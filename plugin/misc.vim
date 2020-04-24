@@ -253,6 +253,8 @@ let g:find_path = []
 com Find exe printf('Hare file !find %s -type d \( %s \) -prune -o -type f -print',
             \ join(g:find_path), g:find_exclude)
 
+com -nargs=+ Locate Hare file !locate <args>
+
 com GrepCache exe 'Hare fline !cat' @%
 
 com Btag call misc#hare#jump('btag',
