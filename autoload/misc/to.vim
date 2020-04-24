@@ -316,18 +316,6 @@ function misc#to#sel_lines(pattern0, pattern1, ai, style)
   call s:force_motion()
 endfunction
 
-" TODO implement a?
-function misc#to#eython(ai) abort
-  call s:assert_start_state()
-  if misc#get_cc() !~? '\w'
-    return
-  endif
-
-  norm! viw
-  call misc#mo#eython()
-  call s:force_motion()
-endfunction
-
 " ov : o for omap, v for v map
 " jk : j or k or jk. j for down, k for up.
 " visuall block wisely select current column until blank line.

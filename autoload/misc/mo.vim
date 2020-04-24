@@ -53,11 +53,3 @@ function s:search_expression() abort
     return
   endif
 endfunction
-
-function misc#mo#eython() abort
-  if misc#get_cc() !~? '\v\w'
-    return
-  endif
-
-  call s:search_expression()
-endfunction

@@ -353,13 +353,11 @@ call s:add_to('an', '<plug>dedowsdi_to_an')
 call s:add_to('ic', '<plug>dedowsdi_to_ic')
 call s:add_to('iF', '<plug>dedowsdi_to_iF')
 call s:add_to('aF', 'iF')
-call s:add_to('ie', '<plug>dedowsdi_to_ie')
 
 " motion and operator {{{2
 nmap ,E <plug>dedowsdi_mo_vertical_E
 nmap ,W <plug>dedowsdi_mo_vertical_W
 nmap ,B <plug>dedowsdi_mo_vertical_B
-nmap ,e <plug>dedowsdi_mo_eython
 nnoremap ,,  ,
 
 function s:add_op(key, rhs)
@@ -384,9 +382,6 @@ nmap gUo <plug>dedowsdi_op_gUo
 nmap g~o <plug>dedowsdi_op_g~o
 nmap ,f  <plug>dedowsdi_op_clang_format
 nmap <expr> ,ff ',f' . v:count1 . '_'
-
-imap <silent> <c-x><c-n> <plug>dedowsdi_eython_complete_next
-imap <silent> <c-x><c-p> <plug>dedowsdi_eython_complete_prev
 
 " common maps {{{2
 nnoremap <f3>    :set hlsearch!<cr>
