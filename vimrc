@@ -1,4 +1,4 @@
-" vim:set foldmethod=marker :
+" vim:set foldmethod=marker:
 
 " This vimrc should also work for 8.0(default version on ubuntu18.04).
 "
@@ -367,6 +367,7 @@ function s:add_op(key, rhs)
 endfunction
 
 call s:add_op(',l',     '<plug>dedowsdi_op_search_literal')
+call s:add_op(',L',     '<plug>dedowsdi_op_substitute_literal')
 call s:add_op(',<bar>', '<plug>dedowsdi_op_get_column')
 call s:add_op(',g',     '<plug>dedowsdi_op_search_in_browser')
 

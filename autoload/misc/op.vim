@@ -54,8 +54,7 @@ function misc#op#search_literal(type, ...) abort
   let @/ = misc#literalize_vim(op.text)
 endfunction
 
-" search pattern is <word> or literal
-function misc#op#substitude(type, ...) abort
+function misc#op#substitude_literal(type, ...) abort
   call call('misc#op#search_literal', [a:type] + a:000)
   call feedkeys(':%s//')
 endfunction
