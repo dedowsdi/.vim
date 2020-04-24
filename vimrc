@@ -228,10 +228,11 @@ let g:gutentags_ctags_options_file = '.vim/.gutctags'
 
 " easyalign {{{2
 nmap     ,a  <Plug>(EasyAlign)
-vmap     ,a  <Plug>(EasyAlign)
+xmap     ,a  <Plug>(EasyAlign)
 
 " commentary {{{2
 map      ,c  <Plug>Commentary
+sunmap   ,c
 nmap     ,cc <Plug>CommentaryLine
 nmap     ,cu <Plug>Commentary<Plug>Commentary
 
@@ -340,8 +341,8 @@ augroup end
 
 " text object {{{2
 function s:add_to(lhs, rhs) abort
-    exe printf('vmap %s %s', a:lhs, a:rhs)
-    exe printf('omap %s %s', a:lhs, a:rhs)
+  exe printf('xmap %s %s', a:lhs, a:rhs)
+  exe printf('omap %s %s', a:lhs, a:rhs)
 endfunction
 
 call s:add_to('aa', '<plug>dedowsdi_to_aa')
@@ -361,8 +362,8 @@ nmap ,B <plug>dedowsdi_mo_vertical_B
 nnoremap ,,  ,
 
 function s:add_op(key, rhs)
-    exe printf('nmap %s %s', a:key, a:rhs)
-    exe printf('vmap %s %s', a:key, a:rhs)
+  exe printf('nmap %s %s', a:key, a:rhs)
+  exe printf('xmap %s %s', a:key, a:rhs)
 endfunction
 
 call s:add_op(',l',     '<plug>dedowsdi_op_search_literal')
