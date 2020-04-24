@@ -365,14 +365,8 @@ function s:add_op(key, rhs)
     exe printf('vmap %s %s', a:key, a:rhs)
 endfunction
 
-call s:add_op(',h', '<plug>dedowsdi_ahl_remove_cursor_highlights')
-nnoremap ,hh :AhlRemoveCursorHighlights<cr>
-
 call s:add_op(',l',     '<plug>dedowsdi_op_search_literal')
-call s:add_op(',s',     '<plug>dedowsdi_op_substitute')
-call s:add_op(',S',     '<plug>dedowsdi_op_system')
 call s:add_op(',<bar>', '<plug>dedowsdi_op_get_column')
-call s:add_op(',G',     '<plug>dedowsdi_op_literal_grep')
 call s:add_op(',g',     '<plug>dedowsdi_op_search_in_browser')
 
 nmap co  <plug>dedowsdi_op_co
@@ -384,7 +378,6 @@ nmap ,f  <plug>dedowsdi_op_clang_format
 nmap <expr> ,ff ',f' . v:count1 . '_'
 
 " common maps {{{2
-nnoremap <f3>    :set hlsearch!<cr>
 
 nnoremap Y  y$
 nnoremap K  :exec 'norm! K' <bar> wincmd p<cr>
@@ -398,10 +391,6 @@ cnoremap <c-b> <c-a>
 nnoremap <c-w><space> :tab split<cr>
 tnoremap <c-w><space> <c-w>:tab split<cr>
 nnoremap <c-w>O :CloseFinishedTerminal<cr>
-tnoremap <c-w><pageup> <c-w>:tabprevious<cr>
-tnoremap <c-w><pagedown> <c-w>:tabnext<cr>
-nnoremap <c-w><pageup> <c-w>:tabprevious<cr>
-nnoremap <c-w><pagedown> <c-w>:tabnext<cr>
 nnoremap <expr> <c-w>0 printf(':<c-u>%dWinFitBuf<cr>', v:count)
 
 if v:version > 800

@@ -72,7 +72,7 @@ call s:add_op('<plug>dedowsdi_op_search_literal', 'misc#op#search_literal')
 call s:add_op('<plug>dedowsdi_op_substitute', 'misc#op#substitude')
 call s:add_op('<plug>dedowsdi_op_system', 'misc#op#system')
 call s:add_op('<plug>dedowsdi_op_literal_grep', 'misc#op#literal_grep')
-call s:add_op('<plug>dedowsdi_op_browse', 'misc#op#search_in_browser')
+call s:add_op('<plug>dedowsdi_op_search_in_browser', 'misc#op#search_in_browser')
 call s:add_op('<plug>dedowsdi_op_get_column', 'misc#op#get_column')
 call s:add_op('<plug>dedowsdi_op_clang_format', 'misc#op#clang_format')
 

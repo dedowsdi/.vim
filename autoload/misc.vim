@@ -253,11 +253,6 @@ function misc#literalize_vim(str)
     return '\V' . substitute(escape(a:str, '\'), '\n', '\\n', 'g')
 endfunction
 
-function misc#literalize_grep(str)
-  let s = substitute(a:str, "'", "'\\\\''", 'g')
-  return printf("'%s'", escape(s, '%#|'))
-endfunction
-
 function misc#switch_rtp(path) abort
   if !has_key(s:, 'original_rtp') | let s:original_rtp = &rtp | endif
   let &rtp = printf('%s,%s,%s', s:original_rtp, a:path, a:path.'/after')

@@ -54,12 +54,6 @@ function misc#op#search_literal(type, ...) abort
   let @/ = misc#literalize_vim(op.text)
 endfunction
 
-function misc#op#literal_grep(type, ...) abort
-  let op = misc#op#new(a:type, a:000)
-  call setreg('"', misc#literalize_grep(op.text))
-  call feedkeys(":grep -F \<c-r>=@\"\<cr> ")
-endfunction
-
 " search pattern is <word> or literal
 function misc#op#substitude(type, ...) abort
   call call('misc#op#search_literal', [a:type] + a:000)
@@ -68,8 +62,9 @@ endfunction
 
 function misc#op#search_in_browser(type, ...)
   let op = misc#op#new(a:type, a:000)
-  silent! exec 'silent! !google-chrome "http://google.com/search?q=' . op.text . '" &>/dev/null &'
-  redraw!
+  let cmd = printf(
+        \ 'google-chrome "http://google.com/search?q=%s" &>/dev/null &', op.text)
+  call system(cmd)
 endfunction
 
 function misc#op#system(type, ...) abort
