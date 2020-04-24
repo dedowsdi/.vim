@@ -222,9 +222,9 @@ let g:vim_json_syntax_conceal = 0
 " gutentags {{{2
 let g:gutentags_project_root = ['.dedowsdi']
 let g:gutentags_exclude_project_root = [$HOME]
-let g:gutentags_exclude_filetypes = ['cmake', 'sh', 'json', 'md', 'text']
+let g:gutentags_exclude_filetypes = ['json', 'md', 'text']
 let g:gutentags_define_advanced_commands = 1
-let g:gutentags_ctags_options_file = '.vim/.gutctags'
+let g:gutentags_ctags_options_file = '.dedowsdi/.gutctags'
 
 " easyalign {{{2
 nmap     ,a  <Plug>(EasyAlign)
