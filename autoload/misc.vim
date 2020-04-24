@@ -612,7 +612,7 @@ function s:slide(positive, steps) abort
   call cursor( line('.'), len(part0) + len(new_part1) )
 
   if s:slide_save
-    w
+    noautocmd w
   endif
 endfunction
 
