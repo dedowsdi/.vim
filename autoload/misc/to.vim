@@ -1,11 +1,20 @@
 " things to remember when you create text object:
 "
 " omap is always implemented in terms of vmap, the only way to know it's an omap
-" is to use state() ? In order to pass register from omap to vmap, one can use:
+" is to use state() ? In order to pass register and forced motion from omap to
+" vmap, one can use:
 "
-"   :normal <visual_mode><key>"<register><cr>
-"
+"   :normal <FMW(forced motion wise)><key>"<register><cr>
+
 " It's a bit weird that "<register> appears after key, get used to it.
+"
+" the FMW is the same as the visualmode() after vmap call
+" <sid>select_text_object(), your textobject also has it's own wisemode, it
+" might be different from FMW, if current state() has o, you can apply FMW(same
+" as visualmode()).
+"
+" visualmode() refer to last visual mode, not current, so `norm! V` won't set
+" visualmode() to `V`, but `norm! V\<esc>` or `norm! VV` will do.
 "
 " `norm! V:` reset col to start of line, be very very careful about this, we
 " must avoid that, use
@@ -13,24 +22,19 @@
 " instead of
 "    vnoremap key :<c-u>...
 "
-" visualmode() refer to last visual mode, not current, so `norm! V` won't set
-" visualmode() to `V`, but `norm! V\<esc>` or `norm! VV` will do.
 "
-" In order to pass motion force from omap to vmap, one can use mode(1), it has
-" to be used with <expr>:
-" omap <expr> :s omap(key, mode(1), default_wise)
-"
-" To create a text object function:
-"    visually select textobject
-"    force motion
+" In order to pass motion force from omap to vmap, one can use mode(1), but mode
+" is transient, it has to be used with <expr>:
+" omap <expr> <sid>omap(key, mode(1), default_wise)
 
 function s:force_motion() abort
   if mode() !~# "[vV\<c-v>]"
     throw "illegal mode in force motion"
   endif
 
-  " visualmode is last visual mode, which is applied by norm! [vV<c-v>] throw
-  " omap, mode() is current visual mode.
+  " visualmode is last visual mode, which is applied by norm! [vV<c-v>] through
+  " omap, it's the same as forced motion wise,  mode() is current visual mode,
+  " which is also the current text object wise mode.
   if state() =~# 'o'
     if visualmode() !=# mode()
       exe 'norm!' visualmode()

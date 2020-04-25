@@ -1,6 +1,6 @@
 " vim:set foldmethod=marker :
 
-if exists('g:loaded_misc_plugin')
+if &compatible || exists('g:loaded_misc_plugin')
   finish
 endif
 let g:loaded_misc_plugin = 1
@@ -8,9 +8,10 @@ let g:loaded_misc_plugin = 1
 " mo {{{1
 function s:add_mo(keys, func)
     exec printf('nnoremap %s :call %s<cr>', a:keys, a:func)
-    exec printf('vnoremap %s <esc>:exec "norm! gv" <bar> call %s<cr>', a:keys, a:func)
+    exec printf('xnoremap %s <esc>:exec "norm! gv" <bar> call %s<cr>', a:keys, a:func)
 
-    " use forced motion wise or v
+    " use v for ordinary operate pending mode, otherwise use forced motion
+    " onoremap <expr> key printf("normal %skey<cr>", mode(1) ==# "no" ? "v" : mode(1)[2]) )
     exec printf('onoremap <expr> %s printf(":normal %%s%s<cr>",
                 \ mode(1) ==# "no" ? "v" : mode(1)[2])', a:keys, a:keys)
 endfunction
@@ -23,6 +24,9 @@ call s:add_mo('<plug>dedowsdi_mo_vertical_B', 'misc#mo#vertical_motion("B")')
 " key is executed as
 "   exe "norm {vmode}{key}"
 function s:omap(key, mode, default_vmode)
+
+  " use default_vmode for ordinary operator pending mode, it should be the same
+  " as textobject wisemode, otherwise use forced motion
   let vmode = a:mode ==# 'no' ? a:default_vmode : a:mode[2]
   if vmode ==# "\<c-v>"
     let vmode .= vmode
@@ -32,18 +36,19 @@ function s:omap(key, mode, default_vmode)
   return printf(':exe "normal %s%s\"%s' . "\<cr>", vmode, a:key, v:register)
 endfunction
 
-" add text object, assume func prototype as: func(ai)
+" add text object, assume func prototype as: func(ai). support forced-motion and
+" register.
 function s:add_to(ai, letter, default_vmode, func, ...) abort
   let prefix = get(a:000, 0, '<plug>dedowsdi_to_')
   if a:ai =~# 'a'
     let key = printf('%sa%s', prefix, a:letter)
-    exe printf('vnoremap %s <esc>:silent! call call("%s", ["a"])<cr>', key, a:func)
+    exe printf('xnoremap %s <esc>:silent! call call("%s", ["a"])<cr>', key, a:func)
     exe printf('onoremap <expr> %s <sid>omap(''\%s'', mode(1), "%s")', key, key, a:default_vmode)
   endif
 
   if a:ai =~# 'i'
     let key = printf('%si%s', prefix, a:letter)
-    exe printf('vnoremap %s <esc>:silent! call call("%s", ["i"])<cr>', key, a:func)
+    exe printf('xnoremap %s <esc>:silent! call call("%s", ["i"])<cr>', key, a:func)
     exe printf('onoremap <expr> %s <sid>omap(''\%s'', mode(1), "%s")', key, key, a:default_vmode)
   endif
 endfunction
@@ -65,7 +70,7 @@ endfunction
 
 function s:add_op(key, func)
   exe printf('nnoremap <expr> %s <sid>setup_opfunc("%s")', a:key, a:func)
-  exe printf('vnoremap %s :<c-u>call %s(visualmode(), 1)<cr>', a:key, a:func)
+  exe printf('xnoremap %s :<c-u>call %s(visualmode(), 1)<cr>', a:key, a:func)
 endfunction
 
 call s:add_op('<plug>dedowsdi_op_search_literal', 'misc#op#search_literal')

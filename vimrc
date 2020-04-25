@@ -280,7 +280,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 
 " tags
-Plug 'ludovicchabant/vim-gutentags'
+" Plug 'ludovicchabant/vim-gutentags'
 
 " auto complete
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -316,7 +316,7 @@ if v:version > 800
 endif
 packadd! matchit
 
-augroup zxd_misc
+augroup dedowsdi_misc
   au!
 
   if v:version > 800
@@ -335,7 +335,25 @@ augroup zxd_misc
 
   " no auto comment leader after o or O, remove comment leader when join comment lines
   autocmd FileType * setlocal formatoptions-=o formatoptions+=j
+
+  autocmd BufWritePost * call s:update_tag()
 augroup end
+
+function s:send_update_tag(name, timer) abort
+  let pipe = get(g:, 'ctag_pipe', '.dedowsdi/ctag_pipe')
+  if filewritable(pipe)
+    call system(printf('echo update:%s >%s &', shellescape(expand('%')), shellescape(pipe)))
+  endif
+  unlet s:update_tag_timer
+endfunction
+
+function s:update_tag() abort
+  if exists('s:update_tag_timer')
+    call timer_stop(s:update_tag_timer)
+  endif
+
+  let s:update_tag_timer = timer_start(1000, function('s:send_update_tag', [expand('%')]))
+endfunction
 
 " all kinds of maps {{{1
 
@@ -356,9 +374,12 @@ call s:add_to('iF', '<plug>dedowsdi_to_iF')
 call s:add_to('aF', 'iF')
 
 " motion and operator {{{2
-nmap ,E <plug>dedowsdi_mo_vertical_E
-nmap ,W <plug>dedowsdi_mo_vertical_W
-nmap ,B <plug>dedowsdi_mo_vertical_B
+map ,E <plug>dedowsdi_mo_vertical_E
+sunmap ,E
+map ,W <plug>dedowsdi_mo_vertical_W
+sunmap ,W
+map ,B <plug>dedowsdi_mo_vertical_B
+sunmap ,B
 nnoremap ,,  ,
 
 function s:add_op(key, rhs)
