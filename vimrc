@@ -8,7 +8,7 @@
 " Only include frequently used, trivial command and function here, others belong
 " to misc.vim.
 
-                                   " options {{{1
+" options {{{1
 
 " show tab and trailing space
 scriptencoding utf-8
@@ -126,7 +126,7 @@ set belloff=esc
 set nofoldenable
 set signcolumn=number
 
-                                " plugin {{{1
+" plugin {{{1
 
 " ale {{{2
 nnoremap <c-f7>  :ALELint<cr>
@@ -219,13 +219,6 @@ let g:tex_flavor = 'latex'
 " vim-json {{{2
 let g:vim_json_syntax_conceal = 0
 
-" gutentags {{{2
-let g:gutentags_project_root = ['.dedowsdi']
-let g:gutentags_exclude_project_root = [$HOME]
-let g:gutentags_exclude_filetypes = ['json', 'md', 'text']
-let g:gutentags_define_advanced_commands = 1
-let g:gutentags_ctags_options_file = '.dedowsdi/.gutctags'
-
 " easyalign {{{2
 nmap     ,a  <Plug>(EasyAlign)
 xmap     ,a  <Plug>(EasyAlign)
@@ -242,6 +235,7 @@ let g:dedowsdi_clang_format_py_path = '/usr/share/clang/clang-format-8/clang-for
 
 let g:dedowsdi_hist_use_vim_regex_search = 1
 let g:dedowsdi_popup_scroll_keys = ['<c-y>', '<c-e>', '<c-f>']
+let g:dedowsdi_connect_ctag_server = 1
 
 " install plugins {{{2
 if empty(glob('~/.vim/autoload/plug.vim'))
@@ -279,9 +273,6 @@ Plug 'honza/vim-snippets'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 
-" tags
-" Plug 'ludovicchabant/vim-gutentags'
-
 " auto complete
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
@@ -295,7 +286,7 @@ Plug 'dedowsdi/cdef'
 
 call plug#end()
 
-                                  " misc {{{1
+" misc {{{1
 
 runtime! ftplugin/man.vim
 set keywordprg=:Man
@@ -335,25 +326,7 @@ augroup dedowsdi_misc
 
   " no auto comment leader after o or O, remove comment leader when join comment lines
   autocmd FileType * setlocal formatoptions-=o formatoptions+=j
-
-  autocmd BufWritePost * call s:update_tag()
 augroup end
-
-function s:send_update_tag(name, timer) abort
-  let pipe = get(g:, 'ctag_pipe', '.dedowsdi/ctag_pipe')
-  if filewritable(pipe)
-    call system(printf('echo update:%s >%s &', shellescape(expand('%')), shellescape(pipe)))
-  endif
-  unlet s:update_tag_timer
-endfunction
-
-function s:update_tag() abort
-  if exists('s:update_tag_timer')
-    call timer_stop(s:update_tag_timer)
-  endif
-
-  let s:update_tag_timer = timer_start(1000, function('s:send_update_tag', [expand('%')]))
-endfunction
 
 " all kinds of maps {{{1
 
@@ -427,7 +400,7 @@ nmap ds<space> <plug>dedowsdi_misc_pair_minus_space
 nmap <c-w>` <plug>dedowsdi_term_toggle_gterm
 tmap <c-w>` <plug>dedowsdi_term_toggle_gterm
 
-                                  " command {{{1
+" command {{{1
 
 com SelectLastChange exec 'normal! `[' . getregtype() . '`]'
 

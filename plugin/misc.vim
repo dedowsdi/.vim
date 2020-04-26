@@ -232,6 +232,7 @@ let g:hare_dynamic_filter_threshold = get(g:, 'hare_dynamic_filter_threshold', 4
 let g:hare_local_marks = get(g:, 'hare_local_marks', 4)
 let g:hare_global_marks = get(g:, 'hare_global_marks', 4)
 let g:hare_height = get(g:, 'hare_height', 8)
+let g:ctag_update_delay = get(g:, 'ctag_update_delay', 6000)
 
 com -nargs=+ Hare call misc#hare#exec(<q-args>)
 
@@ -349,6 +350,14 @@ endfunction
 
 " tag {{{1
 com -nargs=+ Readtagsi call misc#readtagsi(<q-args>)
+
+com -nargs=* ConnectCtagServer call misc#tag#connect_server()
+com -nargs=* EditCtagServerLog :e $VIM_PROJ_TMP/tag/log
+
+let g:dedowsdi_connect_ctag_server = get(g:, 'dedowsdi_connect_ctag_server', 0)
+if g:dedowsdi_connect_ctag_server
+  ConnectCtagServer
+endif
 
 " misc {{{1
 
