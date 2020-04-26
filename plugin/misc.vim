@@ -234,6 +234,10 @@ let g:hare_global_marks = get(g:, 'hare_global_marks', 4)
 let g:hare_height = get(g:, 'hare_height', 8)
 let g:ctag_update_delay = get(g:, 'ctag_update_delay', 6000)
 
+nnoremap <silent> <plug>dedowsdi_hare_sink :call misc#hare#sink()<cr>
+cnoremap <silent> <plug>dedowsdi_hare_sink <cr>:call misc#hare#sink()<cr>
+cnoremap <silent> <plug>dedowsdi_hare_abort <esc>:wincmd q<cr>
+
 com -nargs=+ Hare call misc#hare#exec(<q-args>)
 
 com History Hare file filter! /^fugitive/ oldfiles

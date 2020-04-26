@@ -56,12 +56,13 @@ function misc#hare#jump(sink, source, ...) abort
     exe g:hare_height 'wincmd _'
     setlocal winfixheight
 
-    let b:hare_orig_winid = winid
-    let b:hare_orig_buf = bnr
+    let b:hare = {'mods' : ''}
+    let b:hare.orig_winid = winid
+    let b:hare.orig_buf = bnr
 
     set filetype=hare
     call s:fill_buffer(a:source)
-    call s:setup_map_and_event(a:sink)
+    call s:setup_event_and_sink(a:sink)
 
     let s:start_pattern = a:0 > 0 ? a:1 : '/\v.*<'
     call feedkeys(s:start_pattern, 'n')
@@ -88,6 +89,10 @@ function misc#hare#exec(cmd) abort
   call misc#hare#jump(sink, source)
 endfunction
 
+function misc#hare#sink() abort
+  call b:hare.sink()
+endfunction
+
 function s:fill_buffer(source) abort
   let stype = type(a:source)
   if stype == v:t_list
@@ -108,14 +113,14 @@ function s:fill_buffer(source) abort
         " clear path, exclude include to make ilist work on current buffer only
         let opath = &path
         let &path = ''
-        let lines = split(win_execute(b:hare_orig_winid, printf('ilist! /%s/', pattern)), "\n")
+        let lines = split(win_execute(b:hare.orig_winid, printf('ilist! /%s/', pattern)), "\n")
         let lines = map(lines[1:], {i,v -> v[stridx(v, ':')+1 : ]})
         call setline(1, lines)
       finally
         let &path = opath
       endtry
     else
-      put! =trim(win_execute(b:hare_orig_winid, a:source))
+      put! =trim(win_execute(b:hare.orig_winid, a:source))
     endif
   elseif stype == v:t_func
     call a:source()
@@ -125,30 +130,24 @@ function s:fill_buffer(source) abort
   1
 endfunction
 
-function s:setup_map_and_event(sink) abort
+function s:setup_event_and_sink(sink) abort
 
   " validate sink
   let stype = type(a:sink)
 
   if stype ==# v:t_func
-    let Hare_sink = a:sink
+    let b:hare.sink = a:sink
   elseif stype ==# v:t_string
     if !has_key(s:default_sinks, a:sink)
       throw 'unknown sink ' . a:sink
     endif
 
-    let Hare_sink = s:default_sinks[a:sink]
+    let b:hare.sink = s:default_sinks[a:sink]
   else
     throw 'unknown sink type ' . a:sink
   endif
 
   " install map and auto command.
-  exe printf('nnoremap <silent> <buffer> <cr>
-        \ :call call(%s, [])<cr>', string(get(Hare_sink, 'name')))
-  exe printf('cnoremap <silent> <buffer> <c-o>
-        \ <cr>:call call(%s, [])<cr>', string(get(Hare_sink, 'name')))
-  cnoremap <buffer> <c-c> <esc>:wincmd q<cr>
-
   augroup au_hare_buffer | au!
     autocmd  WinLeave <buffer> call s:quit_hare()
 
@@ -191,11 +190,13 @@ function s:filter() abort
 endfunction
 
 function s:quit_hare() abort
-  exe win_id2win(b:hare_orig_winid) 'wincmd w'
+  if empty(b:hare.mods)
+    exe win_id2win(b:hare.orig_winid) 'wincmd w'
+  endif
 endfunction
 
 function s:close_hair_buffer() abort
-  " let wid = b:hare_orig_winid
+  " let wid = b:hare.orig_winid
   wincmd q
   " exe  win_id2win(wid) 'wincmd w'
 endfunction
@@ -300,11 +301,11 @@ function s:undolist_sink() abort
   endif
   
   " win_execute doesn't scroll?
-  " echom trim(win_execute(b:hare_orig_winid, printf('undo %d', number)))
+  " echom trim(win_execute(b:hare.orig_winid, printf('undo %d', number)))
 
   " The user should turn on cursorline to see this
   let hare_winnr = winnr()
-  exe win_id2win(b:hare_orig_winid) 'wincmd w'
+  exe win_id2win(b:hare.orig_winid) 'wincmd w'
   exe 'undo' number
   exe hare_winnr 'wincmd w'
 endfunction
@@ -314,7 +315,7 @@ function s:open_file(path) abort
   if bnr == -1
     exe 'e' a:path
   elseif bnr != bufnr()
-    if bufwinid(bnr) != -1
+    if bufwinid(bnr) != -1 && empty(s:last_mods)
       exe bufwinnr(bnr) 'wincmd w'
     else
       exe 'b' bnr
@@ -328,7 +329,13 @@ function misc#hare#land(target) abort
     throw 'failed to find file or line in target : ' . string(a:target)
   endif
 
+  " split after closing hare buffer if b:hare.mods is not empty
+  let s:last_mods = b:hare.mods
   call s:close_hair_buffer()
+  if !empty(s:last_mods)
+    exe s:last_mods 'new'
+  endif
+
   if has_key(a:target, 'file')
     call s:open_file(a:target.file)
     call s:rotate_global_mark()
