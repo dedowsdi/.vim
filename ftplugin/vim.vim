@@ -14,20 +14,18 @@ function s:add_to(lhs, rhs) abort
     exe printf('omap <buffer> %s %s', a:lhs, a:rhs)
 endfunction
 
-call s:add_to('if', '<plug>dedowsdi_viml_to_if')
-call s:add_to('af', '<plug>dedowsdi_viml_to_af')
+call s:add_to('if', '<plug>ddd_vim_to_if')
+call s:add_to('af', '<plug>ddd_vim_to_af')
 
-nnoremap <buffer> <c-f5>     :VimlReloadScript<cr>
-nnoremap <buffer> <c-f9>     :VimlBreakNumberedFunction<cr>
+nnoremap <buffer> <c-f5>     :VimReloadScript<cr>
+nnoremap <buffer> <c-f9>     :VimBreakNumberedFunction<cr>
 nnoremap <buffer> <f5>       :so %<cr>
-nnoremap <buffer> <f9>       :VimlBreakHere<cr>
-nnoremap <buffer> <leader>ej :VimlJoin<cr>
+nnoremap <buffer> <f9>       :VimBreakHere<cr>
+nnoremap <buffer> <leader>ej :VimJoin<cr>
 
-nnoremap <buffer> <c-f5>     :VimlReloadScript<cr>
-nnoremap <buffer> <c-f9>     :VimlBreakNumberedFunction<cr>
+nnoremap <buffer> <c-f5>     :VimReloadScript<cr>
+nnoremap <buffer> <c-f9>     :VimBreakNumberedFunction<cr>
 nnoremap <buffer> <f5>       :so %<cr>
-nnoremap <buffer> <f9>       :VimlBreakHere<cr>
+nnoremap <buffer> <f9>       :VimBreakHere<cr>
 nnoremap <buffer> <leader>df :verbose function{}<left>
-nnoremap <buffer> <leader>ej :VimlJoin<cr>
-
-nnoremap <buffer> <c-n><c-n> :new `mkt -s .vim`<cr>
+nnoremap <buffer> <leader>ej :VimJoin<cr>

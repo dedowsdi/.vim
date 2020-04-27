@@ -1,1 +1,1 @@
-call syntax#opengl()
+Syntax opengl

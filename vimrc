@@ -5,8 +5,17 @@
 " Map and command are public interface, plugin settings and functions are
 " private implementation, interface must appear before implementation.
 "
-" Only include frequently used, trivial command and function here, others belong
-" to misc.vim.
+" Only include frequently used command and function here, others belong
+" to ddd.vim.
+"
+" ddd comes from 3 d of dedowsdi
+"
+" Put simple plugins in ddd.vim, others in ddd/...
+" Put simple utils in dddu.vim, others in dddu/...
+" All plugin map starts with <plug>ddd_
+" All global variables starts with g:ddd_
+"
+" Don't create things that's might be useful, it's useless most of time.
 
 " options {{{1
 
@@ -230,12 +239,12 @@ nmap     ,cc <Plug>CommentaryLine
 nmap     ,cu <Plug>Commentary<Plug>Commentary
 
 " .vim {{{2
-let g:dedowsdi_clang_format_py_path = '/usr/share/clang/clang-format-8/clang-format.py'
-" let g:dedowsdi_clang_format_fallback_style = 'LLVM'
+let g:ddd_clang_format_py_path = '/usr/share/clang/clang-format-8/clang-format.py'
+" let g:ddd_clang_format_fallback_style = 'LLVM'
 
-let g:dedowsdi_hist_use_vim_regex_search = 1
-let g:dedowsdi_popup_scroll_keys = ['<c-y>', '<c-e>', '<c-f>']
-let g:dedowsdi_connect_ctag_server = 1
+let g:ddd_hist_use_vim_regex_search = 1
+let g:ddd_popup_scroll_keys = ['<c-y>', '<c-e>', '<c-f>']
+let g:ddd_connect_ctag_server = 1
 
 " install plugins {{{2
 if empty(glob('~/.vim/autoload/plug.vim'))
@@ -291,7 +300,7 @@ call plug#end()
 runtime! ftplugin/man.vim
 set keywordprg=:Man
 
-call misc#terminal#setup()
+call ddd#terminal#setup()
 
 " plug#end() already call these commented commands
 " filetype plugin indent on
@@ -307,7 +316,7 @@ if v:version > 800
 endif
 packadd! matchit
 
-augroup dedowsdi_misc
+augroup ddd_default
   au!
 
   if v:version > 800
@@ -336,18 +345,18 @@ function s:add_to(lhs, rhs) abort
   exe printf('omap %s %s', a:lhs, a:rhs)
 endfunction
 
-call s:add_to('il', '<plug>dedowsdi_to_il')
-call s:add_to('al', '<plug>dedowsdi_to_al')
-call s:add_to('in', '<plug>dedowsdi_to_in')
-call s:add_to('an', '<plug>dedowsdi_to_an')
-call s:add_to('ic', '<plug>dedowsdi_to_ic')
+call s:add_to('il', '<plug>ddd_to_il')
+call s:add_to('al', '<plug>ddd_to_al')
+call s:add_to('in', '<plug>ddd_to_in')
+call s:add_to('an', '<plug>ddd_to_an')
+call s:add_to('ic', '<plug>ddd_to_ic')
 
 " motion and operator {{{2
-map ,E <plug>dedowsdi_mo_vertical_E
+map ,E <plug>ddd_mo_vertical_E
 sunmap ,E
-map ,W <plug>dedowsdi_mo_vertical_W
+map ,W <plug>ddd_mo_vertical_W
 sunmap ,W
-map ,B <plug>dedowsdi_mo_vertical_B
+map ,B <plug>ddd_mo_vertical_B
 sunmap ,B
 nnoremap ,,  ,
 
@@ -356,17 +365,17 @@ function s:add_op(key, rhs)
   exe printf('xmap %s %s', a:key, a:rhs)
 endfunction
 
-call s:add_op(',l',     '<plug>dedowsdi_op_search_literal')
-call s:add_op(',L',     '<plug>dedowsdi_op_substitute_literal')
-call s:add_op(',<bar>', '<plug>dedowsdi_op_get_column')
-call s:add_op(',g',     '<plug>dedowsdi_op_search_in_browser')
+call s:add_op(',l',     '<plug>ddd_op_search_literal')
+call s:add_op(',L',     '<plug>ddd_op_substitute_literal')
+call s:add_op(',<bar>', '<plug>ddd_op_get_column')
+call s:add_op(',g',     '<plug>ddd_op_search_in_browser')
 
-nmap co  <plug>dedowsdi_op_co
-nmap do  <plug>dedowsdi_op_do
-nmap guo <plug>dedowsdi_op_guo
-nmap gUo <plug>dedowsdi_op_gUo
-nmap g~o <plug>dedowsdi_op_g~o
-nmap ,f  <plug>dedowsdi_op_clang_format
+nmap co  <plug>ddd_op_co
+nmap do  <plug>ddd_op_do
+nmap guo <plug>ddd_op_guo
+nmap gUo <plug>ddd_op_gUo
+nmap g~o <plug>ddd_op_g~o
+nmap ,f  <plug>ddd_op_clang_format
 nmap <expr> ,ff ',f' . v:count1 . '_'
 
 " common maps {{{2
@@ -382,15 +391,15 @@ nnoremap <c-w>O :CloseFinishedTerminal<cr>
 nnoremap <expr> <c-w>0 printf(':<c-u>%dWinFitBuf<cr>', v:count)
 
 if v:version > 800
-  cmap <tab> <Plug>dedowsdi_hist_expand_hist_wild
+  cmap <tab> <Plug>ddd_hist_expand_hist_wild
   set wildchar=<c-z>
 endif
 
-nmap ys<space> <plug>dedowsdi_misc_pair_add_space
-nmap ds<space> <plug>dedowsdi_misc_pair_minus_space
+nmap ys<space> <plug>ddd_pair_add_space
+nmap ds<space> <plug>ddd_pair_minus_space
 
-nmap <c-w>` <plug>dedowsdi_term_toggle_gterm
-tmap <c-w>` <plug>dedowsdi_term_toggle_gterm
+nmap <c-n> <plug>ddd_term_toggle_gterm
+tmap <c-n> <plug>ddd_term_toggle_gterm
 
 " command {{{1
 

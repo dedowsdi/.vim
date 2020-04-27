@@ -2,10 +2,8 @@ if exists('b:loaded_cpp_cfg')
   finish
 endif
 let b:loaded_cpp_cfg = 1
-nnoremap <buffer> _io :call mycpp#include_osg()<cr>
+nnoremap <buffer> _io :call ddd#cpp#include_osg()<cr>
 
-call abbre#cpp()
+Abbre cpp
 
-nnoremap <buffer> <c-n><c-n> :Job mktt -t cpp<cr>
-
-com -buffer ReloadCppFtplugin call misc#reload_ftplugin(['b:loaded_cpp_cfg', 'b:loaded_c_cfg'])
+com -buffer ReloadCppFtplugin call ddd#reload_ftplugin(['b:loaded_cpp_cfg', 'b:loaded_c_cfg'])

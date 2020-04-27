@@ -14,5 +14,5 @@ nnoremap <buffer> i /\v^\s*
 " com -buffer SubSection FFline \v\C^   \S.*$
 
 com -buffer Section Hare line /\v\C^\s*[A-Z][^a-z]*$
-com -buffer Option call misc#hare#jump('line', '/\v\C^\s+\-\-?\w', '/\v^\s*\d+\s*')
+com -buffer Option call ddd#hare#jump('line', '/\v\C^\s+\-\-?\w', '/\v^\s*\d+\s*')
 

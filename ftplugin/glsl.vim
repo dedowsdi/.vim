@@ -45,9 +45,9 @@ vnoremap <buffer> if :<C-U>silent! call cdef#selPf('i')<cr>
 onoremap <buffer> af :normal vaf<cr>
 onoremap <buffer> if :normal vif<cr>
 
-nnoremap <buffer> <a-o> :call myglsl#alternate()<cr>
+nnoremap <buffer> <a-o> :call ddd#glsl#alternate()<cr>
 nnoremap <buffer> _h :CdefAddHeadGuard<cr>
 
-call abbre#glsl()
+Abbre glsl
 
 com RunFrag rightbelow ter ++rows=16 ntoy --shadertoy --frag %
