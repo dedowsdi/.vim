@@ -48,9 +48,7 @@ function s:assert_start_state() abort
   endif
 endfunction
 
-" simple text objects
-
-" return [itemIndex, [total range] [item1 range, item 2 range ....]]
+" return [itemIndex, [total range], [item1 range, item 2 range ....]]
 " itemIndex will be -1 if it can not be found.(eg: cursor at ( or , or ) )
 "
 " search starts at current cursor.
@@ -75,11 +73,15 @@ function misc#to#get_args(opts) abort
       let right_pairs .= item[1]
     endfor
 
-    if misc#get_cc() == right_guard
+    if misc#get_cc() ==# right_guard
       call misc#char_left()
     endif
+
     "goto left guard first
-    if !misc#search_over_pairs(left_guard, right_pairs, 'bcW')|return []|endif
+    if !misc#search_over_pairs(left_guard, right_pairs, 'bcW')
+      return []
+    endif
+
     let total_range[0] = getpos('.')
     call misc#char_right() " move away from (
     let arg_range_start = getpos('.')
@@ -147,48 +149,6 @@ function misc#to#sel_cur_arg(ai) abort
   let cur_arg_range = ranges[2][arg_index]
   call misc#visual_select(cur_arg_range, 'v')
   call s:force_motion()
-endfunction
-
-" opts{direction:'h or l' , delim: default to ","
-" jump_pairs: default to ["()","[]","{}","<>"], guard : default to "()",
-" cursor_action : 'arg_first_char'(default), 'arg_last_char', 'static' }
-function misc#to#bubble_arg(opts) abort
-
-  let args = misc#to#get_args(a:opts)
-  if args == [] | call misc#warn('illigal range')| return | endif
-
-  let direction = get(a:opts, 'direction', 'h')
-  let cursor_actoin = get(a:opts, 'cursor_action', 'arg_first_char')
-
-  let [arg_index, total_range, arg_ranges] = [args[0], args[1], args[2]]
-  if arg_index == -1
-    call misc#warn('you should not place your cursor at ' . misc#get_cc() )  | return
-  endif
-
-  let target_index = direction ==# 'h' ? arg_index - 1 : arg_index + 1
-  if target_index < 0
-    let target_index = len(arg_ranges) - 1
-  elseif target_index >= len(arg_ranges)
-    let target_index = 0
-  endif
-  call misc#swap_range(arg_ranges[arg_index], arg_ranges[target_index], 'v')
-
-  " place cursor
-  if cursor_actoin !=# 'static'
-     " cursor might in inner () after bubble, to be safe, place it at outmost (
-     call setpos('.', total_range[0])
-     " get new args
-     let args = misc#to#get_args(a:opts)
-     let target_range = args[2][target_index]
-     if cursor_actoin ==# 'arg_first_char'
-       "place cursor at 1st non blank character in this arg
-       call setpos('.', target_range[0]) |  call search('\v\S', 'cW')
-     elseif cursor_actoin ==# 'arg_last_char'
-       "place cursor at last non blank character in this arg
-       call setpos('.', target_range[1]) | call search('\v\S', 'bcW')
-     endif
-  endif
-
 endfunction
 
 " select regex pattern, pattern must contain %#

@@ -75,29 +75,32 @@ function misc#get_vv() abort
   return misc#get_v(line('.'), col('.'))
 endfunction
 
-" search until one of expr found, ignore everything in pairs, doesn't include
-" current character
-" jump_pairs and expr should be completely different
-" expr : desired pattern
-" jump_pairs : such as (<{[ or )>}], when meet, execute %
-function misc#search_over_pairs(expr, jump_pairs, flags) abort
-
-  let search_expr = '\v[' . a:expr . escape(a:jump_pairs, ']') . ']'
-  " c in flags will be used only for the 1st time search.
+" search until one of chars found, ignore everything in pairs recursively,
+" jump_pairs and chars should not overlap. You can add `c` to flags if you want
+" to include char under current cursor.
+"
+" chars : desired pattern
+" jump_pairs : such as (<{[ or )>}]
+function misc#search_over_pairs(chars, jump_pairs, flags) abort
+  let search_expr = '\v[' . a:chars . escape(a:jump_pairs, ']') . ']'
   let [first_time, flags] = [1, a:flags]
+
   while search(search_expr, flags)
     if first_time
+      " exclude current character for non 1st search
       let first_time = 0
       let flags = substitute(flags, 'c', '', 'g')
     endif
-    if stridx(a:expr, misc#get_cc()) != -1
+
+    if stridx(a:chars, misc#get_cc()) != -1
       return 1
     else
+      " note < won't match \>
       keepjumps normal! %
     endif
   endwhile
-  return 0
 
+  return 0
 endfunction
 
 function misc#visual_select(range, mode) abort
@@ -189,17 +192,23 @@ function misc#translate_pos(pos, step) abort
 endfunction
 
 function misc#char_right(...) abort
-  let step = get(a:000, 0, 1)
-  " are there any option the same as backspace ?
-  exec 'normal! '.step.' '
+  try
+    let oval = &whichwrap
+    set whichwrap&
+    exec printf("norm! %d\<space>", get(a:000, 0, 1))
+  finally
+    let &whichwrap = oval
+  endtry
 endfunction
 
 function misc#char_left(...) abort
-  let step = get(a:000, 0, 1)
-  let backspace = &backspace|try
-    let &backspace='indent,eol,start' 
-    exec 'normal! '.step.''
-  finally|let &backspace = backspace|endtry
+  try
+    let oval = &whichwrap
+    set whichwrap&
+    exec printf("norm! %d\<bs>", get(a:000, 0, 1))
+  finally
+    let &whichwrap = oval
+  endtry
 endfunction
 
 function misc#trim(s, ...) abort
