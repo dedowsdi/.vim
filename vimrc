@@ -372,7 +372,6 @@ nmap <expr> ,ff ',f' . v:count1 . '_'
 " common maps {{{2
 
 nnoremap Y  y$
-nnoremap K  :exec 'norm! K' <bar> wincmd p<cr>
 nnoremap gc :SelectLastChange<cr>
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>

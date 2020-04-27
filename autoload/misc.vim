@@ -511,11 +511,12 @@ function misc#get_cur_pair() abort
 
       let c0 = misc#get_cc()
 
+      " test if cpos is between p0 and p1
       if misc#cmp_pos( p0, cpos[1:2] ) == 1 || misc#cmp_pos( p1, cpos[1:2] ) == -1
         continue
       endif
 
-      " test with last found pair
+      " compare with last valid pair
       if pos0 == [] || misc#cmp_pos(pos0, p0) == -1 && misc#cmp_pos(pos1, p1) == 1
         let pos0 = p0
         let pos1 = p1
@@ -525,7 +526,7 @@ function misc#get_cur_pair() abort
 
     endfor
 
-    return pos0 == [] ? {} : { 'open_pair':open_pair, "close_pair":close_pair, "pos0":pos0, "pos1":pos1 }
+    return pos0 == [] ? {} : { 'open_pair':open_pair, 'close_pair':close_pair, 'pos0':pos0, 'pos1':pos1 }
 
   finally
     call winrestview(cview)
@@ -548,12 +549,12 @@ function misc#expand_pair(add) abort
     else
       call cursor(pair.pos1)
       norm! h
-      if misc#get_cc() == ' '
+      if misc#get_cc() ==# ' '
         norm! x
       endif
       call cursor(pair.pos0)
       norm! l
-      if misc#get_cc() == ' '
+      if misc#get_cc() ==# ' '
         norm! x
       endif
     endif
