@@ -53,12 +53,10 @@ function s:add_to(ai, letter, default_vmode, func, ...) abort
   endif
 endfunction
 
-call s:add_to('ai', 'a', 'v',      'misc#to#sel_cur_arg')
 call s:add_to('ai', 'l', 'v',      'misc#to#sel_letter')
 call s:add_to('ai', 'n', 'v',      'misc#to#sel_number')
 call s:add_to('i',  'c', '\<c-v>', 'misc#to#column')
 call s:add_to('ai', 'f', 'V',      'misc#viml#sel_func', '<plug>dedowsdi_viml_to_')
-call s:add_to('i', 'F', 'V',      'misc#to#sel_file')
 
 " op {{{1
 

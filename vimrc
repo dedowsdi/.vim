@@ -336,15 +336,11 @@ function s:add_to(lhs, rhs) abort
   exe printf('omap %s %s', a:lhs, a:rhs)
 endfunction
 
-call s:add_to('aa', '<plug>dedowsdi_to_aa')
-call s:add_to('ia', '<plug>dedowsdi_to_ia')
 call s:add_to('il', '<plug>dedowsdi_to_il')
 call s:add_to('al', '<plug>dedowsdi_to_al')
 call s:add_to('in', '<plug>dedowsdi_to_in')
 call s:add_to('an', '<plug>dedowsdi_to_an')
 call s:add_to('ic', '<plug>dedowsdi_to_ic')
-call s:add_to('iF', '<plug>dedowsdi_to_iF')
-call s:add_to('aF', 'iF')
 
 " motion and operator {{{2
 map ,E <plug>dedowsdi_mo_vertical_E
