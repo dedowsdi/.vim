@@ -10,5 +10,6 @@ mkdir -p "$VIM_PROJ_TMP/tag"
 ctag_server -d "$VIM_PROJ_TMP/tag" -i 3 & CTAG_SERVER_PID=$!
 trap 'kill $CTAG_SERVER_PID' EXIT
 
+export CTAG_SERVER_PID
 export CTAG_SERVER_LOG=$VIM_PROJ_TMP/tag/log
 export CTAG_SERVER_PIPE=$VIM_PROJ_TMP/tag/pipe

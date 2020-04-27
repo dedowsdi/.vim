@@ -355,12 +355,13 @@ endfunction
 " tag {{{1
 com -nargs=+ Readtagsi call misc#readtagsi(<q-args>)
 
-com -nargs=* ConnectCtagServer call misc#tag#connect_server()
-com -nargs=* EditCtagServerLog :e $VIM_PROJ_TMP/tag/log
+com -nargs=* CtagServerConnect call misc#tag#connect_server()
+com -nargs=* CtagServerDisconnect call misc#tag#disconnect_server()
+com -nargs=* CtagServerEditLog :e $VIM_PROJ_TMP/tag/log
 
 let g:dedowsdi_connect_ctag_server = get(g:, 'dedowsdi_connect_ctag_server', 0)
 if g:dedowsdi_connect_ctag_server
-  ConnectCtagServer
+  CtagServerConnect
 endif
 
 " misc {{{1

@@ -7,14 +7,19 @@ function misc#tag#readtagsi(args) abort
 endfunction
 
 function misc#tag#connect_server() abort
-  if !filewritable($CTAG_SERVER_PIPE)
-    " echoe printf('pipe %s not found', $CTAG_SERVER_PIPE)
+  " The server is running in a sibling process, it's possible that tag/pipe has
+  " not been created at this moment, but pid should always exists.
+  if !exists('$CTAG_SERVER_PID')
     return
   endif
 
   augroup dedowsdi_ctag_client | au!
     autocmd BufWritePost * call s:update_tag()
   augroup end
+endfunction
+
+function misc#tag#disconnect_server() abort
+  autocmd! dedowsdi_ctag_client
 endfunction
 
 function s:send_update_tag(timer) abort
