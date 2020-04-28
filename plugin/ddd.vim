@@ -220,10 +220,6 @@ com Src exe 'Hare file !' . g:ddd_project_source
 
 com File exe 'Hare file !find . -type f'
 
-let g:ddd_find_path = []
-com Find exe printf('Hare file !find %s -type d \( %s \) -prune -o -type f -print',
-            \ join(g:ddd_find_path), g:ddd_find_exclude)
-
 com -nargs=+ Locate Hare file !locate <args>
 
 com GrepCache exe 'Hare fline !cat' @%
