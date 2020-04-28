@@ -9,16 +9,9 @@ setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted modifiable
       \ undolevels=-1
       \ statusline=hare
 
-" clear hare map by dummy
-nnoremap <buffer> <c-p> <c-p>
-nnoremap <buffer> <a-p> <a-p>
-nnoremap <buffer> <c-h> <c-h>
-nnoremap <buffer> <c-b> <c-b>
-nnoremap <buffer> <c-k> <c-k>
-
 " custom hare map
 cmap <buffer> <c-c> <plug>ddd_hare_abort
 cmap <buffer> <c-o> <plug>ddd_hare_sink
 nmap <buffer> <cr> <plug>ddd_hare_sink
-cmap <buffer> <c-s> <esc>:let b:hare.mods='vertical rightbelow'<cr><plug>ddd_hare_sink
+cmap <buffer> <c-s> <cr>:let b:hare.mods='vertical rightbelow'<cr><plug>ddd_hare_sink
 nmap <buffer> <c-s> <esc>:let b:hare.mods='vertical rightbelow'<cr><plug>ddd_hare_sink

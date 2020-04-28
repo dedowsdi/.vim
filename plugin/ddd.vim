@@ -197,7 +197,9 @@ let g:ddd_ctag_update_delay = get(g:, 'ddd_ctag_update_delay', 6000)
 
 nnoremap <silent> <plug>ddd_hare_sink :call ddd#hare#sink()<cr>
 cnoremap <silent> <plug>ddd_hare_sink <cr>:call ddd#hare#sink()<cr>
-cnoremap <silent> <plug>ddd_hare_abort <esc>:wincmd q<cr>
+
+" don't use <esc>, it runs your command even though &cpo has no x
+cnoremap <silent> <plug>ddd_hare_abort <c-c>:wincmd q<cr>
 
 com -nargs=+ Hare call ddd#hare#exec(<q-args>)
 
@@ -324,6 +326,11 @@ if g:ddd_connect_ctag_server
 endif
 
 " pair {{{1
+function s:repeat_plug_map(lhs, rhs)
+  exec printf('nnoremap <silent> %s %s:silent! call repeat#set("\<lt>%s")<cr>',
+        \ a:lhs, a:rhs, a:lhs[1:])
+endfunction
+
 call s:repeat_plug_map('<Plug>ddd_pair_add_space', ':call ddd#pair#expand(1)<cr>')
 call s:repeat_plug_map('<Plug>ddd_pair_minus_space', ':call ddd#pair#expand(0)<cr>')
 
@@ -340,11 +347,6 @@ com -nargs=1 Proj call ddd#proj#load_map(<f-args>)
 com -bar CamelToUnderscore norm! ciw<c-r>=ddd#camel_to_underscore(@@)<cr><esc>
 com -bar -bang UnderscoreToCamel norm! ciw<c-r>=ddd#underscore_to_camel(@@, <bang>0)<cr><esc>
 com -nargs=1 SetNotifySeverity call ddd#log#set_notify_severity(<f-args>)
-
-function s:repeat_plug_map(lhs, rhs)
-  exec printf('nnoremap <silent> %s %s:silent! call repeat#set("\<lt>%s")<cr>',
-        \ a:lhs, a:rhs, a:lhs[1:])
-endfunction
 
 com -bang -nargs=1 Slide call ddd#slide#prepare(<bang>0, <f-args>)
 

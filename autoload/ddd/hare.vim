@@ -41,6 +41,11 @@
 "   keys feeded to feedkeys(), it defaults to `/\v.*<`
 function ddd#hare#jump(sink, source, ...) abort
 
+  if &filetype ==# 'hare'
+    call dddu#warn('You can not jump from a hare buffer')
+    return
+  endif
+
   " close existing hare buffers
   call map( reverse( range( 1, winnr('$') ) ),
         \ { i,v -> win_execute( win_getid(v),
