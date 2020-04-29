@@ -173,7 +173,7 @@ nnoremap <c-s> :call CocActionAsync('showSignatureHelp')<cr>
 inoremap <c-s> <c-r>=CocActionAsync('showSignatureHelp')<cr>
 
 nmap <f2> <Plug>(coc-rename)
-nnoremap <f4> :CocHover<cr>
+nnoremap <f3> :CocHover<cr>
 nmap <s-f10> <Plug>(coc-references)
 nmap <f12> <Plug>(coc-definition)
 nmap <c-f12> <Plug>(coc-type-definition)
@@ -390,8 +390,13 @@ nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
 
 nnoremap <c-w><space> :tab split<cr>
 tnoremap <c-w><space> <c-w>:tab split<cr>
+tnoremap <c-w><c-w> <c-w><c-w>
 nnoremap <c-w>O :CloseFinishedTerminal<cr>
 nnoremap <expr> <c-w>0 printf(':<c-u>%dWinFitBuf<cr>', v:count)
+
+" termwinkey is special, there is a mapping delay for <c-w>,c-w> if you create
+" any tmap that starts with <c-w>
+tnoremap <c-w><c-w> <c-w><c-w>
 
 if v:version > 800
   cmap <tab> <Plug>ddd_hist_expand_hist_wild
@@ -401,8 +406,9 @@ endif
 nmap ys<space> <plug>ddd_pair_add_space
 nmap ds<space> <plug>ddd_pair_minus_space
 
-nmap <c-n> <plug>ddd_term_toggle_gterm
-tmap <c-n> <plug>ddd_term_toggle_gterm
+nmap <c-n> <plug>ddd_gterm_toggle
+tmap <c-n> <plug>ddd_gterm_toggle
+nmap g<cr>  <plug>ddd_gterm_repeat_cmd
 
 " command {{{1
 

@@ -51,5 +51,4 @@ nnoremap <buffer> _g :CdefGetSet<cr>
 vnoremap <buffer> _g :CdefGetSet<cr>
 nnoremap <buffer> _G :CdefConstGetSet<cr>
 vnoremap <buffer> _G :CdefConstGetSet<cr>
-nnoremap <buffer> <s-f7>     :CppMakeFileName<cr>
-nnoremap <buffer> <leader>cc :CppConfig<cr>
+nmap <buffer> <f5> <plug>ddd_gterm_repeat_cmd

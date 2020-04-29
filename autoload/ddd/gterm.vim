@@ -4,42 +4,90 @@
 " [normalized_row_height, nomalized_col_width] for new gterm
 let g:ddd_gterm_size = get(g:, 'ddd_gterm_size', [0.3, 0.5])
 let g:ddd_gterm_pos = get(g:, 'ddd_gterm_pos', 'j')
+let g:ddd_gterm_repeat_cmd = get(g:, 'ddd_gterm_repeat_cmd', "\<esc>k\<tab>\<cr>")
 
 let s:gterm = { 'buf' : -1, 'pos' : g:ddd_gterm_pos  }
 
+augroup ag_ddd_gterm | au! | augroup end
+
 function ddd#gterm#toggle() abort
-  if !bufexists(s:gterm.buf)
+  if !s:exists()
     call s:new()
     return
   endif
 
   if ddd#gterm#winid() == -1
-    call s:show_gterm()
+    call ddd#gterm#show()
   else
-    call s:hide_gterm()
+    call ddd#gterm#hide()
   endif
+endfunction
+
+function ddd#gterm#show() abort
+  if !s:exists()
+    return s:new()
+  endif
+
+  if s:visible()
+    exe s:winnr() 'wincmd w'
+  else
+    call s:split(0)
+    exe 'b' s:gterm.buf
+  endif
+
+endfunction
+
+function ddd#gterm#hide() abort
+  if !s:visible()
+    return
+  endif
+
+  exe s:winnr() 'wincmd q'
+endfunction
+
+function ddd#gterm#repeat_cmd() abort
+  if !s:exists()
+    return s:new()
+  endif
+
+  call ddd#gterm#show()
+
+  " mark m to buffer end. Don't use `mark m`, it will set m to last cursor line
+  " when you leave terminal buffer normal mode.
+  $mark m
+  echom getline('.')
+
+  " repeat last command
+  call term_sendkeys('', g:ddd_gterm_repeat_cmd)
+  wincmd p
 endfunction
 
 function ddd#gterm#winid() abort
   return bufwinid(s:gterm.buf)
 endfunction
 
+function s:exists() abort
+  return bufexists(s:gterm.buf)
+endfunction
+
+function s:winnr() abort
+  return win_id2win(ddd#gterm#winid())
+endfunction
+
+function s:visible() abort
+  return ddd#gterm#winid() != -1
+endfunction
+
 function s:new() abort
   call s:split(1)
   term ++curwin
   let s:gterm.buf = bufnr()
-  augroup ag_ddd_gterm | au!
-    autocmd BufLeave <buffer> call s:on_buf_leave()
-  augroup end
-endfunction
+  autocmd ag_ddd_gterm BufLeave <buffer> call s:on_buf_leave()
 
-function s:show_gterm() abort
-  call s:split(0)
-  exe 'b ' s:gterm.buf
-endfunction
-
-function s:hide_gterm() abort
-  exe win_id2win(ddd#gterm#winid()) 'wincmd q'
+  " cd to default working directory
+  if exists('g:ddd_gterm_wd')
+    call term_sendkeys('', printf("cd %s\<cr>", g:ddd_gterm_wd))
+  endif
 endfunction
 
 function s:on_buf_leave() abort

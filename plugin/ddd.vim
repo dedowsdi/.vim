@@ -110,8 +110,9 @@ com UpdateVimHelpLink call ddd#vimh#update_link(0)
 com UpdateNvimHelpLink call ddd#vimh#update_link(1)
 
 " gterm {{{1
-nnoremap <plug>ddd_term_toggle_gterm :call ddd#gterm#toggle()<cr>
-tnoremap <plug>ddd_term_toggle_gterm <c-w>:call ddd#gterm#toggle()<cr>
+nnoremap <plug>ddd_gterm_toggle :call ddd#gterm#toggle()<cr>
+tnoremap <plug>ddd_gterm_toggle <c-w>:call ddd#gterm#toggle()<cr>
+nnoremap <plug>ddd_gterm_repeat_cmd :call ddd#gterm#repeat_cmd()<cr>
 
 " make {{{1
 com -nargs=* -complete=customlist,ddd#make#complete Make :call ddd#make#make(<q-args>)
