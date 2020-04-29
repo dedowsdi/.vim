@@ -92,37 +92,9 @@ nnoremap <plug>ddd_op_g~o :call ddd#op#omo('gso')<cr>
 
 " cpp {{{1
 let g:ddd_cpp_def_src_ext    = get(g:, 'ddd_cpp_def_src_ext'    , 'cpp')
-let g:ddd_cpp_build_dir     = get(g:, 'ddd_cpp_build_dir'     , './')
 
-com CppDumpProjFile call ddd#cpp#dump_proj_file()
-com -nargs=* -complete=customlist,ddd#cpp#make_complete CppRun           call ddd#cpp#exe('cd "%w" && "%E" %a', 1, <q-args>, 0)
-com -nargs=* -complete=customlist,ddd#cpp#make_complete CppMake          update | call ddd#cpp#exe('cd "%B" && make -j3 %A %t', 1, <q-args>)
-com -nargs=* -complete=customlist,ddd#cpp#make_complete CppMakeFileName  exec 'CppMake ' . expand('%:t:r')
-com -nargs=* -complete=customlist,ddd#cpp#make_complete CppMakeRun       update | call ddd#cpp#exe('cd "%B" && make %A %t && cd "%w" && "%E" %a', 1, <q-args>, 0)
-com -nargs=* -complete=customlist,ddd#cpp#make_complete CppMakeDebug     update | call ddd#cpp#exe('cd "%B" && make %t && cd "%w" && gdb %A --args "%E" %a', 1, <q-args>)
-com -nargs=* -complete=customlist,ddd#cpp#make_complete CppRenderdoc     call ddd#cpp#exe('cd "%w" && renderdoccmd capture %A "%E" %a', 1, <q-args>)
-com -nargs=1 -complete=customlist,ddd#cpp#make_complete CppLastTarget    call ddd#cpp#set_last_target(<f-args>)
-
-let s:apitrace_opencmd = 'cd "%b" && qapitrace $(grep -oP "(?<=tracing to ).*$" trace.log)'
-com -nargs=* -complete=customlist,ddd#cpp#make_complete -bar CppApitrace   call ddd#cpp#exe('cd "%w" && apitrace trace "%E" %a |& tee trace.log && ' . s:apitrace_opencmd, 1, <q-args>)
-com -nargs=* -complete=customlist,ddd#cpp#make_complete CppOpenLastApitrace      call ddd#cpp#exe(s:apitrace_opencmd, 1, <q-args>)
-com -nargs=* -complete=customlist,ddd#cpp#make_complete CppNNL           call ddd#cpp#exe('cd "%w" && nnl --activity="Frame Debugger" --exe="%E" --args="%a" ', 0, <q-args>)
-com -nargs=* -complete=customlist,ddd#cpp#make_complete CppValgrind      call ddd#cpp#exe('cd "%w" && valgrind %A "%E" %a', 1, <q-args>)
-com -nargs=+ -complete=customlist,ddd#cpp#make_pp_complete CppMakePP  update | call ddd#cpp#make_pp(<f-args>)
-com CppConfig call ddd#cpp#open_project_file()
-com -nargs=0 CppSearchDerived                                         call ddd#cpp#search_derived()
-com -nargs=* -complete=shellcmd CppCmake call ddd#cpp#cmake(<q-args>)
-
-com -nargs=* -complete=customlist,ddd#cpp#make_complete CppDebug         call ddd#cpp#debug(<q-args>)
+com -nargs=* CppCmake call ddd#cpp#cmake(<q-args>)
 com CppDebugToggleBreak call ddd#cpp#debug_toggle_break()
-com CppDebugStep        call ddd#cpp#debug_step()
-com CppDebugNext        call ddd#cpp#debug_next()
-com CppDebugContinue    call ddd#cpp#debug_continue()
-com CppDebugFinish      call ddd#cpp#debug_finish()
-com CppDebugEvaluate    call ddd#cpp#debug_evaluate()
-com CppDebugStop        call ddd#cpp#debug_stop()
-com CppDebugFrameUp     call ddd#cpp#debug_frame_up()
-com CppDebugFrameDown   call ddd#cpp#debug_frame_down()
 
 " vim {{{1
 com -nargs=0 VimReloadScript :call  ddd#vim#reload_loaded_script()
@@ -130,14 +102,19 @@ com -nargs=0 VimBreakHere :call ddd#vim#break_here()
 com -nargs=0 VimBreakNumberedFunction :call ddd#vim#break_numbered_function()
 com -nargs=? VimGotoFunction :call ddd#vim#goto_function(<f-args>)
 com -nargs=? VimList call ddd#vim#list(expand('<sfile>'), expand('<slnum>'), <f-args>)
+
+" vimh {{{1
 com -nargs=+ LinkVimHelp let @+ = ddd#vimh#link_vim(0, <q-args>)
 com -nargs=+ LinkNvimHelp let @+ = ddd#vimh#link_nvim(1, <q-args>)
 com UpdateVimHelpLink call ddd#vimh#update_link(0)
 com UpdateNvimHelpLink call ddd#vimh#update_link(1)
 
-" term {{{1
-nnoremap <plug>ddd_term_toggle_gterm :call ddd#term#toggle_gterm()<cr>
-tnoremap <plug>ddd_term_toggle_gterm <c-w>:call ddd#term#toggle_gterm()<cr>
+" gterm {{{1
+nnoremap <plug>ddd_term_toggle_gterm :call ddd#gterm#toggle()<cr>
+tnoremap <plug>ddd_term_toggle_gterm <c-w>:call ddd#gterm#toggle()<cr>
+
+" make {{{1
+com -nargs=* -complete=customlist,ddd#make#complete Make :call ddd#make#make(<q-args>)
 
 " undo {{{1
 com -nargs=+ -bang UndoTag call ddd#undo#tag(<bang>0, <f-args>)

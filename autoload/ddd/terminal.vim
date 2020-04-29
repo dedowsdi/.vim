@@ -208,3 +208,27 @@ function ddd#terminal#test()
   call feedkeys( eval( printf( '"\<c-pagedown>"' ) ) )
 
 endfunction
+
+function Tapi_gdb(bufnum, arglist) abort
+  " goto source file, split new tab
+  wincmd p
+  tab split
+  let cwd = a:arglist[0]
+  let cmd = a:arglist[1:]
+  exe 'TermdebugCommand' '"' . join(cmd, '" "') .  '"'
+  call term_sendkeys('', printf("set cwd '%s'\<cr>", cwd ) )
+
+  " make sure source file occupy entire column
+  3wincmd w
+  wincmd H
+  wincmd w
+endfunction
+
+function Tapi_lcd(bufnum, arglist) abort
+  let winid = bufwinid(a:bufnum)
+  let cwd = get(a:arglist, 0, '')
+  if winid == -1 || empty(cwd)
+    return
+  endif
+  call win_execute(winid, 'lcd ' . cwd)
+endfunction

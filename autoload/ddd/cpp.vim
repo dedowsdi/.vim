@@ -383,35 +383,3 @@ function ddd#cpp#include_osg() abort
   redraw
   call ddd#log#notice(head)
 endfunction
-
-function ddd#cpp#debug_step()
-  Step
-endfunction
-
-function ddd#cpp#debug_next()
-  Over
-endfunction
-
-function ddd#cpp#debug_continue()
-  Continue
-endfunction
-
-function ddd#cpp#debug_finish()
-  Finish
-endfunction
-
-function ddd#cpp#debug_evaluate()
-  Evaluate
-endfunction
-
-function ddd#cpp#debug_stop()
-  Stop
-endfunction
-
-function ddd#cpp#_debug_frame_up()
-  call TermDebugSendCommand('up')
-endfunction
-
-function ddd#cpp#debug_frame_down()
-  call TermDebugSendCommand('down')
-endfunction

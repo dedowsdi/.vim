@@ -218,6 +218,9 @@ nnoremap <c-h> :History<cr>
 nnoremap <c-b> :Ls<cr>
 nnoremap <c-k> :Btag<cr>
 
+" make {{{2
+nnoremap <f7> :Make<up><cr>
+
 " vimtex {{{2
 com -complete=file -nargs=1 Rpdf :r !pdftotext -nopgbrk -layout <q-args> -
 com -complete=file -nargs=1 Rpdffmt :r !pdftotext
@@ -427,16 +430,4 @@ function s:less(cmd, mods)
   NewOneOff
   exe printf('put! =win_execute(%d, %s)', winid, string(a:cmd))
   1
-endfunction
-
-" Tapi_cd {{{2
-" arglist : [ cwd ]
-" change window local working directory
-function Tapi_lcd(bufnum, arglist)
-  let winid = bufwinid(a:bufnum)
-  let cwd = get(a:arglist, 0, '')
-  if winid == -1 || empty(cwd)
-    return
-  endif
-  call win_execute(winid, 'lcd ' . cwd)
 endfunction
