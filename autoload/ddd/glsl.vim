@@ -8,7 +8,7 @@ let s:alias = {
       \ }
 
 function s:get_shader_type(name) abort
-  for [type, values] in items(g:s:alias)
+  for [type, values] in items(s:alias)
     for value in values
       if value == a:name
         return type
@@ -49,7 +49,7 @@ function ddd#glsl#alternate() abort
   while next_idx != idx
     let next_type = s:sequence[next_idx]
 
-    for name in g:s:alias[next_type]
+    for name in s:alias[next_type]
       let alt_filename = printf('%s%s%s', prefix, name, postfix)
       let alt_path = printf('%s/%s', dir, alt_filename)
       if filereadable(alt_path)

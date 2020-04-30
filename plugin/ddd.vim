@@ -93,7 +93,6 @@ nnoremap <plug>ddd_op_g~o :call ddd#op#omo('gso')<cr>
 " cpp {{{1
 let g:ddd_cpp_def_src_ext    = get(g:, 'ddd_cpp_def_src_ext'    , 'cpp')
 
-com -nargs=* CppCmake call ddd#cpp#cmake(<q-args>)
 com CppDebugToggleBreak call ddd#cpp#debug_toggle_break()
 
 " vim {{{1
@@ -313,9 +312,6 @@ com -nargs=+ Syntax call ddd#syntax#apply(<f-args>)
 
 " abbre {{{1
 com -nargs=+ Abbre call ddd#abbre#apply(<f-args>)
-
-" proj {{{1
-com -nargs=1 Proj call ddd#proj#load_map(<f-args>)
 
 " misc {{{1
 com -bar CamelToUnderscore norm! ciw<c-r>=ddd#camel_to_underscore(@@)<cr><esc>
