@@ -101,9 +101,9 @@ endif
 " add -I to ignore binary file, exclude some dirs
 let &grepprg = 'grep -n -I -D skip --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.clangd} $* /dev/null'
 
-if executable('zsh')
-  let &shell = '/bin/zsh -o extendedglob'
-endif
+" if executable('zsh')
+"   let &shell = '/bin/zsh -o extendedglob'
+" endif
 
 " some common fileencoding, the less general encoding must appear before the
 " more general one
@@ -397,6 +397,10 @@ tnoremap <c-w><space> <c-w>:tab split<cr>
 tnoremap <c-w><c-w> <c-w><c-w>
 nnoremap <c-w>O :CloseFinishedTerminal<cr>
 nnoremap <expr> <c-w>0 printf(':<c-u>%dWinFitBuf<cr>', v:count)
+
+" go to normal mode, scroll to last command start
+tnoremap <expr> <c-w>u printf('<c-\><c-n>2?%s<cr>zt',
+      \ exists('PS1_VIM_PATTERN') ? $PS1_VIM_PATTERN : '^([ic])-->')
 
 " termwinkey is special, there is a mapping delay for <c-w>,c-w> if you create
 " any tmap that starts with <c-w>
