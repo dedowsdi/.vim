@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+
+set -eu -o pipefail
+shopt -s failglob
+
+# usage and options{{{1
+show_usage()
+{
+    echo "
+  Usage: ${0##*/} [options] -d PATH
+
+  Use PATH/pipe as server.
+
+  Look for ctag.sh to create tags if no ./tags found during startup.
+
+  To update tag for a file:
+  echo 'update filename'>PATH/tag/pipe
+
+  To update tag for multiple files:
+  {
+      echo 'update:f0'
+      echo 'update:f1'
+      echo 'update:f2'
+      echo 'update:f3'
+  }>.dedowsdi/tmp/pipe
+
+  Won't work for filename with : newline, trailing or leading white space.
+
+  Options:
+    -h            Show this help.
+
+    -i  INTERVAL  Update interval in seconds [defaults: 1]
+
+    -d  PATH      Use PATH as server root path.
+"
+}
+
+interval=1
+server_path=
+
+while getopts ":hi:d:" opt; do
+    case $opt in
+        h)
+            show_usage
+            exit 0
+            ;;
+
+        i)
+            interval=$OPTARG
+            ;;
+
+        d)
+            server_path=$OPTARG
+            ;;
+
+        * )
+            echo -e "\n  Option does not exist : $OPTARG\n"
+            usage; exit 1
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# functions{{{1
+log()
+{
+    printf '%(%y-%m-%d %H:%M:%S)T\t%s\n' -1 "$*"
+}
+
+log_stamp()
+{
+    printf '%(%y-%m-%d %H:%M:%S)T\t' -1
+}
+
+run_cmd()
+{
+    log_stamp
+    printf "'%s' " "$@"
+    printf "\n"
+    "$@" || log error : fail
+}
+
+build_all_tags()
+{
+    if [[ -x "$ctag_script" ]]; then
+        run_cmd "$ctag_script"
+    else
+        run_cmd ctags -R .
+    fi
+}
+
+clear_file_tag()
+{
+    names=("${@//\\/\\\\}") # escape \
+    printf -v pattern '%s\|' "${names[@]}" # join by \|
+    # how to deal with new line?
+
+    run_cmd ex -nsc "g :\V\t\%($pattern\)\t: d" -c x tags
+}
+
+append_file_tag()
+{
+    run_cmd ctags --append "$@"
+}
+
+# variables, pipe, redirections{{{1
+if [[ -z "$server_path" || ! -d $server_path ]]; then
+    >&2 echo "$server_path" does not exit, forgot specify -d?
+    exit 1
+fi
+
+pipe=${server_path}/pipe
+ctag_script=$(find . -type f -name 'ctag.sh')
+logfile=${server_path}/log
+
+if [[ -e "$pipe" ]]; then
+    rm -v "$pipe"
+fi
+
+mkfifo "$pipe"
+
+echo >"$logfile"
+exec &>>"$logfile"
+
+if [[ ! -e tags ]]; then
+    build_all_tags
+fi
+
+# main loop{{{1
+while :; do
+    sleep "${interval}s"
+
+    log "----------------"
+    files=()
+
+    while IFS=: read -r cmd file; do
+
+        log "read in : $cmd $file"
+        if [[ ! $cmd == update ]]; then
+            log "skip unknown command \"$cmd\""
+            continue
+        fi
+
+        if [[ ! -e "$file" ]]; then
+            log "skip non exist file \"$file\""
+            continue
+        fi
+
+        files+=("$file")
+
+    done <"$pipe"
+
+    if (( ${#files[@]} == 0 )); then
+        log "read in 0 valid files, skip current update"
+        continue
+    else
+        clear_file_tag "${files[@]}"
+        append_file_tag "${files[@]}"
+    fi
+done
+
+echo "done"
+
+# vim:set et sw=4 ts=8 foldmethod=marker:

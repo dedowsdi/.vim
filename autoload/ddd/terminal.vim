@@ -209,6 +209,7 @@ function ddd#terminal#test()
 
 endfunction
 
+" [cwd, arg1, arg2, ...]
 function Tapi_gdb(bufnum, arglist) abort
   " goto source file, split new tab
   if &buftype ==# 'terminal'
@@ -227,6 +228,7 @@ function Tapi_gdb(bufnum, arglist) abort
   wincmd w
 endfunction
 
+" [cwd]
 function Tapi_lcd(bufnum, arglist) abort
   let winid = bufwinid(a:bufnum)
   let cwd = get(a:arglist, 0, '')

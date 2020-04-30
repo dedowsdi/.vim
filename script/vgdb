@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+if [[ $# -lt 1 ]]; then
+    >&2 echo "${0##*/} missing command ang arguments"
+    exit 1
+fi
+
+args=("$PWD" "$@")
+args[1]=$(realpath "${args[1]}")
+
+# escape "
+printf -v qargs '"%s", ' "${args[@]//\"/\\\"}"
+printf '\033]51;["call", "Tapi_gdb", [%s]]\007' "$qargs"
