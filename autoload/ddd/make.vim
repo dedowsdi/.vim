@@ -19,8 +19,10 @@ function ddd#make#make(args) abort
   if s:making
     if bufwinid(s:make_buf) == -1
       " show making buffer
-      exe 'rightbelow sbuffer' s:make_buf | 16wincmd _
+      silent exe 'rightbelow sbuffer' s:make_buf | 16wincmd _
       setlocal winfixwidth winfixheight
+      let &statusline = s:make_cmd
+      echo s:make_cmd
       wincmd p
     else
       " hide making buffer
@@ -35,19 +37,20 @@ function ddd#make#make(args) abort
   endif
 
   " spawn new make
-  let cmd = &makeprg
+  let s:make_cmd = &makeprg
   if !empty(a:args)
-    let cmd .= ' ' . a:args
+    let s:make_cmd .= ' ' . a:args
   endif
 
+  echo s:make_cmd
   if g:ddd_make_hidden
     let options = {'close_cb': function('s:make_callback'), 'hidden': 1}
-    let s:make_buf = term_start(cmd, options)
+    let s:make_buf = term_start(s:make_cmd, options)
   else
     rightbelow 16split
     setlocal winfixwidth winfixheight
     let options = {'close_cb': function('s:make_callback'), 'curwin': 1}
-    let s:make_buf = term_start(cmd, options)
+    let s:make_buf = term_start(s:make_cmd, options)
     wincmd p
   endif
 
@@ -68,7 +71,9 @@ function s:make_callback_impl(timer) abort
   let qfl = filter(getqflist(), {k,v -> v.bufnr != 0 && v.lnum != 0})
 
   if empty(qfl)
+    echohl htmlTagName
     echo 'make successful'
+    echohl None
   else
     echohl WarningMsg
     echom printf('found %d qf entries', len(qfl))
@@ -91,6 +96,15 @@ function ddd#make#complete(arg_lead, cmd_line, cursor_pos) abort
   endif
 
   return Cpfunc(a:arg_lead, a:cmd_line, a:cursor_pos)
+endfunction
+
+function ddd#make#progress() abort
+  if s:making
+    let s = getbufline(s:make_buf, '$')[0]
+    return len(s) > 20 ? s[0:19] . '...' : ''
+  else
+    return ''
+  endif
 endfunction
 
 function s:make_help_complete(arg_lead, cmd_line, cursor_pos) abort

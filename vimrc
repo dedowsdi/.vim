@@ -85,11 +85,10 @@ set mouse=a
 " conceal only in visual and normal mode
 set concealcursor=vn conceallevel=0
 
-" add per project setting
-set rtp+=.dedowsdi,.dedowsdi/after
-
 " display search count
 set shortmess-=S
+
+set exrc secure
 
 if has('nvim')
   set rtp+=~/.vim
@@ -191,11 +190,13 @@ com -nargs=* Glg Git! log --graph --pretty=format:'%h - <%an> (%ad)%d %s' --abbr
 let g:lightline = {
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'gitbranch', 'cocstatus', 'readonly', 'filename', 'modified'] ]
+      \             [ 'gitbranch', 'cocstatus', 'readonly', 'filename', 'modified'],
+      \             [ 'make_progress' ] ]
       \ },
       \ 'component_function': {
       \   'gitbranch': 'fugitive#head',
       \   'cocstatus': 'coc#status',
+      \   'make_progress': 'ddd#make#progress'
       \ },
       \ 'component':
       \ {
@@ -220,6 +221,9 @@ nnoremap <c-k> :Btag<cr>
 
 " make {{{2
 nnoremap <f7> :Make<up><cr>
+
+" proj {{{1
+com -nargs=1 Proj call ddd#proj#load_map(<f-args>)
 
 " vimtex {{{2
 com -complete=file -nargs=1 Rpdf :r !pdftotext -nopgbrk -layout <q-args> -
