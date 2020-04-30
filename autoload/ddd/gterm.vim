@@ -3,7 +3,7 @@
 
 " [normalized_row_height, nomalized_col_width] for new gterm
 let g:ddd_gterm_size = get(g:, 'ddd_gterm_size', [0.3, 0.5])
-let g:ddd_gterm_pos = get(g:, 'ddd_gterm_pos', 'j')
+let g:ddd_gterm_pos = get(g:, 'ddd_gterm_pos', 'k')
 let g:ddd_gterm_repeat_cmd = get(g:, 'ddd_gterm_repeat_cmd', "\<esc>k\<tab>\<cr>")
 
 let s:gterm = { 'buf' : -1, 'pos' : g:ddd_gterm_pos  }

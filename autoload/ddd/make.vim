@@ -13,6 +13,7 @@
 " Delete last making buffer if new making starts.
 
 let g:ddd_make_hidden = get(g:, 'ddd_make_hidden', 1)
+let g:ddd_make_split = get(g:, 'ddd_make_split', '16split')
 let s:making = 0
 
 augroup ag_ddd_make | au! | augroup end
@@ -21,7 +22,8 @@ function ddd#make#make(args) abort
   if s:making
     if bufwinid(s:make_buf) == -1
       " show making buffer
-      silent exe 'rightbelow sbuffer' s:make_buf | 16wincmd _
+      exe g:ddd_make_split
+      exe 'b' s:make_buf
       setlocal winfixwidth winfixheight
       let &statusline = s:make_cmd
       echo s:make_cmd
@@ -57,7 +59,7 @@ function ddd#make#make(args) abort
     let options.hidden = 1
     let s:make_buf = term_start(s:make_cmd, options)
   else
-    rightbelow 16split
+    exe g:ddd_make_split
     setlocal winfixwidth winfixheight
     let options.curwin = 1
     let s:make_buf = term_start(s:make_cmd, options)

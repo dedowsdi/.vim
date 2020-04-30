@@ -270,8 +270,8 @@ function s:ls_sink() abort
   if empty(l)
     throw 'Illegal tag line' . getline('.')
   endif
-  let [buf, lnum] = l[1:2]
-  call ddd#hare#land({'buf' : buf, 'line' : lnum})
+  let [buf, lnum] = map(l[1:2], {_,v -> str2nr(v)})
+  call ddd#hare#land({'file' : buf, 'line' : lnum})
 endfunction
 
 function s:tselect_sink() abort
@@ -312,6 +312,7 @@ function s:undolist_sink() abort
   exe hare_winnr 'wincmd w'
 endfunction
 
+" path can be a full path, a relative path or a buffer number
 function s:open_file(path) abort
   let bnr = bufnr(a:path)
   if bnr == -1
@@ -331,16 +332,11 @@ function ddd#hare#land(target) abort
   let s:last_mods = b:hare.mods
   call s:close_hair_buffer()
   if !empty(s:last_mods)
-    exe s:last_mods 'new'
+    exe s:last_mods 'split'
   endif
 
   if has_key(a:target, 'file')
     call s:open_file(a:target.file)
-    call s:rotate_global_mark()
-  endif
-
-  if has_key(a:target, 'buf') && bufnr() != a:target.buf
-    exe 'b' a:target.buf
     call s:rotate_global_mark()
   endif
 
