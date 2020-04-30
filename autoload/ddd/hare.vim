@@ -266,12 +266,12 @@ function s:ilist_sink() abort
 endfunction
 
 function s:ls_sink() abort
-  let l = matchlist(getline('.'), '\v^[^"]+"(.+)"\s*line\s*(\d+)')
+  let l = matchlist(getline('.'), '\v^\s*(\d+).+(\d+)')
   if empty(l)
     throw 'Illegal tag line' . getline('.')
   endif
-  let [path, lnum] = l[1:2]
-  call ddd#hare#land({'file' : path, 'line' : lnum})
+  let [buf, lnum] = l[1:2]
+  call ddd#hare#land({'buf' : buf, 'line' : lnum})
 endfunction
 
 function s:tselect_sink() abort
@@ -317,15 +317,11 @@ function s:open_file(path) abort
   if bnr == -1
     exe 'e' a:path
   elseif bnr != bufnr()
-    if bufwinid(bnr) != -1 && empty(s:last_mods)
-      exe bufwinnr(bnr) 'wincmd w'
-    else
-      exe 'b' bnr
-    endif
+    exe 'b' bnr
   endif
 endfunction
 
-" {'file': name , 'line': ex_cmd}
+" {'file': name , 'buf': number, 'line': ex_cmd}
 function ddd#hare#land(target) abort
   if !has_key(a:target, 'file') && !has_key(a:target, 'line')
     throw 'failed to find file or line in target : ' . string(a:target)
@@ -340,6 +336,11 @@ function ddd#hare#land(target) abort
 
   if has_key(a:target, 'file')
     call s:open_file(a:target.file)
+    call s:rotate_global_mark()
+  endif
+
+  if has_key(a:target, 'buf') && bufnr() != a:target.buf
+    exe 'b' a:target.buf
     call s:rotate_global_mark()
   endif
 
