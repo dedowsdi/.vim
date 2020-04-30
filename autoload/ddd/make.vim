@@ -15,6 +15,8 @@
 let g:ddd_make_hidden = get(g:, 'ddd_make_hidden', 1)
 let s:making = 0
 
+augroup ag_ddd_make | au! | augroup end
+
 function ddd#make#make(args) abort
   if s:making
     if bufwinid(s:make_buf) == -1
@@ -31,9 +33,10 @@ function ddd#make#make(args) abort
     return
   endif
 
-  " delete last result
+  " wipe last result (don't use delete, otherwise you will see (1) in terminal
+  " buffer name )
   if exists('s:make_buf') && bufexists(s:make_buf)
-    silent! exe 'bdelete' s:make_buf
+    silent! exe 'bwipe' s:make_buf
   endif
 
   " spawn new make
@@ -43,13 +46,20 @@ function ddd#make#make(args) abort
   endif
 
   echo s:make_cmd
+
+  " use term_opencmd to stop vim from wipe finished terminal buffer after it's
+  " closed
+  let options = {'close_cb': function('s:make_callback'),
+        \ 'term_finish' : 'open',
+        \ 'term_opencmd' : 'call setbufvar(%d, "&buftype", "")' }
+
   if g:ddd_make_hidden
-    let options = {'close_cb': function('s:make_callback'), 'hidden': 1}
+    let options.hidden = 1
     let s:make_buf = term_start(s:make_cmd, options)
   else
     rightbelow 16split
     setlocal winfixwidth winfixheight
-    let options = {'close_cb': function('s:make_callback'), 'curwin': 1}
+    let options.curwin = 1
     let s:make_buf = term_start(s:make_cmd, options)
     wincmd p
   endif
