@@ -211,12 +211,15 @@ endfunction
 
 function Tapi_gdb(bufnum, arglist) abort
   " goto source file, split new tab
-  wincmd p
+  if &buftype ==# 'terminal'
+    wincmd p
+  endif
   tab split
-  let cwd = a:arglist[0]
-  let cmd = a:arglist[1:]
-  exe 'TermdebugCommand' '"' . join(cmd, '" "') .  '"'
-  call term_sendkeys('', printf("set cwd '%s'\<cr>", cwd ) )
+
+  " escape white space, <f-args> are separated by normal white space
+  let eargs = map(a:arglist, {_,v -> substitute(v, '\s', '\\&', 'g')})
+  exe 'TermdebugCommand' join(eargs[1:])
+  call term_sendkeys('', printf("set cwd %s\<cr>", eargs[0] ) )
 
   " make sure source file occupy entire column
   3wincmd w
