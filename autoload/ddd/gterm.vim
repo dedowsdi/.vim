@@ -5,6 +5,7 @@
 let g:ddd_gterm_size = get(g:, 'ddd_gterm_size', [0.3, 0.5])
 let g:ddd_gterm_pos = get(g:, 'ddd_gterm_pos', 'k')
 let g:ddd_gterm_repeat_cmd = get(g:, 'ddd_gterm_repeat_cmd', "\<esc>k\<tab>\<cr>")
+let g:ddd_gterm_newcmd = get(g:, 'ddd_gterm_newcmd', 'term ++kill=kill')
 
 let s:gterm = { 'buf' : -1, 'pos' : g:ddd_gterm_pos  }
 
@@ -80,7 +81,7 @@ endfunction
 
 function s:new() abort
   call s:split(1)
-  term ++curwin
+  exe g:ddd_gterm_newcmd '++curwin'
   let s:gterm.buf = bufnr()
   autocmd ag_ddd_gterm BufLeave <buffer> call s:on_buf_leave()
 
