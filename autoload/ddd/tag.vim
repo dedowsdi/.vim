@@ -29,12 +29,18 @@ function s:send_update_tag(timer) abort
 
   let s:update_files = map( uniq( sort(s:update_files) ),
         \ {i,v -> printf( 'echo update:%s', v )} )
-  let cmd = printf( "{\n%s}>%s &", join(s:update_files, "\n"),
+  let cmd = printf( "{\n%s\n}>%s &", join(s:update_files, "\n"),
               \ shellescape($CTAG_SERVER_PIPE) )
-  call system(cmd)
+  try
+    call system(cmd)
+  catch /.*/
+    echom v:exception
+    call dddu#warn('failed to update tag with cmd : ' . cmd)
+  finally
+    unlet s:update_timer
+    let s:update_files = []
+  endtry
 
-  unlet s:update_timer
-  let s:update_files = []
 endfunction
 
 let s:update_files=[]
