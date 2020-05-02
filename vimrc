@@ -393,8 +393,9 @@ nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
 nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
 
 nnoremap <c-w><space> :tab split<cr>
+nnoremap <c-w><nul> :tab split<cr>
 tnoremap <c-w><space> <c-w>:tab split<cr>
-tnoremap <c-w><c-w> <c-w><c-w>
+tnoremap <c-w><nul> <c-w>:tab split<cr>
 nnoremap <c-w>O :CloseFinishedTerminal<cr>
 nnoremap <expr> <c-w>0 printf(':<c-u>%dWinFitBuf<cr>', v:count)
 
@@ -414,8 +415,8 @@ endif
 nmap ys<space> <plug>ddd_pair_add_space
 nmap ds<space> <plug>ddd_pair_minus_space
 
-nmap <c-n> <plug>ddd_gterm_toggle
-tmap <c-n> <plug>ddd_gterm_toggle
+nmap <c-w><cr> <plug>ddd_gterm_toggle
+tmap <c-w><cr> <plug>ddd_gterm_toggle
 nmap g<cr>  <plug>ddd_gterm_repeat_cmd
 
 " command {{{1
