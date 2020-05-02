@@ -56,7 +56,6 @@ function ddd#gterm#repeat_cmd() abort
   " mark m to buffer end. Don't use `mark m`, it will set m to last cursor line
   " when you leave terminal buffer normal mode.
   $mark m
-  echom getline('.')
 
   " repeat last command
   call term_sendkeys('', g:ddd_gterm_repeat_cmd)
