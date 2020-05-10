@@ -108,7 +108,8 @@ function s:fill_buffer(source) abort
 
     let c = a:source[0]
     if c==# '!'
-      exe '0read' a:source
+      " don't use :read ! here, it cause redraw
+      call append(0, systemlist(a:source[1:]))
     elseif c==# '/'
       let pattern = a:source[-1:-1] ==# '/' ? a:source[1:-2] : a:source[1:]
       try

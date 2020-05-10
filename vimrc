@@ -21,7 +21,7 @@
 
 " show tab and trailing space
 scriptencoding utf-8
-set list listchars=trail:┄,tab:†·,extends:>,precedes:<,nbsp:+
+set list listchars=trail:…,tab:†·,extends:>,precedes:<,nbsp:+
 scriptencoding
 
 " for convenience, add all children to path.
@@ -110,7 +110,7 @@ let &grepprg = 'grep -n -I -D skip --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.
 set fileencodings=ucs-bom,utf-8,default,gb18030,utf-16,latin1
 
 " add spell to i_ctrl-x_ctrl-k
-set spell spelllang=en_us dictionary+=spell
+set nospell spelllang=en_us dictionary+=spell
 
 " save mark for 500files, limit saved register to 50 lines, exclude register
 " greater than 10kbytes, no hlsearch during loading of viminfo.
@@ -119,6 +119,19 @@ set viminfo='500,<50,s10,h
 " viminfo= doesn't expand environment variable, check n of viminfo for detail.
 " don't save anything for help files.
 let &viminfo .= ',r'.$VIMRUNTIME.'/doc'
+
+" " change cursor in insertmode for xterm
+if $TERM !~# '^linux'
+  if exists('$TMUX')
+    let &t_SI = "\ePtmux;\e\e[5 q\e\\"
+    let &t_SR = "\ePtmux;\e\e[3 q\e\\"
+    let &t_EI = "\ePtmux;\e\e[2 q\e\\"
+  else
+    let &t_SI = "\e[5 q"
+    let &t_SR = "\e[3 q"
+    let &t_EI = "\e[2 q"
+  endif
+endif
 
 " trivial options
 set incsearch
@@ -189,7 +202,7 @@ com -nargs=* Glg Git! log --graph --pretty=format:'%h - <%an> (%ad)%d %s' --abbr
 " lightline {{{2
 let g:lightline = {
       \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ],
+      \   'left': [ [ 'paste' ],
       \             [ 'gitbranch', 'cocstatus', 'readonly', 'filename', 'modified'],
       \             [ 'make_progress' ] ]
       \ },
@@ -208,10 +221,6 @@ augroup au_coc_status
   " it's annoying, it pollutes message and input prompt
   " autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 augroup end
-
-if &t_Co == 256
-  let g:lightline.colorscheme = 'gruvbox'
-endif
 
 " hare {{{2
 nnoremap <c-p> :Src<cr>
@@ -256,7 +265,7 @@ let g:ddd_connect_ctag_server = 1
 " install plugins {{{2
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    \ https:/ githubusercontent.com/junegunn/vim-plug/master/plug.vim
   autocmd! vim_plug_init VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
@@ -271,6 +280,7 @@ Plug 'tommcdo/vim-exchange'
 
 " colorscheme
 Plug 'morhetz/gruvbox'
+Plug 'dedowsdi/vc8'
 
 " comment
 Plug 'tpope/vim-commentary'
@@ -302,6 +312,10 @@ Plug 'dedowsdi/cdef'
 
 call plug#end()
 
+" plug#end() already call these commented commands
+" filetype plugin indent on
+" syntax enable
+
 " misc {{{1
 
 runtime! ftplugin/man.vim
@@ -309,12 +323,14 @@ set keywordprg=:Man
 
 call ddd#terminal#setup()
 
-" plug#end() already call these commented commands
-" filetype plugin indent on
-" syntax enable
-
-let g:gruvbox_number_column='bg1'
-colorscheme gruvbox
+if &t_Co == 256
+  let g:gruvbox_number_column='bg1'
+  let g:lightline.colorscheme = 'gruvbox'
+  colorscheme gruvbox
+else
+  let g:lightline.colorscheme = 'vc8'
+  colorscheme vc8
+endif
 
 " must be applied after colorscheme, avoid highlight overwrite.
 if v:version > 800
@@ -335,7 +351,7 @@ augroup ddd_default
     endif
   endif
 
-  autocmd InsertEnter,InsertLeave * set cursorline!
+  " autocmd InsertEnter,InsertLeave * set cursorline!
 
   " place cursor to the position when last existing
   autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
