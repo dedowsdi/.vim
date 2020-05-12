@@ -202,8 +202,8 @@ com -nargs=* Glg Git! log --graph --pretty=format:'%h - <%an> (%ad)%d %s' --abbr
 " lightline {{{2
 let g:lightline = {
       \ 'active': {
-      \   'left': [ [ 'paste' ],
-      \             [ 'gitbranch', 'cocstatus', 'readonly', 'filename', 'modified'],
+      \   'left': [ [ 'filename' ],
+      \             [ 'gitbranch', 'cocstatus', 'readonly', 'paste', 'modified'],
       \             [ 'make_progress' ] ]
       \ },
       \ 'component_function': {
@@ -279,8 +279,7 @@ Plug 'tpope/vim-unimpaired'
 Plug 'tommcdo/vim-exchange'
 
 " colorscheme
-Plug 'morhetz/gruvbox'
-Plug 'dedowsdi/vc8'
+Plug 'dedowsdi/vim-colors-solarized'
 
 " comment
 Plug 'tpope/vim-commentary'
@@ -323,14 +322,11 @@ set keywordprg=:Man
 
 call ddd#terminal#setup()
 
-if &t_Co == 256
-  let g:gruvbox_number_column='bg1'
-  let g:lightline.colorscheme = 'gruvbox'
-  colorscheme gruvbox
-else
-  let g:lightline.colorscheme = 'vc8'
-  colorscheme vc8
-endif
+let g:lightline.colorscheme = 'solarized'
+let g:solarized_italic = 0
+colorscheme solarized
+
+" colorscheme nord
 
 " must be applied after colorscheme, avoid highlight overwrite.
 if v:version > 800

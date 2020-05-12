@@ -3,6 +3,6 @@ if exists("b:current_syntax")
 endif
 
 " this cause problem for large file
-syn match hare_all /\v^.+$/
+" syn match hare_all /\v^.+$/
 
-highlight link hare_all Comment
+" highlight link hare_all Comment
