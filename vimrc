@@ -124,14 +124,14 @@ set viminfo='500,<50,s10,h
 " don't save anything for help files.
 let &viminfo .= ',r'.$VIMRUNTIME.'/doc'
 
-" " change cursor in insertmode for xterm
+" change cursor to underscore in insert and replace mode for non linux term.
 if $TERM !~# '^linux'
   if exists('$TMUX')
-    let &t_SI = "\ePtmux;\e\e[5 q\e\\"
+    let &t_SI = "\ePtmux;\e\e[3 q\e\\"
     let &t_SR = "\ePtmux;\e\e[3 q\e\\"
     let &t_EI = "\ePtmux;\e\e[2 q\e\\"
   else
-    let &t_SI = "\e[5 q"
+    let &t_SI = "\e[3 q"
     let &t_SR = "\e[3 q"
     let &t_EI = "\e[2 q"
   endif
@@ -347,20 +347,17 @@ augroup ddd_default
 
   if v:version > 800
 
-    " too dangerious?
-    " autocmd DirChanged * if filereadable('.vim/init.vim') | source .vim/init.vim | endif
     if !has('nvim')
       autocmd TerminalWinOpen * setl nonumber norelativenumber
     endif
   endif
 
-  " autocmd InsertEnter,InsertLeave * set cursorline!
-
-  " place cursor to the position when last existing
-  autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-
   " no auto comment leader after o or O, remove comment leader when join comment lines
   autocmd FileType * setlocal formatoptions-=o formatoptions+=j
+
+  " clear TextChanged, TextChangedI, TextChangedP. You can use DoMatchParen if
+  " you want to turn it on later
+  autocmd VimEnter * exe 'NoMatchParen' | au! UltiSnips_AutoTrigger
 augroup end
 
 " all kinds of maps {{{1
