@@ -352,3 +352,7 @@ com DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
 
 let g:ddd_type_interval=get(g:, 'ddd_type_interval', '200ms')
 com -nargs=+ Type call ddd#type(<q-args>)
+
+com -nargs=+ DiffLine call ddd#diff_line(<f-args>)
+
+com WhichCinoptions call ddd#option#which_cinoptions()
