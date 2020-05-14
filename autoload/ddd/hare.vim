@@ -61,7 +61,8 @@ function ddd#hare#jump(sink, source, ...) abort
     exe g:ddd_hare_height 'wincmd _'
     setlocal winfixheight
 
-    let b:hare = {'mods' : '', 'orig_winid' : winid, 'orig_buf' : bnr}
+    let b:hare = {'mods' : '', 'orig_winid' : winid, 'orig_buf' : bnr,
+          \ 'pattern_error' : 0}
     set filetype=hare
     call s:fill_buffer(a:source)
     call s:setup_event_and_sink(a:sink)
@@ -104,6 +105,7 @@ function s:fill_buffer(source) abort
       throw 'empty source string'
     endif
 
+    let b:hare.source_cmd = a:source
     exe printf('let &statusline=%s', string(a:source))
 
     let c = a:source[0]
@@ -187,9 +189,25 @@ function s:filter() abort
   " endif
 
   " generate new lines first, then delete, otherwise see E315 from time to time
-  let new_lines = filter(copy(s:lines), {i,v -> v =~? pattern })
-  1,$d _
-  call setline(1, new_lines)
+  try
+    let new_lines = filter(copy(s:lines), {i,v -> v =~? pattern })
+    1,$d _
+    call setline(1, new_lines)
+
+    if b:hare.pattern_error
+      let &l:statusline =
+            \ has_key(b:hare, 'source_cmd') ? b:hare.source_cmd : 'hare'
+      let b:hare.pattern_error = 0
+    endif
+
+  catch /.*/ "
+    " user can't see this, might because you can't echo during cmdline change?
+    " echom v:exception
+
+    let &l:statusline = v:exception
+    let b:hare.pattern_error = 1
+  endtry
+
 endfunction
 
 function s:quit_hare() abort
