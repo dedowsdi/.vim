@@ -88,6 +88,10 @@ set concealcursor=vn conceallevel=0
 " display search count
 set shortmess-=S
 
+" hide gui menu, toolbar
+set guioptions-=m
+set guioptions-=T
+
 set exrc secure
 
 if has('nvim')
@@ -253,6 +257,9 @@ map      ,c  <Plug>Commentary
 sunmap   ,c
 nmap     ,cc <Plug>CommentaryLine
 nmap     ,cu <Plug>Commentary<Plug>Commentary
+
+" vim-cpp-enhanced-highlight
+let g:cpp_no_function_highlight = 1
 
 " .vim {{{2
 let g:ddd_clang_format_py_path = '/usr/share/clang/clang-format-8/clang-format.py'
