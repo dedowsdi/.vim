@@ -394,7 +394,7 @@ call s:add_op(',<bar>', '<plug>ddd_op_get_column')
 call s:add_op(',g',     '<plug>ddd_op_search_in_browser')
 
 nmap co  <plug>ddd_op_co
-nmap do  <plug>ddd_op_do
+nmap dO  <plug>ddd_op_do
 nmap guo <plug>ddd_op_guo
 nmap gUo <plug>ddd_op_gUo
 nmap g~o <plug>ddd_op_g~o
