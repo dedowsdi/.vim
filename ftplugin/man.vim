@@ -4,7 +4,7 @@ if exists('b:loaded_man_cfg') || &filetype != "man"
 endif
 let b:loaded_man_cfg = 1
 
-setlocal nolist
+setlocal nolist nonumber
 nnoremap <buffer> s :Section<cr>
 nnoremap <buffer> S :Sections<cr>
 nnoremap <buffer> o :Option<cr>
