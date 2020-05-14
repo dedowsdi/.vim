@@ -93,21 +93,6 @@ nnoremap <plug>ddd_op_g~o :call ddd#op#omo('gso')<cr>
 " cpp {{{1
 let g:ddd_cpp_def_src_ext    = get(g:, 'ddd_cpp_def_src_ext'    , 'cpp')
 
-com CppDebugToggleBreak call ddd#cpp#debug_toggle_break()
-
-" vim {{{1
-com -nargs=0 VimReloadScript :call  ddd#vim#reload_loaded_script()
-com -nargs=0 VimBreakHere :call ddd#vim#break_here()
-com -nargs=0 VimBreakNumberedFunction :call ddd#vim#break_numbered_function()
-com -nargs=? VimGotoFunction :call ddd#vim#goto_function(<f-args>)
-com -nargs=? VimList call ddd#vim#list(expand('<sfile>'), expand('<slnum>'), <f-args>)
-
-" vimh {{{1
-com -nargs=+ LinkVimHelp let @+ = ddd#vimh#link_vim(0, <q-args>)
-com -nargs=+ LinkNvimHelp let @+ = ddd#vimh#link_nvim(1, <q-args>)
-com UpdateVimHelpLink call ddd#vimh#update_link(0)
-com UpdateNvimHelpLink call ddd#vimh#update_link(1)
-
 " gterm {{{1
 nnoremap <plug>ddd_gterm_toggle :call ddd#gterm#toggle()<cr>
 tnoremap <plug>ddd_gterm_toggle <c-w>:call ddd#gterm#toggle()<cr>

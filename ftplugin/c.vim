@@ -52,3 +52,6 @@ vnoremap <buffer> _g :CdefGetSet<cr>
 nnoremap <buffer> _G :CdefConstGetSet<cr>
 vnoremap <buffer> _G :CdefConstGetSet<cr>
 nmap <buffer> <f5> <plug>ddd_gterm_repeat_cmd
+nnoremap <buffer> <f9> :CppDebugToggleBreak<cr>
+
+com -buffer DebugToggleBreak call ddd#cpp#debug_toggle_break()

@@ -29,3 +29,9 @@ nnoremap <buffer> <f5>       :so %<cr>
 nnoremap <buffer> <f9>       :VimBreakHere<cr>
 nnoremap <buffer> <leader>df :verbose function{}<left>
 nnoremap <buffer> <leader>ej :VimJoin<cr>
+
+com -buffer -nargs=0 ForceSource :call  ddd#vim#force_source()
+com -buffer -nargs=0 BreakHere :call ddd#vim#break_here()
+com -buffer -nargs=0 BreakNumberedFunction :call ddd#vim#break_numbered_function()
+com -buffer -nargs=? GotoFunction :call ddd#vim#goto_function(<f-args>)
+com -buffer -nargs=? List call ddd#vim#list(expand('<sfile>'), expand('<slnum>'), <f-args>)

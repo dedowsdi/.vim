@@ -188,11 +188,11 @@ endfunction
 
 " be careful, you can't redefine ddd#vim#reloadloadedScript while it's being
 " called
-if exists('*ddd#vim#reload_loaded_script')
+if exists('*ddd#vim#force_source')
   finish
 endif
 
-function ddd#vim#reload_loaded_script() abort
+function ddd#vim#force_source() abort
   try
     let cview = winsaveview()
     let re_script_guard = '\v^\s*let\s+\zs[gb]:loaded\w+\ze'

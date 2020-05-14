@@ -79,6 +79,12 @@ function ddd#reload_ftplugin(unlet_list) abort
   e
 endfunction
 
-function ddd#test() abort
-  echo 12345
+" require git diff-highlight
+function ddd#diff_line(lnum0, ...) abort
+  let line0 = getline(a:lnum0)
+  let line1 = getline(get(a:000, 0, '.'))
+  let cmd = printf( 'diff -u --color=always <(echo %s) <(echo %s) | diff-highlight',
+        \ shellescape(line0, 1), shellescape(line1, 1) )
+  " exe 'term' cmd
+  call term_start(['bash', '-c', cmd])
 endfunction

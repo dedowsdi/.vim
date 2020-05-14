@@ -186,13 +186,13 @@ inoremap <c-s> <c-r>=CocActionAsync('showSignatureHelp')<cr>
 
 nmap <f2> <Plug>(coc-rename)
 nnoremap <f3> :CocHover<cr>
-nmap <s-f10> <Plug>(coc-references)
 nmap <f12> <Plug>(coc-definition)
-nmap <c-f12> <Plug>(coc-type-definition)
-nmap <s-f12> <Plug>(coc-implementation)
 
 com CocDiagnosticInfo exec "norm \<plug>(coc-diagnostic-info)"
 com CocReference exec "norm \<plug>(coc-references)"
+com CocDefinition exec "norm \<plug>(coc-definition)"
+com CocTypeDefinition exec "norm \<plug>(coc-type-definition)"
+com CoImplementation exec "norm \<plug>(coc-implementation)"
 com CocHover call CocActionAsync('doHover')
 com CocCodeAction call CocActionAsync('codeAction')
 
