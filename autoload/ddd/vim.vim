@@ -186,7 +186,7 @@ function ddd#vim#list(sfile, slnum, ...) abort
   endwhile
 endfunction
 
-" be careful, you can't redefine ddd#vim#reloadloadedScript while it's being
+" be careful, you can't redefine ddd#vim#force_source while it's being
 " called
 if exists('*ddd#vim#force_source')
   finish
