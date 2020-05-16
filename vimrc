@@ -258,9 +258,6 @@ sunmap   ,c
 nmap     ,cc <Plug>CommentaryLine
 nmap     ,cu <Plug>Commentary<Plug>Commentary
 
-" vim-cpp-enhanced-highlight
-let g:cpp_no_function_highlight = 1
-
 " .vim {{{2
 let g:ddd_clang_format_py_path = '/usr/share/clang/clang-format-8/clang-format.py'
 " let g:ddd_clang_format_fallback_style = 'LLVM'
@@ -270,6 +267,13 @@ let g:ddd_popup_scroll_keys = ['<c-y>', '<c-e>', '<c-f>']
 let g:ddd_connect_ctag_server = 1
 
 " install plugins {{{2
+
+if v:version > 800
+  packadd! cfilter
+  packadd! termdebug
+endif
+packadd! matchit
+
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
     \ https:/ githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -309,7 +313,6 @@ Plug 'tpope/vim-rhubarb'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " ftplugin
-Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'othree/html5.vim'
 Plug 'elzr/vim-json'
 Plug 'tikhomirov/vim-glsl'
@@ -334,13 +337,6 @@ let g:solarized_italic = 0
 colorscheme solarized
 
 " colorscheme nord
-
-" must be applied after colorscheme, avoid highlight overwrite.
-if v:version > 800
-  packadd! cfilter
-  packadd! termdebug
-endif
-packadd! matchit
 
 augroup ddd_default
   au!

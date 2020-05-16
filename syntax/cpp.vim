@@ -1,1 +1,1 @@
-Syntax opengl
+Syntax cpp opengl
