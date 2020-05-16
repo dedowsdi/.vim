@@ -332,6 +332,10 @@ set keywordprg=:Man
 
 call ddd#terminal#setup()
 
+if stridx($TERM, '16color') != -1
+  let g:ddd_gterm_init_cmd = [ 'TERM=xterm-16color' ]
+endif
+
 let g:lightline.colorscheme = 'solarized'
 let g:solarized_italic = 0
 colorscheme solarized

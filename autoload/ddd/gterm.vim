@@ -5,7 +5,8 @@
 let g:ddd_gterm_size = get(g:, 'ddd_gterm_size', [0.3, 0.5])
 let g:ddd_gterm_pos = get(g:, 'ddd_gterm_pos', 'k')
 let g:ddd_gterm_repeat_cmd = get(g:, 'ddd_gterm_repeat_cmd', "\<esc>k\<tab>\<cr>")
-let g:ddd_gterm_newcmd = get(g:, 'ddd_gterm_newcmd', 'term ++kill=kill')
+let g:ddd_gterm_new_cmd = get(g:, 'ddd_gterm_new_cmd', 'term ++kill=kill')
+let g:ddd_gterm_init_cmd = get(g:, 'ddd_gterm_init_cmd', [])
 
 let s:gterm = { 'buf' : -1, 'pos' : g:ddd_gterm_pos  }
 
@@ -80,13 +81,13 @@ endfunction
 
 function s:new() abort
   call s:split(1)
-  exe g:ddd_gterm_newcmd '++curwin'
+  exe g:ddd_gterm_new_cmd '++curwin'
   let s:gterm.buf = bufnr()
   autocmd ag_ddd_gterm BufLeave <buffer> call s:on_buf_leave()
 
   " cd to default working directory
-  if exists('g:ddd_gterm_wd')
-    call term_sendkeys('', printf("cd %s\<cr>", g:ddd_gterm_wd))
+  if !empty(g:ddd_gterm_init_cmd)
+    call term_sendkeys('', join(g:ddd_gterm_init_cmd, "\<cr>") . "\<cr>")
   endif
 endfunction
 
