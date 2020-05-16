@@ -10,7 +10,17 @@ setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted modifiable
       \ statusline=hare
 
 " custom hare map
+
+" remap close window to abort
+nmap <buffer> <c-w>q <plug>ddd_hare_abort
+nmap <buffer> <c-w><c-q> <plug>ddd_hare_abort
+nmap <buffer> ZZ <plug>ddd_hare_abort
+nmap <buffer> ZQ <plug>ddd_hare_abort
 cmap <buffer> <c-c> <plug>ddd_hare_abort
+cnoremap <silent> <buffer> <expr> <cr> getcmdtype() ==# ':' &&
+      \ getcmdline() =~# '\v^\s*\:?%(q%[uit]\|x%[it]\|exi%[t])\s*$'
+      \ ? '<c-u>exe "norm \<plug>ddd_hare_abort"<cr>' : '<cr>'
+
 cmap <buffer> <c-o> <plug>ddd_hare_sink
 nmap <buffer> <cr> <plug>ddd_hare_sink
 

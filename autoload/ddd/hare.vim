@@ -96,6 +96,12 @@ function ddd#hare#sink() abort
   call b:hare.sink()
 endfunction
 
+function ddd#hare#abort() abort
+  let winid = win_getid()
+  exe win_id2win(b:hare.orig_winid) 'wincmd w'
+  exe win_id2win(winid) 'wincmd q'
+endfunction
+
 function s:fill_buffer(source) abort
   let stype = type(a:source)
   if stype == v:t_list
@@ -152,10 +158,7 @@ function s:setup_event_and_sink(sink) abort
     throw 'unknown sink type ' . a:sink
   endif
 
-  " install map and auto command.
   augroup au_hare_buffer | au!
-    autocmd  WinLeave <buffer> call s:quit_hare()
-
     if line('$') < g:ddd_hare_dynamic_filter_threshold
       autocmd  CmdlineChanged <buffer> call s:filter()
       let s:lines = getline(1, '$')
@@ -210,16 +213,10 @@ function s:filter() abort
 
 endfunction
 
-function s:quit_hare() abort
-  if empty(b:hare.mods)
-    exe win_id2win(b:hare.orig_winid) 'wincmd w'
-  endif
-endfunction
-
 function s:close_hair_buffer() abort
-  " let wid = b:hare.orig_winid
+  let wid = b:hare.orig_winid
   wincmd q
-  " exe  win_id2win(wid) 'wincmd w'
+  exe  win_id2win(wid) 'wincmd w'
 endfunction
 
 function s:file_sink() abort

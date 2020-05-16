@@ -161,7 +161,8 @@ nnoremap <silent> <plug>ddd_hare_sink :call ddd#hare#sink()<cr>
 cnoremap <silent> <plug>ddd_hare_sink <cr>:call ddd#hare#sink()<cr>
 
 " don't use <esc>, it runs your command even though &cpo has no x
-cnoremap <silent> <plug>ddd_hare_abort <c-c>:wincmd q<cr>
+cnoremap <silent> <plug>ddd_hare_abort <c-c>:call ddd#hare#abort()<cr>
+noremap <silent> <plug>ddd_hare_abort :<c-u>call ddd#hare#abort()<cr>
 
 com -nargs=+ Hare call ddd#hare#exec(<q-args>)
 
