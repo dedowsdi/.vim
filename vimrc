@@ -89,8 +89,12 @@ set concealcursor=vn conceallevel=0
 set shortmess-=S
 
 " hide gui menu, toolbar
-set guioptions-=m
-set guioptions-=T
+if has('gui_running')
+  set guioptions-=m
+  set guioptions-=T
+  set guioptions-=r
+  set lines=100 columns=999
+endif
 
 set exrc secure
 
@@ -123,19 +127,6 @@ set viminfo='500,<50,s10,h
 " viminfo= doesn't expand environment variable, check n of viminfo for detail.
 " don't save anything for help files.
 let &viminfo .= ',r'.$VIMRUNTIME.'/doc'
-
-" change cursor to underscore in insert and replace mode for non linux term.
-if $TERM !~# '^linux'
-  if exists('$TMUX')
-    let &t_SI = "\ePtmux;\e\e[3 q\e\\"
-    let &t_SR = "\ePtmux;\e\e[3 q\e\\"
-    let &t_EI = "\ePtmux;\e\e[2 q\e\\"
-  else
-    let &t_SI = "\e[3 q"
-    let &t_SR = "\e[3 q"
-    let &t_EI = "\e[2 q"
-  endif
-endif
 
 " trivial options
 set incsearch
@@ -205,6 +196,7 @@ com -nargs=* Glg Git! log --graph --pretty=format:'%h - <%an> (%ad)%d %s' --abbr
 
 " lightline {{{2
 let g:lightline = {
+      \ 'colorscheme' : 'solarized',
       \ 'active': {
       \   'left': [ [ 'filename' ],
       \             [ 'gitbranch', 'cocstatus', 'readonly', 'paste', 'modified'],
@@ -220,6 +212,7 @@ let g:lightline = {
       \     'test':'hello tabline'
       \ },
       \ }
+
 augroup au_coc_status
   au!
   " it's annoying, it pollutes message and input prompt
@@ -235,8 +228,16 @@ nnoremap <c-k> :Btag<cr>
 " make {{{2
 nnoremap <f7> :Make<up><cr>
 
-" proj {{{1
+" proj {{{2
 com -nargs=1 Proj call ddd#proj#load_map(<f-args>)
+
+" gterm
+nmap <c-w><cr> <plug>ddd_gterm_toggle
+tmap <c-w><cr> <plug>ddd_gterm_toggle
+nmap g<cr>  <plug>ddd_gterm_repeat_cmd
+if stridx($TERM, '16color') != -1
+  let g:ddd_gterm_init_cmd = [ 'TERM=xterm-16color' ]
+endif
 
 " vimtex {{{2
 com -complete=file -nargs=1 Rpdf :r !pdftotext -nopgbrk -layout <q-args> -
@@ -332,25 +333,27 @@ set keywordprg=:Man
 
 call ddd#terminal#setup()
 
-if stridx($TERM, '16color') != -1
-  let g:ddd_gterm_init_cmd = [ 'TERM=xterm-16color' ]
+" use underscore for insert, replace mode, use black on white full block for other mode
+if stridx($TERM, 'linux') != -1
+  let &t_ve= "\e[?25h"
+  let &t_vi= "\e[?25l"
+  let &t_SI= "\e[?0c"
+  let &t_EI= "\e[?16;143;255c"
+else
+  if exists('$TMUX')
+    let &t_SI = "\ePtmux;\e\e[3 q\e\\"
+    let &t_SR = "\ePtmux;\e\e[3 q\e\\"
+    let &t_EI = "\ePtmux;\e\e[2 q\e\\"
+  else
+    let &t_SI = "\e[3 q"
+    let &t_SR = "\e[3 q"
+    let &t_EI = "\e[2 q"
+  endif
 endif
 
-let g:lightline.colorscheme = 'solarized'
-let g:solarized_italic = 0
 colorscheme solarized
 
-" colorscheme nord
-
-augroup ddd_default
-  au!
-
-  if v:version > 800
-
-    if !has('nvim')
-      autocmd TerminalWinOpen * setl nonumber norelativenumber
-    endif
-  endif
+augroup ag_ddd_init | au!
 
   " no auto comment leader after o or O, remove comment leader when join comment lines
   autocmd FileType * setlocal formatoptions-=o formatoptions+=j
@@ -430,10 +433,6 @@ endif
 
 nmap ys<space> <plug>ddd_pair_add_space
 nmap ds<space> <plug>ddd_pair_minus_space
-
-nmap <c-w><cr> <plug>ddd_gterm_toggle
-tmap <c-w><cr> <plug>ddd_gterm_toggle
-nmap g<cr>  <plug>ddd_gterm_repeat_cmd
 
 " command {{{1
 

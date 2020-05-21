@@ -1,19 +1,10 @@
 function ddd#terminal#setup()
 
   if has('gui_running')
-    if !has('nvim')
-      set lines=100 columns=999
-      set guioptions=aegim " remove menu, scroll bars
-    endif
-
     return
   endif
 
   imap <Nul> <c-space>
-
-  " undercurl doesn't work on terminal
-  hi clear SpellBad
-  hi SpellBad cterm=underline
 
   if &term =~? 'xterm'
     call s:setup_xterm()
@@ -38,8 +29,6 @@ function ddd#terminal#setup()
       exec printf('set <a-%s>=%s', letter, letter)
     endfor
   endif
-  " set <a-]>=]
-  " set <a-[>=[
 
 endfunction
 
