@@ -342,3 +342,5 @@ com -nargs=+ Type call ddd#type(<q-args>)
 com -nargs=+ DiffLine call ddd#diff_line(<f-args>)
 
 com WhichCinoptions call ddd#option#which_cinoptions()
+
+com -nargs=+ -bang Time call ddd#time(<bang>0, <q-args>)

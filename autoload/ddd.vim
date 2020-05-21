@@ -88,3 +88,13 @@ function ddd#diff_line(lnum0, ...) abort
   " exe 'term' cmd
   call term_start(['bash', '-c', cmd])
 endfunction
+
+function ddd#time(redraw, cmd) abort
+  let t0 = reltime()
+  exe a:cmd
+  let cost = reltimefloat(reltime(t0))
+  if a:redraw
+    redraw
+  endif
+  echom cost
+endfunction
