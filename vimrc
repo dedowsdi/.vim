@@ -75,8 +75,8 @@ set sessionoptions+=unix,slash
 " use unix / in expand()
 set shellslash
 
-" scan current and included files(might cause problem if lots file are
-" included), restrict pop up menu height,
+" scan current and included files might cause problem if lots file are
+" included, restrict pop up menu height,
 set complete-=i pumheight=16
 
 " enable mouse for all modes. Sometimes you need it to copy something.
@@ -106,7 +106,7 @@ endif
 " nothing found
 " set tags=./tags;,tags
 
-" add -I to ignore binary file, exclude some dirs
+" add -I to ignore binary file, -D to ignore device files, exclude some dirs
 let &grepprg = 'grep -n -I -D skip --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.clangd} $* /dev/null'
 
 " if executable('zsh')
@@ -131,8 +131,8 @@ let &viminfo .= ',r'.$VIMRUNTIME.'/doc'
 " trivial options
 set incsearch
 set background=dark
-set history=1000
-set undolevels=5000
+set history=4096
+set undolevels=4096
 set number ruler
 set laststatus=2 cmdheight=2
 set scrolloff=1
