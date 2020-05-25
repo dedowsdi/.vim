@@ -49,6 +49,7 @@ endfunction
 
 function ddd#gterm#repeat_cmd() abort
   if !s:exists()
+    " return after new, don't repeat for new terminal.
     return s:new()
   endif
 

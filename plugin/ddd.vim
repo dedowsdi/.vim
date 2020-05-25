@@ -97,9 +97,11 @@ let g:ddd_cpp_def_src_ext    = get(g:, 'ddd_cpp_def_src_ext'    , 'cpp')
 nnoremap <plug>ddd_gterm_toggle :call ddd#gterm#toggle()<cr>
 tnoremap <plug>ddd_gterm_toggle <c-w>:call ddd#gterm#toggle()<cr>
 nnoremap <plug>ddd_gterm_repeat_cmd :call ddd#gterm#repeat_cmd()<cr>
+com GtermRepeat call ddd#gterm#repeat_cmd()
 
 " make {{{1
-com -nargs=* -complete=customlist,ddd#make#complete Make :call ddd#make#make(<q-args>)
+com -nargs=* -bang -complete=customlist,ddd#make#complete Make
+      \ call ddd#make#make(<bang>0, <q-args>)
 
 " undo {{{1
 com -nargs=+ -bang UndoTag call ddd#undo#tag(<bang>0, <f-args>)

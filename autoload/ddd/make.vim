@@ -14,11 +14,12 @@
 
 let g:ddd_make_hidden = get(g:, 'ddd_make_hidden', 1)
 let g:ddd_make_split = get(g:, 'ddd_make_split', '16split')
+let g:ddd_make_success_cb = get(g:, 'ddd_make_success_cb', '')
 let s:making = 0
 
 augroup ag_ddd_make | au! | augroup end
 
-function ddd#make#make(args) abort
+function ddd#make#make(run_success_cb, args) abort
   if s:making
     if bufwinid(s:make_buf) == -1
       " show making buffer
@@ -51,9 +52,13 @@ function ddd#make#make(args) abort
 
   " use term_opencmd to stop vim from wipe finished terminal buffer after it's
   " closed
-  let options = {'close_cb': function('s:make_callback'),
+  let options = {'close_cb': function('s:close_cb'),
         \ 'term_finish' : 'open',
         \ 'term_opencmd' : 'call setbufvar(%d, "&buftype", "")' }
+
+  if a:run_success_cb
+    let options.exit_cb = function('s:exit_cb')
+  endif
 
   if g:ddd_make_hidden
     let options.hidden = 1
@@ -69,7 +74,21 @@ function ddd#make#make(args) abort
   let s:making = 1
 endfunction
 
-function s:make_callback(channel) abort
+function s:exit_cb(job, status) abort
+  if a:status != 0 || empty(g:ddd_make_success_cb)
+    return
+  endif
+
+  if type(g:ddd_make_success_cb) == v:t_func
+    call call(g:ddd_make_success_cb(), [])
+  elseif type(g:ddd_make_success_cb) == v:t_string
+    exe g:ddd_make_success_cb
+  else
+    throw 'Illegal success callback, it should be FuncRef or String'
+  endif
+endfunction
+
+function s:close_cb(channel) abort
 
   " look, you can not get buffer content directly here.
   call timer_start(10, function('s:make_callback_impl'))

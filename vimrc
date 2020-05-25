@@ -233,11 +233,12 @@ nnoremap <c-k> :Btag<cr>
 
 " make {{{2
 nnoremap <f7> :Make<up><cr>
+let g:ddd_make_success_cb = 'GtermRepeat'
 
 " proj {{{2
 com -nargs=1 Proj call ddd#proj#load_map(<f-args>)
 
-" gterm
+" gterm {{{2
 nmap <c-w><cr> <plug>ddd_gterm_toggle
 tmap <c-w><cr> <plug>ddd_gterm_toggle
 nmap g<cr>  <plug>ddd_gterm_repeat_cmd
