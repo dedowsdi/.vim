@@ -133,7 +133,7 @@ set incsearch
 set background=dark
 set history=4096
 set undolevels=4096
-set number ruler
+set number noruler
 set laststatus=2 cmdheight=2
 set scrolloff=1
 set showmode showcmd novisualbell
@@ -141,6 +141,7 @@ set noshowmatch matchtime=3 matchpairs+=<:>
 set belloff=esc
 set nofoldenable
 set signcolumn=number
+set title
 
 " plugin {{{1
 
@@ -200,7 +201,12 @@ let g:lightline = {
       \ 'active': {
       \   'left': [ [ 'filename' ],
       \             [ 'gitbranch', 'cocstatus', 'readonly', 'paste', 'modified'],
-      \             [ 'make_progress' ] ]
+      \             [ 'make_progress' ] ],
+      \   'right': [ [ 'fileformat', 'fileencoding', 'filetype'] ],
+      \ },
+      \ 'inactive': {
+      \   'left': [ [ 'filename' ] ],
+      \   'right': [ [ 'filetype' ] ],
       \ },
       \ 'component_function': {
       \   'gitbranch': 'fugitive#head',

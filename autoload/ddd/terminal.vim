@@ -14,6 +14,11 @@ function ddd#terminal#setup()
     call s:setup_screen()
   endif
 
+  if exists('$VTE_VERSION')
+    let &t_Ce = "\e[4:0m"
+    let &t_Cs = "\e[4:3m"
+  endif
+
   if has('nvim')
     set rtp^=$HOME/.vim,$HOME/.vim/after
     let g:python3_host_prog = '/usr/bin/python3'
