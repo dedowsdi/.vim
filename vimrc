@@ -124,6 +124,9 @@ set nospell spelllang=en_us dictionary+=spell
 " greater than 10kbytes, no hlsearch during loading of viminfo.
 set viminfo='500,<50,s10,h
 
+" supress redraw during map, macro
+set lazyredraw
+
 " viminfo= doesn't expand environment variable, check n of viminfo for detail.
 " don't save anything for help files.
 let &viminfo .= ',r'.$VIMRUNTIME.'/doc'
@@ -141,7 +144,6 @@ set noshowmatch matchtime=3 matchpairs+=<:>
 set belloff=esc
 set nofoldenable
 set signcolumn=number
-set title
 
 " plugin {{{1
 

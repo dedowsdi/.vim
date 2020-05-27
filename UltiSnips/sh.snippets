@@ -74,6 +74,12 @@ snippet ift
 if [[ ${1:cond} ]]; then ${2:A}; else ${3:B}; fi
 endsnippet
 
+snippet ifa "if arithmetic"
+if (( ${1:cond} )); then
+	${VISUAL}$0
+fi
+endsnippet
+
 snippet #! "she bang" b
 #!/usr/bin/env bash
 endsnippet
