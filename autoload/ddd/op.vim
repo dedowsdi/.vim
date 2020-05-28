@@ -230,14 +230,12 @@ function s:co_insert_leave() abort
 
     " mark visual end with special string mark
     norm! `>
-    let visual_end_mark = repeat("\x82", 8)
-    " use append instead of insert to take care of line end visual end.
+    let visual_end_mark = repeat("\x82", 4)
     call dddu#smark#append(visual_end_mark)
 
-    " mark first change with special string mark that ends with space, so it
-    " doesn't pollute the word boundary
+    " mark first change with special string mark, it must be not in 'iskeyword'
     norm! `a
-    let first_change_mark = repeat("\x81", 8)
+    let first_change_mark = repeat("\x81", 4)
     call dddu#smark#insert(first_change_mark)
 
     " setup search pattern, restrict it in operator text
@@ -263,7 +261,7 @@ function s:co_insert_leave() abort
     call dddu#smark#search(visual_end_mark)
     exe "norm! \<esc>"
 
-    " replace all except the starting one
+    " replace all matching iterms, including the start one
     let cmd = printf("'<,'>s//%s/eg", substitute(replacement, '\n', '\r', 'g'))
     call ddd#log#debug('omo : substitute : ' . cmd)
     exe cmd
