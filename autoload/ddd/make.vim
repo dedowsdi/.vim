@@ -102,7 +102,7 @@ function s:make_callback_impl(timer) abort
   let qfl = filter(getqflist(), {k,v -> v.bufnr != 0 && v.lnum != 0})
 
   if empty(qfl)
-    echohl htmlTagName
+    echohl Identifier
     echo 'make successful'
     echohl None
   else
