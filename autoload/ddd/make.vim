@@ -48,17 +48,15 @@ function ddd#make#make(run_success_cb, args) abort
     let s:make_cmd .= ' ' . a:args
   endif
 
-  echo s:make_cmd
+  echo printf('%s%s', s:make_cmd, a:run_success_cb ? ' [success_cb] ' : '' )
+  let s:run_success_cb = a:run_success_cb
 
   " use term_opencmd to stop vim from wipe finished terminal buffer after it's
   " closed
   let options = {'close_cb': function('s:close_cb'),
+        \ 'exit_cb' : function('s:exit_cb'),
         \ 'term_finish' : 'open',
         \ 'term_opencmd' : 'call setbufvar(%d, "&buftype", "")' }
-
-  if a:run_success_cb
-    let options.exit_cb = function('s:exit_cb')
-  endif
 
   if g:ddd_make_hidden
     let options.hidden = 1
@@ -75,7 +73,7 @@ function ddd#make#make(run_success_cb, args) abort
 endfunction
 
 function s:exit_cb(job, status) abort
-  if a:status != 0 || empty(g:ddd_make_success_cb)
+  if a:status != 0 || !s:run_success_cb || empty(g:ddd_make_success_cb)
     return
   endif
 
@@ -96,19 +94,20 @@ endfunction
 
 function s:make_callback_impl(timer) abort
 
+  let ji = job_info( term_getjob(s:make_buf) )
   exe 'cgetbuffer' s:make_buf
-
-  " consider entry with num zero bufnr and lnum an error or warning
   let qfl = filter(getqflist(), {k,v -> v.bufnr != 0 && v.lnum != 0})
 
-  if empty(qfl)
+  if ji.exitval == 0
     echohl Identifier
-    echo 'make successful'
-    echohl None
+    echo printf( 'make successful%s', empty(qfl) ?
+          \ '' : printf( ' [found %d qf entries]', len(qfl) ) )
+    echohl NONE
   else
     echohl WarningMsg
-    echom printf('found %d qf entries', len(qfl))
-    echohl None
+    echom printf( 'make exit %d%s', ji.exitval, empty(qfl) ?
+          \ '' : printf( ' [found %d qf entries]', len(qfl) ) )
+    echohl NONE
   endif
 
   let s:making = 0
