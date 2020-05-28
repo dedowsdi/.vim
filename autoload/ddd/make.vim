@@ -20,6 +20,9 @@ let s:making = 0
 augroup ag_ddd_make | au! | augroup end
 
 function ddd#make#make(run_success_cb, args) abort
+
+  update
+
   if s:making
     if bufwinid(s:make_buf) == -1
       " show making buffer
