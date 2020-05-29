@@ -343,12 +343,7 @@ set keywordprg=:Man
 call ddd#terminal#setup()
 
 " use underscore for insert, replace mode, use black on white full block for other mode
-if stridx($TERM, 'linux') != -1
-  let &t_ve= "\e[?25h"
-  let &t_vi= "\e[?25l"
-  let &t_SI= "\e[?0c"
-  let &t_EI= "\e[?16;143;255c"
-else
+if stridx($TERM, 'linux') == -1
   if exists('$TMUX')
     let &t_SI = "\ePtmux;\e\e[5 q\e\\"
     let &t_SR = "\ePtmux;\e\e[3 q\e\\"
