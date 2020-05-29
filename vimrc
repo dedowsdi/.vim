@@ -382,12 +382,12 @@ call s:add_to('an', '<plug>ddd_to_an')
 call s:add_to('ic', '<plug>ddd_to_ic')
 
 " motion and operator {{{2
-map ,E <plug>ddd_mo_vertical_E
-sunmap ,E
-map ,W <plug>ddd_mo_vertical_W
-sunmap ,W
-map ,B <plug>ddd_mo_vertical_B
-sunmap ,B
+map ,e <plug>ddd_mo_vertical_E
+sunmap ,e
+map ,w <plug>ddd_mo_vertical_W
+sunmap ,w
+map ,b <plug>ddd_mo_vertical_B
+sunmap ,b
 nnoremap ,,  ,
 
 function s:add_op(key, rhs)
