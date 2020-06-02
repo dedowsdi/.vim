@@ -355,6 +355,12 @@ if stridx($TERM, 'linux') == -1
   endif
 endif
 
+if exists('VIM_TRUECOLOR')
+    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+    set termguicolors
+endif
+
 colorscheme solarized
 
 augroup ag_ddd_init | au!
