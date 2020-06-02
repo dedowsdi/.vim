@@ -112,7 +112,7 @@ function s:fill_buffer(source) abort
     endif
 
     let b:hare.source_cmd = a:source
-    exe printf('let &statusline=%s', string(a:source))
+    exe printf('let &l:statusline=%s', string(a:source))
 
     let c = a:source[0]
     if c==# '!'

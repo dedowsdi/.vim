@@ -145,6 +145,23 @@ set belloff=esc
 set nofoldenable
 set signcolumn=number
 
+" statusline {{{2
+let g:ddd_status_exprs = ['ddd#status#git_head', 'coc#status', 'ddd#make#progress']
+set statusline=
+
+" left item, starts with space
+let &statusline .= '%( %t%)'                         " file tail
+let &statusline .= '%( %{ddd#status#eval_exprs()}%)' " expressions
+let &statusline .= '%( %r%)'                         " readonly
+let &statusline .= '%( %{&paste?"[PA]":""}%)'        " paste
+let &statusline .= '%( %m%)'                         " modified
+let &statusline .= '%='                              " separation point
+
+" right items, ends with space
+let &statusline .= '%(%{&ff} %)'                     " file format
+let &statusline .= '| %{empty(&fenc)?&enc:&fenc} '   " file encoding
+let &statusline .= '| %{empty(&ft)?"no ft":&ft} '    " file filetype
+
 " plugin {{{1
 
 " ale {{{2
@@ -196,36 +213,6 @@ com CocCodeAction call CocActionAsync('codeAction')
 
 " fugitive {{{2
 com -nargs=* Glg Git! log --graph --pretty=format:'%h - <%an> (%ad)%d %s' --abbrev-commit --date=local <args>
-
-" lightline {{{2
-let g:lightline = {
-      \ 'colorscheme' : 'solarized',
-      \ 'active': {
-      \   'left': [ [ 'filename' ],
-      \             [ 'gitbranch', 'cocstatus', 'readonly', 'paste', 'modified'],
-      \             [ 'make_progress' ] ],
-      \   'right': [ [ 'fileformat', 'fileencoding', 'filetype'] ],
-      \ },
-      \ 'inactive': {
-      \   'left': [ [ 'filename' ] ],
-      \   'right': [ [ 'filetype' ] ],
-      \ },
-      \ 'component_function': {
-      \   'gitbranch': 'fugitive#head',
-      \   'cocstatus': 'coc#status',
-      \   'make_progress': 'ddd#make#progress'
-      \ },
-      \ 'component':
-      \ {
-      \     'test':'hello tabline'
-      \ },
-      \ }
-
-augroup au_coc_status
-  au!
-  " it's annoying, it pollutes message and input prompt
-  " autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
-augroup end
 
 " hare {{{2
 nnoremap <c-p> :Src<cr>
@@ -305,9 +292,6 @@ Plug 'dedowsdi/vim-colors-solarized'
 " comment
 Plug 'tpope/vim-commentary'
 
-" status line
-Plug 'itchyny/lightline.vim'
-
 " lint
 Plug 'w0rp/ale'
 
@@ -342,7 +326,7 @@ set keywordprg=:Man
 
 call ddd#terminal#setup()
 
-" use underscore for insert, replace mode, use black on white full block for other mode
+" " use underscore for insert, replace mode, use black on white full block for other mode
 if stridx($TERM, 'linux') == -1
   if exists('$TMUX')
     let &t_SI = "\ePtmux;\e\e[5 q\e\\"
