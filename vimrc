@@ -156,7 +156,7 @@ set signcolumn=number
 
 " statusline {{{2
 let g:ddd_status_exprs = ['ddd#status#git_head', 'coc#status', 'ddd#make#progress']
-set statusline=
+set statusline=%<                                    " trancate at start
 
 " left item, starts with space
 let &statusline .= '%( %f%)'                         " file tail
