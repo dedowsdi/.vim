@@ -19,6 +19,7 @@
 
 " options {{{1
 
+" basic {{{2
 " show tab and trailing space
 scriptencoding utf-8
 set list listchars=trail:…,tab:†·,extends:>,precedes:<,nbsp:+
@@ -127,6 +128,14 @@ set viminfo='500,<50,s10,h
 " supress redraw during map, macro
 set lazyredraw
 
+" use Man as keywordprg
+runtime! ftplugin/man.vim
+set keywordprg=:Man
+
+" statusline has higher precedence, ruler only works if status line is
+" invisible.
+set ruler
+
 " viminfo= doesn't expand environment variable, check n of viminfo for detail.
 " don't save anything for help files.
 let &viminfo .= ',r'.$VIMRUNTIME.'/doc'
@@ -136,9 +145,9 @@ set incsearch
 set background=dark
 set history=4096
 set undolevels=4096
-set number noruler
+set number
 set laststatus=2 cmdheight=2
-set scrolloff=1
+set scrolloff=5
 set showmode showcmd novisualbell
 set noshowmatch matchtime=3 matchpairs+=<:>
 set belloff=esc
@@ -157,9 +166,31 @@ let &statusline .= '%( %m%)'                         " modified
 let &statusline .= '%='                              " separation point
 
 " right items, ends with space
+let &statusline .= '%-14.(%l,%c%V%) %P | '           " ruler
 let &statusline .= '%(%{&ff} %)'                     " file format
 let &statusline .= '| %{empty(&fenc)?&enc:&fenc} '   " file encoding
 let &statusline .= '| %{&ft} '    " file filetype
+
+" cursor {{{2
+" use underscore for insert, replace mode, use black on white full block for other mode
+if stridx($TERM, 'linux') == -1
+  if exists('$TMUX')
+    let &t_SI = "\ePtmux;\e\e[5 q\e\\"
+    let &t_SR = "\ePtmux;\e\e[3 q\e\\"
+    let &t_EI = "\ePtmux;\e\e[2 q\e\\"
+  else
+    let &t_SI = "\e[5 q"
+    let &t_SR = "\e[3 q"
+    let &t_EI = "\e[2 q"
+  endif
+endif
+
+" truecolor {{{2
+if exists('VIM_TRUECOLOR')
+    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+    set termguicolors
+endif
 
 " plugin {{{1
 
@@ -318,33 +349,9 @@ call plug#end()
 " filetype plugin indent on
 " syntax enable
 
-" misc {{{1
-
-runtime! ftplugin/man.vim
-set keywordprg=:Man
-
-call ddd#terminal#setup()
-
-" " use underscore for insert, replace mode, use black on white full block for other mode
-if stridx($TERM, 'linux') == -1
-  if exists('$TMUX')
-    let &t_SI = "\ePtmux;\e\e[5 q\e\\"
-    let &t_SR = "\ePtmux;\e\e[3 q\e\\"
-    let &t_EI = "\ePtmux;\e\e[2 q\e\\"
-  else
-    let &t_SI = "\e[5 q"
-    let &t_SR = "\e[3 q"
-    let &t_EI = "\e[2 q"
-  endif
-endif
-
-if exists('VIM_TRUECOLOR')
-    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-    set termguicolors
-endif
-
 colorscheme solarized
+
+" autocmd {{{1
 
 augroup ag_ddd_init | au!
 
@@ -357,6 +364,8 @@ augroup ag_ddd_init | au!
 augroup end
 
 " all kinds of maps {{{1
+
+call ddd#terminal#setup()
 
 " text object {{{2
 function s:add_to(lhs, rhs) abort
