@@ -10,8 +10,8 @@ function ddd#terminal#setup()
     call s:setup_xterm()
   elseif &term =~? 'rxvt'
     call s:setup_rxvt()
-  elseif &term =~? 'screen'
-    call s:setup_screen()
+  elseif &term =~? '^screen' || &term =~? '^tmux' || &term =~? '^st'
+    call s:setup_xterm_variants()
   endif
 
   if exists('$VTE_VERSION')
@@ -81,7 +81,7 @@ function s:setup_rxvt()
 
 endfunction
 
-function s:setup_screen()
+function s:setup_xterm_variants()
 
   call s:create_keymap('<c-f1>',  '<f25>', '[1;5P')
   call s:create_keymap('<c-f2>',  '<f26>', '[1;5Q')
@@ -144,7 +144,10 @@ endfunction
 
 function ddd#terminal#test()
 
-  new
+  echom repeat('*', 60)
+  echom 'create test terminal keys'
+  echom 'you must press the test key, feedkeys("\<c-left>") always work,
+        \ as "\<...>" is vim internal keycode'
 
   for i in range(1, 12)
     exec printf('map <buffer> <f%d> :echom "f%d"<cr>', i, i)
@@ -161,23 +164,6 @@ function ddd#terminal#test()
   nnoremap <buffer> <s-down> :echom 's-down'<cr>
   nnoremap <buffer> <c-pageup> :echom 'c-pageup'<cr>
   nnoremap <buffer> <c-pagedown> :echom 'c-pagedown'<cr>
-
-  for i in range(1, 12)
-    call feedkeys( eval( printf( '"\<f%d>"', i ) ) )
-    call feedkeys( eval( printf( '"\<c-f%d>"', i ) ) )
-    call feedkeys( eval( printf( '"\<s-f%d>"', i ) ) )
-  endfor
-
-  call feedkeys( eval( printf( '"\<c-left>"' ) ) )
-  call feedkeys( eval( printf( '"\<c-right>"' ) ) )
-  " call feedkeys( eval( printf( '"\<c-up>"' ) ) )
-  " call feedkeys( eval( printf( '"\<c-down>"' ) ) )
-  call feedkeys( eval( printf( '"\<s-left>"' ) ) )
-  call feedkeys( eval( printf( '"\<s-right>"' ) ) )
-  call feedkeys( eval( printf( '"\<s-up>"' ) ) )
-  call feedkeys( eval( printf( '"\<s-down>"' ) ) )
-  call feedkeys( eval( printf( '"\<c-pageup>"' ) ) )
-  call feedkeys( eval( printf( '"\<c-pagedown>"' ) ) )
 
 endfunction
 
