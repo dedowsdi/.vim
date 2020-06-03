@@ -175,7 +175,7 @@ com Ls Hare ls ls
 com Fold Hare line /\v.*\{\{\{\d*$
 
 com Buffer call ddd#hare#jump('file',
-      \ map(split(execute('ls'), "\n"), {i,v->matchstr(v, '\v.*"\zs.+\ze"')}))
+      \ map(split(execute('ls'), "\n"), {i,v->matchstr(v, '.*"\zs.+\ze"')}))
 
 let g:ddd_find_exclude = '-name .hg -o -name .git -o -name build -o -name .vscode -o -name .clangd'
 let g:ddd_project_source = get(g:, 'project_source',
@@ -222,7 +222,7 @@ endfunction
 let g:ddd_hare_tag_pattern = get(g:, 'ddd_hare_btag_pattern', {})
 
 if !has_key(g:ddd_hare_tag_pattern, 'vim')
-  let g:ddd_hare_tag_pattern.vim = '/\v<'
+  let g:ddd_hare_tag_pattern.vim = '\<'
 endif
 
 function s:get_tag_pattern(filetype) abort
@@ -230,7 +230,7 @@ function s:get_tag_pattern(filetype) abort
     let pat = g:ddd_hare_tag_pattern[a:filetype]
     return type(pat) ==# v:t_func ? pat() : pat
   endif
-  return '/\v^'
+  return '^'
 endfunction
 
 com -nargs=* Tag call ddd#hare#jump('tag',

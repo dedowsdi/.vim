@@ -38,7 +38,7 @@
 " buffer is the hare buffer, not the original one.
 "
 " ...:
-"   keys feeded to feedkeys(), it defaults to `/\v.*<`
+"   keys feeded to feedkeys(), it defaults to `\v.*<`
 function ddd#hare#jump(sink, source, ...) abort
 
   if &filetype ==# 'hare'
@@ -67,8 +67,8 @@ function ddd#hare#jump(sink, source, ...) abort
     call s:fill_buffer(a:source)
     call s:setup_event_and_sink(a:sink)
 
-    let s:start_pattern = a:0 > 0 ? a:1 : '/\v.*<'
-    call feedkeys(s:start_pattern, 'n')
+    let s:start_pattern = a:0 > 0 ? a:1 : '.*\<'
+    call feedkeys('/' . s:start_pattern, 'n')
 
   catch /.*/
     echohl WarningMsg
@@ -177,7 +177,7 @@ function s:filter() abort
 
   " ignore feedkeys
   if s:first_cmdline_change != 0
-    if pattern ==# s:start_pattern[1:]
+    if pattern ==# s:start_pattern
       let s:first_cmdline_change = 0
     endif
     return
