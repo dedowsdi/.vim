@@ -150,17 +150,16 @@ let g:ddd_status_exprs = ['ddd#status#git_head', 'coc#status', 'ddd#make#progres
 set statusline=
 
 " left item, starts with space
-let &statusline .= '%( %t%)'                         " file tail
+let &statusline .= '%( %f%)'                         " file tail
 let &statusline .= '%( %{ddd#status#eval_exprs()}%)' " expressions
 let &statusline .= '%( %r%)'                         " readonly
-let &statusline .= '%( %{&paste?"[PA]":""}%)'        " paste
 let &statusline .= '%( %m%)'                         " modified
 let &statusline .= '%='                              " separation point
 
 " right items, ends with space
 let &statusline .= '%(%{&ff} %)'                     " file format
 let &statusline .= '| %{empty(&fenc)?&enc:&fenc} '   " file encoding
-let &statusline .= '| %{empty(&ft)?"no ft":&ft} '    " file filetype
+let &statusline .= '| %{&ft} '    " file filetype
 
 " plugin {{{1
 
