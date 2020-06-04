@@ -153,6 +153,7 @@ set noshowmatch matchtime=3 matchpairs+=<:>
 set belloff=esc
 set nofoldenable
 set signcolumn=number
+set modeline
 
 " statusline {{{2
 let g:ddd_status_exprs = ['ddd#status#git_head', 'coc#status', 'ddd#make#progress']
