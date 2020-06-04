@@ -171,10 +171,10 @@ let &statusline .= '%( %m%)'                         " modified
 let &statusline .= '%='                              " separation point
 
 " right items, ends with space
-let &statusline .= '%-14.(%l,%c%V%) %P | '           " ruler
-let &statusline .= '%(%{&ff} %)'                     " file format
-let &statusline .= '| %{empty(&fenc)?&enc:&fenc} '   " file encoding
-let &statusline .= '| %{&ft} '    " file filetype
+let &statusline .= '%-14.(%l,%c%V%) %P '             " ruler
+let &statusline .= '| %{&ff} '                       " file format
+let &statusline .= '| %{&fenc} '                     " file encoding
+let &statusline .= '| %{&ft} '                       " file filetype
 
 " cursor {{{2
 " use underscore for insert, replace mode, use black on white full block for other mode
