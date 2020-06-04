@@ -89,6 +89,10 @@ set concealcursor=vn conceallevel=0
 " display search count
 set shortmess-=S
 
+" Suffixes that get lower priority when doing tab completion for filenames.
+set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,
+            \.ilg,.inx,.out,.toc
+
 " hide gui menu, toolbar
 if has('gui_running')
   set guioptions-=m
