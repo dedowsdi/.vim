@@ -114,10 +114,6 @@ endif
 " add -I to ignore binary file, -D to ignore device files, exclude some dirs
 let &grepprg = 'grep -n -I -D skip --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.clangd} $* /dev/null'
 
-" if executable('zsh')
-"   let &shell = '/bin/zsh -o extendedglob'
-" endif
-
 " some common fileencoding, the less general encoding must appear before the
 " more general one
 set fileencodings=ucs-bom,utf-8,default,gb18030,utf-16,latin1
@@ -177,7 +173,6 @@ let &statusline .= '| %{&fenc} '                     " file encoding
 let &statusline .= '| %{&ft} '                       " file filetype
 
 " cursor {{{2
-" use underscore for insert, replace mode, use black on white full block for other mode
 if stridx($TERM, 'linux') == -1
   if exists('$TMUX')
     let &t_SI = "\ePtmux;\e\e[5 q\e\\"
@@ -191,7 +186,7 @@ if stridx($TERM, 'linux') == -1
 endif
 
 " truecolor {{{2
-if exists('VIM_TRUECOLOR')
+if exists('$VIM_TRUECOLOR')
     let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
     let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
     set termguicolors
