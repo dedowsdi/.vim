@@ -94,9 +94,7 @@ nnoremap <plug>ddd_op_g~o :call ddd#op#omo('gso')<cr>
 let g:ddd_cpp_def_src_ext    = get(g:, 'ddd_cpp_def_src_ext'    , 'cpp')
 
 " gterm {{{1
-nnoremap <plug>ddd_gterm_toggle :call ddd#gterm#toggle()<cr>
-tnoremap <plug>ddd_gterm_toggle <c-w>:call ddd#gterm#toggle()<cr>
-nnoremap <plug>ddd_gterm_repeat_cmd :call ddd#gterm#repeat_cmd()<cr>
+com GtermToggle call ddd#gterm#toggle()
 com GtermRepeat call ddd#gterm#repeat_cmd()
 
 " make {{{1

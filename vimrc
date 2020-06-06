@@ -258,9 +258,9 @@ let g:ddd_make_success_cb = 'GtermRepeat'
 com -nargs=1 Proj call ddd#proj#load_map(<f-args>)
 
 " gterm {{{2
-nmap <c-w><cr> <plug>ddd_gterm_toggle
-tmap <c-w><cr> <plug>ddd_gterm_toggle
-nmap g<cr>  <plug>ddd_gterm_repeat_cmd
+nnoremap <c-w><cr> :<c-u>GtermToggle<cr>
+tnoremap <c-w><cr> <c-w>:<c-u>GtermToggle<cr>
+nnoremap g<cr>  :<c-u>GtermRepeat<cr>
 if stridx($TERM, '16color') != -1
   let g:ddd_gterm_init_cmd = [ 'TERM=xterm-16color' ]
 endif
