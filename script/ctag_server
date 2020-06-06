@@ -105,7 +105,8 @@ append_file_tag()
 
 # variables, pipe, redirections{{{1
 if [[ -z "$server_path" || ! -d $server_path ]]; then
-    >&2 echo "$server_path" does not exit, forgot specify -d?
+    # >&2 echo "server_path does not exit, forgot specify -d?"
+    show_usage
     exit 1
 fi
 
