@@ -95,9 +95,10 @@ set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,
 
 " hide gui menu, toolbar
 if has('gui_running')
-  set guioptions-=m
-  set guioptions-=T
-  set guioptions-=r
+  set guioptions-=m  " hide menubar
+  set guioptions-=T  " hide toolbar
+  set guioptions-=r  " hide right scrollbar
+  set guioptions-=L  " hide left scrollbar when there is a vertically split window
   set lines=100 columns=999
 endif
 
