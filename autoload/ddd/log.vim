@@ -1,4 +1,4 @@
-let g:notify_severity = get(g:, 'notify_severity', 3)
+let g:ddd_notify_severity = get(g:, 'ddd_notify_severity', 3)
 let g:NOTIFY_ALWAYS = 0
 let g:NOTIFY_FATEL = 1
 let g:NOTIFY_WARN = 2
@@ -9,7 +9,7 @@ let g:NOTIFY_TRIVIAL = 6
 
 function s:notify(msg, ...) abort
   let lvl = get(a:000, 0, g:NOTIFY_NOTICE)
-  if lvl > g:notify_severity | return | endif
+  if lvl > g:ddd_notify_severity | return | endif
   if lvl == g:NOTIFY_FATEL
     echoe a:msg
   else
@@ -20,7 +20,7 @@ endfunction
 function ddd#log#set_notify_severity(v)
   let severity = min([a:v, g:NOTIFY_TRIVIAL])
   let severity = max([a:v, 0])
-  let g:notify_severity = severity
+  let g:ddd_notify_severity = severity
   let names = [
         \ 'NOTIFY_ALWAYS',
         \ 'NOTIFY_FATEL',
@@ -30,7 +30,7 @@ function ddd#log#set_notify_severity(v)
         \ 'NOTIFY_DEBUG',
         \ 'NOTIFY_TRIVIAL',
         \ ]
-  call ddd#log#notice('set g:notify_severity to ' . names[g:notify_severity] )
+  call ddd#log#notice('set g:ddd_notify_severity to ' . names[g:ddd_notify_severity] )
 endfunction
 
 function ddd#log#always(msg) abort
