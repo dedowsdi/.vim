@@ -97,6 +97,10 @@ let g:ddd_cpp_def_src_ext    = get(g:, 'ddd_cpp_def_src_ext'    , 'cpp')
 com GtermToggle call ddd#gterm#toggle()
 com GtermRepeat call ddd#gterm#repeat_cmd()
 
+" tgterm {{{1
+com TgtermToggle call ddd#tgterm#toggle()
+com TgtermRepeat call ddd#tgterm#repeat_cmd()
+
 " make {{{1
 com -nargs=* -bang -complete=customlist,ddd#make#complete Make
       \ call ddd#make#make(<bang>0, <q-args>)

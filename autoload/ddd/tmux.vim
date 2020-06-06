@@ -15,55 +15,54 @@ function ddd#tmux#cmd() abort
 endfunction
 
 function ddd#tmux#message(fmt, ...) abort
-  let target = a:0 > 0 ? ('-t ' . a:1) : ''
+  let args = get(a:000, 0, '')
   return ddd#tmux#exe(
-        \ printf('display-message -p %s -F ''%s''', target, a:fmt))
+        \ printf( 'display-message -p %s -F "%s"', args, a:fmt ))
+endfunction
+
+function ddd#tmux#session_id() abort
+  return ddd#tmux#message('#{session_id}')
+endfunction
+
+function ddd#tmux#window_id() abort
+  return ddd#tmux#message('#{window_id}')
 endfunction
 
 " string in keys will be surround with '', be careful with that
 function ddd#tmux#send(keys, ...)
-  let target = a:0 > 0 ? ('-t ' . a:1) : ''
-  let key_string = "'" . join(a:keys, "' '") . "'"
+  let tmux_keys = join( map( deepcopy(a:keys), { i,v -> string(v) } ) )
   return ddd#tmux#exe(
-        \ printf('send-keys %s %s', target, key_string))
+        \ printf('send-keys %s %s', get(a:000, 0, ''), tmux_keys) )
 endfunction
 
 function ddd#tmux#last_pane_id() abort
-  return trim(system(
-        \ ddd#tmux#cmd() . 'display-message -p -t {last} -F "#{pane_id}"'))
+  return ddd#tmux#message('#{pane_id}', '-t {last}')
 endfunction
 
-" split and come back, return new pane id
-function ddd#tmux#split(args) abort
-  cal ddd#tmux#exe(printf('split-window %s', a:args))
-  return ddd#tmux#pane(ddd#tmux#current_pane_id())
+function ddd#tmux#split(...) abort
+  let pane_id =  ddd#tmux#exe(
+        \ printf( 'split-window %s -P -F "#{pane_id}"', get(a:000, 0, '') ) )
+  return ddd#tmux#pane( pane_id )
 endfunction
 
-" vim wrap
-function ddd#tmux#pane(...)
-  let pane_id = get(a:000, 0, ddd#tmux#current_pane_id())
+" vim wrap for pane
+function ddd#tmux#pane( pane_id ) abort
   let pane = deepcopy(s:pane)
-  let pane.pane_id = pane_id
+  let pane.pane_id = a:pane_id
   call pane.realize()
   return pane
 endfunction
 
-function ddd#tmux#current_pane_id()
-  return trim(system(ddd#tmux#cmd() . 'display-message -p -F "#{pane_id}"'))
-endfunction
-
-let s:pane = {"pane_id":-1}
+let s:pane = {'pane_id':-1}
 
 function s:pane.realize() abort
-
   " variable that won't change
   let items = [
-        \ 'session_id',
         \ 'pane_index',
         \ ]
 
-  let format = join(map(deepcopy(items), { i,v->printf('#{%s}', v) } ), ' ')
-  let results = split(self.message(format), '\v\s+')
+  let format = join( map( deepcopy(items), { i,v->printf('#{%s}', v) }  ), ' ' )
+  let results = split( ddd#tmux#message( format, self.target() ), '\v\s+' )
   if v:shell_error != 0
     throw 'realize failed : pane_id : ' . self.pane_id
   endif
@@ -74,59 +73,66 @@ function s:pane.realize() abort
     let idx += 1
   endfor
 
+  call ddd#log#debug('realize new pane ' . self.pane_id)
 endfunction
 
-function s:pane.message(fmt) abort
-  return ddd#tmux#message(a:fmt, self.pane_id)
+function s:pane.target() abort
+  return '-t ' . self.pane_id
 endfunction
 
-function s:pane.exe(cmd) abort
-  call ddd#tmux#exe(a:cmd)
-endfunction
-
-function s:pane.send(cmd) abort
-  call ddd#tmux#send(a:cmd, self.pane_id)
+function s:pane.send(cmd_list, ...) abort
+  call ddd#tmux#send( a:cmd_list, self.target() . ' ' . get(a:000, 0, '') )
 endfunction
 
 function s:pane.exists() abort
-  call ddd#tmux#exe(printf('has-session -t %s 2>/dev/null', self.pane_id))
+  call ddd#tmux#exe(printf('has-session %s 2>/dev/null', self.target()))
   return v:shell_error == 0
 endfunction
 
-function s:pane.window_id()
-  return self.message('#{window_id}')
+function s:pane.visible() abort
+  return self.exists() && self.window_id() == ddd#tmux#window_id()
 endfunction
 
-function s:pane.is_active()
-  return self.message('#{pane_active}') == 1
+function s:pane.window_id() abort
+  return ddd#tmux#message('#{window_id}', self.target())
 endfunction
 
-function s:pane.is_window_active()
-  return self.message('#{window_active}') == 1
+function s:pane.is_active() abort
+  return ddd#tmux#message('#{pane_active}', self.target()) == 1
 endfunction
 
-function s:pane.target_string()
-  return ' -t ' . self.pane_id
+function s:pane.is_window_active() abort
+  return ddd#tmux#message('#{window_active}', self.target()) == 1
 endfunction
 
-function s:pane.select()
-  call self.exe('select-pant ' . self.target_string())
+function s:pane.select() abort
+  call ddd#tmux#exe('select-pane ' . self.target())
 endfunction
 
-function s:pane.hide()
-  call self.exe('break-pane')
+function s:pane.hide(...) abort
+  call ddd#tmux#exe(
+        \ printf( 'break-pane -dP -s %s %s', self.pane_id, get(a:000, 0, '') ) )
 endfunction
 
-function s:pane.kill()
-  call self.exe('kill-pane ' . self.target_string())
+function s:pane.show(...) abort
+  call ddd#tmux#exe(
+        \ printf('join-pane -s %s %s', self.pane_id, get(a:000, 0, '') ) )
 endfunction
 
-function s:pane.last_pane()
-  call self.exe('last-pane')
+function s:pane.kill() abort
+  call ddd#tmux#exe('kill-pane ' . self.target())
 endfunction
 
-" args : -t target -h -p percent
-function s:pane.join(target_pane, args)
-  call self.exe(printf('join-pane -s %s -t %s %s', self.pane_id, a:target_pane, a:args))
-  "call self.last_pane()
+function s:pane.last_pane() abort
+  call ddd#tmux#exe('last-pane')
+endfunction
+
+function s:pane.join(target_pane, ...) abort
+  call self.exe(printf( 'join-pane -s %s -t %s %s', self.pane_id,
+        \ a:target_pane, get(a:000, 0, '') ) )
+endfunction
+
+function s:pane.size() abort
+  let size = ddd#tmux#message('#{pane_width} #{pane_height}', self.target())
+  return split(size, '\v\s+')
 endfunction
