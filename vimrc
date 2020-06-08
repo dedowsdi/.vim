@@ -161,7 +161,7 @@ let g:ddd_status_exprs = ['ddd#status#git_head', 'coc#status', 'ddd#make#progres
 set statusline=%<                                    " trancate at start
 
 " left item, starts with space
-let &statusline .= '%( %f%)'                         " file tail
+let &statusline .= ' %f'                             " file tail
 let &statusline .= '%( %{ddd#status#eval_exprs()}%)' " expressions
 let &statusline .= '%( %r%)'                         " readonly
 let &statusline .= '%( %m%)'                         " modified
@@ -171,7 +171,7 @@ let &statusline .= '%='                              " separation point
 let &statusline .= '%-14.(%l,%c%V%) %P '             " ruler
 let &statusline .= '| %{&ff} '                       " file format
 let &statusline .= '| %{&fenc} '                     " file encoding
-let &statusline .= '| %{&ft} '                       " file filetype
+let &statusline .= '| %Y '                           " file filetype
 
 " cursor {{{2
 if stridx($TERM, 'linux') == -1
