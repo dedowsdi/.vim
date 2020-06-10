@@ -62,7 +62,9 @@ endfunction
 function s:new() abort
   call s:split(1)
   if !empty(g:ddd_gterm_init_cmd)
-    call s:gterm.send( g:ddd_gterm_init_cmd + ['Enter'] )
+    let cmd = []
+    call map( g:ddd_gterm_init_cmd, { i,v -> extend(cmd, [v, 'Enter']) } )
+    call s:gterm.send(cmd)
   endif
 endfunction
 
