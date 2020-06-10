@@ -165,9 +165,11 @@ let &statusline .= ' %f'                             " file tail
 let &statusline .= '%( %{ddd#status#eval_exprs()}%)' " expressions
 let &statusline .= '%( %r%)'                         " readonly
 let &statusline .= '%( %m%)'                         " modified
+" let &statusline .= ' %#StatusLineNC#'                " dark middle
 let &statusline .= '%='                              " separation point
 
 " right items, ends with space
+" let &statusline .= '%0* '                            " restore color
 let &statusline .= '%-14.(%l,%c%V%) %P '             " ruler
 let &statusline .= '| %{&ff} '                       " file format
 let &statusline .= '| %{&fenc} '                     " file encoding
