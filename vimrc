@@ -76,9 +76,8 @@ set sessionoptions+=unix,slash
 " use unix / in expand()
 set shellslash
 
-" scan current and included files might cause problem if lots file are
-" included, restrict pop up menu height,
-set complete-=i pumheight=16
+" don't scan included files, restrict pop up menu height,
+set complete-=i pumheight=16 completeopt=popuphidden
 
 " enable mouse for all modes. Sometimes you need it to copy something.
 set mouse=a
@@ -243,6 +242,7 @@ com CocTypeDefinition exec "norm \<plug>(coc-type-definition)"
 com CoImplementation exec "norm \<plug>(coc-implementation)"
 com CocHover call CocActionAsync('doHover')
 com CocCodeAction call CocActionAsync('codeAction')
+com CocSymbols CocList symbols
 
 " fugitive {{{2
 com -nargs=* Glg Git! log --graph --pretty=format:'%h - <%an> (%ad)%d %s' --abbrev-commit --date=local <args>
@@ -414,6 +414,7 @@ nmap <expr> ,ff ',f' . v:count1 . '_'
 nnoremap Y  y$
 nnoremap gc :SelectLastChange<cr>
 nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
+nnoremap <expr> yoC &cot ==# "popuphidden" ? ':set cot&<cr>' : ':set cot=popuphidden<cr>'
 nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
 
 nnoremap <c-w><space> :tab split<cr>
