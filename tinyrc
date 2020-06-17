@@ -1,0 +1,212 @@
+" vim:set foldmethod=marker filetype=vim:
+
+" This is a standalone tiny vimrc file, it contains only option setting and a
+" few commands, it loads no heavy plugins, it's used for my vps.
+" This file should work for at least 8.0(default version on ubuntu18.04).
+
+" options {{{1
+
+" show tab and trailing space
+scriptencoding utf-8
+set list listchars=trail:…,tab:†·,extends:>,precedes:<,nbsp:+
+scriptencoding
+
+" for convenience, add all children to path.
+set path+=**
+
+" ignore tool and build
+set wildignore=*/build/*,*/.git/*,*/.hg/*,*/.vscode/*,*/.clangd/*,*.o,*.a,*.so,*.dll,tags
+set wildignorecase
+
+" reduce esc delay to a acceptable number
+set ttimeout ttimeoutlen=5 timeoutlen=1000
+
+" copy indent of current line to newline
+set autoindent
+
+" smart indent for {, }, 'cinwords', #
+set smartindent
+
+" no tab, use shiftwidth in front of a line. use 4 for <tab> or <bs>
+set expandtab smarttab shiftwidth=4 tabstop=8 softtabstop=4
+
+" traditional backspace
+set backspace=indent,eol,start
+
+" turn on \C if uppercase letter appears in the pattern for /,?,:g,:s,n,N., not
+" for *,# (unless you use / after them)
+set ignorecase smartcase
+
+" trigger CursorHold more frequently, required by coc
+set updatetime=300
+
+" make <c-a>, <c-x> work on decimal, hex, binary
+set nrformats=octal,hex,bin
+
+" mv swp, bak, undo out of file directory, use %usr%home%.vimswap%... style name
+let &backup = !has('vms')
+set backupdir=$HOME/.vimbak//
+set directory=$HOME/.vimswap//
+set undofile undodir=$HOME/.vimundo//
+
+" hide buffer when it's abandoned
+set hidden
+
+" turn on wild menu, complete 1st match
+set wildmenu
+set wildmode=full
+
+" use unix / and 0a as new line in session file
+set sessionoptions+=unix,slash
+
+" use unix / in expand()
+set shellslash
+
+" don't scan included files, restrict pop up menu height,
+set complete-=i pumheight=16 
+if has('patch-8.1.2192')
+  set completeopt=popuphidden
+endif
+
+" enable mouse for all modes. Sometimes you need it to copy something.
+set mouse=a
+
+" conceal only in visual and normal mode
+set concealcursor=vn conceallevel=0
+
+" display search count
+set shortmess-=S
+
+" Suffixes that get lower priority when doing tab completion for filenames.
+set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,
+            \.ilg,.inx,.out,.toc
+
+if has('gui_running')
+  set guioptions-=m  " hide menubar
+  set guioptions-=T  " hide toolbar
+  set guioptions-=r  " hide right scrollbar
+  set guioptions-=L  " hide left scrollbar when there is a vertically split window
+
+  " turn off cursor blink for nvc mode
+  set guicursor-=n-v-c:block-Cursor/lCursor
+  set guicursor^=n-v-c:block-blinkon0-Cursor/lCursor
+
+  set lines=100 columns=999
+endif
+
+set exrc secure
+
+" search tag in dir of current file upward until root, use current dir tags if
+" nothing found
+" set tags=./tags;,tags
+
+" add -I to ignore binary file, -D to ignore device files, exclude some dirs
+let &grepprg = 'grep -n -I -D skip --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.clangd} $* /dev/null'
+
+" some common fileencoding, the less general encoding must appear before the
+" more general one
+set fileencodings=ucs-bom,utf-8,default,gb18030,utf-16,latin1
+
+" add spell to i_ctrl-x_ctrl-k
+set nospell spelllang=en_us dictionary+=spell
+
+" save mark for 500files, limit saved register to 50 lines, exclude register
+" greater than 10kbytes, no hlsearch during loading of viminfo.
+set viminfo='500,<50,s10,h
+
+" supress redraw during map, macro
+set lazyredraw
+
+" use Man as keywordprg
+runtime! ftplugin/man.vim
+set keywordprg=:Man
+
+" statusline has higher precedence, ruler only works if status line is
+" invisible.
+set ruler
+
+" viminfo= doesn't expand environment variable, check n of viminfo for detail.
+" don't save anything for help files.
+let &viminfo .= ',r'.$VIMRUNTIME.'/doc'
+
+" trivial options
+set incsearch
+set background=dark
+set history=4096
+set undolevels=4096
+set number
+set laststatus=2 cmdheight=2
+set scrolloff=5
+set showmode showcmd novisualbell
+set noshowmatch matchtime=3 matchpairs+=<:>
+set belloff=esc
+set nofoldenable
+set modeline
+if has('patch-8.1.1565')
+  set signcolumn=number
+endif
+
+" truecolor {{{2
+if exists('$VIM_TRUECOLOR')
+    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+    set termguicolors
+endif
+
+" install plugins {{{2
+if v:version > 800
+  packadd! cfilter
+  packadd! termdebug
+endif
+packadd! matchit
+
+" common maps {{{2
+nnoremap Y  y$
+nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
+nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
+if has('patch-8.1.2192')
+  nnoremap <expr> yoC &cot ==# "popuphidden" ?
+        \ ':set cot&<cr>' : ':set cot=popuphidden<cr>'
+endif
+
+nnoremap <c-w><space> :tab split<cr>
+nnoremap <c-w><nul> :tab split<cr>
+tnoremap <c-w><space> <c-w>:tab split<cr>
+tnoremap <c-w><nul> <c-w>:tab split<cr>
+" termwinkey is special, there is a mapping delay for <c-w>,c-w> if you create
+" any tmap that starts with <c-w>
+tnoremap <c-w><c-w> <c-w><c-w>
+
+" commands {{{1
+com! SelectLastChange exec 'normal! `[' . getregtype() . '`]'
+
+com! ReverseQuickFixList call setqflist(reverse(getqflist()))
+
+com! SuperWrite :w !sudo tee % > /dev/null
+
+com! -bang CfilterCoreHelp Cfilter<bang> '\v/vim/vim\d+/doc/[^/]+\.txt'
+
+com! ReloadDotVimFtplugin unlet b:loaded_{&filetype}_cfg | e
+
+" Less {{{2
+com! -nargs=+ -complete=command Less call <sid>less(<q-args>, <q-mods>)
+com! NewOneOff call <sid>new_oneoff(<q-mods>)
+
+function! s:new_oneoff(mods) abort
+  exe a:mods 'new'
+  setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted modifiable
+endfunction
+
+function! s:less(cmd, mods)
+  let output = execute(a:cmd)
+  NewOneOff
+  exe 'put! =output'
+  1
+endfunction
+
+" standalone setting
+if get(g:, 'tinyrc_is_partof_vimrc', 0) == 0
+  nnoremap <c-h> :<c-u>Less oldfiles<cr>
+  filetype plugin indent on
+  syntax enable
+endif

@@ -17,143 +17,8 @@
 "
 " Don't create things that's might be useful, it's useless most of time.
 
-" options {{{1
-
-" basic {{{2
-" show tab and trailing space
-scriptencoding utf-8
-set list listchars=trail:…,tab:†·,extends:>,precedes:<,nbsp:+
-scriptencoding
-
-" for convenience, add all children to path.
-set path+=**
-
-" ignore tool and build
-set wildignore=*/build/*,*/.git/*,*/.hg/*,*/.vscode/*,*/.clangd/*,*.o,*.a,*.so,*.dll,tags
-set wildignorecase
-
-" reduce esc delay to a acceptable number
-set ttimeout ttimeoutlen=5 timeoutlen=1000
-
-" copy indent of current line to newline
-set autoindent
-
-" smart indent for {, }, 'cinwords', #
-set smartindent
-
-" no tab, use shiftwidth in front of a line. use 4 for <tab> or <bs>
-set expandtab smarttab shiftwidth=4 tabstop=8 softtabstop=4
-
-" traditional backspace
-set backspace=indent,eol,start
-
-" turn on \C if uppercase letter appears in the pattern for /,?,:g,:s,n,N., not
-" for *,# (unless you use / after them)
-set ignorecase smartcase
-
-" trigger CursorHold more frequently, required by coc
-set updatetime=300
-
-" make <c-a>, <c-x> work on decimal, hex, binary
-set nrformats=octal,hex,bin
-
-" mv swp, bak, undo out of file directory, use %usr%home%.vimswap%... style name
-let &backup = !has('vms')
-set backupdir=$HOME/.vimbak//
-set directory=$HOME/.vimswap//
-set undofile undodir=$HOME/.vimundo//
-
-" hide buffer when it's abandoned
-set hidden
-
-" turn on wild menu, complete 1st match
-set wildmenu
-set wildmode=full
-
-" use unix / and 0a as new line in session file
-set sessionoptions+=unix,slash
-
-" use unix / in expand()
-set shellslash
-
-" don't scan included files, restrict pop up menu height,
-set complete-=i pumheight=16 completeopt=popuphidden
-
-" enable mouse for all modes. Sometimes you need it to copy something.
-set mouse=a
-
-" conceal only in visual and normal mode
-set concealcursor=vn conceallevel=0
-
-" display search count
-set shortmess-=S
-
-" Suffixes that get lower priority when doing tab completion for filenames.
-set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,
-            \.ilg,.inx,.out,.toc
-
-" hide gui menu, toolbar
-if has('gui_running')
-  set guioptions-=m  " hide menubar
-  set guioptions-=T  " hide toolbar
-  set guioptions-=r  " hide right scrollbar
-  set guioptions-=L  " hide left scrollbar when there is a vertically split window
-  set lines=100 columns=999
-endif
-
-set exrc secure
-
-if has('nvim')
-  set rtp+=~/.vim
-endif
-
-" search tag in dir of current file upward until root, use current dir tags if
-" nothing found
-" set tags=./tags;,tags
-
-" add -I to ignore binary file, -D to ignore device files, exclude some dirs
-let &grepprg = 'grep -n -I -D skip --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.clangd} $* /dev/null'
-
-" some common fileencoding, the less general encoding must appear before the
-" more general one
-set fileencodings=ucs-bom,utf-8,default,gb18030,utf-16,latin1
-
-" add spell to i_ctrl-x_ctrl-k
-set nospell spelllang=en_us dictionary+=spell
-
-" save mark for 500files, limit saved register to 50 lines, exclude register
-" greater than 10kbytes, no hlsearch during loading of viminfo.
-set viminfo='500,<50,s10,h
-
-" supress redraw during map, macro
-set lazyredraw
-
-" use Man as keywordprg
-runtime! ftplugin/man.vim
-set keywordprg=:Man
-
-" statusline has higher precedence, ruler only works if status line is
-" invisible.
-set ruler
-
-" viminfo= doesn't expand environment variable, check n of viminfo for detail.
-" don't save anything for help files.
-let &viminfo .= ',r'.$VIMRUNTIME.'/doc'
-
-" trivial options
-set incsearch
-set background=dark
-set history=4096
-set undolevels=4096
-set number
-set laststatus=2 cmdheight=2
-set scrolloff=5
-set showmode showcmd novisualbell
-set noshowmatch matchtime=3 matchpairs+=<:>
-set belloff=esc
-set nofoldenable
-set signcolumn=number
-set modeline
+let g:tinyrc_is_partof_vimrc = 1
+source <sfile>:h/tinyrc
 
 " statusline {{{2
 let g:ddd_status_exprs = ['ddd#status#git_head', 'coc#status', 'ddd#make#progress']
@@ -185,13 +50,6 @@ if stridx($TERM, 'linux') == -1
     let &t_SR = "\e[3 q"
     let &t_EI = "\e[2 q"
   endif
-endif
-
-" truecolor {{{2
-if exists('$VIM_TRUECOLOR')
-    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-    set termguicolors
 endif
 
 " plugin {{{1
@@ -300,12 +158,6 @@ let g:ddd_connect_ctag_server = 1
 
 " install plugins {{{2
 
-if v:version > 800
-  packadd! cfilter
-  packadd! termdebug
-endif
-packadd! matchit
-
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
     \ https:/ githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -412,27 +264,14 @@ nmap ,f  <plug>ddd_op_clang_format
 nmap <expr> ,ff ',f' . v:count1 . '_'
 
 " common maps {{{2
-
-nnoremap Y  y$
 nnoremap gc :SelectLastChange<cr>
-nnoremap yoc :exe 'set colorcolumn='. (empty(&colorcolumn) ? '+1' : '')<cr>
-nnoremap <expr> yoC &cot ==# "popuphidden" ? ':set cot&<cr>' : ':set cot=popuphidden<cr>'
-nnoremap <c-l> :nohlsearch<Bar>diffupdate<CR><C-L>
 
-nnoremap <c-w><space> :tab split<cr>
-nnoremap <c-w><nul> :tab split<cr>
-tnoremap <c-w><space> <c-w>:tab split<cr>
-tnoremap <c-w><nul> <c-w>:tab split<cr>
 nnoremap <c-w>O :CloseFinishedTerminal<cr>
 nnoremap <expr> <c-w>0 printf(':<c-u>%dWinFitBuf<cr>', v:count)
 
 " go to normal mode, scroll to last command start
 tnoremap <expr> <c-w>u printf('<c-\><c-n>2?%s<cr>zt',
       \ exists('PS1_VIM_PATTERN') ? $PS1_VIM_PATTERN : '^([ic])-->')
-
-" termwinkey is special, there is a mapping delay for <c-w>,c-w> if you create
-" any tmap that starts with <c-w>
-tnoremap <c-w><c-w> <c-w><c-w>
 
 if v:version > 800
   cmap <tab> <Plug>ddd_hist_expand_hist_wild
@@ -442,30 +281,4 @@ endif
 nmap ys<space> <plug>ddd_pair_add_space
 nmap ds<space> <plug>ddd_pair_minus_space
 
-" command {{{1
-
-com SelectLastChange exec 'normal! `[' . getregtype() . '`]'
-
-com ReverseQuickFixList call setqflist(reverse(getqflist()))
-
-com SuperWrite :w !sudo tee % > /dev/null
-
-com -bang CfilterCoreHelp Cfilter<bang> '\v/vim/vim\d+/doc/[^/]+\.txt'
-
-com ReloadDotVimFtplugin unlet b:loaded_{&filetype}_cfg | e
-
-" Less {{{2
-com -nargs=+ -complete=command Less call <sid>less(<q-args>, <q-mods>)
-com NewOneOff call <sid>new_oneoff(<q-mods>)
-
-function s:new_oneoff(mods) abort
-  exe a:mods 'new'
-  setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted modifiable
-endfunction
-
-function s:less(cmd, mods)
-  let winid = win_getid()
-  NewOneOff
-  exe printf('put! =win_execute(%d, %s)', winid, string(a:cmd))
-  1
-endfunction
+" commands {{{1
