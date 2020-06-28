@@ -2,7 +2,6 @@ if exists('b:loaded_cpp_cfg')
   finish
 endif
 let b:loaded_cpp_cfg = 1
-nnoremap <buffer> _io :call ddd#cpp#include_osg()<cr>
 
 Abbre cpp
 

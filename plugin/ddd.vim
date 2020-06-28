@@ -92,6 +92,9 @@ nnoremap <plug>ddd_op_g~o :call ddd#op#omo('gso')<cr>
 
 " cpp {{{1
 let g:ddd_cpp_def_src_ext    = get(g:, 'ddd_cpp_def_src_ext'    , 'cpp')
+com CppGotoLastInclude call ddd#cpp#goto_last_include()
+com CppDebugToggleBreak call ddd#cpp#debug_toggle_break()
+com CppIncludeOsg call ddd#cpp#include_osg()
 
 " gterm {{{1
 com GtermToggle call ddd#gterm#toggle()
