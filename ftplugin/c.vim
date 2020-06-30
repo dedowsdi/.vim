@@ -36,6 +36,7 @@ nnoremap <buffer> <leader>an :CppNNL<cr>
 " misc
 " nnoremap <f4>  :YcmCompleter GetType<cr>
 nnoremap <buffer> <a-o>      :CdefSwitchFile<cr>
+nnoremap <buffer> <f4>       :CdefSwitchFile<cr>
 " nnoremap <buffer> <c-f7>     :YcmDiags<cr>
 inoremap <buffer> <c-l>      ->
 nnoremap <buffer> <f8>       :CdefSwitch<cr>
