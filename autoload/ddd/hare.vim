@@ -170,8 +170,9 @@ function s:setup_event_and_sink(sink) abort
 
 endfunction
 
+let g:ddd_hare_filter = 1
 function s:filter() abort
-  if getcmdtype() !~# '[/?]'
+  if getcmdtype() !~# '[/?]' || g:ddd_hare_filter == 0
     return
   endif
 
