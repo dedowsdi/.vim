@@ -20,6 +20,8 @@
 let g:tinyrc_is_partof_vimrc = 1
 source <sfile>:h/tinyrc
 
+let $VIM_HOST_TERM = $TERM
+
 " statusline {{{2
 let g:ddd_status_exprs = ['ddd#status#git_head', 'coc#status', 'ddd#make#progress']
 set statusline=%<                                    " trancate at start
