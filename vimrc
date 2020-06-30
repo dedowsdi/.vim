@@ -40,7 +40,15 @@ let &statusline .= '| %{&fenc} '                     " file encoding
 let &statusline .= '| %Y '                           " file filetype
 
 " cursor {{{2
-if stridx($TERM, 'linux') == -1
+if stridx($TERM, 'linux') != -1
+  let &t_ve = "\e[?25h"
+  let &t_vi = "\e[?25l"
+  let &t_SI = "\e[?0c"
+  let &t_EI = "\e[?16;143;255c"
+  set t_ti& t_te&
+  let &t_ti .= "\e[?16;143;255c"
+  let &t_te .= "\e[?0c"
+else
   if exists('$TMUX')
     let &t_SI = "\ePtmux;\e\e[5 q\e\\"
     let &t_SR = "\ePtmux;\e\e[3 q\e\\"
