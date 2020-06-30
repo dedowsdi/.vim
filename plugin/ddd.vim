@@ -195,7 +195,7 @@ com -nargs=+ Locate Hare file !locate <args>
 com GrepCache exe 'Hare fline !cat' @%
 
 com Btag call ddd#hare#jump('btag',
-      \ s:get_btag_cmd(&filetype) , s:get_tag_pattern(&filetype))
+      \ s:get_btag_cmd(&filetype) , s:get_btag_pattern(&filetype))
 
 " {filetype:string or funcref(which return cmd string)}
 let g:ddd_hare_btag_cmd = get(g:, 'ddd_hare_btag_cmd', {})
@@ -224,26 +224,32 @@ function s:get_btag_cmd(filetype) abort
   return printf('!ctags --fields=k -f - %s | cut -f1,3-', expand('%'))
 endfunction
 
-let g:ddd_hare_tag_pattern = get(g:, 'ddd_hare_btag_pattern', {})
+let g:ddd_hare_btag_pattern = get(g:, 'ddd_hare_btag_pattern', {})
+call extend(g:ddd_hare_btag_pattern, {'vim' : '\<'})
 
-if !has_key(g:ddd_hare_tag_pattern, 'vim')
-  let g:ddd_hare_tag_pattern.vim = '\<'
-endif
-
-function s:get_tag_pattern(filetype) abort
-  if has_key(g:ddd_hare_tag_pattern, a:filetype)
-    let pat = g:ddd_hare_tag_pattern[a:filetype]
+function s:get_btag_pattern(filetype) abort
+  if has_key(g:ddd_hare_btag_pattern, a:filetype)
+    let pat = g:ddd_hare_btag_pattern[a:filetype]
     return type(pat) ==# v:t_func ? pat() : pat
   endif
   return '^'
 endfunction
 
 com -nargs=* Tag call ddd#hare#jump('tag',
-      \ function('s:read_tags', [<f-args>]), s:get_tag_pattern(&filetype))
+      \ function('s:read_tags', [<f-args>]), '^', '^!_TAG_PARENT_PATH')
 
 com Tagbar exe 'Hare btag !tagbar' @%
 
-com -nargs=+ -bang -complete=tag Tselect Hare tselect tselect<bang> <args>
+function s:tselect_source(cmd) abort
+  " use substitute instead of a %s command, which change last replacement
+  " pattern even in a function.
+  put! =substitute(execute(a:cmd), '\n \{4,}', '\t', 'g')
+  1d_
+endfunction
+
+com -nargs=+ -bang -complete=tag Tselect call ddd#hare#jump('tselect',
+      \ function('s:tselect_source', ['tselect<bang> <args>']),
+      \ '\<', '^\s*#\s\+pri\s\+kind\s\+tag')
 
 com Undolist exe 'Hare undolist undolist'
 

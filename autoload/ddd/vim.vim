@@ -31,7 +31,8 @@ endfunction
 " support both relative and absolute filename
 function ddd#vim#get_sid(file_name) abort
   redir => str | silent execute 'scriptnames' | redir END
-  let [abs_name, base_name] = [fnamemodify(a:file_name, ':p'), fnamemodify(a:file_name, ':t')]
+  let abs_name = resolve( fnamemodify(a:file_name, ':p') )
+  let base_name = fnamemodify(a:file_name, ':t')
   " item format in scriptnames: 18: script name
   let script_list = filter(split(str, "\n"), {i,v -> v =~# base_name})
   let script_list = filter(script_list,

@@ -37,8 +37,8 @@
 " Note all source is applied after hare buffer cureated, the current
 " buffer is the hare buffer, not the original one.
 "
-" ...:
-"   keys feeded to feedkeys(), it defaults to `\v.*<`
+" [keys, [filter_reserve_pattern_list]]
+" keys defaults to .*\<
 function ddd#hare#jump(sink, source, ...) abort
 
   if &filetype ==# 'hare'
@@ -67,7 +67,9 @@ function ddd#hare#jump(sink, source, ...) abort
     call s:fill_buffer(a:source)
     call s:setup_event_and_sink(a:sink)
 
-    let s:start_pattern = a:0 > 0 ? a:1 : '.*\<'
+    let s:start_pattern = get(a:000, 0, '.*\<')
+    let s:filter_reserve = get(a:000, 1, '')
+
     call feedkeys('/' . s:start_pattern, 'n')
 
   catch /.*/
@@ -183,8 +185,9 @@ function s:filter() abort
     return
   endif
 
-  " take special care of 'tag' sink, need to reserve the parent PATH
-  let pattern = printf('^!_TAG_PARENT_PATH\|%s', pattern)
+  if !empty(s:filter_reserve)
+    let pattern = printf('%s\|%s', s:filter_reserve, pattern)
+  endif
 
   " This will won't work for last character in feedkeys?
   " if state('m') !=# ''
@@ -291,25 +294,10 @@ function s:ls_sink() abort
 endfunction
 
 function s:tselect_sink() abort
-
-  let menu = getline(2)
-  let tag_index = stridx(menu, 'tag')
+  let menu = getline(1)
   let file_index = stridx(menu, 'file')
-
-  " goto tag start line
-  if !search('\v^\s{,8}\d+', 'bW')
-    throw 'Illegal entry ' . getline('.')
-  endif
-  let path = getline('.')[file_index : ]
-
-  " search pattern or line number
-  let pattern_regex = printf('\v^\s+\zs%%%dc\S+', tag_index + 3)
-  if !search( pattern_regex, 'W')
-    throw 'Illegal entry ' . getline('.')
-  endif
-  let pattern = matchstr(getline('.'), pattern_regex )
-
-  call ddd#hare#land({'file':path, 'line':pattern})
+  let l = split(getline('.')[file_index : ], '\t')
+  call ddd#hare#land({'file':l[0], 'line':l[-1]})
 endfunction
 
 function s:undolist_sink() abort
