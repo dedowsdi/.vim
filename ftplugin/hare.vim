@@ -22,7 +22,7 @@ cnoremap <silent> <buffer> <expr> <cr> getcmdtype() ==# ':' &&
       \ ? '<c-u>exe "norm \<plug>ddd_hare_abort"<cr>' : '<cr>'
 
 cmap <buffer> <c-o> <plug>ddd_hare_sink
-nmap <buffer> <cr> <plug>ddd_hare_sink
+nmap <buffer> <c-o> <plug>ddd_hare_sink
 nnoremap <leader>f :<c-u>let g:ddd_hare_filter = !g:ddd_hare_filter<cr>
 
 cmap <buffer> <c-s> <cr>:let b:hare.mods='leftabove'<cr><plug>ddd_hare_sink
