@@ -225,6 +225,8 @@ augroup ag_ddd_init | au!
   " no auto comment leader after o or O, remove comment leader when join comment lines
   autocmd FileType * setlocal formatoptions-=o formatoptions+=j
 
+  autocmd TerminalWinOpen * setlocal nonumber norelativenumber
+
   " clear TextChanged, TextChangedI, TextChangedP. You can use DoMatchParen if
   " you want to turn it on later
   autocmd VimEnter * exe 'NoMatchParen' | au! UltiSnips_AutoTrigger
