@@ -59,6 +59,10 @@ function ddd#gterm#repeat_cmd() abort
   " when you leave terminal buffer normal mode.
   $mark m
 
+  if mode() =~# '^n'
+    norm! i
+  endif
+
   " repeat last command
   call term_sendkeys('', g:ddd_gterm_repeat_cmd)
   wincmd p
