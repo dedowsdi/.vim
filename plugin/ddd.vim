@@ -312,6 +312,15 @@ com -nargs=+ Syntax call ddd#syntax#apply(<f-args>)
 " abbre {{{1
 com -nargs=+ Abbre call ddd#abbre#apply(<f-args>)
 
+" option {{{1
+com WhichCinoptions call ddd#option#which_cinoptions()
+
+com -nargs=+ -complete=option PushGlobalOption call ddd#option#push(1, <f-args>)
+com -nargs=+ -complete=option PopGlobalOption call ddd#option#pop(1, <f-args>)
+
+com -nargs=+ -complete=option PushLocalOption call ddd#option#push(0, <f-args>)
+com -nargs=+ -complete=option PopLocalOption call ddd#option#pop(0, <f-args>)
+
 " misc {{{1
 com -bar CamelToUnderscore norm! ciw<c-r>=ddd#camel_to_underscore(@@)<cr><esc>
 com -bar -bang UnderscoreToCamel norm! ciw<c-r>=ddd#underscore_to_camel(@@, <bang>0)<cr><esc>
@@ -353,7 +362,5 @@ let g:ddd_type_interval=get(g:, 'ddd_type_interval', '200ms')
 com -nargs=+ Type call ddd#type(<q-args>)
 
 com -nargs=+ DiffLine call ddd#diff_line(<f-args>)
-
-com WhichCinoptions call ddd#option#which_cinoptions()
 
 com -nargs=+ -bang Time call ddd#time(<bang>0, <q-args>)

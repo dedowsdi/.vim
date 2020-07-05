@@ -43,3 +43,33 @@ function ddd#option#which_cinoptions() abort
   echom join(results)
   echohl None
 endfunction
+
+let s:opt_stack = {}
+
+" [val]
+" push current option value, set option value to [val] or default value.
+function ddd#option#push(global, name, ...) abort
+  let oname = printf('%s:%s', a:global ? 'g' : 'l', a:name)
+  exe printf('let bak = &%s', oname)
+  call extend(s:opt_stack, {oname : []}, 'keep')
+  let s:opt_stack[oname] += [bak]
+
+  if a:0 > 0
+    exe printf('let &%s = %s', oname, string(a:1))
+  else
+    exe printf('setglobal %s&', a:name)
+  endif
+endfunction
+
+function ddd#option#pop(global, name) abort
+  let oname = printf('%s:%s', a:global ? 'g' : 'l', a:name)
+  if !has_key(s:opt_stack, oname)
+    echohl WarningMsg
+    echo 'Empty stack, nothing to pop'
+    echohl None
+    return
+  endif
+
+  exe printf('let &%s = %s', oname, string(s:opt_stack[oname][-1]))
+  call remove(s:opt_stack[oname], -1)
+endfunction
