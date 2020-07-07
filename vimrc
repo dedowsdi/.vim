@@ -179,7 +179,6 @@ call plug#begin('~/.vim/plugged')
 " common
 Plug 'junegunn/vim-easy-align'
 Plug 'tpope/vim-surround'
-Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-unimpaired'
 Plug 'tommcdo/vim-exchange'
 

@@ -303,8 +303,8 @@ function s:repeat_plug_map(lhs, rhs)
         \ a:lhs, a:rhs, a:lhs[1:])
 endfunction
 
-call s:repeat_plug_map('<Plug>ddd_pair_add_space', ':call ddd#pair#expand(1)<cr>')
-call s:repeat_plug_map('<Plug>ddd_pair_minus_space', ':call ddd#pair#expand(0)<cr>')
+nnoremap <Plug>ddd_pair_add_space :call ddd#pair#expand(1)<cr>
+nnoremap <Plug>ddd_pair_minus_space :call ddd#pair#expand(0)<cr>
 
 " syntax {{{1
 com -nargs=+ Syntax call ddd#syntax#apply(<f-args>)
