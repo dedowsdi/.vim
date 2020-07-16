@@ -1,6 +1,7 @@
 " vim:set foldmethod=marker:
 
-" This vimrc should also work for 8.0(default version on ubuntu18.04).
+" This vimrc require vim8.2 on unix system to work properly, otherwise it's
+" finished after statusline setting.
 "
 " Map and command are public interface, plugin settings and functions are
 " private implementation, interface must appear before implementation.
@@ -23,12 +24,14 @@ source <sfile>:h/tinyrc
 let $VIM_HOST_TERM = $TERM
 
 " statusline {{{2
-let g:ddd_status_exprs = ['ddd#status#git_head', 'coc#status', 'ddd#make#progress']
 set statusline=%<                                    " trancate at start
 
 " left item, starts with space
 let &statusline .= ' %f'                             " file tail
-let &statusline .= '%( %{ddd#status#eval_exprs()}%)' " expressions
+if has('unix') && exists('*fugitive#head')           " expressions
+  let g:ddd_status_exprs =  ['ddd#status#git_head', 'coc#status', 'ddd#make#progress']
+  let &statusline .= '%( %{ddd#status#eval_exprs()}%)'
+endif
 let &statusline .= '%( %r%)'                         " readonly
 let &statusline .= '%( %m%)'                         " modified
 " let &statusline .= ' %#StatusLineNC#'                " dark middle
@@ -40,6 +43,18 @@ let &statusline .= '%-14.(%l,%c%V%) %P '             " ruler
 let &statusline .= '| %{&ff} '                       " file format
 let &statusline .= '| %{&fenc} '                     " file encoding
 let &statusline .= '| %Y '                           " file filetype
+
+" finish if it's non unix
+if !has('unix') || v:version < 802
+  if globpath(&rtp, 'colors/solarized.vim') !=# ''
+    colorscheme solarized
+  endif
+
+  filetype plugin indent on
+  syntax enable
+
+  finish
+endif
 
 " cursor {{{2
 if stridx($TERM, 'linux') != -1
@@ -132,7 +147,9 @@ com -nargs=1 Proj call ddd#proj#load_map(<f-args>)
 
 " gterm {{{2
 nnoremap <c-w><cr> :<c-u>GtermToggle<cr>
-tnoremap <c-w><cr> <c-w>:<c-u>GtermToggle<cr>
+if exists(':tmap')
+  tnoremap <c-w><cr> <c-w>:<c-u>GtermToggle<cr>
+endif
 nnoremap g<cr>  :<c-u>GtermRepeat<cr>
 if stridx($TERM, '16color') != -1
   let g:ddd_gterm_init_cmd = [ 'TERM=xterm-16color' ]
@@ -168,13 +185,8 @@ let g:ddd_connect_ctag_server = 1
 
 " install plugins {{{2
 
-if empty(glob('~/.vim/autoload/plug.vim'))
-  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-    \ https:/ githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  autocmd! vim_plug_init VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
-
-call plug#begin('~/.vim/plugged')
+" require https:/ githubusercontent.com/junegunn/vim-plug/master/plug.vim
+call plug#begin(expand('~/.vim/plugged'))
 
 " common
 Plug 'junegunn/vim-easy-align'
@@ -224,7 +236,9 @@ augroup ag_ddd_init | au!
   " no auto comment leader after o or O, remove comment leader when join comment lines
   autocmd FileType * setlocal formatoptions-=o formatoptions+=j
 
-  autocmd TerminalWinOpen * setlocal nonumber norelativenumber
+  if exists('#TerminalWinOpen')
+    autocmd TerminalWinOpen * setlocal nonumber norelativenumber
+  endif
 
   " clear TextChanged, TextChangedI, TextChangedP. You can use DoMatchParen if
   " you want to turn it on later
@@ -281,13 +295,13 @@ nnoremap <c-w>O :CloseFinishedTerminal<cr>
 nnoremap <expr> <c-w>0 printf(':<c-u>%dWinFitBuf<cr>', v:count)
 
 " go to normal mode, scroll to last command start
-tnoremap <expr> <c-w>u printf('<c-\><c-n>2?%s<cr>zt',
-      \ exists('PS1_VIM_PATTERN') ? $PS1_VIM_PATTERN : '^([ic])-->')
-
-if v:version > 800
-  cmap <tab> <Plug>ddd_hist_expand_hist_wild
-  set wildchar=<c-z>
+if exists(':tmap')
+  tnoremap <expr> <c-w>u printf('<c-\><c-n>2?%s<cr>zt',
+        \ exists('PS1_VIM_PATTERN') ? $PS1_VIM_PATTERN : '^([ic])-->')
 endif
+
+cmap <tab> <Plug>ddd_hist_expand_hist_wild
+set wildchar=<c-z>
 
 nmap ys<space> <plug>ddd_pair_add_space
 nmap ds<space> <plug>ddd_pair_minus_space

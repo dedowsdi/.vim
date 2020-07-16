@@ -6,6 +6,13 @@
 
 " options {{{1
 
+" always use utf-8, required for windows
+set encoding=utf-8
+
+" some common fileencoding, the less general encoding must appear before the
+" more general one
+set fileencodings=ucs-bom,utf-8,default,gb18030,utf-16,latin1
+
 " show tab and trailing space
 scriptencoding utf-8
 set list listchars=trail:…,tab:†·,extends:>,precedes:<,nbsp:+
@@ -103,10 +110,6 @@ set exrc secure
 " add -I to ignore binary file, -D to ignore device files, exclude some dirs
 let &grepprg = 'grep -n -I -D skip --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.clangd} $* /dev/null'
 
-" some common fileencoding, the less general encoding must appear before the
-" more general one
-set fileencodings=ucs-bom,utf-8,default,gb18030,utf-16,latin1
-
 " add spell to i_ctrl-x_ctrl-k
 set nospell spelllang=en_us dictionary+=spell
 
@@ -171,11 +174,13 @@ endif
 
 nnoremap <c-w><space> :tab split<cr>
 nnoremap <c-w><nul> :tab split<cr>
-tnoremap <c-w><space> <c-w>:tab split<cr>
-tnoremap <c-w><nul> <c-w>:tab split<cr>
-" termwinkey is special, there is a mapping delay for <c-w>,c-w> if you create
-" any tmap that starts with <c-w>
-tnoremap <c-w><c-w> <c-w><c-w>
+if exists(':tmap')
+  tnoremap <c-w><space> <c-w>:tab split<cr>
+  tnoremap <c-w><nul> <c-w>:tab split<cr>
+  " termwinkey is special, there is a mapping delay for <c-w>,c-w> if you create
+  " any tmap that starts with <c-w>
+  tnoremap <c-w><c-w> <c-w><c-w>
+endif
 
 " commands {{{1
 com! SelectLastChange exec 'normal! `[' . getregtype() . '`]'
@@ -209,4 +214,5 @@ if get(g:, 'tinyrc_is_partof_vimrc', 0) == 0
   nnoremap <c-h> :<c-u>Less oldfiles<cr>
   filetype plugin indent on
   syntax enable
+  colorscheme desert
 endif
