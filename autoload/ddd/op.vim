@@ -218,25 +218,16 @@ function ddd#op#omo_gso(type, ...) abort
 endfunction
 
 function s:co_insert_leave() abort
-
   let cword = @"
   let replacement = dddu#get_last_change()
   let is_word = cword !~# '\W'
-  try
 
+  try
     " undo last change, all change are done in following :substitute, this also
     " make sure `< and `> is still valid.
     exe 'undo ' s:omo_cnr
 
-    " mark visual end with special string mark
-    norm! `>
-    let visual_end_mark = repeat("\x82", 4)
-    call dddu#smark#append(visual_end_mark)
-
-    " mark first change with special string mark, it must be not in 'iskeyword'
     norm! `a
-    let first_change_mark = repeat("\x81", 4)
-    call dddu#smark#insert(first_change_mark)
 
     " setup search pattern, restrict it in operator text
     let cword_len = len(cword)
@@ -256,29 +247,12 @@ function s:co_insert_leave() abort
 
     call ddd#log#debug('omo : @/ : ' . @/)
 
-    " scale visual area after change
-    norm! `<v
-    call dddu#smark#search(visual_end_mark)
-    exe "norm! \<esc>"
-
     " replace all matching iterms, including the start one
     let cmd = printf("'<,'>s//%s/eg", substitute(replacement, '\n', '\r', 'g'))
     call ddd#log#debug('omo : substitute : ' . cmd)
     exe cmd
-
   finally
-    " clear string marks
-    norm! `a^
-    if has_key(l:, 'visual_end_mark')
-      call dddu#smark#search(visual_end_mark)
-      call dddu#smark#remove(visual_end_mark)
-    endif
-
-    norm! `a^
-    if has_key(l:, 'first_change_mark')
-      call dddu#smark#search(first_change_mark)
-      call dddu#smark#remove(first_change_mark)
-    endif
+    norm! `a
     let @@ = cword
     call setpos("'a", s:omo_old_mark_a)
   endtry

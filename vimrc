@@ -45,7 +45,7 @@ let &statusline .= '| %{&fenc} '                     " file encoding
 let &statusline .= '| %Y '                           " file filetype
 
 " finish if it's non unix
-if !has('unix') || v:version < 802
+if v:version < 802
   if globpath(&rtp, 'colors/solarized.vim') !=# ''
     colorscheme solarized
   endif
@@ -186,6 +186,7 @@ let g:ddd_connect_ctag_server = 1
 " install plugins {{{2
 
 " require https:/ githubusercontent.com/junegunn/vim-plug/master/plug.vim
+set noshellslash
 call plug#begin(expand('~/.vim/plugged'))
 
 " common
@@ -222,6 +223,7 @@ Plug 'lervag/vimtex'
 Plug 'dedowsdi/cdef'
 
 call plug#end()
+set shellslash
 
 " plug#end() already call these commented commands
 " filetype plugin indent on
