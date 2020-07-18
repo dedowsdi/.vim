@@ -98,6 +98,10 @@ if has('gui_running')
   set guicursor-=n-v-c:block-Cursor/lCursor
   set guicursor^=n-v-c:block-blinkon0-Cursor/lCursor
 
+  if has('win32')
+    set guifont=DejaVu_Sans_Mono:h10:cANSI:qDRAFT,Fixedsys:h10:cGB2312:qDRAFT
+  endif
+
   set lines=100 columns=999
 endif
 
