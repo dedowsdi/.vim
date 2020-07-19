@@ -107,7 +107,9 @@ if has('gui_running')
   set lines=100 columns=999
 endif
 
-set exrc secure
+" It's still dangerous, secure is only used if .exrc is not owned by you. You
+" should enable this in shell script: vim --cmd "set exrc"
+" set exrc secure
 
 " search tag in dir of current file upward until root, use current dir tags if
 " nothing found
