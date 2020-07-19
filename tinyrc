@@ -188,6 +188,10 @@ if exists(':tmap')
   tnoremap <c-w><c-w> <c-w><c-w>
 endif
 
+if has('win32')
+  nnoremap <f11> :call libcallnr("gvimfullscreen_64.dll", "ToggleFullScreen", 0)<cr>
+endif
+
 " commands {{{1
 com! SelectLastChange exec 'normal! `[' . getregtype() . '`]'
 
