@@ -45,7 +45,7 @@ let &statusline .= '| %{&fenc} '                     " file encoding
 let &statusline .= '| %Y '                           " file filetype
 
 " finish if it's non unix
-if v:version < 802
+if v:version < 802 || ( has('win32') && !executable('wsl') )
   if globpath(&rtp, 'colors/solarized.vim') !=# ''
     colorscheme solarized
   endif
