@@ -175,8 +175,12 @@ sunmap   ,c
 nmap     ,cc <Plug>CommentaryLine
 nmap     ,cu <Plug>Commentary<Plug>Commentary
 
-" .vim {{{2
-let g:ddd_clang_format_py_path = '/usr/share/clang/clang-format-8/clang-format.py'
+" .vim {{{
+if has('win32')
+  let g:ddd_clang_format_py_path = 'c:/Program Files/LLVM/share/clang/clang-format.py'
+else
+  let g:ddd_clang_format_py_path = '/usr/share/clang/clang-format/clang-format.py'
+endif
 " let g:ddd_clang_format_fallback_style = 'LLVM'
 
 let g:ddd_hist_use_vim_regex_search = 1
@@ -298,8 +302,18 @@ nnoremap <expr> <c-w>0 printf(':<c-u>%dWinFitBuf<cr>', v:count)
 
 " go to normal mode, scroll to last command start
 if exists(':tmap')
-  tnoremap <expr> <c-w>u printf('<c-\><c-n>2?%s<cr>zt',
-        \ exists('PS1_VIM_PATTERN') ? $PS1_VIM_PATTERN : '^([ic])-->')
+  tnoremap <expr> <c-w>u <sid>goto_cmd_start()
+
+  function s:goto_cmd_start() abort
+    if has('win32')
+      let pattern = &shell =~? 'cmd\.exe$' ? '^[c-z]:\\' : '^PS '
+    else
+      let pattern = '^([ic])-->'
+    endif
+
+    return printf("\<c-\>\<c-n>2?%s\<cr>zt",
+                \ exists('PS1_VIM_PATTERN') ? $PS1_VIM_PATTERN :pattern)
+  endfunction
 endif
 
 cmap <tab> <Plug>ddd_hist_expand_hist_wild

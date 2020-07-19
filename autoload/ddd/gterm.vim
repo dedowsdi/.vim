@@ -4,7 +4,9 @@
 " [normalized_row_height, nomalized_col_width] for new gterm
 let g:ddd_gterm_size = get(g:, 'ddd_gterm_size', [0.3, 0.5])
 let g:ddd_gterm_pos = get(g:, 'ddd_gterm_pos', 'k')
-let g:ddd_gterm_repeat_cmd = get(g:, 'ddd_gterm_repeat_cmd', "\<esc>k\<tab>\<cr>")
+let g:ddd_gterm_repeat_cmd = has('win32') ?
+      \ get(g:, 'ddd_gterm_repeat_cmd', "\<up>\<cr>"):
+      \ get(g:, 'ddd_gterm_repeat_cmd', "\<esc>k\<tab>\<cr>")
 let g:ddd_gterm_new_cmd = get(g:, 'ddd_gterm_new_cmd', 'term ++kill=kill')
 let g:ddd_gterm_init_cmd = get(g:, 'ddd_gterm_init_cmd', [])
 
