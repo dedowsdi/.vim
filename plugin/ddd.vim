@@ -203,13 +203,13 @@ let g:ddd_hare_btag_cmd = get(g:, 'ddd_hare_btag_cmd', {})
 if !has_key(g:ddd_hare_btag_cmd, 'help')
   let g:ddd_hare_btag_cmd.help =
         \ { -> printf('!readtags -t "%s" -Q ''(eq? $input "%s")'' -l
-        \ | cut -f1,3-', expand('%:h') . '/tags', expand('%:t') ) }
+        \ | cut -f1,3-', expand('%:p:h') . '/tags', expand('%:p:t') ) }
 endif
 
 if !has_key(g:ddd_hare_btag_cmd, 'c')
   let g:ddd_hare_btag_cmd.c = { -> printf('!ctags -f - --sort=no --fields=ksSi
         \ --fields-c++=+{properties}{template} --language-force=c++ %s
-        \ | cut -f1,3-', expand('%')) }
+        \ | cut -f1,3-', expand('%:p')) }
 endif
 
 if !has_key(g:ddd_hare_btag_cmd, 'cpp')
@@ -221,7 +221,7 @@ function s:get_btag_cmd(filetype) abort
     let Cmd = g:ddd_hare_btag_cmd[a:filetype]
     return type(Cmd) ==# v:t_func ? Cmd() : Cmd
   endif
-  return printf('!ctags --fields=k -f - %s | cut -f1,3-', expand('%'))
+  return printf('!ctags --fields=k -f - %s | cut -f1,3-', expand('%:p'))
 endfunction
 
 let g:ddd_hare_btag_pattern = get(g:, 'ddd_hare_btag_pattern', {})
