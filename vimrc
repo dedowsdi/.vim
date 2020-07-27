@@ -127,7 +127,7 @@ com CocHover call CocActionAsync('doHover')
 com CocCodeAction call CocActionAsync('codeAction')
 com CocSymbols CocList symbols
 
-let g:coc_global_extensions = ['coc-json', 'coc-syntax', 'coc-ultisnips']
+let g:coc_global_extensions = ['coc-json', 'coc-syntax', 'coc-ultisnips', 'coc-clangd']
 
 " fugitive {{{2
 com -nargs=* Glg Git! log --graph --pretty=format:'%h - <%an> (%ad)%d %s' --abbrev-commit --date=local <args>

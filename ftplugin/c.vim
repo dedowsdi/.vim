@@ -33,6 +33,8 @@ nnoremap <buffer> <leader>al :CppOpenLastApitrace<cr>
 nnoremap <buffer> <leader>ar :CppRenderdoc<cr>
 nnoremap <buffer> <leader>an :CppNNL<cr>
 
+nnoremap <buffer> <f3> :CocCommand clangd.symbolInfo<cr>
+
 " misc
 " nnoremap <f4>  :YcmCompleter GetType<cr>
 nnoremap <buffer> <a-o>      :CdefSwitchFile<cr>
