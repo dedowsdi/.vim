@@ -23,40 +23,55 @@ function ddd#tag#disconnect_server() abort
 endfunction
 
 function s:send_update_tag(timer) abort
-  if !filewritable($CTAG_SERVER_PIPE)
-    return
+  let uniq_files = uniq( sort(s:update_files) )
+  unlet s:update_timer
+  let s:update_files = []
+
+  if has('win32')
+    try
+      let bak = &shellslash
+      set noshellslash
+      call map(uniq_files, { i,v -> shellescape(v) })
+    finally
+      let &shellslash = bak
+    endtry
+    " simply append tags for windows
+    let cmd = printf( 'cmd /c ctags --append=yes %s', join(uniq_files) )
+  else
+
+    if !filewritable($CTAG_SERVER_PIPE)
+      return
+    endif
+
+    call map(uniq_files, { i,v -> shellescape(v) })
+    let l = map( uniq_files, {i,v -> printf( 'echo update:%s', v )} )
+    let cmd = printf( "{\n%s\n}>%s &", join(l, "\n"),
+                \ shellescape($CTAG_SERVER_PIPE) )
   endif
 
-  let s:update_files = map( uniq( sort(s:update_files) ),
-        \ {i,v -> printf( 'echo update:%s', v )} )
-  let cmd = printf( "{\n%s\n}>%s &", join(s:update_files, "\n"),
-              \ shellescape($CTAG_SERVER_PIPE) )
-  try
-    call system(cmd)
-  catch /.*/
-    echom v:exception
-    call dddu#warn('failed to update tag with cmd : ' . cmd)
-  finally
-    unlet s:update_timer
-    let s:update_files = []
-  endtry
-
+  call job_start(cmd)
 endfunction
 
 let s:update_files=[]
 
 function s:update_tag() abort
   " skip non children
-  let f = expand('%:.')
-  if f[0] ==# '/'
-    return
+  let f = expand('%')
+  if has('win32')
+    if f =~? '^[c-z]:' || f[0] ==# '/'
+      return
+    endif
+  else
+    if f[0] ==# '/'
+      return
+    endif
   endif
 
   if exists('s:update_timer')
     call timer_stop(s:update_timer)
   endif
 
-  let s:update_files += [shellescape(f)]
+  let s:update_files += [f]
   let s:update_timer = timer_start(g:ddd_ctag_update_delay,
         \ function('s:send_update_tag', []))
 endfunction
