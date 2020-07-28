@@ -22,7 +22,7 @@ scriptencoding
 set path+=**
 
 " ignore tool and build
-set wildignore=*/build/*,*/.git/*,*/.hg/*,*/.vscode/*,*/.clangd/*,*.o,*.a,*.so,*.dll,tags
+set wildignore=*/build/*,*/.git/*,*/.hg/*,*/.vscode/*,*/.vs/*,*/.clangd/*,*.o,*.a,*.so,*.dll,tags
 set wildignorecase
 
 " reduce esc delay to a acceptable number

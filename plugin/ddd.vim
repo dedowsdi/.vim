@@ -186,7 +186,16 @@ let g:ddd_find_exclude = '-name .hg -o -name .git -o -name build -o -name .vscod
 let g:ddd_project_source = get(g:, 'project_source',
       \ printf('find . -type d \( %s \) -prune -o -type f -print', g:ddd_find_exclude) )
 
-com Src exe 'Hare file !' . g:ddd_project_source
+function s:src() abort
+  let files = glob('**/*', 0, 1)
+  call setline(1, files)
+endfunction
+
+if has('win32')
+  com Src call ddd#hare#jump('file', glob('**/*', 0, 1))
+else
+  com Src exe 'Hare file !' . g:ddd_project_source
+endif
 
 com File exe 'Hare file !find . -type f'
 
