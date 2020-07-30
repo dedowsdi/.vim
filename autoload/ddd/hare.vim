@@ -166,7 +166,7 @@ function s:setup_event_and_sink(sink) abort
 
   augroup au_hare_buffer | au!
     if line('$') < g:ddd_hare_dynamic_filter_threshold
-      autocmd  CmdlineChanged <buffer> call s:filter()
+      autocmd CmdlineChanged <buffer> call s:filter()
       let s:lines = getline(1, '$')
       let s:first_cmdline_change = 1
     endif
