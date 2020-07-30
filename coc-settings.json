@@ -1,12 +1,15 @@
 {
   "languageserver": {
-    "clangd": {
-      "command": "clangd",
-      "args": ["--background-index", "-log=verbose"],
-      "rootPatterns": ["compile_flags.txt", "compile_commands.json", ".vim/", ".git/", ".hg/"],
-      "filetypes": ["c", "cpp", "objc", "objcpp"]
-    }
+    // "clangd": {
+    //    "command": "clangd",
+    //    "args": ["--background-index", "-log=verbose"],
+    //    "rootPatterns": ["compile_flags.txt", "compile_commands.json", ".vim/", ".git/", ".hg/"],
+    //    "filetypes": ["c", "cpp", "objc", "objcpp"],
+    //    "trace.server":"verbose"
+    // }
   },
+
+  "clangd.arguments":["--background-index", "-log=info"],
 
   "suggest.autoTrigger":"none",
   "suggest.noselect":true,
