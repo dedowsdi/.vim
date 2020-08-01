@@ -290,9 +290,10 @@ function s:read_tags(...) abort
     if empty(cond)
       exe '$read' tag
     else
-      let l = dddu#os#systemlist('readtags -t %s -Q %s -el | grep -v "^__anon"',
+      let cmd = printf('readtags -t %s -Q %s -el | grep -v "^__anon"',
             \ shellescape(tag), shellescape(cond))
-      call append('$', l);
+      let l = dddu#os#systemlist(cmd)
+      call append('$', l)
     endif
   endfor
 endfunction

@@ -15,7 +15,7 @@ function dddu#os#systemlist(unix_cmd)
 
       " replace c: with /mnt/c
       let cmd = substitute(a:unix_cmd, '\v\c<([c-z]):/', '/mnt/\l\1/', 'g')
-      let l = systemlist("bash -c " . shellescape(cmd))
+      let l = systemlist('bash -c ' . shellescape(cmd))
       " replace /mnt/c with c:
       let l = map(l, {_,v -> substitute(v, '\v/mnt/([a-z])>', '\1:', 'g')})
       return l
@@ -23,6 +23,6 @@ function dddu#os#systemlist(unix_cmd)
       let &shellslash = bak
     endtry
   else
-    return systemlist(a:unixcmd)
+    return systemlist(a:unix_cmd)
   endif
 endfunction
