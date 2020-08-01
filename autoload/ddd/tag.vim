@@ -45,11 +45,18 @@ function s:send_update_tag(timer) abort
 
     call map(uniq_files, { i,v -> shellescape(v) })
     let l = map( uniq_files, {i,v -> printf( 'echo update:%s', v )} )
-    let cmd = printf( "{\n%s\n}>%s &", join(l, "\n"),
+    let subcmd = printf( "{\n%s\n}>%s", join(l, "\n"),
                 \ shellescape($CTAG_SERVER_PIPE) )
+    let cmd = ['bash', '-c', subcmd]
   endif
 
-  call job_start(cmd)
+  call job_start(cmd, {'err_cb': function('s:err_cb')})
+endfunction
+
+function s:err_cb(cn, msg) abort
+  echohl WarningMsg
+  echom a:msg
+  echohl None
 endfunction
 
 let s:update_files=[]
