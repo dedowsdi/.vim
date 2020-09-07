@@ -3,11 +3,11 @@ if exists("b:current_syntax")
 endif
 " let b:current_syntax=1
 
-syn match node_class /\v<osg\w*::\w+>/ contains=attribute
-syn keyword stateset StateSet
+syn match osgt_node_class /\v<osg\w*::\w+>/ contains=osgt_attribute
+syn keyword osgt_stateset StateSet
 
 " Attribute deriveds, uniform, shader
-syn keyword attribute
+syn keyword osgt_attribute
       \ AlphaFunc BindImageTexture BlendColor BlendEquation BlendFunc BufferIndexBinding
       \ Capability ClampColor ClipControl ClipPlane ColorMask ColorMatrix CullFace Depth
       \ DepthRangeIndexed Fog FragmentProgram FrameBufferObject FrontFace Hint Light
@@ -17,15 +17,16 @@ syn keyword attribute
       \ Stencil StencilTwoSided TexEnv TexEnvCombine TexEnvFilter TexGen TexMat Texture
       \ VertexAttribDivisor VertexProgram Viewport
       \ Uniform Shader
-syn keyword node_property DataVariance
-syn match trivial /\vUniqueID \d+\s*/
 
-syn match gl_value /\<GL_[A-Z_]\+/
+syn keyword osgt_node_property DataVariance Name UniqueID
 
-highlight link gl_value Constant
-highlight link stateset keyword
-highlight link stateset_property gl_value
-highlight link attribute gl_value
-highlight link node_class Type
-highlight link node_property Special
-highlight link trivial Comment
+syn match osgt_gl_value /\<GL_[A-Z_]\+/
+
+syn match osgt_comment /^#.*/
+
+hi! link osgt_gl_value Constant
+hi! link osgt_stateset keyword
+hi! link osgt_attribute osgt_gl_value
+hi! link osgt_node_class Type
+hi! link osgt_node_property Identifier
+hi! link osgt_comment Comment
