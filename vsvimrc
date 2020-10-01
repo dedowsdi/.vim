@@ -1,0 +1,33 @@
+" vim:set foldmethod=marker filetype=vim:
+
+" reduce esc delay to a acceptable number
+set ttimeout ttimeoutlen=5 timeoutlen=1000
+
+" copy indent of current line to newline
+set autoindent
+
+" no tab, use shiftwidth in front of a line. use 4 for <tab> or <bs>
+set expandtab shiftwidth=4 tabstop=8 softtabstop=4
+
+" traditional backspace
+set backspace=indent,eol,start
+
+" turn on \C if uppercase letter appears in the pattern for /,?,:g,:s,n,N., not
+" for *,# (unless you use / after them)
+set ignorecase smartcase
+
+" make <c-a>, <c-x> work on decimal, hex, binary
+set nrformats=octal,hex,bin
+
+" trivial options
+set incsearch
+set history=4096
+set number
+set scrolloff=5
+set showcmd
+
+" If you set it to 1, you will see 2 blank lines
+" set laststatus=1
+
+nnoremap Y  y$
+
