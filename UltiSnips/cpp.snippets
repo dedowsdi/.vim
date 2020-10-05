@@ -529,8 +529,8 @@ public:
 
 	static $1& instance()
 	{
-		static $1 instance;
-		return instance;
+		static $1* instance = new $1;
+		return *instance;
 	}
 
 private:
@@ -601,6 +601,7 @@ endsnippet
 snippet osgCallback
 class ${1:ClasName} : public osg::Callback
 {
+public:
 	bool run(osg::Object* object, osg::Object* data) override
 	{
 		return traverse(object, data);

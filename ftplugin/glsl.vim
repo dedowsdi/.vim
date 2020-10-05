@@ -50,4 +50,4 @@ nnoremap <buffer> _h :CdefAddHeadGuard<cr>
 
 Abbre glsl
 
-com RunFrag rightbelow ter ++rows=16 ntoy --shadertoy --frag %
+com RunFrag exe 'rightbelow ter ++rows=16 ntoy --shadertoy --frag %' | setlocal winfixheight
