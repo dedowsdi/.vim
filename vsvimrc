@@ -7,7 +7,8 @@ set ttimeout ttimeoutlen=5 timeoutlen=1000
 set autoindent
 
 " no tab, use shiftwidth in front of a line. use 4 for <tab> or <bs>
-set expandtab shiftwidth=4 tabstop=8 softtabstop=4
+" If you use tabstop=8, you will see tab as 8 when you resource this file
+set expandtab shiftwidth=4 tabstop=4 softtabstop=4
 
 " traditional backspace
 set backspace=indent,eol,start
@@ -30,4 +31,49 @@ set showcmd
 " set laststatus=1
 
 nnoremap Y  y$
+nnoremap gi `^i
+inoremap <c-s> <esc>:vsc Edit.InsertSnippet<cr>
+nnoremap <leader>p :vsc ClassViewContextMenus.ClassViewMultiselectProjectreferencesItems.Properties<cr>
+nnoremap <leader>rr :vsc Refactor.Rename<cr>
 
+"c++
+abbreviate csca static_cast<>()<left><left><left>
+abbreviate crca reinterpret_cast<>()<left><left><left>
+abbreviate ccca const_cast<>()<left><left><left>
+abbreviate cdca dynamic_cast<>()<left><left><left>
+
+" opengl
+abbreviate glc  GLchar
+abbreviate glb  GLbyte
+abbreviate glub GLubyte
+abbreviate gls  GLshort
+abbreviate glus GLushort
+abbreviate gli  GLint
+abbreviate glui GLuint
+abbreviate glf  GLfloat
+abbreviate gld  GLdouble
+abbreviate glv  GLvoid
+abbreviate gle  GLenum
+abbreviate glz  GLsizei
+abbreviate glb  GLboolean
+abbreviate glbf GLbitfield
+abbreviate glv GLvoid
+abbreviate glsi GLsizei
+abbreviate glcf GLclampf
+abbreviate glcd GLclampd
+
+" qt opengl
+abbreviate qv2 QVector2D
+abbreviate qv3 QVector3D
+abbreviate qv4 QVector4D
+abbreviate qm4 QMatrix4x4
+abbreviate qob QOpenGLBuffer
+abbreviate qovao QOpenGLVertexArrayObject
+abbreviate qosp QOpenGLShaderProgram
+abbreviate qos QOpenGLShader
+abbreviate qoc QOpenGLContext
+abbreviate qq QQuaternion
+
+
+" some vs setting
+" Window.KeepTabOpen goto newly created function definition
