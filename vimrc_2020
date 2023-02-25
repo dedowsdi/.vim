@@ -46,6 +46,9 @@ let &statusline .= '| %Y '                           " file filetype
 
 " finish if it's non unix
 if v:version < 802 || ( has('win32') && !executable('wsl') )
+  if globpath(&rtp, 'colors/solarized.vim') !=# ''
+    colorscheme solarized
+  endif
 
   filetype plugin indent on
   syntax enable
@@ -196,6 +199,9 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
 " Plug 'tommcdo/vim-exchange'
 
+" colorscheme
+" Plug 'dedowsdi/vim-colors-solarized'
+
 " comment
 Plug 'tpope/vim-commentary'
 
@@ -226,6 +232,8 @@ set shellslash
 " plug#end() already call these commented commands
 " filetype plugin indent on
 " syntax enable
+
+colorscheme solarized
 
 " autocmd {{{1
 
