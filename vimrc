@@ -37,31 +37,6 @@ let &statusline .= '| %{&ff} '                       " file format
 let &statusline .= '| %{&fenc} '                     " file encoding
 let &statusline .= '| %Y '                           " file filetype
 
-<<<<<<< HEAD
-||||||| 7e2e2c9
-" finish if it's non unix
-if v:version < 802 || ( has('win32') && !executable('wsl') )
-  if globpath(&rtp, 'colors/solarized.vim') !=# ''
-    colorscheme solarized
-  endif
-
-  filetype plugin indent on
-  syntax enable
-
-  finish
-endif
-
-=======
-" finish if it's non unix
-if v:version < 802 || ( has('win32') && !executable('wsl') )
-
-  filetype plugin indent on
-  syntax enable
-
-  finish
-endif
-
->>>>>>> a5cb54b221ba0ef954379552976568c9fb426fa4
 " cursor {{{2
 if stridx($TERM, 'linux') != -1
   let &t_ve = "\e[?25h"
