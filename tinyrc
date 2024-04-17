@@ -52,9 +52,18 @@ set nrformats=octal,hex,bin
 
 " mv swp, bak, undo out of file directory, use %usr%home%.vimswap%... style name
 let &backup = !has('vms')
-set backupdir=$HOME/.vimbak//
-set directory=$HOME/.vimswap//
-set undofile undodir=$HOME/.vimundo//
+
+if isdirectory($HOME . "/.vimbak")
+  set backupdir=$HOME/.vimbak//
+endif
+
+if isdirectory($HOME . "/.vimswap//")
+  set directory=$HOME/.vimswap//
+endif
+
+if isdirectory($HOME . "/.vimundo//")
+  set undofile undodir=$HOME/.vimundo//
+endif
 
 " hide buffer when it's abandoned
 set hidden
@@ -158,7 +167,7 @@ if has('patch-8.1.1565')
 endif
 
 " truecolor {{{2
-if exists('$VIM_TRUECOLOR')
+if exists('+termguicolors')
     let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
     let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
     set termguicolors
@@ -221,10 +230,4 @@ function! s:less(cmd, mods)
   1
 endfunction
 
-" standalone setting
-if get(g:, 'tinyrc_is_partof_vimrc', 0) == 0
-  nnoremap <c-h> :<c-u>Less oldfiles<cr>
-  filetype plugin indent on
-  syntax enable
-  colorscheme desert
-endif
+nnoremap <c-h> :<c-u>Less oldfiles<cr>

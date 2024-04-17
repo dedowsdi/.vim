@@ -1,24 +1,17 @@
 " vim:set foldmethod=marker:
 
-" This vimrc require vim8.2 on unix system to work properly, otherwise it's
-" finished after statusline setting.
-"
 " Map and command are public interface, plugin settings and functions are
 " private implementation, interface must appear before implementation.
 "
-" Only include frequently used command and function here, others belong
-" to ddd.vim.
+" Only include frequently used command and function here, don't include anything
+" that you don't or cann't maintain.
 "
-" ddd comes from 3 d of dedowsdi
-"
+" deprecated stuff:
 " Put simple plugins in ddd.vim, others in ddd/...
 " Put simple utils in dddu.vim, others in dddu/...
 " All plugin map starts with <plug>ddd_
 " All global variables starts with g:ddd_
-"
-" Don't create things that's might be useful, it's useless most of time.
 
-let g:tinyrc_is_partof_vimrc = 1
 source <sfile>:h/tinyrc
 
 let $VIM_HOST_TERM = $TERM
@@ -44,18 +37,6 @@ let &statusline .= '| %{&ff} '                       " file format
 let &statusline .= '| %{&fenc} '                     " file encoding
 let &statusline .= '| %Y '                           " file filetype
 
-" finish if it's non unix
-if v:version < 802 || ( has('win32') && !executable('wsl') )
-  if globpath(&rtp, 'colors/solarized.vim') !=# ''
-    colorscheme solarized
-  endif
-
-  filetype plugin indent on
-  syntax enable
-
-  finish
-endif
-
 " cursor {{{2
 if stridx($TERM, 'linux') != -1
   let &t_ve = "\e[?25h"
@@ -75,6 +56,13 @@ else
     let &t_SR = "\e[3 q"
     let &t_EI = "\e[2 q"
   endif
+endif
+
+" finish if it has no plug.vim
+if exists('*plug#begin')
+  filetype plugin indent on
+  syntax enable
+  finish
 endif
 
 " plugin {{{1
@@ -133,10 +121,10 @@ let g:coc_global_extensions = ['coc-json', 'coc-syntax', 'coc-ultisnips', 'coc-c
 com -nargs=* Glg Git! log --graph --pretty=format:'%h - <%an> (%ad)%d %s' --abbrev-commit --date=local <args>
 
 " hare {{{2
-nnoremap <c-p> :Src<cr>
-nnoremap <c-h> :History<cr>
-nnoremap <c-b> :Ls<cr>
-nnoremap <c-k> :Btag<cr>
+" nnoremap <c-p> :Src<cr>
+" nnoremap <c-h> :History<cr>
+" nnoremap <c-b> :Ls<cr>
+" nnoremap <c-k> :Btag<cr>
 
 " make {{{2
 nnoremap <f7> :Make<up><cr>
@@ -194,13 +182,15 @@ set noshellslash
 call plug#begin(expand('~/.vim/plugged'))
 
 " common
-Plug 'junegunn/vim-easy-align'
-Plug 'tpope/vim-surround'
+" Plug 'junegunn/vim-easy-align'
+" Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
-Plug 'tommcdo/vim-exchange'
+" Plug 'tommcdo/vim-exchange'
 
 " colorscheme
-Plug 'dedowsdi/vim-colors-solarized'
+" Plug 'dedowsdi/vim-colors-solarized'
+Plug 'lifepillar/vim-solarized8'
+
 
 " comment
 Plug 'tpope/vim-commentary'
@@ -213,18 +203,18 @@ Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 
 " git
-Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-rhubarb'
+" Plug 'tpope/vim-fugitive'
+" Plug 'tpope/vim-rhubarb'
 
 " auto complete
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " ftplugin
 Plug 'othree/html5.vim'
 Plug 'elzr/vim-json'
 Plug 'tikhomirov/vim-glsl'
 Plug 'lervag/vimtex'
-Plug 'dedowsdi/cdef'
+" Plug 'dedowsdi/cdef'
 
 call plug#end()
 set shellslash
@@ -233,7 +223,7 @@ set shellslash
 " filetype plugin indent on
 " syntax enable
 
-colorscheme solarized
+colorscheme solarized8
 
 " autocmd {{{1
 
@@ -253,46 +243,46 @@ augroup end
 
 " all kinds of maps {{{1
 
-call ddd#terminal#setup()
+" call ddd#terminal#setup()
 
 " text object {{{2
-function s:add_to(lhs, rhs) abort
-  exe printf('xmap %s %s', a:lhs, a:rhs)
-  exe printf('omap %s %s', a:lhs, a:rhs)
-endfunction
+" function s:add_to(lhs, rhs) abort
+"   exe printf('xmap %s %s', a:lhs, a:rhs)
+"   exe printf('omap %s %s', a:lhs, a:rhs)
+" endfunction
 
-call s:add_to('il', '<plug>ddd_to_il')
-call s:add_to('al', '<plug>ddd_to_al')
-call s:add_to('in', '<plug>ddd_to_in')
-call s:add_to('an', '<plug>ddd_to_an')
-call s:add_to('ic', '<plug>ddd_to_ic')
+" call s:add_to('il', '<plug>ddd_to_il')
+" call s:add_to('al', '<plug>ddd_to_al')
+" call s:add_to('in', '<plug>ddd_to_in')
+" call s:add_to('an', '<plug>ddd_to_an')
+" call s:add_to('ic', '<plug>ddd_to_ic')
 
 " motion and operator {{{2
-map ,e <plug>ddd_mo_vertical_E
-sunmap ,e
-map ,w <plug>ddd_mo_vertical_W
-sunmap ,w
-map ,b <plug>ddd_mo_vertical_B
-sunmap ,b
+" map ,e <plug>ddd_mo_vertical_E
+" sunmap ,e
+" map ,w <plug>ddd_mo_vertical_W
+" sunmap ,w
+" map ,b <plug>ddd_mo_vertical_B
+" sunmap ,b
 nnoremap ,,  ,
 
-function s:add_op(key, rhs)
-  exe printf('nmap %s %s', a:key, a:rhs)
-  exe printf('xmap %s %s', a:key, a:rhs)
-endfunction
+" function s:add_op(key, rhs)
+"   exe printf('nmap %s %s', a:key, a:rhs)
+"   exe printf('xmap %s %s', a:key, a:rhs)
+" endfunction
 
-call s:add_op(',l',     '<plug>ddd_op_search_literal')
-call s:add_op(',L',     '<plug>ddd_op_substitute_literal')
-call s:add_op(',<bar>', '<plug>ddd_op_get_column')
-call s:add_op(',g',     '<plug>ddd_op_search_in_browser')
+" call s:add_op(',l',     '<plug>ddd_op_search_literal')
+" call s:add_op(',L',     '<plug>ddd_op_substitute_literal')
+" call s:add_op(',<bar>', '<plug>ddd_op_get_column')
+" call s:add_op(',g',     '<plug>ddd_op_search_in_browser')
 
-nmap co  <plug>ddd_op_co
-nmap dO  <plug>ddd_op_do
-nmap guo <plug>ddd_op_guo
-nmap gUo <plug>ddd_op_gUo
-nmap g~o <plug>ddd_op_g~o
-nmap ,f  <plug>ddd_op_clang_format
-nmap <expr> ,ff ',f' . v:count1 . '_'
+" nmap co  <plug>ddd_op_co
+" nmap dO  <plug>ddd_op_do
+" nmap guo <plug>ddd_op_guo
+" nmap gUo <plug>ddd_op_gUo
+" nmap g~o <plug>ddd_op_g~o
+" nmap ,f  <plug>ddd_op_clang_format
+" nmap <expr> ,ff ',f' . v:count1 . '_'
 
 " common maps {{{2
 nnoremap gc :SelectLastChange<cr>
@@ -316,10 +306,10 @@ if exists(':tmap')
   endfunction
 endif
 
-cmap <tab> <Plug>ddd_hist_expand_hist_wild
-set wildchar=<c-z>
+" cmap <tab> <Plug>ddd_hist_expand_hist_wild
+" set wildchar=<c-z>
 
-nmap ys<space> <plug>ddd_pair_add_space
-nmap ds<space> <plug>ddd_pair_minus_space
+" nmap ys<space> <plug>ddd_pair_add_space
+" nmap ds<space> <plug>ddd_pair_minus_space
 
 " commands {{{1
