@@ -195,6 +195,7 @@ Plug 'junegunn/vim-easy-align'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
 " Plug 'tommcdo/vim-exchange'
+Plug 'dedowsdi/vim-colors-solarized'
 
 " comment
 Plug 'tpope/vim-commentary'
@@ -222,6 +223,8 @@ Plug 'dedowsdi/cdef'
 
 call plug#end()
 set shellslash
+
+colorscheme solarized
 
 " plug#end() already call these commented commands
 " filetype plugin indent on
