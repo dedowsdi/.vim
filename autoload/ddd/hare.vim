@@ -106,18 +106,22 @@ endfunction
 
 function s:fill_buffer(source) abort
   let stype = type(a:source)
+
   if stype == v:t_list
+    " list source, use it directly
     call setline(1, a:source)
   elseif stype == v:t_string
     if empty(stype)
       throw 'empty source string'
     endif
 
+    " command source, run it and get result
     let b:hare.source_cmd = a:source
     exe printf('let &l:statusline=%s', string(a:source))
 
     let c = a:source[0]
     if c==# '!'
+      " shell command source
       if has('win32')
         call append(0, dddu#os#systemlist(a:source[1:]))
         redraw
@@ -125,6 +129,7 @@ function s:fill_buffer(source) abort
         call append(0, systemlist(a:source[1:]))
       endif
     elseif c==# '/'
+      " vim search pattern
       let pattern = a:source[-1:-1] ==# '/' ? a:source[1:-2] : a:source[1:]
       try
         " clear path, exclude include to make ilist work on current buffer only
@@ -137,6 +142,7 @@ function s:fill_buffer(source) abort
         let &path = opath
       endtry
     else
+      " vim command source
       put! =trim(win_execute(b:hare.orig_winid, a:source), \"\n\")
     endif
   elseif stype == v:t_func
@@ -153,8 +159,10 @@ function s:setup_event_and_sink(sink) abort
   let stype = type(a:sink)
 
   if stype ==# v:t_func
+    " function style sink
     let b:hare.sink = a:sink
   elseif stype ==# v:t_string
+    " predefined sink
     if !has_key(s:default_sinks, a:sink)
       throw 'unknown sink ' . a:sink
     endif
